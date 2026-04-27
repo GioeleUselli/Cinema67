@@ -8,7 +8,8 @@
     '/categorie.html',
     '/sale.html',
     '/ricarica-credito.html',
-    '/validazione-biglietti.html'
+    '/validazione-biglietti.html',
+    '/support-tickets.html'
   ]);
 
   const PAGE_TITLES = {
@@ -20,7 +21,8 @@
     '/categorie.html': 'Categorie',
     '/sale.html': 'Sale',
     '/ricarica-credito.html': 'Ricarica Credito',
-    '/validazione-biglietti.html': 'Validazione Biglietti'
+    '/validazione-biglietti.html': 'Validazione Biglietti',
+    '/support-tickets.html': 'Support Tickets'
   };
 
   function getUser() {
@@ -104,51 +106,56 @@
 
     const shell = document.createElement('div');
     shell.innerHTML = `
-      <div id="admin-shell-root">
-      <div id="admin-sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+      <div id="admin-shell-root" class="bg-brand-surface">
+      <div id="admin-sidebar-backdrop" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
       <div class="flex w-full min-h-screen">
-        <aside id="admin-sidebar" class="w-64 sidebar-glass flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <aside id="admin-sidebar" class="w-64 sidebar-glass flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20">
           <div class="p-6">
             <a href="/index.html" class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-brand-gold rounded-lg flex items-center justify-center text-white">
+              <div class="w-10 h-10 rounded-full border border-brand-gold/40 bg-brand-sidebar-active-bg flex items-center justify-center text-brand-gold">
                 <i class="fa-solid fa-film"></i>
               </div>
-              <span class="text-xl font-bold text-brand-sidebar-text">CineBase</span>
+              <span class="font-serif text-lg font-bold uppercase tracking-[0.2em] text-brand-sidebar-text">CineAura</span>
             </a>
           </div>
-          <nav class="flex-1 px-4 space-y-1">
+          <p class="px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
+          <nav class="admin-sidebar-rail flex-1 px-4 space-y-1">
             <a data-admin-link href="/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
             <a data-admin-link href="/films.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-film"></i>Film</a>
             <a data-admin-link href="/registi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-user"></i>Registi</a>
             <a data-admin-link href="/cinemas.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-building"></i>Cinema</a>
             <a data-admin-link href="/proiezioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-clock"></i>Proiezioni</a>
             <a data-admin-link href="/categorie.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-tags"></i>Categorie</a>
-            <div class="my-2 border-t border-slate-800/50"></div>
+            <div class="my-2 border-t border-brand-outline-variant/20"></div>
             <a data-admin-link href="/sale.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-chair"></i>Sale</a>
             <a data-admin-link href="/ricarica-credito.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-coins"></i>Ricarica Credito</a>
             <a data-admin-link href="/validazione-biglietti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-qrcode"></i>Validazione</a>
+            <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-headset"></i>Support Tickets</a>
           </nav>
-          <div class="p-4 border-t border-slate-800 space-y-1">
-            <button onclick="CineBaseTheme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
+          <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
+            <button onclick="CineAuraTheme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
               <i class="fa-solid fa-moon theme-toggle-icon-moon"></i>
               <i class="fa-solid fa-sun theme-toggle-icon-sun hidden"></i>
               <span class="theme-toggle-label">Cambia tema</span>
             </button>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-sidebar-text hover:text-brand-gold transition-colors">
-              <i class="fa-solid fa-gear"></i>
-              Settings
+            <a href="/profilo.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-sidebar-text hover:text-brand-gold transition-colors">
+              <i class="fa-solid fa-user-gear"></i>
+              Profilo
             </a>
           </div>
         </aside>
 
         <div class="flex-1 min-h-screen overflow-x-auto">
-          <header class="bg-brand-surface-container-lowest ambient-shadow-sm border-b border-brand-outline-variant/10 sticky top-0 z-30">
+          <header class="bg-brand-surface-container-lowest/95 backdrop-blur-xl ambient-shadow-sm border-b border-brand-outline-variant/15 sticky top-0 z-30">
             <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
               <div class="flex items-center gap-4">
                 <button id="admin-sidebar-toggle" class="md:hidden p-2 text-brand-on-surface hover:text-brand-gold" title="Apri menu" aria-label="Apri menu laterale">
                   <i class="fa-solid fa-bars text-xl"></i>
                 </button>
-                <h1 class="text-xl sm:text-2xl font-bold text-brand-on-surface">${pageTitle}</h1>
+                <div>
+                  <p class="text-[10px] uppercase tracking-[0.24em] text-brand-gold">Pannello operativo</p>
+                  <h1 class="text-xl sm:text-2xl font-bold text-brand-on-surface">${pageTitle}</h1>
+                </div>
               </div>
               <div class="flex items-center gap-3">
                 <div class="relative">

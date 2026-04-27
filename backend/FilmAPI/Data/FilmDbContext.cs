@@ -25,6 +25,10 @@ public class FilmDbContext : DbContext
     public DbSet<Ordine> Ordini { get; set; }
     public DbSet<Biglietto> Biglietti { get; set; }
     public DbSet<MovimentoCredito> MovimentiCredito { get; set; }
+    public DbSet<SupportConversation> SupportConversations { get; set; }
+    public DbSet<SupportMessage> SupportMessages { get; set; }
+    public DbSet<SupportTicket> SupportTickets { get; set; }
+    public DbSet<SupportTicketAudit> SupportTicketAudits { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -277,6 +281,72 @@ public class FilmDbContext : DbContext
             entity.HasOne(u => u.CinemaPreferito)
                   .WithMany()
                   .HasForeignKey(u => u.CinemaPreferitoId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<SupportConversation>(entity =>
+        {
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.UpdatedAtUtc);
+
+            entity.HasOne(c => c.User)
+                  .WithMany(u => u.SupportConversations)
+                  .HasForeignKey(c => c.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SupportMessage>(entity =>
+        {
+            entity.HasIndex(e => e.ConversationId);
+            entity.HasIndex(e => e.CreatedAtUtc);
+
+            entity.HasOne(m => m.Conversation)
+                  .WithMany(c => c.Messages)
+                  .HasForeignKey(m => m.ConversationId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(m => m.User)
+                  .WithMany()
+                  .HasForeignKey(m => m.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<SupportTicket>(entity =>
+        {
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.UpdatedAtUtc);
+
+            entity.HasOne(t => t.Conversation)
+                  .WithMany(c => c.Tickets)
+                  .HasForeignKey(t => t.ConversationId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(t => t.User)
+                  .WithMany(u => u.SupportTickets)
+                  .HasForeignKey(t => t.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(t => t.AssignedAdminUser)
+                  .WithMany()
+                  .HasForeignKey(t => t.AssignedAdminUserId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<SupportTicketAudit>(entity =>
+        {
+            entity.HasIndex(e => e.TicketId);
+            entity.HasIndex(e => e.CreatedAtUtc);
+
+            entity.HasOne(a => a.Ticket)
+                  .WithMany(t => t.Audits)
+                  .HasForeignKey(a => a.TicketId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(a => a.ActorUser)
+                  .WithMany()
+                  .HasForeignKey(a => a.ActorUserId)
                   .OnDelete(DeleteBehavior.SetNull);
         });
     }

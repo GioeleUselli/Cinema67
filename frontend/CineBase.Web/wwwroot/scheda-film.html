@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineBase - Scheda Film</title>
+  <title>CineAura - Scheda Film</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
@@ -21,7 +21,7 @@
 <body class="bg-brand-surface text-brand-on-surface font-sans">
   <div id="navbar-container"></div>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
     <!-- Loading State -->
     <div id="loading-state" class="text-center py-16">
       <i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-brand-gold"></i>
@@ -40,8 +40,7 @@
 
     <!-- Film Detail Content -->
     <div id="film-content" class="hidden">
-      <!-- Hero Section -->
-      <div class="card-elevated p-6 mb-6">
+      <section class="cine-grid-shell p-6 mb-6">
         <div class="flex flex-col md:flex-row gap-6">
           <!-- Cover Image -->
           <div class="w-full md:w-64 flex-shrink-0">
@@ -90,10 +89,10 @@
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
       <!-- Cinema Info (if selected) -->
-      <div id="cinema-info" class="hidden card-elevated p-4 mb-6 flex items-center gap-3">
+      <div id="cinema-info" class="hidden cine-admin-slab p-4 mb-6 flex items-center gap-3">
         <i class="fa-solid fa-location-dot text-brand-gold text-xl"></i>
         <div>
           <p class="text-xs text-brand-on-surface-variant uppercase tracking-wider">Cinema selezionato</p>
@@ -103,7 +102,7 @@
       </div>
 
       <!-- No Cinema Warning -->
-      <div id="no-cinema-warning" class="hidden card-elevated p-4 mb-6 text-center">
+      <div id="no-cinema-warning" class="hidden cine-admin-slab p-4 mb-6 text-center">
         <i class="fa-solid fa-location-dot text-brand-gold text-2xl mb-2"></i>
         <p class="text-brand-on-surface mb-2">Seleziona un cinema per vedere gli show disponibili</p>
         <button id="select-cinema-cta" class="btn-outline-brand">
@@ -176,3 +175,4 @@
 </body>
 
 </html>
+

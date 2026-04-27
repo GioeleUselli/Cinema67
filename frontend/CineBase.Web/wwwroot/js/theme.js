@@ -1,13 +1,13 @@
 /**
- * CineBase Theme Manager
- * 
+ * CineAura Theme Manager
+ *
  * Manages light/dark theme with:
  * - localStorage persistence
  * - System preference fallback (prefers-color-scheme)
- * - Exposes window.CineBaseTheme for external access
+ * - Exposes window.CineBaseTheme and window.CineAuraTheme for compatibility
  */
 (function () {
-  const STORAGE_KEY = 'cinebase-theme';
+  const STORAGE_KEY = 'cineaura-theme';
 
   function getSystemTheme() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -66,10 +66,13 @@
   });
 
   // Export API
-  window.CineBaseTheme = {
+  const themeApi = {
     toggle: toggleTheme,
     set: setTheme,
     get: getCurrentTheme,
     getSystem: getSystemTheme
   };
+
+  window.CineBaseTheme = themeApi;
+  window.CineAuraTheme = themeApi;
 })();

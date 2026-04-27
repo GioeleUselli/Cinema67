@@ -79,6 +79,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IValidazioneBigliettoService, ValidazioneBigliettoService>();
 builder.Services.AddScoped<IStripePaymentGateway, StripePaymentGateway>();
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
+builder.Services.AddScoped<ISupportService, SupportService>();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();
 
@@ -194,6 +195,7 @@ app.MapCheckoutEndpoints();
 app.MapCreditoEndpoints();
 app.MapPagamentoEndpoints();
 app.MapValidazioneBigliettiEndpoints();
+app.MapSupportEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {

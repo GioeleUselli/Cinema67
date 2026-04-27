@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineBase - Acquista Biglietti</title>
+  <title>CineAura - Acquista Biglietti</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
@@ -21,7 +21,7 @@
 <body class="bg-brand-surface text-brand-on-surface font-sans">
   <div id="navbar-container"></div>
 
-  <main class="acquista-page max-w-7xl mx-auto px-3 sm:px-4 lg:px-5 py-3 lg:py-4">
+  <main class="acquista-page mx-auto w-full max-w-[1280px] px-3 py-4 sm:px-4 lg:px-5 lg:py-5">
     <!-- Loading State -->
     <div id="loading-state" class="text-center py-16">
       <i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-brand-gold"></i>
@@ -39,17 +39,17 @@
     </div>
 
     <!-- Main Content -->
-    <div id="main-content" class="hidden">
+    <div id="main-content" class="hidden cine-reveal">
       <div class="acquista-layout flex flex-col lg:flex-row gap-4 lg:gap-5">
         <!-- Seat Map Section -->
         <div class="flex-1 min-w-0">
-          <div class="card-elevated p-3 lg:p-4 mb-4 h-full">
+          <div class="cine-admin-slab cine-reveal cine-reveal-delay-1 p-3 lg:p-4 mb-4 h-full">
             <h1 class="text-lg lg:text-xl font-bold text-brand-on-surface mb-2.5">
               <i class="fa-solid fa-couch text-brand-gold mr-2"></i>Seleziona Posti
             </h1>
 
             <!-- Show Info -->
-            <div id="show-info" class="mb-3 p-3 rounded-xl bg-brand-surface-container">
+             <div id="show-info" class="mb-3 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container p-3">
               <h2 id="show-film-title" class="text-sm lg:text-base font-bold text-brand-on-surface"></h2>
               <div class="flex flex-wrap gap-2 mt-1.5 text-[11px] lg:text-xs text-brand-on-surface-variant">
                 <span id="show-cinema"><i class="fa-solid fa-location-dot mr-1"></i></span>
@@ -108,7 +108,7 @@
         <!-- Sidebar: Summary & Actions -->
         <div class="acquista-sidebar lg:w-[20rem] xl:w-[21rem] 2xl:w-[22rem] flex-shrink-0">
           <!-- Countdown -->
-          <div id="countdown-card" class="hidden card-elevated p-4 mb-4 border-l-4 border-amber-500">
+          <div id="countdown-card" class="hidden cine-admin-slab cine-reveal cine-reveal-delay-2 p-4 mb-4 border-l-4 border-amber-500">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-clock text-amber-500"></i>
               <span class="text-sm font-semibold text-brand-on-surface">Tempo rimanente</span>
@@ -118,7 +118,7 @@
           </div>
 
           <!-- Selected Seats -->
-          <div class="card-elevated p-4 lg:p-4 mb-4">
+          <div class="cine-admin-slab cine-reveal cine-reveal-delay-3 p-4 lg:p-4 mb-4">
             <h3 class="text-sm lg:text-base font-bold text-brand-on-surface mb-2.5">
               <i class="fa-solid fa-ticket text-brand-gold mr-2"></i>Riepilogo
             </h3>
@@ -171,3 +171,4 @@
 </body>
 
 </html>
+

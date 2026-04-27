@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineAura - Support Tickets</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <script src="/js/theme.js"></script>
+  <script src="/js/route-guard.js"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans">
+  <div id="navbar-container"></div>
+
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+    <section class="cine-grid-shell mb-8 p-5 sm:p-6">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="cine-kicker">Customer care desk</p>
+          <h1 class="cine-headline text-brand-on-surface">Support Tickets</h1>
+          <p class="mt-2 text-sm text-brand-on-surface-variant">Gestisci i ticket aperti dal chatbot utenti con stato, priorita e risoluzione.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cine-admin-slab mb-6 p-4">
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <label class="text-sm">
+          <span class="mb-1 block text-brand-on-surface-variant">Stato</span>
+          <select id="filter-status" class="ghost-input w-full px-3 py-2 rounded-lg">
+            <option value="">Tutti</option>
+            <option value="Open">Open</option>
+            <option value="InProgress">InProgress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </label>
+        <label class="text-sm">
+          <span class="mb-1 block text-brand-on-surface-variant">Priorita</span>
+          <select id="filter-priority" class="ghost-input w-full px-3 py-2 rounded-lg">
+            <option value="">Tutte</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </label>
+        <label class="text-sm md:col-span-2">
+          <span class="mb-1 block text-brand-on-surface-variant">Ricerca</span>
+          <input id="filter-search" type="text" class="ghost-input w-full px-3 py-2 rounded-lg" placeholder="Cerca per codice, email, titolo...">
+        </label>
+        <div class="flex items-end">
+          <button id="btn-refresh" class="btn-outline-brand w-full py-2">Aggiorna</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+      <article class="cine-admin-slab overflow-hidden">
+        <header class="cine-admin-slab-header">
+          <h2 class="text-lg font-semibold text-brand-on-surface">Lista Ticket</h2>
+          <span id="tickets-count" class="cine-admin-chip">0</span>
+        </header>
+        <div id="tickets-list" class="divide-y divide-brand-outline-variant/10">
+          <p class="p-4 text-sm text-brand-on-surface-variant">Caricamento...</p>
+        </div>
+      </article>
+
+      <article class="cine-admin-slab overflow-hidden">
+        <header class="cine-admin-slab-header">
+          <h2 class="text-lg font-semibold text-brand-on-surface">Dettaglio Ticket</h2>
+          <span id="ticket-detail-code" class="cine-admin-chip">-</span>
+        </header>
+
+        <div id="ticket-empty" class="p-6 text-sm text-brand-on-surface-variant">
+          Seleziona un ticket dalla lista per vedere dettagli e timeline chat.
+        </div>
+
+        <div id="ticket-detail" class="hidden p-6 space-y-5">
+          <div>
+            <h3 id="ticket-title" class="text-xl font-bold text-brand-on-surface"></h3>
+            <p id="ticket-description" class="mt-2 text-sm text-brand-on-surface-variant"></p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container p-3 text-sm">
+              <p class="text-brand-on-surface-variant">Utente</p>
+              <p id="ticket-user" class="font-semibold text-brand-on-surface"></p>
+            </div>
+            <div class="rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container p-3 text-sm">
+              <p class="text-brand-on-surface-variant">Pagina contesto</p>
+              <p id="ticket-page" class="font-semibold text-brand-on-surface"></p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="text-sm">
+              <span class="mb-1 block text-brand-on-surface-variant">Stato</span>
+              <select id="ticket-status" class="ghost-input w-full px-3 py-2 rounded-lg">
+                <option value="Open">Open</option>
+                <option value="InProgress">InProgress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </label>
+            <label class="text-sm">
+              <span class="mb-1 block text-brand-on-surface-variant">Priorita</span>
+              <input id="ticket-priority" type="text" readonly class="ghost-input w-full px-3 py-2 rounded-lg bg-brand-surface-container/50 cursor-not-allowed">
+            </label>
+          </div>
+
+          <label class="text-sm">
+            <span class="mb-1 block text-brand-on-surface-variant">Assegna a</span>
+            <select id="ticket-assigned-admin" class="ghost-input w-full px-3 py-2 rounded-lg">
+              <option value="">Assegna a me</option>
+            </select>
+          </label>
+
+          <div>
+            <label for="ticket-note" class="mb-1 block text-sm text-brand-on-surface-variant">Nota risoluzione admin</label>
+            <textarea id="ticket-note" rows="3" class="ghost-input w-full rounded-lg px-3 py-2" placeholder="Aggiungi una nota operativa..."></textarea>
+          </div>
+
+          <button id="ticket-save" class="btn-gold w-full py-2">Salva aggiornamenti ticket</button>
+
+          <div>
+            <h4 class="text-sm font-semibold uppercase tracking-[0.15em] text-brand-gold">Timeline chat</h4>
+            <div id="ticket-messages" class="mt-3 max-h-[320px] space-y-2 overflow-y-auto pr-1"></div>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-semibold uppercase tracking-[0.15em] text-brand-gold">Audit Log</h4>
+            <div id="ticket-audits" class="mt-3 max-h-[240px] space-y-2 overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/template-loader.js"></script>
+  <script src="/js/admin-shell.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script src="/js/pages/support-tickets.js"></script>
+</body>
+
+</html>

@@ -4,11 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineBase - Gestione Sale</title>
+  <title>CineAura - Gestione Sale</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="/js/tailwind-config.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
   <script src="/js/theme.js"></script>
@@ -18,17 +18,15 @@
 <body class="bg-brand-surface text-brand-on-surface font-sans">
   <div id="navbar-container"></div>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-      <div>
-        <h1 class="text-2xl font-bold text-brand-on-surface">Gestione Sale</h1>
-        <p class="text-sm text-brand-on-surface-variant mt-1">Gestisci le sale e le piantine posti</p>
-      </div>
-    </div>
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+    <section class="cine-grid-shell mb-8 p-5 sm:p-6">
+      <p class="cine-kicker">Hall designer</p>
+      <h1 class="cine-headline text-brand-on-surface">Gestione Sale</h1>
+      <p class="mt-2 text-sm text-brand-on-surface-variant">Crea sale e modella piantine posti in un layout operativo dedicato.</p>
+    </section>
 
     <!-- Cinema Selector -->
-    <div class="card-elevated mb-6 p-4">
+    <div class="cine-admin-slab mb-6 p-4">
       <div class="flex flex-col md:flex-row gap-4 items-end">
         <div class="flex-1">
           <label for="cinema-filter-select" class="block text-sm font-medium text-brand-on-surface mb-1">Cinema</label>
@@ -44,7 +42,7 @@
     </div>
 
     <!-- Sale Table -->
-    <div class="card-elevated overflow-x-auto">
+    <div class="cine-admin-slab overflow-x-auto">
       <table class="min-w-full divide-y divide-brand-outline-variant/10">
         <thead class="bg-brand-surface-container">
           <tr>
@@ -227,3 +225,4 @@
 </body>
 
 </html>
+

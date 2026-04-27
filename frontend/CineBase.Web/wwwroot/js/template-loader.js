@@ -37,7 +37,7 @@ async function loadLayoutComponents() {
   if (!navbarContainer && !footerContainer) return;
 
   const landingPaths = new Set(['/', '/index.html', '/programmazione.html', '/scheda-film.html', '/my-cinemas.html', '/login.html', '/registrazione.html', '/profilo.html', '/acquista.html', '/pagamento.html', '/esito-acquisto.html']);
-  const adminShellPaths = new Set(['/films.html', '/registi.html', '/cinemas.html', '/proiezioni.html', '/categorie.html', '/sale.html', '/ricarica-credito.html', '/validazione-biglietti.html']);
+  const adminShellPaths = new Set(['/films.html', '/registi.html', '/cinemas.html', '/proiezioni.html', '/categorie.html', '/sale.html', '/ricarica-credito.html', '/validazione-biglietti.html', '/support-tickets.html']);
   if (adminShellPaths.has(window.location.pathname)) {
     document.dispatchEvent(new Event('components:loaded'));
     return;
@@ -52,6 +52,13 @@ async function loadLayoutComponents() {
   ]);
 
   document.dispatchEvent(new Event('components:loaded'));
+
+  if (!document.querySelector('script[data-support-chatbot="true"]')) {
+    const chatbotScript = document.createElement('script');
+    chatbotScript.src = '/js/support-chatbot.js';
+    chatbotScript.setAttribute('data-support-chatbot', 'true');
+    document.body.appendChild(chatbotScript);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', loadLayoutComponents);

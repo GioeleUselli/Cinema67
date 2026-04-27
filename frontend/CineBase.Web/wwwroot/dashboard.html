@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineBase - Dashboard</title>
+  <title>CineAura - Dashboard</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
@@ -19,144 +19,138 @@
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans">
-  <main class="px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex items-center justify-between gap-4 mb-8">
-        <h2 class="text-xl sm:text-2xl font-bold text-brand-on-surface">Overview</h2>
-      <a href="/proiezioni.html" class="btn-gold whitespace-nowrap inline-block">
-        <span class="hidden sm:inline">Gestisci Show</span>
-        <span class="sm:hidden">Show</span>
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+    <section class="cine-grid-shell cine-reveal mb-8 p-5 sm:p-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="cine-kicker">Control Room</p>
+          <h2 class="cine-headline text-brand-on-surface">Dashboard operativa CineAura</h2>
+          <p class="mt-2 max-w-2xl text-sm text-brand-on-surface-variant">Vista ridisegnata in stile control panel: blocchi modulari, dati live e accesso rapido ai flussi admin.</p>
+        </div>
+        <a href="/proiezioni.html" class="btn-gold whitespace-nowrap inline-block">
+          <span class="hidden sm:inline">Gestisci Show</span>
+          <span class="sm:hidden">Show</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="cine-reveal cine-reveal-delay-1 mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <article class="cine-admin-stat">
+        <div class="cine-admin-stat-top">Film</div>
+        <div class="cine-admin-stat-value">
+          <p id="stat-movies" class="text-3xl font-bold text-brand-on-surface">-</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-gold text-white"><i class="fa-solid fa-film"></i></span>
+        </div>
+      </article>
+      <article class="cine-admin-stat">
+        <div class="cine-admin-stat-top">Registi</div>
+        <div class="cine-admin-stat-value">
+          <p id="stat-directors" class="text-3xl font-bold text-brand-on-surface">-</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-cyan text-white"><i class="fa-solid fa-user"></i></span>
+        </div>
+      </article>
+      <article class="cine-admin-stat">
+        <div class="cine-admin-stat-top">Cinema</div>
+        <div class="cine-admin-stat-value">
+          <p id="stat-cinemas" class="text-3xl font-bold text-brand-on-surface">-</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-emerald text-white"><i class="fa-solid fa-building"></i></span>
+        </div>
+      </article>
+      <article class="cine-admin-stat">
+        <div class="cine-admin-stat-top">Show</div>
+        <div class="cine-admin-stat-value">
+          <p id="stat-screenings" class="text-3xl font-bold text-brand-on-surface">-</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-indigo-light text-white"><i class="fa-solid fa-clock"></i></span>
+        </div>
+      </article>
+    </section>
+
+    <section class="cine-reveal cine-reveal-delay-2 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <a href="/sale.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-cyan text-white"><i class="fa-solid fa-chair"></i></span>
+          <div>
+            <p class="text-sm font-semibold text-brand-on-surface">Gestione Sale</p>
+            <p class="text-xs text-brand-on-surface-variant">Layout sale e mappa posti</p>
+          </div>
+        </div>
       </a>
-    </div>
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="card-elevated overflow-hidden">
-            <div class="p-5 flex items-center">
-              <div class="flex-shrink-0 bg-brand-gold rounded-md p-3">
-                <i class="fa-solid fa-film text-white text-xl"></i>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-brand-on-surface-variant truncate">Film</dt>
-                  <dd class="text-2xl font-semibold text-brand-on-surface" id="stat-movies">-</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-          <div class="card-elevated overflow-hidden">
-            <div class="p-5 flex items-center">
-              <div class="flex-shrink-0 bg-brand-cyan rounded-md p-3">
-                <i class="fa-solid fa-user text-white text-xl"></i>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-brand-on-surface-variant truncate">Registi</dt>
-                  <dd class="text-2xl font-semibold text-brand-on-surface" id="stat-directors">-</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-          <div class="card-elevated overflow-hidden">
-            <div class="p-5 flex items-center">
-              <div class="flex-shrink-0 bg-brand-emerald rounded-md p-3">
-                <i class="fa-solid fa-building text-white text-xl"></i>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-brand-on-surface-variant truncate">Cinema</dt>
-                  <dd class="text-2xl font-semibold text-brand-on-surface" id="stat-cinemas">-</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-          <div class="card-elevated overflow-hidden">
-            <div class="p-5 flex items-center">
-              <div class="flex-shrink-0 bg-brand-indigo-light rounded-md p-3">
-                <i class="fa-solid fa-clock text-white text-xl"></i>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-brand-on-surface-variant truncate">Show</dt>
-                  <dd class="text-2xl font-semibold text-brand-on-surface" id="stat-screenings">-</dd>
-                </dl>
-              </div>
-            </div>
+      <a href="/ricarica-credito.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-gold text-white"><i class="fa-solid fa-coins"></i></span>
+          <div>
+            <p class="text-sm font-semibold text-brand-on-surface">Ricarica Credito</p>
+            <p class="text-xs text-brand-on-surface-variant">Operazioni sul wallet utenti</p>
           </div>
         </div>
+      </a>
+      <a href="/validazione-biglietti.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-emerald text-white"><i class="fa-solid fa-qrcode"></i></span>
+          <div>
+            <p class="text-sm font-semibold text-brand-on-surface">Validazione Biglietti</p>
+            <p class="text-xs text-brand-on-surface-variant">Controllo accessi in tempo reale</p>
+          </div>
+        </div>
+      </a>
+      <a href="/support-tickets.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-indigo-light text-white"><i class="fa-solid fa-headset"></i></span>
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="text-sm font-semibold text-brand-on-surface">Support Tickets</p>
+              <span id="support-open-count" class="chip-status chip-warning">-</span>
+            </div>
+            <p class="text-xs text-brand-on-surface-variant">Ticket aperti/in lavorazione</p>
+          </div>
+        </div>
+      </a>
+    </section>
 
-        <!-- Quick Links Nuove Funzionalità -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <a href="/sale.html" class="card-elevated p-4 flex items-center gap-3 hover:ring-2 hover:ring-brand-gold/30 transition-all">
-            <div class="w-10 h-10 bg-brand-cyan rounded-lg flex items-center justify-center text-white shrink-0">
-              <i class="fa-solid fa-chair"></i>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-brand-on-surface">Gestione Sale</p>
-              <p class="text-xs text-brand-on-surface-variant">Sale e piantine posti</p>
-            </div>
-          </a>
-          <a href="/ricarica-credito.html" class="card-elevated p-4 flex items-center gap-3 hover:ring-2 hover:ring-brand-gold/30 transition-all">
-            <div class="w-10 h-10 bg-brand-gold rounded-lg flex items-center justify-center text-white shrink-0">
-              <i class="fa-solid fa-coins"></i>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-brand-on-surface">Ricarica Credito</p>
-              <p class="text-xs text-brand-on-surface-variant">Credito utenti piattaforma</p>
-            </div>
-          </a>
-          <a href="/validazione-biglietti.html" class="card-elevated p-4 flex items-center gap-3 hover:ring-2 hover:ring-brand-gold/30 transition-all">
-            <div class="w-10 h-10 bg-brand-emerald rounded-lg flex items-center justify-center text-white shrink-0">
-              <i class="fa-solid fa-qrcode"></i>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-brand-on-surface">Validazione Biglietti</p>
-              <p class="text-xs text-brand-on-surface-variant">Scanner e verifica ingressi</p>
-            </div>
-          </a>
-        </div>
+    <section class="mb-8 cine-admin-slab overflow-x-auto">
+      <header class="cine-admin-slab-header">
+        <h2 class="text-lg font-semibold text-brand-on-surface">Show in Programma</h2>
+        <span class="cine-admin-chip">Live feed</span>
+      </header>
+      <table class="min-w-full divide-y divide-brand-outline-variant/10">
+        <thead class="bg-brand-surface-container">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Film</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Cinema</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Data</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Ora</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Status</th>
+          </tr>
+        </thead>
+        <tbody id="upcoming-screenings" class="divide-y divide-brand-outline-variant/10">
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Caricamento...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-        <!-- Proiezioni in Programma -->
-        <div class="card-elevated overflow-x-auto mb-8">
-          <div class="px-6 py-4 border-b border-brand-outline-variant/10">
-            <h2 class="text-lg font-semibold text-brand-on-surface">Show in Programma</h2>
-          </div>
-          <table class="min-w-full divide-y divide-brand-outline-variant/10">
-            <thead class="bg-brand-surface-container">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium label-caps">ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium label-caps">Film</th>
-                <th class="px-6 py-3 text-left text-xs font-medium label-caps">Cinema</th>
-                <th class="px-6 py-3 text-left text-xs font-medium label-caps">Data</th>
-                <th class="px-6 py-3 text-left text-xs font-medium label-caps">Ora</th>
-                <th class="px-6 py-3 text-left text-xs font-medium label-caps">Status</th>
-              </tr>
-            </thead>
-            <tbody id="upcoming-screenings" class="divide-y divide-brand-outline-variant/10">
-              <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Caricamento...</td>
-              </tr>
-            </tbody>
-          </table>
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <article class="cine-admin-slab overflow-hidden">
+        <header class="cine-admin-slab-header">
+          <h2 class="text-lg font-semibold text-brand-on-surface">Registi in Evidenza</h2>
+          <span class="cine-admin-chip">Insights</span>
+        </header>
+        <div class="p-6">
+          <p class="text-sm text-brand-on-surface-variant">Caricamento in corso...</p>
         </div>
-
-        <!-- Registi in Evidenza & Analisi Cinema -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="card-elevated overflow-hidden">
-            <div class="px-6 py-4 border-b border-brand-outline-variant/10">
-              <h2 class="text-lg font-semibold text-brand-on-surface">Registi in Evidenza</h2>
-            </div>
-            <div class="p-6">
-              <p class="text-brand-on-surface-variant text-sm">Caricamento in corso...</p>
-            </div>
-          </div>
-          <div class="card-elevated overflow-hidden">
-            <div class="px-6 py-4 border-b border-brand-outline-variant/10">
-              <h2 class="text-lg font-semibold text-brand-on-surface">Analisi Cinema</h2>
-            </div>
-            <div class="p-6">
-              <p class="text-brand-on-surface-variant text-sm">Caricamento in corso...</p>
-            </div>
-          </div>
+      </article>
+      <article class="cine-admin-slab overflow-hidden">
+        <header class="cine-admin-slab-header">
+          <h2 class="text-lg font-semibold text-brand-on-surface">Analisi Cinema</h2>
+          <span class="cine-admin-chip">Trend</span>
+        </header>
+        <div class="p-6">
+          <p class="text-sm text-brand-on-surface-variant">Caricamento in corso...</p>
         </div>
+      </article>
+    </section>
   </main>
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
@@ -179,17 +173,21 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const [filmsRaw, registiRaw, cinemasRaw, showsRaw] = await Promise.all([
+        const [filmsRaw, registiRaw, cinemasRaw, showsRaw, openTicketsRaw, inProgressTicketsRaw] = await Promise.all([
           API.getFilms(),
           API.getRegisti(),
           API.getCinemas(),
-          API.getShows()
+          API.getShows(),
+          API.getSupportTickets({ status: 'Open', page: 1, pageSize: 100 }),
+          API.getSupportTickets({ status: 'InProgress', page: 1, pageSize: 100 })
         ]);
 
         const films = normalizeCollection(filmsRaw);
         const registi = normalizeCollection(registiRaw);
         const cinemas = normalizeCollection(cinemasRaw);
         const shows = normalizeCollection(showsRaw);
+        const openTickets = normalizeCollection(openTicketsRaw);
+        const inProgressTickets = normalizeCollection(inProgressTicketsRaw);
 
         cachedFilms = films;
         cachedCinemas = cinemas;
@@ -198,6 +196,8 @@
         document.getElementById('stat-directors').textContent = registi.length;
         document.getElementById('stat-cinemas').textContent = cinemas.length;
         document.getElementById('stat-screenings').textContent = shows.length;
+        const supportCountEl = document.getElementById('support-open-count');
+        if (supportCountEl) supportCountEl.textContent = String(openTickets.length + inProgressTickets.length);
 
         renderUpcomingShows(shows);
       } catch (error) {
@@ -255,4 +255,5 @@
 </body>
 
 </html>
+
 

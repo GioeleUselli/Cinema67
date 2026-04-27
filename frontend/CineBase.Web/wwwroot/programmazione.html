@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineBase - Programmazione</title>
+  <title>CineAura - Programmazione</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
@@ -21,9 +21,13 @@
 <body class="bg-brand-surface text-brand-on-surface font-sans">
   <div id="navbar-container"></div>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
     <!-- Cinema Header -->
-    <div id="cinema-header" class="card-elevated mb-6 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <section class="cine-reveal mb-8 overflow-hidden rounded-2xl border border-brand-outline-variant/30 bg-brand-surface-container-lowest">
+      <div class="border-b border-brand-outline-variant/20 bg-brand-surface-container px-5 py-3">
+        <p class="text-xs uppercase tracking-[0.22em] text-brand-gold">Programmazione CineAura</p>
+      </div>
+      <div id="cinema-header" class="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <i class="fa-solid fa-location-dot text-brand-gold text-xl"></i>
         <div>
@@ -35,10 +39,11 @@
       <button id="change-cinema-btn" class="btn-outline-brand text-sm whitespace-nowrap">
         <i class="fa-solid fa-film mr-1"></i>Cambia cinema
       </button>
-    </div>
+      </div>
+    </section>
 
     <!-- Tabs -->
-    <div class="flex gap-2 mb-4 overflow-x-auto pb-1">
+    <div class="mb-4 flex gap-2 overflow-x-auto pb-1">
       <button data-tab="evidenza" class="tab-btn active-tab px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors">
         <i class="fa-solid fa-star mr-1"></i>In evidenza
       </button>
@@ -51,13 +56,13 @@
     </div>
 
     <!-- Search & Category Filter -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+    <div class="mb-6 grid grid-cols-1 gap-3 rounded-2xl border border-brand-outline-variant/20 bg-brand-surface-container p-3 sm:grid-cols-[1fr_220px]">
       <div class="flex-1 relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant"></i>
         <input type="text" id="search-input" placeholder="Cerca film per titolo..."
           class="ghost-input pl-10 pr-4 py-2 w-full">
       </div>
-      <div class="sm:w-56">
+      <div>
         <select id="categoria-filter" class="ghost-input px-4 py-2 w-full" title="Filtra per categoria">
           <option value="">Tutte le categorie</option>
         </select>
@@ -65,8 +70,8 @@
     </div>
 
     <!-- Films Section -->
-    <div id="films-section">
-      <div id="films-header" class="hidden mb-4 flex items-center justify-between gap-4">
+    <section id="films-section" class="cine-reveal cine-reveal-delay-1 rounded-2xl border border-brand-outline-variant/20 bg-brand-surface-container-lowest p-4 sm:p-5">
+      <div id="films-header" class="mb-4 hidden items-center justify-between gap-4 border-b border-brand-outline-variant/20 pb-4">
         <h2 id="films-section-title" class="text-2xl font-bold text-brand-on-surface"></h2>
         <div id="carousel-controls" class="hidden items-center gap-3">
           <span id="carousel-counter" class="text-sm text-brand-on-surface-variant"></span>
@@ -81,7 +86,7 @@
         </div>
       </div>
 
-      <div id="films-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div id="films-grid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <div class="col-span-full text-center py-16 text-brand-on-surface-variant">
           <i class="fa-solid fa-spinner fa-spin text-4xl mb-4"></i>
           <p>Caricamento film...</p>
@@ -93,7 +98,7 @@
           <i class="fa-solid fa-plus mr-2"></i>Carica altri film
         </button>
       </div>
-    </div>
+    </section>
 
     <!-- Empty State -->
     <div id="empty-state" class="hidden text-center py-16">
@@ -165,3 +170,4 @@
 </body>
 
 </html>
+

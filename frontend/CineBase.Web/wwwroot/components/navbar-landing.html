@@ -1,111 +1,85 @@
-<!-- Tailwind Navbar per Landing Page -->
-<nav class="sticky top-0 z-50 glass-panel ambient-shadow-sm border-b border-brand-outline-variant/20">
-  <div class="container mx-auto px-4 h-20 flex items-center justify-between">
-    <!-- Logo -->
-    <a href="/index.html" class="text-2xl font-bold text-brand-gold tracking-tight flex items-center gap-2">
-      <span class="text-3xl">🎬</span>
-      CineBase
+<nav class="sticky top-0 z-50 border-b border-brand-outline-variant/30 bg-brand-surface/95 backdrop-blur-xl">
+  <div class="mx-auto flex h-20 w-full max-w-[1280px] items-center justify-between px-4">
+    <a href="/index.html" class="flex items-center gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/40 bg-brand-surface-container-high text-brand-gold">
+        <i class="fa-solid fa-film"></i>
+      </span>
+      <span class="font-serif text-lg font-bold uppercase tracking-[0.22em] text-brand-gold">CineAura</span>
     </a>
-    
-    <!-- Desktop Links -->
-    <div class="hidden md:flex items-center gap-4">
-      <!-- Selected Cinema -->
-      <div id="navbar-cinema-display" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-brand-surface-container border border-brand-outline-variant/20">
+
+    <div class="hidden items-center gap-3 md:flex">
+      <div id="navbar-cinema-display" class="hidden items-center gap-2 rounded-full border border-brand-outline-variant/30 bg-brand-surface-container px-3 py-1.5">
         <i class="fa-solid fa-location-dot text-brand-gold text-sm"></i>
-        <span id="navbar-selected-cinema" class="text-sm font-medium text-brand-on-surface max-w-32 truncate"></span>
+        <span id="navbar-selected-cinema" class="max-w-40 truncate text-xs uppercase tracking-widest text-brand-on-surface"></span>
       </div>
-      <a href="/programmazione.html" class="btn-outline-brand text-sm tracking-widest">
-        Programmazione
-      </a>
+
+      <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Programmazione</a>
+      <a href="/my-cinemas.html" class="btn-ghost text-xs uppercase tracking-[0.18em]">Cinema</a>
+
       <button onclick="CineBaseTheme.toggle()" class="theme-toggle-btn" title="Cambia tema">
         <i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i>
         <i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i>
       </button>
 
-      <!-- Admin entry - shown only for PowerUser/Admin -->
-      <a href="/dashboard.html" id="admin-area-btn" class="hidden btn-gold text-sm tracking-widest admin-only">
-        Area Admin
-      </a>
+      <a href="/dashboard.html" id="admin-area-btn" class="hidden btn-gold text-xs tracking-[0.2em] admin-only">Area Admin</a>
 
-      <!-- Auth Links - shown when NOT logged in -->
-      <a href="/login.html" id="login-btn" class="btn-outline-brand text-sm">
-        Login
-      </a>
-      <a href="/registrazione.html" id="register-btn" class="btn-gold text-sm">
-        Registrati
-      </a>
+      <a href="/login.html" id="login-btn" class="btn-outline-brand text-xs">Login</a>
+      <a href="/registrazione.html" id="register-btn" class="btn-gold text-xs">Registrati</a>
 
-      <!-- User Dropdown - shown when logged in -->
-      <div id="user-dropdown" class="hidden relative">
-        <button id="user-menu-toggle" class="flex items-center gap-2 text-brand-on-surface hover:text-brand-gold transition-colors">
-          <span id="user-name" class="font-semibold text-sm"></span>
+      <div id="user-dropdown" class="relative hidden">
+        <button id="user-menu-toggle" class="flex items-center gap-2 rounded-full border border-brand-outline-variant/30 bg-brand-surface-container px-3 py-2 text-sm text-brand-on-surface hover:text-brand-gold">
+          <span id="user-name" class="font-semibold"></span>
           <i class="fa-solid fa-chevron-down text-xs"></i>
         </button>
-        <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-brand-surface-container rounded-xl shadow-lg border border-brand-outline-variant/20 py-2">
-          <a href="/profilo.html" class="block px-4 py-2 text-brand-on-surface hover:text-brand-gold hover:bg-brand-surface-container-high">
-            <i class="fa-solid fa-user mr-2"></i>Profilo
-          </a>
-          <a href="/profilo.html#prenotazioni" class="block px-4 py-2 text-brand-on-surface hover:text-brand-gold hover:bg-brand-surface-container-high">
-            <i class="fa-solid fa-ticket mr-2"></i>Prenotazioni
-          </a>
-          <hr class="my-2 border-brand-outline-variant/30">
-          <button id="logout-btn" class="nav-menu-danger w-full text-left px-4 py-2">
-            <i class="fa-solid fa-sign-out-alt mr-2"></i>Logout
-          </button>
+        <div id="user-menu" class="absolute right-0 mt-2 hidden w-52 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container py-2 shadow-lg">
+          <a href="/profilo.html" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-user mr-2"></i>Profilo</a>
+          <a href="/profilo.html#prenotazioni" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-ticket mr-2"></i>Prenotazioni</a>
+          <hr class="my-2 border-brand-outline-variant/20">
+          <button id="logout-btn" class="nav-menu-danger w-full px-4 py-2 text-left"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button>
         </div>
       </div>
     </div>
-    
-    <!-- Mobile Menu Toggle -->
-    <div class="md:hidden">
-      <button id="mobile-menu-toggle" class="p-2 text-brand-on-surface">
-        <i class="fa-solid fa-bars text-2xl"></i>
-      </button>
-    </div>
+
+    <button id="mobile-menu-toggle" class="p-2 text-brand-on-surface md:hidden">
+      <i class="fa-solid fa-bars text-2xl"></i>
+    </button>
   </div>
-  
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-brand-outline-variant/20">
-    <div class="px-4 py-4 space-y-4">
-      <!-- Selected Cinema Mobile -->
-      <div id="mobile-navbar-cinema-display" class="hidden items-center gap-2 px-3 py-2 rounded-xl bg-brand-surface-container border border-brand-outline-variant/20">
+
+  <div id="mobile-menu" class="hidden border-t border-brand-outline-variant/20 bg-brand-surface-container md:hidden">
+    <div class="space-y-4 px-4 py-4">
+      <div id="mobile-navbar-cinema-display" class="hidden items-center gap-2 rounded-xl border border-brand-outline-variant/30 bg-brand-surface-container-high px-3 py-2">
         <i class="fa-solid fa-location-dot text-brand-gold"></i>
         <div>
-          <p class="text-xs text-brand-on-surface-variant">Cinema</p>
+          <p class="text-[10px] uppercase tracking-widest text-brand-on-surface-variant">Cinema</p>
           <span id="mobile-navbar-selected-cinema" class="text-sm font-medium text-brand-on-surface"></span>
         </div>
       </div>
 
-      <div class="space-y-1">
-        <p class="text-xs uppercase tracking-widest text-brand-on-surface-variant">Navigazione</p>
-        <a href="/programmazione.html" class="block py-2 text-center rounded-xl btn-outline-brand">Programmazione</a>
-        <!-- Admin entry mobile - shown only for PowerUser/Admin -->
-        <a href="/dashboard.html" id="mobile-admin-area-btn" class="hidden block py-2 text-center rounded-xl btn-gold admin-only">Area Admin</a>
+      <div class="space-y-2">
+        <a href="/programmazione.html" class="block rounded-xl py-2 text-center btn-outline-brand">Programmazione</a>
+        <a href="/my-cinemas.html" class="block rounded-xl py-2 text-center btn-outline-brand">I nostri cinema</a>
+        <a href="/dashboard.html" id="mobile-admin-area-btn" class="hidden block rounded-xl py-2 text-center btn-gold admin-only">Area Admin</a>
       </div>
 
       <div class="border-t border-brand-outline-variant/20 pt-3">
-        <!-- Auth Links Mobile - shown when NOT logged in -->
         <div id="mobile-auth-links" class="space-y-2">
-          <p class="text-xs uppercase tracking-widest text-brand-on-surface-variant">Account</p>
-          <a href="/login.html" class="block py-2 text-center rounded-xl btn-outline-brand">Login</a>
-          <a href="/registrazione.html" class="block py-2 text-center rounded-xl btn-gold">Registrati</a>
+          <a href="/login.html" class="block rounded-xl py-2 text-center btn-outline-brand">Login</a>
+          <a href="/registrazione.html" class="block rounded-xl py-2 text-center btn-gold">Registrati</a>
         </div>
 
-        <!-- User Menu Mobile - shown when logged in -->
         <div id="mobile-user-menu" class="hidden space-y-1">
-          <p class="text-xs uppercase tracking-widest text-brand-on-surface-variant">Account</p>
-          <p id="mobile-user-name" class="py-1 text-brand-gold font-semibold"></p>
+          <p id="mobile-user-name" class="py-1 font-semibold text-brand-gold"></p>
           <a href="/profilo.html" class="block py-2 text-brand-on-surface hover:text-brand-gold">Profilo</a>
           <a href="/profilo.html#prenotazioni" class="block py-2 text-brand-on-surface hover:text-brand-gold">Prenotazioni</a>
-          <button id="mobile-logout-btn" class="nav-menu-danger w-full text-left py-3 rounded-xl mt-2">Logout</button>
+          <button id="mobile-logout-btn" class="nav-menu-danger mt-2 w-full rounded-xl py-3 text-left">Logout</button>
         </div>
       </div>
 
       <div class="border-t border-brand-outline-variant/20 pt-3">
-        <button onclick="CineBaseTheme.toggle()" class="w-full flex items-center gap-3 py-2 text-brand-on-surface hover:text-brand-gold transition-colors" title="Cambia tema">
+        <button onclick="CineBaseTheme.toggle()" class="flex w-full items-center gap-3 py-2 text-brand-on-surface hover:text-brand-gold" title="Cambia tema">
           <i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i>
           <i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i>
-          <span>Cambia tema</span>
+          <span>Tema</span>
         </button>
       </div>
     </div>

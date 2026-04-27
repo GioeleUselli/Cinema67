@@ -36,7 +36,8 @@ function isAdminAreaPath(pathname) {
     '/categorie.html',
     '/sale.html',
     '/ricarica-credito.html',
-    '/validazione-biglietti.html'
+    '/validazione-biglietti.html',
+    '/support-tickets.html'
   ]);
   return adminPaths.has((pathname || '').toLowerCase());
 }
@@ -534,5 +535,34 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   validateTicket: (data) => apiFetch('/admin/tickets/validate', {
     method: 'POST',
     body: JSON.stringify(data)
-  })
+  }),
+
+  // Supporto chatbot/ticket (utente)
+  getSupportConversation: () => apiFetch('/support/conversation'),
+  sendSupportMessage: (data) => apiFetch('/support/chat', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+  createSupportTicket: (data) => apiFetch('/support/tickets', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+
+  // Supporto ticket (admin)
+  getSupportTickets: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.status) query.set('status', params.status);
+    if (params.priority) query.set('priority', params.priority);
+    if (params.search) query.set('search', params.search);
+    if (params.page != null) query.set('page', String(params.page));
+    if (params.pageSize != null) query.set('pageSize', String(params.pageSize));
+    const queryString = query.toString();
+    return apiFetch(`/admin/support/tickets${queryString ? `?${queryString}` : ''}`);
+  },
+  getSupportTicket: (ticketId) => apiFetch(`/admin/support/tickets/${ticketId}`),
+  updateSupportTicket: (ticketId, data) => apiFetch(`/admin/support/tickets/${ticketId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  }),
+  getSupportAdmins: () => apiFetch('/admin/support/admins')
 };

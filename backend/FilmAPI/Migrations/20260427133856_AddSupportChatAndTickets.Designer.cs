@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260427133856_AddSupportChatAndTickets")]
+    partial class AddSupportChatAndTickets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -827,44 +830,6 @@ namespace FilmAPI.Migrations
                     b.ToTable("SupportTickets");
                 });
 
-            modelBuilder.Entity("FilmAPI.Model.SupportTicketAudit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ActorUserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("EventType")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("varchar(60)");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(1200)
-                        .HasColumnType("varchar(1200)");
-
-                    b.Property<int>("TicketId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActorUserId");
-
-                    b.HasIndex("CreatedAtUtc");
-
-                    b.HasIndex("TicketId");
-
-                    b.ToTable("SupportTicketAudits");
-                });
-
             modelBuilder.Entity("FilmAPI.Model.User", b =>
                 {
                     b.Property<int>("Id")
@@ -1260,24 +1225,6 @@ namespace FilmAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FilmAPI.Model.SupportTicketAudit", b =>
-                {
-                    b.HasOne("FilmAPI.Model.User", "ActorUser")
-                        .WithMany()
-                        .HasForeignKey("ActorUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("FilmAPI.Model.SupportTicket", "Ticket")
-                        .WithMany("Audits")
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ActorUser");
-
-                    b.Navigation("Ticket");
-                });
-
             modelBuilder.Entity("FilmAPI.Model.User", b =>
                 {
                     b.HasOne("FilmAPI.Model.Cinema", "CinemaPreferito")
@@ -1340,11 +1287,6 @@ namespace FilmAPI.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("Tickets");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.SupportTicket", b =>
-                {
-                    b.Navigation("Audits");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.User", b =>

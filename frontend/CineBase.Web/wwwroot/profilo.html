@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineBase - Il Mio Profilo</title>
+  <title>CineAura - Il Mio Profilo</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
@@ -21,15 +21,16 @@
 <body class="bg-brand-surface text-brand-on-surface font-sans">
   <div id="navbar-container"></div>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-brand-on-surface">Il Mio Profilo</h1>
-      <p class="text-sm text-brand-on-surface-variant mt-1">Gestisci i tuoi dati, biglietti, ordini e credito</p>
-    </div>
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+    <section class="cine-grid-shell cine-reveal mb-8 p-6">
+      <p class="cine-kicker">Area utente</p>
+      <h1 class="cine-headline text-brand-on-surface">Il Mio Profilo</h1>
+      <p class="mt-2 text-sm text-brand-on-surface-variant">Gestisci anagrafica, credito, ordini e biglietti dal tuo pannello personale.</p>
+    </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <!-- Dati Personali -->
-      <div class="card-elevated p-6">
+      <div class="cine-admin-slab cine-reveal cine-reveal-delay-1 p-6">
         <h2 class="text-xl font-bold text-brand-on-surface mb-6">
           <i class="fa-solid fa-user text-brand-gold mr-2"></i>Dati Personali
         </h2>
@@ -67,7 +68,7 @@
       <!-- Cinema Preferito + Credito -->
       <div class="space-y-8">
         <!-- Cinema Preferito -->
-        <div class="card-elevated p-6">
+        <div class="cine-admin-slab cine-reveal cine-reveal-delay-2 p-6">
           <h2 class="text-xl font-bold text-brand-on-surface mb-4">
             <i class="fa-solid fa-location-dot text-brand-gold mr-2"></i>Cinema Preferito
           </h2>
@@ -80,7 +81,7 @@
         </div>
 
         <!-- Credito -->
-        <div class="card-elevated p-6">
+        <div class="cine-admin-slab cine-reveal cine-reveal-delay-3 p-6">
           <h2 class="text-xl font-bold text-brand-on-surface mb-4">
             <i class="fa-solid fa-wallet text-brand-gold mr-2"></i>Credito Piattaforma
           </h2>
@@ -95,7 +96,7 @@
     </div>
 
     <!-- Ordini -->
-    <div class="mt-8 card-elevated p-6">
+    <div class="mt-8 cine-admin-slab cine-reveal cine-reveal-delay-1 p-6">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-brand-on-surface">
           <i class="fa-solid fa-receipt text-brand-gold mr-2"></i>I Miei Ordini
@@ -110,7 +111,7 @@
     </div>
 
     <!-- Biglietti -->
-    <div class="mt-8 card-elevated p-6">
+    <div class="mt-8 cine-admin-slab cine-reveal cine-reveal-delay-2 p-6">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-brand-on-surface">
           <i class="fa-solid fa-ticket text-brand-gold mr-2"></i>I Miei Biglietti
@@ -139,3 +140,4 @@
 </body>
 
 </html>
+
