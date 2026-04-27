@@ -2012,6 +2012,90 @@ input[type="range"]::-moz-range-thumb {
   font-size: 0.8rem;
 }
 
+.support-ticket-modal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.support-ticket-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 14, 26, 0.62);
+  backdrop-filter: blur(2px);
+}
+
+.support-ticket-modal-card {
+  position: relative;
+  width: min(90%, 340px);
+  border-radius: 0.95rem;
+  border: 1px solid var(--brand-outline-variant);
+  background: var(--brand-surface-container-lowest);
+  box-shadow: 0 18px 35px rgba(0, 8, 16, 0.4);
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.support-ticket-modal-card h4 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.12rem;
+  color: var(--brand-on-surface);
+}
+
+.support-ticket-modal-text {
+  font-size: 0.75rem;
+  color: var(--brand-on-surface-variant);
+}
+
+.support-ticket-field {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.support-ticket-field span {
+  font-size: 0.72rem;
+  color: var(--brand-on-surface-variant);
+}
+
+.support-ticket-input {
+  width: 100%;
+  border-radius: 0.58rem;
+  border: 1px solid var(--brand-outline-variant);
+  background: var(--brand-surface-container);
+  color: var(--brand-on-surface);
+  padding: 0.46rem 0.55rem;
+  font-size: 0.78rem;
+}
+
+.support-ticket-modal-actions {
+  margin-top: 0.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.support-ticket-btn {
+  border-radius: 0.55rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.74rem;
+}
+
+.support-ticket-btn-secondary {
+  border: 1px solid var(--brand-outline-variant);
+  background: var(--brand-surface-container);
+  color: var(--brand-on-surface);
+}
+
+.support-ticket-btn-primary {
+  border: 1px solid color-mix(in oklab, var(--brand-gold) 35%, transparent);
+  background: var(--brand-gold);
+  color: #111;
+}
+
 @media (max-width: 640px) {
   .support-chat-root {
     right: 0.75rem;

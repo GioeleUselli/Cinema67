@@ -1,23 +1,48 @@
 (function () {
-  const landingPaths = new Set([
-    '/',
-    '/index.html',
-    '/programmazione.html',
-    '/scheda-film.html',
-    '/my-cinemas.html',
-    '/profilo.html',
-    '/acquista.html',
-    '/pagamento.html',
-    '/esito-acquisto.html'
-  ]);
-
   const currentPath = (window.location.pathname || '').toLowerCase();
-  if (!landingPaths.has(currentPath)) return;
-  if (typeof window.Auth === 'undefined' || !window.Auth || !window.Auth.isLoggedIn()) return;
+  const hiddenPaths = new Set(['/login.html', '/registrazione.html']);
+  if (hiddenPaths.has(currentPath)) return;
 
   let conversation = null;
   let loading = false;
   let lastOpenTicketSnapshot = '';
+  let escalationEligible = false;
+  let userTurns = 0;
+
+  function isAuthenticated() {
+    return typeof window.Auth !== 'undefined' && !!window.Auth && typeof window.Auth.isLoggedIn === 'function' && window.Auth.isLoggedIn();
+  }
+
+  function localFaqReply(input) {
+    const text = String(input || '').toLowerCase();
+    if (text.includes('pagamento') || text.includes('carta') || text.includes('stripe')) {
+      return 'Prova a ricaricare la pagina pagamento, verifica metodo (carta/credito/misto) e controlla il saldo. Se il problema continua, accedi e apri ticket assistenza.';
+    }
+    if (text.includes('biglietto') || text.includes('pdf') || text.includes('email')) {
+      return 'Controlla in Profilo > I Miei Biglietti e scarica il PDF. Verifica anche spam/posta indesiderata. Se manca ancora, apri ticket con codice ordine.';
+    }
+    if (text.includes('login') || text.includes('password') || text.includes('accesso')) {
+      return 'Verifica credenziali senza spazi, fai logout/login e riprova. Se non risolvi, accedi e apri un ticket per verifica account.';
+    }
+    return 'Posso aiutarti su pagamenti, biglietti, accesso e prenotazioni. Se vuoi aprire ticket, effettua login e premi "Non ho risolto, apri ticket".';
+  }
+
+  function shouldSuggestEscalationFromText(input) {
+    const text = String(input || '').toLowerCase();
+    return text.includes('non funziona')
+      || text.includes('non va')
+      || text.includes('non risolto')
+      || text.includes('ancora')
+      || text.includes('errore');
+  }
+
+  function setEscalationEligibility(eligible) {
+    escalationEligible = !!eligible;
+    const hint = document.getElementById('support-chat-escalate-hint');
+    const ticketBtn = document.getElementById('support-chat-ticket');
+    if (hint) hint.classList.toggle('hidden', !escalationEligible);
+    if (ticketBtn) ticketBtn.classList.toggle('hidden', !escalationEligible);
+  }
 
   function el(tag, className, html) {
     const node = document.createElement(tag);
@@ -64,6 +89,10 @@
       }
     }
     if (snapshot) lastOpenTicketSnapshot = snapshot;
+
+    if (!tickets.length && userTurns < 2) {
+      setEscalationEligibility(false);
+    }
   }
 
   function setLoading(state) {
@@ -82,6 +111,20 @@
   }
 
   async function loadConversation() {
+    if (!isAuthenticated()) {
+      conversation = {
+        messages: [
+          {
+            role: 'Bot',
+            message: "Ciao! Sono l'assistente CineAura. Posso aiutarti subito con FAQ. Per aprire ticket devi essere autenticato."
+          }
+        ],
+        tickets: []
+      };
+      updateConversationUI();
+      return;
+    }
+
     try {
       const data = await API.getSupportConversation();
       conversation = data;
@@ -98,6 +141,23 @@
     if (!message) return;
 
     setLoading(true);
+    userTurns += 1;
+
+    if (userTurns >= 3 || shouldSuggestEscalationFromText(message)) {
+      setEscalationEligibility(true);
+    }
+
+    if (!isAuthenticated()) {
+      conversation = conversation || { messages: [], tickets: [] };
+      conversation.messages.push({ role: 'User', message });
+      conversation.messages.push({ role: 'Bot', message: localFaqReply(message) });
+      updateConversationUI();
+      if (input && !customMessage) input.value = '';
+      if (!escalationEligible && userTurns >= 4) setEscalationEligibility(true);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await API.sendSupportMessage({ message, ...collectContext() });
       conversation = data.conversation;
@@ -117,8 +177,7 @@
       }
 
       if (data.shouldEscalate) {
-        const hint = document.getElementById('support-chat-escalate-hint');
-        if (hint) hint.classList.remove('hidden');
+        setEscalationEligibility(true);
       }
     } catch (err) {
       console.error('Errore invio messaggio support:', err);
@@ -130,22 +189,70 @@
 
   async function openTicket() {
     if (loading) return;
-    const title = prompt('Titolo ticket (breve):', 'Problema assistenza piattaforma');
-    if (!title) return;
-    const description = prompt('Descrivi il problema in dettaglio:');
-    if (!description) return;
+    if (!escalationEligible) {
+      if (typeof showToast === 'function') showToast('Proviamo ancora qualche step prima di aprire ticket.', 'info');
+      return;
+    }
+
+    if (!isAuthenticated()) {
+      if (typeof showToast === 'function') showToast('Effettua il login per aprire un ticket', 'info');
+      if (window.Auth && typeof window.Auth.redirectToLogin === 'function') {
+        window.Auth.redirectToLogin(window.location.pathname + window.location.search);
+      }
+      return;
+    }
+
+    const modal = document.getElementById('support-ticket-modal');
+    if (!modal) return;
+
+    const lastUserMsg = (conversation?.messages || []).filter(m => String(m.role || '').toLowerCase() === 'user').slice(-1)[0]?.message || '';
+    const titleInput = document.getElementById('support-ticket-title');
+    const descInput = document.getElementById('support-ticket-description');
+    const priorityInput = document.getElementById('support-ticket-priority');
+
+    if (titleInput && !titleInput.value.trim()) {
+      titleInput.value = 'Problema assistenza piattaforma';
+    }
+    if (descInput && !descInput.value.trim()) {
+      descInput.value = lastUserMsg ? `Dettagli iniziali: ${lastUserMsg}` : '';
+    }
+    if (priorityInput && !priorityInput.value) {
+      priorityInput.value = 'Medium';
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  function closeTicketModal() {
+    const modal = document.getElementById('support-ticket-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async function submitTicket() {
+    if (loading) return;
+    const title = (document.getElementById('support-ticket-title')?.value || '').trim();
+    const description = (document.getElementById('support-ticket-description')?.value || '').trim();
+    const priority = (document.getElementById('support-ticket-priority')?.value || 'Medium').trim();
+
+    if (!title || !description) {
+      if (typeof showToast === 'function') showToast('Inserisci titolo e descrizione del ticket', 'error');
+      return;
+    }
 
     setLoading(true);
     try {
       await API.createSupportTicket({
         title,
         description,
-        priority: 'Medium',
+        priority,
         ...collectContext(),
         contextMetadata: JSON.stringify({ userAgent: navigator.userAgent })
       });
 
+      closeTicketModal();
       await loadConversation();
+      setEscalationEligibility(false);
+      userTurns = 0;
       if (typeof showToast === 'function') showToast('Ticket aperto con successo', 'success');
     } catch (err) {
       console.error('Errore apertura ticket:', err);
@@ -190,9 +297,42 @@
           </button>
         </footer>
         <div class="support-chat-actions">
-          <button id="support-chat-ticket" class="support-chat-ticket-btn" type="button">
+          <button id="support-chat-ticket" class="support-chat-ticket-btn hidden" type="button">
             <i class="fa-solid fa-life-ring"></i> Non ho risolto, apri ticket
           </button>
+        </div>
+
+        <div id="support-ticket-modal" class="support-ticket-modal hidden">
+          <div class="support-ticket-modal-backdrop"></div>
+          <div class="support-ticket-modal-card">
+            <h4>Apri Ticket Assistenza</h4>
+            <p class="support-ticket-modal-text">Compila i dettagli: il team admin ricevera subito il ticket con il contesto tecnico.</p>
+
+            <label class="support-ticket-field">
+              <span>Titolo</span>
+              <input id="support-ticket-title" type="text" class="support-ticket-input" placeholder="Titolo problema">
+            </label>
+
+            <label class="support-ticket-field">
+              <span>Descrizione</span>
+              <textarea id="support-ticket-description" rows="4" class="support-ticket-input" placeholder="Descrivi il problema e i passaggi gia provati"></textarea>
+            </label>
+
+            <label class="support-ticket-field">
+              <span>Priorita</span>
+              <select id="support-ticket-priority" class="support-ticket-input">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+              </select>
+            </label>
+
+            <div class="support-ticket-modal-actions">
+              <button id="support-ticket-cancel" type="button" class="support-ticket-btn support-ticket-btn-secondary">Annulla</button>
+              <button id="support-ticket-submit" type="button" class="support-ticket-btn support-ticket-btn-primary">Invia Ticket</button>
+            </div>
+          </div>
         </div>
       </section>
     `;
@@ -206,6 +346,8 @@
     const input = document.getElementById('support-chat-input');
     const ticket = document.getElementById('support-chat-ticket');
     const suggest = document.getElementById('support-chat-suggest');
+    const ticketCancel = document.getElementById('support-ticket-cancel');
+    const ticketSubmit = document.getElementById('support-ticket-submit');
 
     toggle?.addEventListener('click', () => {
       panel?.classList.toggle('hidden');
@@ -219,14 +361,23 @@
       }
     });
     ticket?.addEventListener('click', openTicket);
+    ticketCancel?.addEventListener('click', closeTicketModal);
+    ticketSubmit?.addEventListener('click', submitTicket);
 
     suggest?.querySelectorAll('.support-chat-chip').forEach((btn) => {
       btn.addEventListener('click', () => sendMessage(btn.textContent || ''));
     });
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
+  async function init() {
     mountWidget();
+    setEscalationEligibility(false);
     await loadConversation();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
