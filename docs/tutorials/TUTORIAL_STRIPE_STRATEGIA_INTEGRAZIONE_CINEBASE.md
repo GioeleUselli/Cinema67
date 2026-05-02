@@ -1,7 +1,7 @@
-# Strategia di integrazione Stripe per CineBase
+# Strategia di integrazione Stripe per Cinema67
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** strategia tecnica e didattica per integrare Stripe in Iterazione 4  
 
 ---
@@ -11,12 +11,12 @@
 1. [Obiettivo del documento](#1-obiettivo-del-documento)
 2. [Direzione ufficiale del progetto](#2-direzione-ufficiale-del-progetto)
 3. [Vincoli e principi architetturali](#3-vincoli-e-principi-architetturali)
-4. [Perché CineBase sceglie Stripe Checkout hosted](#4-perche-cinebase-sceglie-stripe-checkout-hosted)
+4. [Perché Cinema67 sceglie Stripe Checkout hosted](#4-perche-Cinema67-sceglie-stripe-checkout-hosted)
 5. [Strategia raccomandata per il prodotto](#5-strategia-raccomandata-per-il-prodotto)
 6. [Flussi supportati: solo credito, solo carta, pagamento misto](#6-flussi-supportati-solo-credito-solo-carta-pagamento-misto)
 7. [Ruolo dei webhook e della riconciliazione](#7-ruolo-dei-webhook-e-della-riconciliazione)
 8. [Decisione operativa su Stripe CLI](#8-decisione-operativa-su-stripe-cli)
-9. [Configurazione guidata della dashboard Stripe per CineBase_Demo](#9-configurazione-guidata-della-dashboard-stripe-per-cinebase_demo)
+9. [Configurazione guidata della dashboard Stripe per Cinema67_Demo](#9-configurazione-guidata-della-dashboard-stripe-per-Cinema67_demo)
 10. [Configurazione ambienti e secrets](#10-configurazione-ambienti-e-secrets)
 11. [Metadati, idempotenza e lock d'ordine](#11-metadati-idempotenza-e-lock-dordine)
 12. [Piano incrementale di implementazione](#12-piano-incrementale-di-implementazione)
@@ -30,7 +30,7 @@
 
 ## 1. Obiettivo del documento
 
-Questo documento definisce la strategia Stripe ufficiale per `CineBase` dopo l'introduzione della `FASE 11.1`, cioè la migrazione da `Stripe Elements` a `Stripe Checkout` hosted.
+Questo documento definisce la strategia Stripe ufficiale per `Cinema67` dopo l'introduzione della `FASE 11.1`, cioè la migrazione da `Stripe Elements` a `Stripe Checkout` hosted.
 
 Lo scopo è fissare in modo chiaro:
 
@@ -44,7 +44,7 @@ Lo scopo è fissare in modo chiaro:
 
 ## 2. Direzione ufficiale del progetto
 
-La direzione ufficiale di `CineBase` è la seguente:
+La direzione ufficiale di `Cinema67` è la seguente:
 
 - per il pagamento carta si usa `Stripe Checkout` hosted
 - il backend resta la sola source of truth per importi, stato ordine, stato posti, credito e biglietti
@@ -63,11 +63,11 @@ Conclusione operativa:
 
 Dal piano di lavoro e dalle decisioni già approvate emergono questi principi.
 
-### 3.1 Stripe gestisce il pagamento esterno, CineBase gestisce il business
+### 3.1 Stripe gestisce il pagamento esterno, Cinema67 gestisce il business
 
 Stripe non deve diventare la source of truth dell'ordine applicativo.
 
-La source of truth resta `CineBase` per:
+La source of truth resta `Cinema67` per:
 
 - ordine
 - posti venduti
@@ -102,7 +102,7 @@ Serve quindi un lock d'ordine temporaneo lato backend, con scadenza e cleanup.
 
 ---
 
-## 4. Perché CineBase sceglie Stripe Checkout hosted
+## 4. Perché Cinema67 sceglie Stripe Checkout hosted
 
 La scelta non nasce da un problema di sicurezza tecnica di `Stripe Elements`, ma da un obiettivo di fiducia percepita verso l'utente finale.
 
@@ -112,7 +112,7 @@ Per un prodotto ancora poco conosciuto, una pagina hosted Stripe offre questi va
 - minore diffidenza nel digitare i dati carta
 - migliore chiarezza percettiva sul fatto che la carta è gestita da un provider di pagamento noto
 
-Questa motivazione è perfettamente coerente con il contesto di `CineBase`.
+Questa motivazione è perfettamente coerente con il contesto di `Cinema67`.
 
 ---
 
@@ -189,7 +189,7 @@ Deve prima essere riservato, poi consolidato o rilasciato.
 
 ## 7.1 Webhook come fonte primaria di verità
 
-Nel modello hosted di `CineBase`, il webhook ha un ruolo centrale:
+Nel modello hosted di `Cinema67`, il webhook ha un ruolo centrale:
 
 - confermare il successo reale del checkout carta
 - finalizzare l'ordine in modo idempotente
@@ -203,7 +203,7 @@ Nel modello hosted di `CineBase`, il webhook ha un ruolo centrale:
 
 ### 7.3 Riconciliazione backend
 
-Poiché il redirect browser può arrivare prima del webhook, `CineBase` deve esporre almeno un endpoint di stato, per esempio:
+Poiché il redirect browser può arrivare prima del webhook, `Cinema67` deve esporre almeno un endpoint di stato, per esempio:
 
 ```text
 GET /checkout/orders/{orderId}/checkout-status
@@ -225,7 +225,7 @@ Il ritorno su `cancel_url` non è prova sufficiente di annullamento finale del p
 
 ## 8. Decisione operativa su Stripe CLI
 
-Nel progetto `CineBase`, `Stripe CLI` viene usata come strumento locale per testare e debuggare i webhook.
+Nel progetto `Cinema67`, `Stripe CLI` viene usata come strumento locale per testare e debuggare i webhook.
 
 ### 8.1 Risposta breve
 
@@ -244,9 +244,9 @@ Durante lo sviluppo locale:
 
 ---
 
-## 9. Configurazione guidata della dashboard Stripe per CineBase_Demo
+## 9. Configurazione guidata della dashboard Stripe per Cinema67_Demo
 
-Questa sezione descrive, passo dopo passo, che cosa un operatore umano deve configurare nella dashboard Stripe per preparare l'ambiente `CineBase_Demo`.
+Questa sezione descrive, passo dopo passo, che cosa un operatore umano deve configurare nella dashboard Stripe per preparare l'ambiente `Cinema67_Demo`.
 
 ### 9.1 Risultato finale atteso
 
@@ -317,7 +317,7 @@ Per evitare complessità prematura, non serve configurare subito:
 
 Nota importante:
 
-- il fatto che `CineBase` usi `Stripe Checkout` non obbliga a costruire un catalogo prodotti Stripe persistente; la sessione hosted può essere creata dinamicamente dal backend con importi e descrizioni runtime
+- il fatto che `Cinema67` usi `Stripe Checkout` non obbliga a costruire un catalogo prodotti Stripe persistente; la sessione hosted può essere creata dinamicamente dal backend con importi e descrizioni runtime
 
 ---
 
@@ -432,7 +432,7 @@ Scrivere test per:
 
 `Stripe Elements` resta un approccio tecnicamente valido e viene mantenuto in documentazione per completezza storica e comparativa.
 
-Tuttavia, per la direzione del prodotto `CineBase`, `Stripe Elements` è da considerare **non supportato come soluzione finale**.
+Tuttavia, per la direzione del prodotto `Cinema67`, `Stripe Elements` è da considerare **non supportato come soluzione finale**.
 
 ### 13.1 Perché non è la direzione scelta
 
@@ -441,7 +441,7 @@ Le motivazioni non sono legate a una presunta insicurezza intrinseca di `Stripe 
 Le motivazioni sono di prodotto e fiducia percepita:
 
 - il team vuole che l'utente veda una pagina Stripe riconoscibile nel momento dell'inserimento carta
-- il prodotto vuole minimizzare la diffidenza di utenti che non conoscono ancora il brand CineBase
+- il prodotto vuole minimizzare la diffidenza di utenti che non conoscono ancora il brand Cinema67
 - il team preferisce una UX hosted che comunichi in modo più diretto la presenza del provider di pagamento
 
 ### 13.2 Quando può restare nel codice
@@ -527,7 +527,7 @@ stripe listen --events checkout.session.completed,checkout.session.expired,payme
 
 ## 17. Conclusione operativa
 
-La strategia più adatta per `CineBase` è la seguente:
+La strategia più adatta per `Cinema67` è la seguente:
 
 1. usare `Stripe Checkout` hosted come flusso ufficiale per il pagamento carta
 2. mantenere il backend come unica fonte autorevole per importi, ordini, credito e biglietti

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Noto+Serif:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .seat-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (max-width: 640px) {
+      .seat-grid {
+        gap: 4px;
+      }
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-container": "#554300",
+            "surface-tint": "#e9c349",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-container": "#254188",
+            "outline-variant": "#4d4635",
+            "secondary-fixed": "#e2e2e2",
+            "primary-container": "#d4af37",
+            "surface-container-low": "#1f1b13",
+            "primary-fixed": "#ffe088",
+            "on-secondary-fixed": "#1a1c1c",
+            "surface": "#16130b",
+            "surface-bright": "#3d392f",
+            "on-secondary": "#2f3131",
+            "on-tertiary-fixed-variant": "#27438a",
+            "on-secondary-container": "#b5b5b5",
+            "on-background": "#eae1d4",
+            "on-primary-fixed-variant": "#574500",
+            "tertiary-container": "#97b0ff",
+            "background": "#16130b",
+            "on-error": "#690005",
+            "surface-container": "#231f17",
+            "on-tertiary-fixed": "#00174b",
+            "on-surface-variant": "#d0c5af",
+            "primary-fixed-dim": "#e9c349",
+            "secondary": "#c6c6c6",
+            "surface-container-highest": "#38342b",
+            "secondary-fixed-dim": "#c6c6c6",
+            "secondary-container": "#454747",
+            "tertiary": "#bfcdff",
+            "error-container": "#93000a",
+            "on-primary-fixed": "#241a00",
+            "tertiary-fixed-dim": "#b4c5ff",
+            "error": "#ffb4ab",
+            "inverse-primary": "#735c00",
+            "on-primary": "#3c2f00",
+            "surface-dim": "#16130b",
+            "inverse-surface": "#eae1d4",
+            "tertiary-fixed": "#dbe1ff",
+            "inverse-on-surface": "#343027",
+            "on-surface": "#eae1d4",
+            "outline": "#99907c",
+            "on-secondary-fixed-variant": "#454747",
+            "surface-container-lowest": "#110e07",
+            "surface-variant": "#38342b",
+            "primary": "#f2ca50",
+            "surface-container-high": "#2d2a21",
+            "on-tertiary": "#082b72"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "md": "24px",
+            "base": "8px",
+            "xs": "4px",
+            "gutter": "24px",
+            "lg": "48px",
+            "xl": "80px",
+            "sm": "12px",
+            "container-max": "1280px"
+          },
+          "fontFamily": {
+            "body-md": ["Inter"],
+            "headline-sm": ["Noto Serif"],
+            "display-lg": ["Noto Serif"],
+            "body-lg": ["Inter"],
+            "headline-md": ["Noto Serif"],
+            "label-caps": ["Inter"]
+          },
+          "fontSize": {
+            "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+            "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+            "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+            "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+            "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col">
+<!-- TopAppBar Component -->
+<header class="bg-neutral-950 dark:bg-[#121212] border-b border-[#2C2C2C] sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-[1280px] mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#D4AF37]" data-icon="theaters">theaters</span>
+<h1 class="font-serif text-xl font-bold text-[#D4AF37] tracking-[0.2em] uppercase">CINEAURA</h1>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-neutral-400 hover:text-[#D4AF37] transition-colors cursor-pointer" data-icon="search">search</span>
+</div>
+</div>
+</header>
+<!-- Booking Progress Bar -->
+<div class="w-full h-1 bg-[#2C2C2C]">
+<div class="h-full bg-[#D4AF37] w-2/3"></div>
+</div>
+<main class="flex-grow max-w-[1280px] mx-auto w-full px-6 py-8">
+<!-- Header: Movie Details -->
+<div class="mb-12 text-center md:text-left">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="font-label-caps text-label-caps text-primary mb-2 block">SELEZIONE POSTI</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Oppenheimer</h2>
+<div class="flex items-center gap-4 mt-2 text-on-surface-variant font-body-md">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_today">calendar_today</span>
+              Oggi, 24 Ottobre
+            </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+              20:30
+            </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="meeting_room">meeting_room</span>
+              Sala Gold
+            </span>
+</div>
+</div>
+<div class="hidden md:block">
+<div class="bg-surface-container border border-outline-variant px-4 py-2 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="timer">timer</span>
+<span class="text-label-caps font-label-caps">Tempo rimasto: 09:42</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Visual Seat Map Section -->
+<div class="relative bg-surface-container-low rounded-xl p-md border border-outline-variant/30 mb-8 overflow-hidden">
+<!-- Cinematic Screen -->
+<div class="w-full max-w-2xl mx-auto mb-16">
+<div class="h-1 bg-gradient-to-r from-transparent via-primary-container/50 to-transparent rounded-full shadow-[0_-20px_40px_rgba(212,175,55,0.2)]"></div>
+<p class="text-center font-label-caps text-label-caps text-outline mt-4">SCHERMO</p>
+</div>
+<!-- Seats Grid -->
+<div class="max-w-2xl mx-auto flex flex-col gap-6 items-center">
+<!-- Rows representation -->
+<div class="w-full flex flex-col gap-4">
+<!-- Row A -->
+<div class="flex items-center gap-4">
+<span class="text-label-caps text-outline w-4 text-center">A</span>
+<div class="seat-grid flex-grow">
+<!-- Seats status: 0=Disponibile, 1=Occupato, 2=Selezionato -->
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+</div>
+<span class="text-label-caps text-outline w-4 text-center">A</span>
+</div>
+<!-- Row B -->
+<div class="flex items-center gap-4">
+<span class="text-label-caps text-outline w-4 text-center">B</span>
+<div class="seat-grid flex-grow">
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+</div>
+<span class="text-label-caps text-outline w-4 text-center">B</span>
+</div>
+<!-- Row C (Selected Row) -->
+<div class="flex items-center gap-4">
+<span class="text-label-caps text-outline w-4 text-center">C</span>
+<div class="seat-grid flex-grow">
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-primary-container border border-primary text-on-primary-container flex items-center justify-center rounded-sm"><span class="text-[8px] font-bold">C5</span></div>
+<div class="aspect-square bg-primary-container border border-primary text-on-primary-container flex items-center justify-center rounded-sm"><span class="text-[8px] font-bold">C6</span></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+</div>
+<span class="text-label-caps text-outline w-4 text-center">C</span>
+</div>
+<!-- Row D -->
+<div class="flex items-center gap-4">
+<span class="text-label-caps text-outline w-4 text-center">D</span>
+<div class="seat-grid flex-grow">
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-on-secondary-container opacity-30 rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<div class="aspect-square bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+</div>
+<span class="text-label-caps text-outline w-4 text-center">D</span>
+</div>
+</div>
+</div>
+<!-- Legend -->
+<div class="mt-12 flex flex-wrap justify-center gap-8 border-t border-outline-variant/30 pt-8">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 bg-surface-container-highest border border-outline-variant rounded-sm"></div>
+<span class="text-label-caps font-label-caps">Disponibile</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 bg-primary-container rounded-sm"></div>
+<span class="text-label-caps font-label-caps">Selezionato</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 bg-on-secondary-container opacity-30 rounded-sm"></div>
+<span class="text-label-caps font-label-caps">Occupato</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Price Summary & Action (Bottom Sticky) -->
+<footer class="mt-auto bg-neutral-900/95 backdrop-blur-md border-t border-[#2C2C2C] pb-safe z-50">
+<div class="max-w-[1280px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-8 text-center md:text-left">
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-neutral-400 uppercase tracking-widest">Posti Selezionati</span>
+<span class="text-headline-sm font-headline-sm text-on-surface">C5, C6 (2)</span>
+</div>
+<div class="h-10 w-[1px] bg-outline-variant/30 hidden md:block"></div>
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-neutral-400 uppercase tracking-widest">Totale</span>
+<span class="text-headline-sm font-headline-sm text-[#D4AF37]">24,00€</span>
+</div>
+</div>
+<div class="flex gap-4 w-full md:w-auto">
+<button class="flex-grow md:flex-grow-0 px-8 py-4 bg-[#D4AF37] text-neutral-950 font-label-caps text-sm font-bold rounded hover:bg-primary duration-200 uppercase tracking-widest active:scale-95 transition-transform">
+          Continua al Pagamento
+        </button>
+</div>
+</div>
+</footer>
+<!-- Fixed Side Bar for Admin/Nav Context (Responsive suppression handled) -->
+<div class="hidden lg:flex flex-col h-screen fixed left-0 top-0 pt-20 bg-neutral-950 dark:bg-[#121212] border-r border-[#2C2C2C] w-20 items-center gap-8 py-8">
+<button class="text-[#D4AF37] flex flex-col items-center gap-1 opacity-80">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-all flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="confirmation_number">confirmation_number</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-all flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="local_movies">local_movies</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-all flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-all flex flex-col items-center gap-1 mt-auto">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</body></html>

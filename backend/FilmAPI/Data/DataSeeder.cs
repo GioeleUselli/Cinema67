@@ -35,7 +35,7 @@ public class DataSeeder
             Email = adminEmail,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
             Nome = "Admin",
-            Cognome = "CineBase",
+            Cognome = "Cinema67",
             Ruolo = UserRole.Admin,
             DataRegistrazione = DateTime.UtcNow,
             CreditoResiduo = 0
@@ -86,7 +86,7 @@ public class DataSeeder
         {
             new Cinema
             {
-                Nome = "CineBase Roma",
+                Nome = "Cinema67 Roma",
                 Citta = "Roma",
                 Indirizzo = "Via Roma 123",
                 Latitudine = 41.9028,
@@ -96,7 +96,7 @@ public class DataSeeder
             },
             new Cinema
             {
-                Nome = "CineBase Milano",
+                Nome = "Cinema67 Milano",
                 Citta = "Milano",
                 Indirizzo = "Via Milano 456",
                 Latitudine = 45.4642,
@@ -106,7 +106,7 @@ public class DataSeeder
             },
             new Cinema
             {
-                Nome = "CineBase Napoli",
+                Nome = "Cinema67 Napoli",
                 Citta = "Napoli",
                 Indirizzo = "Via Napoli 789",
                 Latitudine = 40.8518,

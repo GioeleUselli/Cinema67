@@ -1,18 +1,18 @@
-# Tutorial Frontend CineBase: `index.html` e `programmazione.html`
+# Tutorial Frontend Cinema67: `index.html` e `programmazione.html`
 
 **Autore:** OpenCode  
 **Data:** Aprile 2026  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** frontend pubblico, caricamento componenti, home page, programmazione film-centric  
 
 ---
 
 ## 1. Obiettivo del tutorial
 
-Questo tutorial descrive in modo dettagliato il funzionamento di due pagine centrali del frontend pubblico di CineBase:
+Questo tutorial descrive in modo dettagliato il funzionamento di due pagine centrali del frontend pubblico di Cinema67:
 
-- `frontend/CineBase.Web/wwwroot/index.html`
-- `frontend/CineBase.Web/wwwroot/programmazione.html`
+- `frontend/Cinema67.Web/wwwroot/index.html`
+- `frontend/Cinema67.Web/wwwroot/programmazione.html`
 
 L’obiettivo è mostrare come le diverse parti del codice collaborano tra loro per costruire l’esperienza utente. In particolare, il documento spiega:
 
@@ -54,7 +54,7 @@ Prima di entrare nelle singole pagine, è utile chiarire il ruolo dei moduli con
 
 ### 3.1 `template-loader.js`
 
-Il file `frontend/CineBase.Web/wwwroot/js/template-loader.js` gestisce il caricamento dinamico di navbar e footer.
+Il file `frontend/Cinema67.Web/wwwroot/js/template-loader.js` gestisce il caricamento dinamico di navbar e footer.
 
 Il flusso è il seguente:
 
@@ -84,7 +84,7 @@ In particolare, la funzione `updateCinemaDisplay(cinemaName)` aggiorna il badge 
 
 ### 3.3 `navbar.js`
 
-Il file `frontend/CineBase.Web/wwwroot/js/navbar.js` si occupa di:
+Il file `frontend/Cinema67.Web/wwwroot/js/navbar.js` si occupa di:
 
 - evidenziare il link attivo nella navbar;
 - aprire e chiudere il menu mobile;
@@ -94,7 +94,7 @@ Questo comportamento viene attivato sia su `components:loaded` sia, come fallbac
 
 ### 3.4 `api.js`
 
-Il file `frontend/CineBase.Web/wwwroot/js/api.js` rappresenta il client HTTP del frontend.
+Il file `frontend/Cinema67.Web/wwwroot/js/api.js` rappresenta il client HTTP del frontend.
 
 Per quanto riguarda le pagine pubbliche trattate in questo tutorial, i metodi più importanti sono:
 
@@ -118,7 +118,7 @@ Per quanto riguarda le pagine pubbliche trattate in questo tutorial, i metodi pi
 
 ### 4.1 Struttura della pagina
 
-Il file `frontend/CineBase.Web/wwwroot/index.html` definisce due sezioni principali:
+Il file `frontend/Cinema67.Web/wwwroot/index.html` definisce due sezioni principali:
 
 - una **hero section** introduttiva;
 - una sezione **“In Evidenza Questa Settimana”**.
@@ -127,13 +127,13 @@ La home pubblica non è pensata come pagina operativa di ricerca. La sua funzion
 
 Per questo motivo:
 
-- la hero introduce il progetto CineBase;
+- la hero introduce il progetto Cinema67;
 - la sezione film mostra una selezione editoriale/algoritmica dei titoli più rilevanti;
 - il bottone principale rimanda a `programmazione.html`, che è la pagina operativa vera e propria.
 
 ### 4.2 Script associato: `home.js`
 
-Il comportamento della home è implementato in `frontend/CineBase.Web/wwwroot/js/pages/home.js`.
+Il comportamento della home è implementato in `frontend/Cinema67.Web/wwwroot/js/pages/home.js`.
 
 Alla `DOMContentLoaded`, lo script esegue due attività:
 
@@ -237,7 +237,7 @@ Se la home è una pagina di discovery, `programmazione.html` è invece una pagin
 
 ### 5.1 Struttura della pagina
 
-Il file `frontend/CineBase.Web/wwwroot/programmazione.html` contiene le seguenti aree principali:
+Il file `frontend/Cinema67.Web/wwwroot/programmazione.html` contiene le seguenti aree principali:
 
 1. **Cinema Header**
    - mostra il cinema selezionato;
@@ -269,7 +269,7 @@ Il file `frontend/CineBase.Web/wwwroot/programmazione.html` contiene le seguenti
 
 ### 5.2 Stato applicativo di `programmazione.js`
 
-Il file `frontend/CineBase.Web/wwwroot/js/pages/programmazione.js` usa un insieme di variabili modulo per rappresentare lo stato della pagina.
+Il file `frontend/Cinema67.Web/wwwroot/js/pages/programmazione.js` usa un insieme di variabili modulo per rappresentare lo stato della pagina.
 
 Le più importanti sono:
 
@@ -685,13 +685,13 @@ Per uno studente, queste due pagine rappresentano un esempio molto utile di come
 
 Per studiare direttamente il codice descritto in questo tutorial, conviene consultare in parallelo i seguenti file:
 
-- `frontend/CineBase.Web/wwwroot/index.html`
-- `frontend/CineBase.Web/wwwroot/js/pages/home.js`
-- `frontend/CineBase.Web/wwwroot/programmazione.html`
-- `frontend/CineBase.Web/wwwroot/js/pages/programmazione.js`
-- `frontend/CineBase.Web/wwwroot/js/template-loader.js`
-- `frontend/CineBase.Web/wwwroot/js/navbar.js`
-- `frontend/CineBase.Web/wwwroot/components/navbar-landing.html`
-- `frontend/CineBase.Web/wwwroot/js/api.js`
+- `frontend/Cinema67.Web/wwwroot/index.html`
+- `frontend/Cinema67.Web/wwwroot/js/pages/home.js`
+- `frontend/Cinema67.Web/wwwroot/programmazione.html`
+- `frontend/Cinema67.Web/wwwroot/js/pages/programmazione.js`
+- `frontend/Cinema67.Web/wwwroot/js/template-loader.js`
+- `frontend/Cinema67.Web/wwwroot/js/navbar.js`
+- `frontend/Cinema67.Web/wwwroot/components/navbar-landing.html`
+- `frontend/Cinema67.Web/wwwroot/js/api.js`
 
-Questa lettura incrociata consente di comprendere non solo il comportamento delle singole funzioni, ma soprattutto l’interazione tra i moduli che compongono il frontend pubblico di CineBase.
+Questa lettura incrociata consente di comprendere non solo il comportamento delle singole funzioni, ma soprattutto l’interazione tra i moduli che compongono il frontend pubblico di Cinema67.

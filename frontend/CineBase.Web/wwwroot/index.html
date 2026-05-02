@@ -2,9 +2,9 @@
 <html lang="it-IT">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineAura - La Tua Rete Cinematografica</title>
+  <title>Cinema67 - La Tua Rete Cinematografica</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
@@ -14,8 +14,8 @@
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
-  <script src="/js/theme.js"></script>
-  <script src="/js/route-guard.js"></script>
+  <script src="/js/theme.js?v=3"></script>
+  <script src="/js/route-guard.js?v=3"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans">
@@ -31,7 +31,7 @@
             <i class="fa-solid fa-sparkles"></i> Esperienza premium
           </span>
           <h1 class="hero-section-text text-4xl font-bold leading-tight md:text-6xl">
-            CineAura <span class="hero-section-text-accent">gestione cinema</span> in stile piattaforma moderna
+            Cinema67 <span class="hero-section-text-accent">gestione cinema</span> in stile piattaforma moderna
           </h1>
           <p class="hero-section-text max-w-2xl text-base leading-relaxed opacity-90 md:text-lg">
             Programmazione, controllo sale, gestione catalogo e operazioni admin in un unico ambiente visivo, veloce e pronto a scalare.
@@ -40,10 +40,22 @@
             <a href="/programmazione.html" class="btn-gold">
               <i class="fa-solid fa-calendar-days"></i> Scopri programmazione
             </a>
-            <a href="/login.html" class="btn-outline-brand-light">
+            <a href="/login.html" id="hero-login-btn" class="btn-outline-brand-light">
               <i class="fa-solid fa-right-to-bracket"></i> Accedi ora
             </a>
+            <a href="/profilo.html" id="hero-profile-btn" class="btn-outline-brand-light hidden">
+              <i class="fa-solid fa-user"></i> Il mio profilo
+            </a>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="promo-section" class="py-10">
+      <div class="mx-auto w-full max-w-[1280px] px-4">
+        <div class="mb-6"><p class="cine-kicker">Offerte e Promozioni</p><h2 class="cine-headline text-brand-on-surface">Scopri le nostre promo</h2></div>
+        <div id="promo-banners" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="cine-skeleton cine-skeleton-text col-span-full text-center py-6">Caricamento promozioni...</div>
         </div>
       </div>
     </section>
@@ -52,7 +64,7 @@
       <div class="mx-auto w-full max-w-[1280px] px-4">
         <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p class="cine-section-kicker">Selezione CineAura</p>
+            <p class="cine-section-kicker">Selezione Cinema67</p>
             <h2 class="cine-section-title">In evidenza questa settimana</h2>
           </div>
           <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Vedi tutti i film</a>
@@ -84,11 +96,11 @@
   <!-- Toast Container -->
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
-  <script src="/js/utils.js"></script>
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/template-loader.js"></script>
-  <script src="/js/navbar.js"></script>
+  <script src="/js/utils.js?v=3"></script>
+  <script src="/js/api-app.js?v=1"></script>
+  <script src="/js/auth.js?v=3"></script>
+  <script src="/js/template-loader.js?v=3"></script>
+  <script src="/js/navbar.js?v=3"></script>
   <script src="/js/pages/home.js"></script>
 </body>
 

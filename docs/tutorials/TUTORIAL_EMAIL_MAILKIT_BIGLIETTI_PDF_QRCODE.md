@@ -1,7 +1,7 @@
 # Tutorial didattico: email con MailKit, PDF con QuestPDF, QR code con QRCoder e ciclo completo del biglietto digitale
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** guida tutoriale accessibile per comprendere e realizzare il flusso completo dei biglietti digitali  
 
 ---
@@ -31,7 +31,7 @@
 
 ## 1. Obiettivo del tutorial
 
-Questo tutorial spiega in modo progressivo come si costruisce un sottosistema completo per i biglietti digitali in un'applicazione .NET come `CineBase`.
+Questo tutorial spiega in modo progressivo come si costruisce un sottosistema completo per i biglietti digitali in un'applicazione .NET come `Cinema67`.
 
 Il percorso tutoriale copre:
 
@@ -116,7 +116,7 @@ Google oggi raccomanda OAuth e `Sign in with Google`, ma per un backend .NET che
 
 1. L'operatore umano apre la guida ufficiale della verifica in due passaggi e attiva `2-Step Verification` sull'account Google che verrà usato come mittente.
 2. Terminata l'attivazione, l'operatore umano apre la pagina ufficiale delle password per app.
-3. Nella pagina delle password per app crea una nuova password dedicata al progetto, con un nome riconoscibile come `CineBase SMTP`.
+3. Nella pagina delle password per app crea una nuova password dedicata al progetto, con un nome riconoscibile come `Cinema67 SMTP`.
 4. Copia il valore generato e lo conserva in modo sicuro. Questo valore sostituisce la password normale dell'account nell'applicazione SMTP.
 5. Apre `backend/.env.example` per verificare i nomi ufficiali delle variabili attese dal progetto.
 6. Crea oppure aggiorna `backend/.env`.
@@ -129,10 +129,10 @@ Google oggi raccomanda OAuth e `Sign in with Google`, ma per un backend .NET che
 ```dotenv
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=cinebase.demo@gmail.com
+SMTP_USER=Cinema67.demo@gmail.com
 SMTP_PASSWORD=<password_per_app_google>
-SMTP_FROM_EMAIL=cinebase.demo@gmail.com
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_EMAIL=Cinema67.demo@gmail.com
+SMTP_FROM_NAME=Cinema67
 ```
 
 ## 4.4 Significato pratico delle variabili in Gmail
@@ -201,7 +201,7 @@ SMTP_PORT=587
 SMTP_USER=<indirizzo_outlook_completo>
 SMTP_PASSWORD=<app_password_microsoft>
 SMTP_FROM_EMAIL=<indirizzo_outlook_completo>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 ## 5.4 Cosa aspettarsi davvero dagli account Microsoft personali
@@ -233,7 +233,7 @@ SMTP_PORT=587
 SMTP_USER=<mailbox_microsoft_365>
 SMTP_PASSWORD=<credenziale_consentita_dal_tenant>
 SMTP_FROM_EMAIL=<indirizzo_mittente>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 Nota architetturale importante:
@@ -241,7 +241,7 @@ Nota architetturale importante:
 - la documentazione Microsoft raccomanda `Modern Auth` con OAuth
 - `Basic authentication` per client SMTP submission è in deprecazione
 - se `SMTP_FROM_EMAIL` è diverso dalla mailbox usata in `SMTP_USER`, possono servire permessi `Send As`
-- il modello attuale di `CineBase`, basato su sole variabili `SMTP_USER` e `SMTP_PASSWORD`, è perfettamente adatto a Gmail e `Twilio SendGrid`, ma non rappresenta l'intero caso `OAuth2-only` di Microsoft 365
+- il modello attuale di `Cinema67`, basato su sole variabili `SMTP_USER` e `SMTP_PASSWORD`, è perfettamente adatto a Gmail e `Twilio SendGrid`, ma non rappresenta l'intero caso `OAuth2-only` di Microsoft 365
 
 Conclusione pragmatica:
 
@@ -284,9 +284,9 @@ Vantaggi principali:
 - strumenti per bounce, spam complaint e suppressions
 - scalabilità su grandi volumi
 
-## 6.3 Perché Twilio SendGrid è particolarmente adatto a CineBase
+## 6.3 Perché Twilio SendGrid è particolarmente adatto a Cinema67
 
-Twilio SendGrid offre sia Web API sia SMTP relay. La documentazione ufficiale raccomanda spesso la Web API per nuovi progetti, ma nel caso di `CineBase` la scelta SMTP resta molto coerente perché:
+Twilio SendGrid offre sia Web API sia SMTP relay. La documentazione ufficiale raccomanda spesso la Web API per nuovi progetti, ma nel caso di `Cinema67` la scelta SMTP resta molto coerente perché:
 
 - la fase usa `MailKit`
 - il repository ha già placeholder `SMTP_*`
@@ -313,7 +313,7 @@ SMTP_PORT=587
 SMTP_USER=apikey
 SMTP_PASSWORD=<twilio_sendgrid_api_key>
 SMTP_FROM_EMAIL=<indirizzo_verificato_o_su_dominio_autenticato>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 Osservazione importante:
@@ -391,7 +391,7 @@ I placeholder ufficiali sono già presenti in `backend/.env.example`.
 | `SMTP_USER` | identità di autenticazione | email Gmail completa | email Outlook completa | `apikey` |
 | `SMTP_PASSWORD` | segreto di autenticazione | password per app Google | app password Microsoft o credenziale compatibile | API key Twilio SendGrid |
 | `SMTP_FROM_EMAIL` | mittente visibile | di norma uguale a `SMTP_USER` | di norma uguale a `SMTP_USER` | indirizzo verificato o su dominio autenticato |
-| `SMTP_FROM_NAME` | nome visualizzato | `CineBase` | `CineBase` | `CineBase` |
+| `SMTP_FROM_NAME` | nome visualizzato | `Cinema67` | `Cinema67` | `Cinema67` |
 
 ## 7.3 Blocchi `.env` pronti all'uso
 
@@ -400,10 +400,10 @@ I placeholder ufficiali sono già presenti in `backend/.env.example`.
 ```dotenv
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=cinebase.demo@gmail.com
+SMTP_USER=Cinema67.demo@gmail.com
 SMTP_PASSWORD=<password_per_app_google>
-SMTP_FROM_EMAIL=cinebase.demo@gmail.com
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_EMAIL=Cinema67.demo@gmail.com
+SMTP_FROM_NAME=Cinema67
 ```
 
 ### Outlook.com personale
@@ -414,7 +414,7 @@ SMTP_PORT=587
 SMTP_USER=<indirizzo_outlook_completo>
 SMTP_PASSWORD=<app_password_microsoft>
 SMTP_FROM_EMAIL=<indirizzo_outlook_completo>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 ### Twilio SendGrid
@@ -425,7 +425,7 @@ SMTP_PORT=587
 SMTP_USER=apikey
 SMTP_PASSWORD=<twilio_sendgrid_api_key>
 SMTP_FROM_EMAIL=tickets@example.com
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 ## 7.4 Nota su `STARTTLS` e porta `587`
@@ -504,7 +504,7 @@ using MimeKit;
 public async Task SendOrderEmailAsync()
 {
     var message = new MimeMessage();
-    message.From.Add(new MailboxAddress("CineBase", "cinebase.demo@gmail.com"));
+    message.From.Add(new MailboxAddress("Cinema67", "Cinema67.demo@gmail.com"));
     message.To.Add(MailboxAddress.Parse("utente@example.com"));
     message.Subject = "Conferma acquisto biglietti";
 
@@ -528,7 +528,7 @@ public async Task SendOrderEmailAsync()
 
     using var client = new SmtpClient();
     await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-    await client.AuthenticateAsync("cinebase.demo@gmail.com", "APP_PASSWORD");
+    await client.AuthenticateAsync("Cinema67.demo@gmail.com", "APP_PASSWORD");
     await client.SendAsync(message);
     await client.DisconnectAsync(true);
 }
@@ -583,7 +583,7 @@ public byte[] GenerateTicketPdf(IEnumerable<TicketPdfModel> tickets)
             container.Page(page =>
             {
                 page.Margin(24);
-                page.Header().Text("CineBase - Biglietto digitale").SemiBold().FontSize(18);
+                page.Header().Text("Cinema67 - Biglietto digitale").SemiBold().FontSize(18);
 
                 page.Content().Column(column =>
                 {
@@ -836,4 +836,4 @@ Il sottosistema di ticketing digitale è un ottimo esempio di architettura appli
 
 Una realizzazione corretta non si limita a far partire una email con un allegato, ma costruisce un ciclo di vita coerente del biglietto: creazione, distribuzione, consultazione, validazione.
 
-Questa è la prospettiva giusta con cui affrontare la `FASE 8` di `CineBase`.
+Questa è la prospettiva giusta con cui affrontare la `FASE 8` di `Cinema67`.

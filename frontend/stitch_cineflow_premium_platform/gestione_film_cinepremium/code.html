@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CINEAURA Admin - Gestione Catalogo Film</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Noto+Serif:wght@600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tap-highlight-transparent {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #121212;
+            color: #eae1d4;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#554300",
+                        "surface-tint": "#e9c349",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#254188",
+                        "outline-variant": "#4d4635",
+                        "secondary-fixed": "#e2e2e2",
+                        "primary-container": "#d4af37",
+                        "surface-container-low": "#1f1b13",
+                        "primary-fixed": "#ffe088",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "surface": "#16130b",
+                        "surface-bright": "#3d392f",
+                        "on-secondary": "#2f3131",
+                        "on-tertiary-fixed-variant": "#27438a",
+                        "on-secondary-container": "#b5b5b5",
+                        "on-background": "#eae1d4",
+                        "on-primary-fixed-variant": "#574500",
+                        "tertiary-container": "#97b0ff",
+                        "background": "#16130b",
+                        "on-error": "#690005",
+                        "surface-container": "#231f17",
+                        "on-tertiary-fixed": "#00174b",
+                        "on-surface-variant": "#d0c5af",
+                        "primary-fixed-dim": "#e9c349",
+                        "secondary": "#c6c6c6",
+                        "surface-container-highest": "#38342b",
+                        "secondary-fixed-dim": "#c6c6c6",
+                        "secondary-container": "#454747",
+                        "tertiary": "#bfcdff",
+                        "error-container": "#93000a",
+                        "on-primary-fixed": "#241a00",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "error": "#ffb4ab",
+                        "inverse-primary": "#735c00",
+                        "on-primary": "#3c2f00",
+                        "surface-dim": "#16130b",
+                        "inverse-surface": "#eae1d4",
+                        "tertiary-fixed": "#dbe1ff",
+                        "inverse-on-surface": "#343027",
+                        "on-surface": "#eae1d4",
+                        "outline": "#99907c",
+                        "on-secondary-fixed-variant": "#454747",
+                        "surface-container-lowest": "#110e07",
+                        "surface-variant": "#38342b",
+                        "primary": "#f2ca50",
+                        "surface-container-high": "#2d2a21",
+                        "on-tertiary": "#082b72"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "lg": "48px",
+                        "xl": "80px",
+                        "sm": "12px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Noto Serif"],
+                        "display-lg": ["Noto Serif"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Noto Serif"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="flex min-h-screen bg-surface-dim font-body-md overflow-x-hidden">
+<!-- NavigationDrawer (Admin Console) -->
+<aside class="hidden lg:flex flex-col h-screen fixed left-0 top-0 pt-20 bg-neutral-950 dark:bg-[#121212] w-64 border-r border-[#2C2C2C] z-40">
+<div class="px-6 mb-8">
+<span class="font-serif text-sm uppercase text-[#D4AF37] font-bold tracking-widest">CINEAURA CONSOLE</span>
+</div>
+<nav class="flex flex-col space-y-1">
+<a class="text-neutral-400 hover:bg-[#1E1E1E] hover:text-white px-6 py-3 transition-all flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-serif text-sm uppercase">Dashboard</span>
+</a>
+<a class="text-neutral-400 hover:bg-[#1E1E1E] hover:text-white px-6 py-3 transition-all flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="confirmation_number">confirmation_number</span>
+<span class="font-serif text-sm uppercase">Bookings</span>
+</a>
+<a class="bg-[#1E1E1E] text-[#D4AF37] border-l-4 border-[#D4AF37] font-bold px-6 py-3 transition-all flex items-center gap-3 active:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="local_movies">local_movies</span>
+<span class="font-serif text-sm uppercase">Movies</span>
+</a>
+<a class="text-neutral-400 hover:bg-[#1E1E1E] hover:text-white px-6 py-3 transition-all flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-serif text-sm uppercase">Analytics</span>
+</a>
+<a class="text-neutral-400 hover:bg-[#1E1E1E] hover:text-white px-6 py-3 transition-all flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-serif text-sm uppercase">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-neutral-950 dark:bg-[#121212] border-b border-[#2C2C2C] sticky top-0 z-30">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-[1280px] mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#D4AF37]" data-icon="theaters">theaters</span>
+<h1 class="font-serif text-xl font-bold text-[#D4AF37] tracking-[0.2em] uppercase">CINEAURA</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-neutral-400 hover:text-[#D4AF37] transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional headshot of a mature male cinema manager in a formal suit with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmo5tC4IbT5CDBlm86ChJ-mhk91feQoOlFWwb4arGKg1qW_ptKWSPEJTgSdcHXgtE2UyS6cOqxh8PaGbFfvSNzbgG4xiBVGuzbYjW9fE10_BGEeuhEffOiEK0O79DCV33UUMRA9Cn3--0g-4kqMVtOVHhOMriYygvt8Wdr9FG6oIT7vMWA5njPF-psvjnhtx3fC7EMeOrOu5qbcjhBvMPKGGSoae8Wfm2Kulsf8H2i4BU2H-4gm4pvRs7QkfFwmTYqxkNUKt3Cbzo"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Header & Actions -->
+<div class="p-gutter max-w-[1280px] w-full mx-auto space-y-lg">
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Gestione Catalogo Film</h2>
+<p class="text-body-md text-on-surface-variant">Monitora, modifica e aggiorna la programmazione cinematografica.</p>
+</div>
+<button class="bg-[#D4AF37] text-black font-semibold px-md py-sm rounded-lg hover:bg-surface-tint transition-all flex items-center gap-2 w-fit">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+<span class="font-label-caps text-label-caps">+ Aggiungi Nuovo Film</span>
+</button>
+</section>
+<!-- Filters Bar -->
+<section class="bg-[#1E1E1E] border border-[#2C2C2C] p-md rounded-lg">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md items-end">
+<div class="md:col-span-2">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">CERCA TITOLO</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-[#121212] border border-[#2C2C2C] rounded text-on-surface pl-10 py-2 focus:border-[#D4AF37] outline-none transition-colors" placeholder="Es. Oppenheimer, Dune..." type="text"/>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">GENERE</label>
+<select class="w-full bg-[#121212] border border-[#2C2C2C] rounded text-on-surface py-2 px-3 focus:border-[#D4AF37] outline-none transition-colors appearance-none">
+<option>Tutti i generi</option>
+<option>Azione</option>
+<option>Drammatico</option>
+<option>Fantascienza</option>
+<option>Thriller</option>
+</select>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">ANNO</label>
+<select class="w-full bg-[#121212] border border-[#2C2C2C] rounded text-on-surface py-2 px-3 focus:border-[#D4AF37] outline-none transition-colors appearance-none">
+<option>Tutti gli anni</option>
+<option>2024</option>
+<option>2023</option>
+<option>2022</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Management Table -->
+<section class="bg-[#1E1E1E] border border-[#2C2C2C] rounded-lg overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-[#2C2C2C] bg-neutral-900/50">
+<th class="px-md py-sm font-label-caps text-label-caps text-outline uppercase">Poster</th>
+<th class="px-md py-sm font-label-caps text-label-caps text-outline uppercase">Titolo</th>
+<th class="px-md py-sm font-label-caps text-label-caps text-outline uppercase">Genere</th>
+<th class="px-md py-sm font-label-caps text-label-caps text-outline uppercase">Data Uscita</th>
+<th class="px-md py-sm font-label-caps text-label-caps text-outline uppercase">Status</th>
+<th class="px-md py-sm font-label-caps text-label-caps text-outline uppercase text-right">Azioni</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#2C2C2C]">
+<!-- Row 1 -->
+<tr class="hover:bg-[#282828] transition-colors group">
+<td class="px-md py-sm">
+<div class="w-12 h-16 bg-[#121212] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Cinematic movie poster with dark moody aesthetics and vibrant neon highlights for a modern thriller" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1Ij452KzZ4txxZEu3rGLPoEQA4vF-qrg-N8zz7YIRX9TTAO-9D43dEZmKOz6zNaXVd4eMawgvZhfwNmm3nj1bYE7XFpLzMAoOkOG0JspE8qsaj2IgDBIV0I8A7GruxwSyfAJpQvyuWeJ2s1wrKJOCD65_LudbIrXEe43-ANvYirjjZ-F38HnJjCnaFx5_VRCagUkted1ImxK83h4lg4yq0V6LiGfzShrdGjHl8SewRH50MJMfOeQwkwaqGIPnY3Oi9Ny8BoFvjtI"/>
+</div>
+</td>
+<td class="px-md py-sm">
+<div class="font-headline-sm text-[16px] text-on-surface">Ombre Metropolitane</div>
+<div class="text-[12px] text-outline">Regia: Marco Rossi</div>
+</td>
+<td class="px-md py-sm text-body-md text-on-surface-variant">Thriller / Noir</td>
+<td class="px-md py-sm text-body-md text-on-surface-variant">12 Mag 2024</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#121212] border border-[#D4AF37] text-[#D4AF37] text-[10px] font-bold uppercase tracking-wider">In programmazione</span>
+</td>
+<td class="px-md py-sm text-right">
+<div class="flex justify-end gap-base">
+<button class="p-2 text-outline hover:text-[#D4AF37] transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-[#282828] transition-colors group">
+<td class="px-md py-sm">
+<div class="w-12 h-16 bg-[#121212] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Abstract cinematic art with warm gold and deep black tones reflecting luxury and classic cinema style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9hH3Rka6E1oqTShoaqbCIsSGotX6imrIySjHngLdUKCSg6P_XwYnJT-nqkfxrf_9G11KWbOqpTd7DSLMd52z-nLvnpzDAe7RWCtq4luOOCaRT9sjVAmWkmMs4PhF9OyXQ4qCky8x-4bOehjS3fJPkJMUNIQyvnIjRXf38nB_eaklFYwCpRsmeiLHCRPgv2gz8raOs6-otwvgBeNClQpcv7XS3NERZsyd5TvoP25HDgGxBjWTR-gomCK7YlnCiaPPNJP8qBASvVF0"/>
+</div>
+</td>
+<td class="px-md py-sm">
+<div class="font-headline-sm text-[16px] text-on-surface">L'Ultimo Sipario</div>
+<div class="text-[12px] text-outline">Regia: Sofia Lorenzi</div>
+</td>
+<td class="px-md py-sm text-body-md text-on-surface-variant">Drammatico</td>
+<td class="px-md py-sm text-body-md text-on-surface-variant">28 Giu 2024</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#121212] border border-outline text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Prossimamente</span>
+</td>
+<td class="px-md py-sm text-right">
+<div class="flex justify-end gap-base">
+<button class="p-2 text-outline hover:text-[#D4AF37] transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-[#282828] transition-colors group">
+<td class="px-md py-sm">
+<div class="w-12 h-16 bg-[#121212] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Epic science fiction scenery with space motifs and futuristic architectural elements under cold blue lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRrzbLXWPMJA1WcmDD7HpdAuApSBXY6cqduUAMtk-uBNvUxng9Lsv8_lN8Bgj_04CdWIksfldQx4LKuh0LeCEFgryDHXL5QG2IW_C1VnFSBbXF9HE-zG7oaeSQYUofrvairVnMv41c65qbL9e2cKYd_5WJ4A-sVGBPtXVwyURWTh-I3BbxVO4-JCrV97V71nHRNlxNXSJriLJZp9ncaTi8p6GXFwL_l8Sv7RaUmbGR8NNhD1ednuCbf37xZVr2cx5Uz4obU-JYx1o"/>
+</div>
+</td>
+<td class="px-md py-sm">
+<div class="font-headline-sm text-[16px] text-on-surface">Oltre l'Orizzonte</div>
+<div class="text-[12px] text-outline">Regia: Arthur Clarke</div>
+</td>
+<td class="px-md py-sm text-body-md text-on-surface-variant">Fantascienza</td>
+<td class="px-md py-sm text-body-md text-on-surface-variant">15 Gen 2024</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#121212] border border-error-container text-error text-[10px] font-bold uppercase tracking-wider">Archivio</span>
+</td>
+<td class="px-md py-sm text-right">
+<div class="flex justify-end gap-base">
+<button class="p-2 text-outline hover:text-[#D4AF37] transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-md py-4 border-t border-[#2C2C2C] flex items-center justify-between">
+<span class="text-[12px] text-outline uppercase tracking-widest">Mostrando 1-10 di 48 film</span>
+<div class="flex items-center gap-xs">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-[#2C2C2C] text-outline hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-[#D4AF37] text-black font-bold text-[12px]">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-[#2C2C2C] text-outline hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors text-[12px]">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-[#2C2C2C] text-outline hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors text-[12px]">3</button>
+<span class="px-1 text-outline">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-[#2C2C2C] text-outline hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors text-[12px]">5</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-[#2C2C2C] text-outline hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<footer class="mt-auto py-md px-gutter border-t border-[#2C2C2C] text-center">
+<p class="text-[12px] text-outline uppercase tracking-[0.2em]">© 2024 CINEAURA PREMIUM EXPERIENCE. TUTTI I DIRITTI RISERVATI.</p>
+</footer>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-neutral-900/95 dark:bg-[#1E1E1E]/95 backdrop-blur-md border-t border-[#2C2C2C] shadow-2xl h-16 pb-safe flex justify-around items-center">
+<a class="flex flex-col items-center justify-center text-neutral-500 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-serif text-[10px] uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-serif text-[10px] uppercase tracking-widest">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#D4AF37] scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="movie">movie</span>
+<span class="font-serif text-[10px] uppercase tracking-widest">Cinema</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-serif text-[10px] uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+</body></html>

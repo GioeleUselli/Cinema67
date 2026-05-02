@@ -101,6 +101,10 @@ public class CreditoService : ICreditoService
         if (dto.Importo <= 0)
             throw new ArgumentException("L'importo della ricarica deve essere maggiore di zero.");
 
+        await using var transaction = _db.Database.CurrentTransaction == null
+            ? await _db.Database.BeginTransactionAsync()
+            : null;
+
         var operatore = await _db.Users.FindAsync(operatorUserId);
         if (operatore is null)
             throw new InvalidOperationException("Operatore non trovato.");
@@ -137,6 +141,7 @@ public class CreditoService : ICreditoService
 
         _db.MovimentiCredito.Add(movimento);
         await _db.SaveChangesAsync();
+        if (transaction != null) await transaction.CommitAsync();
 
         movimento = await _db.MovimentiCredito
             .Include(m => m.User)
@@ -163,6 +168,10 @@ public class CreditoService : ICreditoService
     {
         if (importo <= 0)
             throw new ArgumentException("L'importo da addebitare deve essere maggiore di zero.");
+
+        await using var transaction = _db.Database.CurrentTransaction == null
+            ? await _db.Database.BeginTransactionAsync()
+            : null;
 
         var existing = await _db.MovimentiCredito
             .FirstOrDefaultAsync(m => m.UserId == userId && m.OrdineId == orderId && m.Tipo == MovimentoCreditoTipo.DebitOrder);
@@ -194,6 +203,7 @@ public class CreditoService : ICreditoService
         user.CreditoResiduo = saldoPost;
         _db.MovimentiCredito.Add(movimento);
         await _db.SaveChangesAsync();
+        if (transaction != null) await transaction.CommitAsync();
         return movimento;
     }
 

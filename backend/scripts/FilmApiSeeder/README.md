@@ -1,6 +1,6 @@
 # FilmApiSeeder
 
-`FilmApiSeeder` e un progetto console standalone pensato per inizializzare rapidamente un ambiente locale di `CineBase` con dati realistici e credibili, senza dover inserire manualmente film, cinema, sale e programmazione.
+`FilmApiSeeder` e un progetto console standalone pensato per inizializzare rapidamente un ambiente locale di `Cinema67` con dati realistici e credibili, senza dover inserire manualmente film, cinema, sale e programmazione.
 
 Lo scopo del progetto e duplice:
 

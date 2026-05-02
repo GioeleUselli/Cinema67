@@ -62,11 +62,11 @@ Data aggiornamento: 2026-04-25
 - `backend/FilmAPI/Endpoints/CheckoutEndpoints.cs`: aggiunti `POST /checkout/orders/{orderId}/stripe-checkout-session`, `GET /checkout/orders/{orderId}/checkout-status`, `POST /checkout/orders/{orderId}/reconcile-checkout-session`
 
 ### Frontend — Pagamento ed esito
-- `frontend/CineBase.Web/wwwroot/js/pages/pagamento.js`: rimosso flusso `Stripe Elements`; carta e misto ora creano `Checkout Session` e reindirizzano a Stripe hosted, solo credito resta backend-only
-- `frontend/CineBase.Web/wwwroot/pagamento.html`: rimossa form embedded Stripe, aggiunta UX informativa sul redirect hosted
-- `frontend/CineBase.Web/wwwroot/js/pages/esito-acquisto.js`: riconciliazione automatica al ritorno da Stripe con `?success=true`, polling backend fino a convergenza ordine, fix listener duplicati sul download PDF
-- `frontend/CineBase.Web/wwwroot/js/api.js`: aggiunti metodi API `createStripeCheckoutSession`, `getCheckoutStatus`, `reconcileCheckoutSession`
-- `frontend/CineBase.Web/wwwroot/pagamento.html` e `esito-acquisto.html`: aggiunto cache-busting querystring sugli asset JS coinvolti nel nuovo flusso
+- `frontend/Cinema67.Web/wwwroot/js/pages/pagamento.js`: rimosso flusso `Stripe Elements`; carta e misto ora creano `Checkout Session` e reindirizzano a Stripe hosted, solo credito resta backend-only
+- `frontend/Cinema67.Web/wwwroot/pagamento.html`: rimossa form embedded Stripe, aggiunta UX informativa sul redirect hosted
+- `frontend/Cinema67.Web/wwwroot/js/pages/esito-acquisto.js`: riconciliazione automatica al ritorno da Stripe con `?success=true`, polling backend fino a convergenza ordine, fix listener duplicati sul download PDF
+- `frontend/Cinema67.Web/wwwroot/js/api.js`: aggiunti metodi API `createStripeCheckoutSession`, `getCheckoutStatus`, `reconcileCheckoutSession`
+- `frontend/Cinema67.Web/wwwroot/pagamento.html` e `esito-acquisto.html`: aggiunto cache-busting querystring sugli asset JS coinvolti nel nuovo flusso
 
 ### Test e verifiche
 - `tests/backend/Integration/CheckoutHostedIntegrationTests.cs`: aggiunti 13 test dedicati per sessione hosted carta/misto, webhook completed/expired, riconciliazione, duplicate webhook, cancel, rilascio credito, no double debit e regressioni `payment_intent.failed/canceled`
@@ -77,37 +77,37 @@ Data aggiornamento: 2026-04-25
 ## Completato in sessione 2026-04-25 (Iterazione 4 — Fase 12: Frontend admin sale, show, ricarica credito, validazione ticket)
 
 ### Frontend — Gestione Sale con editor visuale piantina
-- `frontend/CineBase.Web/wwwroot/sale.html`: pagina admin con filtro cinema, tabella sale (numero progressivo, nome, tipologia 2D/3D/ISENSE/XL, supplemento, stato attivo/non attivo, conteggio posti), modale crea/modifica sala con validazione campi
-- `frontend/CineBase.Web/wwwroot/js/pages/sale.js`: CRUD completo via endpoint `SaleEndpoints`, editor piantina interattivo:
+- `frontend/Cinema67.Web/wwwroot/sale.html`: pagina admin con filtro cinema, tabella sale (numero progressivo, nome, tipologia 2D/3D/ISENSE/XL, supplemento, stato attivo/non attivo, conteggio posti), modale crea/modifica sala con validazione campi
+- `frontend/Cinema67.Web/wwwroot/js/pages/sale.js`: CRUD completo via endpoint `SaleEndpoints`, editor piantina interattivo:
   - generazione griglia per settore (es. PLATEA), numero file, posti per fila
   - anteprima clickabile con stati visivi (disponibile, disattivato, posto disabile)
   - pulsanti toggle per attivare/disattivare posti e marcare posti wheelchair
   - salvataggio completo configurazione via `PUT /sale/{salaId}/posti`
-- `frontend/CineBase.Web/wwwroot/css/styles.css`: stili `.seat-btn`, `.seat-available`, `.seat-inactive`, `.seat-wheelchair` con hover e transizioni
+- `frontend/Cinema67.Web/wwwroot/css/styles.css`: stili `.seat-btn`, `.seat-available`, `.seat-inactive`, `.seat-wheelchair` con hover e transizioni
 
 ### Frontend — Workspace Show multi-sala
-- `frontend/CineBase.Web/wwwroot/proiezioni.html`: rifatta come workspace show con colonne (ID, Film, Cinema, Sala, Tipologia, Inizio, Prezzo), cascading dropdown cinema→sala nel form, filtri per cinema/sala/film/data, paginazione
-- `frontend/CineBase.Web/wwwroot/js/pages/proiezioni.js`: riscritto per consumare endpoint `/shows` con `normalizeCollection`, `normalizePaged`, `datetime-local` per `StartAtUtc`, durata e prezzo opzionali
+- `frontend/Cinema67.Web/wwwroot/proiezioni.html`: rifatta come workspace show con colonne (ID, Film, Cinema, Sala, Tipologia, Inizio, Prezzo), cascading dropdown cinema→sala nel form, filtri per cinema/sala/film/data, paginazione
+- `frontend/Cinema67.Web/wwwroot/js/pages/proiezioni.js`: riscritto per consumare endpoint `/shows` con `normalizeCollection`, `normalizePaged`, `datetime-local` per `StartAtUtc`, durata e prezzo opzionali
 
 ### Frontend — Ricarica Credito
-- `frontend/CineBase.Web/wwwroot/ricarica-credito.html`: ricerca utente per email, card risultati con nome/email/saldo, form ricarica con importo/cinema operativo/note, storico ricariche recenti
-- `frontend/CineBase.Web/wwwroot/js/pages/ricarica-credito.js`: `GET /admin/credito/users?email=`, `POST /admin/credito/ricariche`, aggiornamento saldo in tempo reale dopo ricarica
+- `frontend/Cinema67.Web/wwwroot/ricarica-credito.html`: ricerca utente per email, card risultati con nome/email/saldo, form ricarica con importo/cinema operativo/note, storico ricariche recenti
+- `frontend/Cinema67.Web/wwwroot/js/pages/ricarica-credito.js`: `GET /admin/credito/users?email=`, `POST /admin/credito/ricariche`, aggiornamento saldo in tempo reale dopo ricarica
 
 ### Frontend — Validazione Biglietti con scanner QR/barcode
-- `frontend/CineBase.Web/wwwroot/validazione-biglietti.html`: selettore cinema operativo (persistito `sessionStorage`), input codice, lookup dettaglio biglietto, validazione con feedback visivo, supporto `?codice=` query string, scanner area con pulsante toggle
-- `frontend/CineBase.Web/wwwroot/js/pages/validazione-biglietti.js`: `GET /admin/tickets/validate/{code}`, `POST /admin/tickets/validate`, scanner via `BarcodeDetector` API (`getSupportedFormats`, `getUserMedia` facingMode environment, detection loop `requestAnimationFrame`), fallback manuale, cronologia validazioni recenti (ultime 10)
+- `frontend/Cinema67.Web/wwwroot/validazione-biglietti.html`: selettore cinema operativo (persistito `sessionStorage`), input codice, lookup dettaglio biglietto, validazione con feedback visivo, supporto `?codice=` query string, scanner area con pulsante toggle
+- `frontend/Cinema67.Web/wwwroot/js/pages/validazione-biglietti.js`: `GET /admin/tickets/validate/{code}`, `POST /admin/tickets/validate`, scanner via `BarcodeDetector` API (`getSupportedFormats`, `getUserMedia` facingMode environment, detection loop `requestAnimationFrame`), fallback manuale, cronologia validazioni recenti (ultime 10)
 
 ### Frontend — Infrastruttura condivisa
-- `frontend/CineBase.Web/wwwroot/js/api.js`: 17 nuovi metodi API (Sale: `getSale`, `getSala`, `createSala`, `updateSala`, `deleteSala`, `getSalaPosti`, `saveSalaPosti`; Shows: `getShows`, `getShow`, `createShow`, `updateShow`, `deleteShow`; Credito Admin: `getUserByEmail`, `getRicariche`, `ricaricaCredito`; Validazione: `lookupTicket`, `validateTicket`); aggiornata `isAdminAreaPath` con `sale.html`, `ricarica-credito.html`, `validazione-biglietti.html`
-- `frontend/CineBase.Web/wwwroot/js/route-guard.js`: aggiunte `/sale.html`, `/ricarica-credito.html`, `/validazione-biglietti.html` con `{ roles: ['poweruser', 'admin'], authRequired: true }`
-- `frontend/CineBase.Web/wwwroot/js/template-loader.js`: aggiunte le 3 nuove pagine a `adminShellPaths`
-- `frontend/CineBase.Web/wwwroot/js/admin-shell.js`: aggiunte a `ADMIN_PATHS`, `PAGE_TITLES` e sidebar con nuova sezione dedicata (icone `fa-chair`, `fa-coins`, `fa-qrcode`), separatore visivo tra sezione classica e operativa
+- `frontend/Cinema67.Web/wwwroot/js/api.js`: 17 nuovi metodi API (Sale: `getSale`, `getSala`, `createSala`, `updateSala`, `deleteSala`, `getSalaPosti`, `saveSalaPosti`; Shows: `getShows`, `getShow`, `createShow`, `updateShow`, `deleteShow`; Credito Admin: `getUserByEmail`, `getRicariche`, `ricaricaCredito`; Validazione: `lookupTicket`, `validateTicket`); aggiornata `isAdminAreaPath` con `sale.html`, `ricarica-credito.html`, `validazione-biglietti.html`
+- `frontend/Cinema67.Web/wwwroot/js/route-guard.js`: aggiunte `/sale.html`, `/ricarica-credito.html`, `/validazione-biglietti.html` con `{ roles: ['poweruser', 'admin'], authRequired: true }`
+- `frontend/Cinema67.Web/wwwroot/js/template-loader.js`: aggiunte le 3 nuove pagine a `adminShellPaths`
+- `frontend/Cinema67.Web/wwwroot/js/admin-shell.js`: aggiunte a `ADMIN_PATHS`, `PAGE_TITLES` e sidebar con nuova sezione dedicata (icone `fa-chair`, `fa-coins`, `fa-qrcode`), separatore visivo tra sezione classica e operativa
 
 ### Frontend — Dashboard aggiornata
-- `frontend/CineBase.Web/wwwroot/dashboard.html`: aggiunte card quick link a Sale/Ricarica Credito/Validazione Biglietti; migrata sezione "Proiezioni in Programma" a "Show in Programma" usando `/shows`; bottone "Aggiungi Show" crea show invece di proiezione
+- `frontend/Cinema67.Web/wwwroot/dashboard.html`: aggiunte card quick link a Sale/Ricarica Credito/Validazione Biglietti; migrata sezione "Proiezioni in Programma" a "Show in Programma" usando `/shows`; bottone "Aggiungi Show" crea show invece di proiezione
 
 ### Verifiche
-- `dotnet build frontend/CineBase.Web/CineBase.Web.csproj`: **OK** (0 warning, 0 errori)
+- `dotnet build frontend/Cinema67.Web/Cinema67.Web.csproj`: **OK** (0 warning, 0 errori)
 - `dotnet test tests/backend/FilmAPI.Tests.csproj`: **231/231 PASS**
 - Nessuna modifica backend (tutti gli endpoint già esposti dalle fasi precedenti)
 
@@ -130,7 +130,7 @@ Data aggiornamento: 2026-04-25
 - `STRIPE_WEBHOOK_SECRET` obbligatorio all'avvio
 
 ### Fix Sicurezza
-- `frontend/CineBase.Web/wwwroot/js/route-guard.js`: corretto open redirect — `?redirect=` ora validato per accettare solo path relativi (`/` senza `//`)
+- `frontend/Cinema67.Web/wwwroot/js/route-guard.js`: corretto open redirect — `?redirect=` ora validato per accettare solo path relativi (`/` senza `//`)
 
 ### Decisione Cleanup Legacy
 - **Proiezione/Prenotazione NON rimosse dal backend** — `PrenotazioneService` ancora dipende da tabelle legacy; 22+ test file referenziano le entità; mantenute come compat layer read-only
@@ -140,34 +140,34 @@ Data aggiornamento: 2026-04-25
 ## Completato in sessione 2026-04-25 (Iterazione 4 — Fase 13.1: Cleanup frontend legacy e rimozione codice deprecato)
 
 ### Frontend — Cleanup API methods
-- `frontend/CineBase.Web/wwwroot/js/api.js`: rimossi `createProiezione`, `updateProiezione`, `deleteProiezione`, `getPrenotazioni`, `createPrenotazione`, `deletePrenotazione` — mantenuti solo `getProiezioni` e `getProiezione` in read-only
+- `frontend/Cinema67.Web/wwwroot/js/api.js`: rimossi `createProiezione`, `updateProiezione`, `deleteProiezione`, `getPrenotazioni`, `createPrenotazione`, `deletePrenotazione` — mantenuti solo `getProiezioni` e `getProiezione` in read-only
 
 ### Frontend — Profilo pulito
-- `frontend/CineBase.Web/wwwroot/profilo.html`: rimossa sezione "Prenotazioni (legacy)"
-- `frontend/CineBase.Web/wwwroot/js/pages/profilo.js`: rimosse `loadPrenotazioniLegacy()` e `deletePrenotazione()`, rimossa chiamata dal `DOMContentLoaded`
+- `frontend/Cinema67.Web/wwwroot/profilo.html`: rimossa sezione "Prenotazioni (legacy)"
+- `frontend/Cinema67.Web/wwwroot/js/pages/profilo.js`: rimosse `loadPrenotazioniLegacy()` e `deletePrenotazione()`, rimossa chiamata dal `DOMContentLoaded`
 
 ### Frontend — Dashboard semplificata
-- `frontend/CineBase.Web/wwwroot/dashboard.html`: rimosso modale duplicato "Aggiungi Proiezione" e funzioni inline associate; pulsante ora è un link diretto a `/proiezioni.html`
+- `frontend/Cinema67.Web/wwwroot/dashboard.html`: rimosso modale duplicato "Aggiungi Proiezione" e funzioni inline associate; pulsante ora è un link diretto a `/proiezioni.html`
 
 ### Verifiche
-- `dotnet build frontend/CineBase.Web/CineBase.Web.csproj`: **OK** (0 warning, 0 errori)
+- `dotnet build frontend/Cinema67.Web/Cinema67.Web.csproj`: **OK** (0 warning, 0 errori)
 - `dotnet test tests/backend/FilmAPI.Tests.csproj`: **231/231 PASS**
 - Nessuna modifica backend (tutti i servizi ed endpoint mantenuti)
 
 ## Completato in sessione 2026-04-25 (Iterazione 4 — Fase 12.1: Hotfix e UX enhancement validazione)
 
 ### Fix — Parsing errori API
-- `frontend/CineBase.Web/wwwroot/js/api.js`: `apiFetch` ora gestisce risposte di errore JSON come stringhe pure (es. `"Il biglietto appartiene a un cinema diverso..."` restituite da `Results.Conflict()` in ASP.NET Core Minimal API) — prima cercava `errorJson.message` su una stringa ottenendo `undefined` e mostrando "Errore di rete"
+- `frontend/Cinema67.Web/wwwroot/js/api.js`: `apiFetch` ora gestisce risposte di errore JSON come stringhe pure (es. `"Il biglietto appartiene a un cinema diverso..."` restituite da `Results.Conflict()` in ASP.NET Core Minimal API) — prima cercava `errorJson.message` su una stringa ottenendo `undefined` e mostrando "Errore di rete"
 
 ### Fix — Form ricarica credito
-- `frontend/CineBase.Web/wwwroot/ricarica-credito.html`: aggiunti `name="importo"` e `name="note"` mancanti sugli input — `form.importo` in JS risolve per `name`, non per `id`; il form era muto e la ricarica non veniva inviata
+- `frontend/Cinema67.Web/wwwroot/ricarica-credito.html`: aggiunti `name="importo"` e `name="note"` mancanti sugli input — `form.importo` in JS risolve per `name`, non per `id`; il form era muto e la ricarica non veniva inviata
 
 ### Enhancement — Modalità Auto Click validazione biglietti
-- `frontend/CineBase.Web/wwwroot/validazione-biglietti.html`: toggle Normale / Auto Click con persistenza `localStorage` (`cb_validation_mode`), banner informativo, cambio label/stile pulsante (Verifica→Valida, gold→emerald)
-- `frontend/CineBase.Web/wwwroot/js/pages/validazione-biglietti.js`: `autoValidate()` — salta il flusso lookup+valida ed esegue direttamente `POST /admin/tickets/validate`; attivazione via Enter, scanner barcode o `?codice=`; guardia anti-doppio submit; riepilogo immediato; persistenza cinema via `localStorage` (cross-tab)
+- `frontend/Cinema67.Web/wwwroot/validazione-biglietti.html`: toggle Normale / Auto Click con persistenza `localStorage` (`cb_validation_mode`), banner informativo, cambio label/stile pulsante (Verifica→Valida, gold→emerald)
+- `frontend/Cinema67.Web/wwwroot/js/pages/validazione-biglietti.js`: `autoValidate()` — salta il flusso lookup+valida ed esegue direttamente `POST /admin/tickets/validate`; attivazione via Enter, scanner barcode o `?codice=`; guardia anti-doppio submit; riepilogo immediato; persistenza cinema via `localStorage` (cross-tab)
 
 ### Verifiche
-- `dotnet build frontend/CineBase.Web/CineBase.Web.csproj`: **OK** (0 warning, 0 errori)
+- `dotnet build frontend/Cinema67.Web/Cinema67.Web.csproj`: **OK** (0 warning, 0 errori)
 - `dotnet test tests/backend/FilmAPI.Tests.csproj`: **231/231 PASS**
 
 ## Pianificato in sessione 2026-04-19 (Iterazione 4 — Fase 11.1: migrazione da Stripe Elements a Stripe Checkout hosted)
@@ -185,7 +185,7 @@ Data aggiornamento: 2026-04-25
 
 ### Documentazione pianificata
 - `docs/project/dev_iteration/4/PianoDiLavoro.md`: aggiunta `FASE 11.1` con attività, vincoli implementativi e criteri di accettazione prescrittivi
-- `docs/tutorials/TUTORIAL_STRIPE_ELEMENTS_VS_CHECKOUT_CINEBASE.md`: nuovo tutorial comparativo tra flusso attuale `Stripe Elements` e flusso target `Stripe Checkout` con snippet completi frontend/backend
+- `docs/tutorials/TUTORIAL_STRIPE_ELEMENTS_VS_CHECKOUT_Cinema67.md`: nuovo tutorial comparativo tra flusso attuale `Stripe Elements` e flusso target `Stripe Checkout` con snippet completi frontend/backend
 
 ## Completato in sessione 2026-04-19 (Iterazione 4 — Fase 11 refinement: checkout reale, Stripe runtime config e fix prezzi)
 
@@ -200,18 +200,18 @@ Data aggiornamento: 2026-04-25
 - `backend/FilmAPI/Services/ShowService.cs`, `SeatHoldService.cs`, `CheckoutService.cs`, `BigliettoService.cs`: allineati a usare prezzi backend coerenti come source of truth
 
 ### Frontend — Acquisto, pagamento ed esperienza seat-map
-- `frontend/CineBase.Web/wwwroot/acquista.html` + `wwwroot/js/pages/acquista.js`: nuova pagina acquisto con seat-map a blocchi, countdown, keep-alive, polling, sidebar sticky e controlli zoom desktop `+`/`-`/`Reset` con supporto `Ctrl + wheel` o pinch-trackpad
-- `frontend/CineBase.Web/wwwroot/pagamento.html` + `wwwroot/js/pages/pagamento.js`: Stripe Elements embedded, pagamento solo credito, solo carta o misto, recupero publishable key solo da `/config/frontend`, finalizzazione backend dopo `stripe.confirmCardPayment(...)` e annullamento ordine pendente dal bottone di ritorno
-- `frontend/CineBase.Web/wwwroot/esito-acquisto.html` + `wwwroot/js/pages/esito-acquisto.js`: esito finale ordine con riepilogo ticket
-- `frontend/CineBase.Web/wwwroot/profilo.html` + `wwwroot/js/pages/profilo.js`: area personale aggiornata a ordini, biglietti, credito e cinema preferito
-- `frontend/CineBase.Web/wwwroot/js/api.js`, `route-guard.js`, `template-loader.js`, `css/styles.css`: supporto alle nuove pagine e al nuovo layout checkout
-- `frontend/CineBase.Web/.env.example`: rimosso per evitare duplicazione della configurazione Stripe lato frontend
+- `frontend/Cinema67.Web/wwwroot/acquista.html` + `wwwroot/js/pages/acquista.js`: nuova pagina acquisto con seat-map a blocchi, countdown, keep-alive, polling, sidebar sticky e controlli zoom desktop `+`/`-`/`Reset` con supporto `Ctrl + wheel` o pinch-trackpad
+- `frontend/Cinema67.Web/wwwroot/pagamento.html` + `wwwroot/js/pages/pagamento.js`: Stripe Elements embedded, pagamento solo credito, solo carta o misto, recupero publishable key solo da `/config/frontend`, finalizzazione backend dopo `stripe.confirmCardPayment(...)` e annullamento ordine pendente dal bottone di ritorno
+- `frontend/Cinema67.Web/wwwroot/esito-acquisto.html` + `wwwroot/js/pages/esito-acquisto.js`: esito finale ordine con riepilogo ticket
+- `frontend/Cinema67.Web/wwwroot/profilo.html` + `wwwroot/js/pages/profilo.js`: area personale aggiornata a ordini, biglietti, credito e cinema preferito
+- `frontend/Cinema67.Web/wwwroot/js/api.js`, `route-guard.js`, `template-loader.js`, `css/styles.css`: supporto alle nuove pagine e al nuovo layout checkout
+- `frontend/Cinema67.Web/.env.example`: rimosso per evitare duplicazione della configurazione Stripe lato frontend
 
 ### Test e verifiche
 - `tests/backend/Integration/ShowIntegrationTests.cs`: aggiunto test di normalizzazione prezzo show (`SH8B`)
 - `tests/backend/Integration/PagamentoCreditoIntegrationTests.cs`: aggiunto test annullamento ordine pendente con rilascio posti (`PG7`)
 - `dotnet test tests/backend/FilmAPI.Tests.csproj`: **218/218 PASS**
-- Build frontend `CineBase.Web`: **OK**
+- Build frontend `Cinema67.Web`: **OK**
 
 ## Completato in sessione 2026-04-19 (Iterazione 4 — Fase 10: Frontend `scheda-film.html` + `my-cinemas.html`)
 
@@ -230,7 +230,7 @@ Data aggiornamento: 2026-04-25
 
 ### Verifiche
 - `dotnet test tests/backend/FilmAPI.Tests.csproj`: **216/216 PASS**
-- Build frontend `CineBase.Web`: **OK**
+- Build frontend `Cinema67.Web`: **OK**
 
 ## Completato in sessione 2026-04-19 (Iterazione 4 — Fase 9 refinement: programmazione, paginazione e tutorial)
 
@@ -246,7 +246,7 @@ Data aggiornamento: 2026-04-25
 
 ### Test e documentazione
 - `tests/backend/Integration/ProgrammazioneIntegrationTests.cs`: aggiunti test per paginazione `GET /programmazione/films` e per la logica corretta della tab `In uscita`
-- `docs/tutorials/TUTORIAL_INDEX_PROGRAMMAZIONE_FRONTEND_CINEBASE.md`: nuovo tutorial dettagliato in italiano su `index.html`, `home.js`, `programmazione.html`, geolocalizzazione, cinema preferito, caroselli, card film, filtri e paginazione
+- `docs/tutorials/TUTORIAL_INDEX_PROGRAMMAZIONE_FRONTEND_Cinema67.md`: nuovo tutorial dettagliato in italiano su `index.html`, `home.js`, `programmazione.html`, geolocalizzazione, cinema preferito, caroselli, card film, filtri e paginazione
 
 ### Verifiche
 - `dotnet test tests/backend/FilmAPI.Tests.csproj`: **216/216 PASS**
@@ -278,7 +278,7 @@ Data aggiornamento: 2026-04-25
 
 ### Verifiche
 - `dotnet test tests/backend/FilmAPI.Tests.csproj`: **213/213 PASS**
-- Build frontend `CineBase.Web`: **OK**
+- Build frontend `Cinema67.Web`: **OK**
 
 ## Completato in sessione 2026-04-18 (Iterazione 4 — Fase 9.1: Progetto `FilmApiSeeder` e seed realistico database)
 
@@ -799,7 +799,7 @@ Data aggiornamento: 2026-04-25
 - `wwwroot/css/styles.css` e `wwwroot/js/pages/home.js`: ridotto overlay hero e aumentata visibilita immagine di sfondo
 
 ### Verifiche
-- Build frontend `CineBase.Web`: **OK**
+- Build frontend `Cinema67.Web`: **OK**
 - Verifica manuale UI: coerenza navigazione admin/landing desktop-mobile: **OK**
 
 ## Completato in sessione 2026-04-12 (Iterazione 3 — Fase 10 estesa: UX listing admin + paginazione backend)
@@ -895,7 +895,7 @@ Data aggiornamento: 2026-04-25
 ### Frontend — Refinement landing/index
 - `wwwroot/index.html`: sezione film riprogettata come "In Evidenza Questa Settimana" (no filtri operativi)
 - `wwwroot/js/pages/home.js`: featured hero + mini-grid, selezione per rilevanza programmazione settimanale e fallback nuove uscite
-- `wwwroot/index.html`: hero copy aggiornato per posizionare CineBase come piattaforma completa per la gestione delle sale cinematografiche
+- `wwwroot/index.html`: hero copy aggiornato per posizionare Cinema67 come piattaforma completa per la gestione delle sale cinematografiche
 - `wwwroot/components/footer-landing.html`: sezione Navigazione resa role-aware come navbar (link dinamici per anonimo/user/admin)
 - `wwwroot/js/template-loader.js`: `/programmazione.html` classificata come pagina landing per caricare navbar/footer corretti
 - Separazione responsabilita UI confermata:
@@ -1191,7 +1191,7 @@ Data aggiornamento: 2026-04-25
 - Seed admin e 12 categorie verificato su DB
 
 ### Design System
-- Estratti design tokens dal progetto Stitch "Modern CineBase Style" (ID: `3151130682396165519`)
+- Estratti design tokens dal progetto Stitch "Modern Cinema67 Style" (ID: `3151130682396165519`)
 - Creato `DesignSystem.md` con documentazione completa di Cinema Graphite
 - Token: colori (gold/indigo/cyan), surface hierarchy, tipografia Inter, roundness, ombre
 
@@ -1205,7 +1205,7 @@ Data aggiornamento: 2026-04-25
 ### Frontend — Nuovo file `theme.js`
 - Gestione tema light/dark con localStorage + system preference (`prefers-color-scheme`)
 - Default: system preference
-- Espone `window.CineBaseTheme` con metodi `init()`, `toggle()`, `set()`, `get()`
+- Espone `window.Cinema67Theme` con metodi `init()`, `toggle()`, `set()`, `get()`
 - Toggle icon: luna/sole con transizione
 
 ### Frontend — Pagine HTML modificate (16 file)
@@ -1244,7 +1244,7 @@ Data aggiornamento: 2026-04-25
 - Creati DTO: `MediaUploadResultDTO`, `MediaDTO`
 - Aggiornato `CustomWebApplicationFactory` per supportare WebRoot nei test
 
-### Frontend (CineBase.Web)
+### Frontend (Cinema67.Web)
 - Aggiornato `films.html`: campo input file per copertina + campo Trailer URL
 - Aggiornato `films.js`: gestione upload copertina prima del submit film, spinner durante upload
 - Aggiunto metodo `uploadCover(file)` in `api.js` per multipart upload

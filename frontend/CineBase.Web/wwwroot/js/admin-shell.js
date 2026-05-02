@@ -9,7 +9,8 @@
     '/sale.html',
     '/ricarica-credito.html',
     '/validazione-biglietti.html',
-    '/support-tickets.html'
+    '/support-tickets.html',
+    '/promozioni.html'
   ]);
 
   const PAGE_TITLES = {
@@ -22,7 +23,8 @@
     '/sale.html': 'Sale',
     '/ricarica-credito.html': 'Ricarica Credito',
     '/validazione-biglietti.html': 'Validazione Biglietti',
-    '/support-tickets.html': 'Support Tickets'
+    '/support-tickets.html': 'Support Tickets',
+    '/promozioni.html': 'Promozioni'
   };
 
   function getUser() {
@@ -115,7 +117,7 @@
               <div class="w-10 h-10 rounded-full border border-brand-gold/40 bg-brand-sidebar-active-bg flex items-center justify-center text-brand-gold">
                 <i class="fa-solid fa-film"></i>
               </div>
-              <span class="font-serif text-lg font-bold uppercase tracking-[0.2em] text-brand-sidebar-text">CineAura</span>
+              <span class="font-serif text-lg font-bold uppercase tracking-[0.2em] text-brand-sidebar-text">Cinema67</span>
             </a>
           </div>
           <p class="px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
@@ -131,9 +133,10 @@
             <a data-admin-link href="/ricarica-credito.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-coins"></i>Ricarica Credito</a>
             <a data-admin-link href="/validazione-biglietti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-qrcode"></i>Validazione</a>
             <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-headset"></i>Support Tickets</a>
+            <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
-            <button onclick="CineAuraTheme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
+            <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
               <i class="fa-solid fa-moon theme-toggle-icon-moon"></i>
               <i class="fa-solid fa-sun theme-toggle-icon-sun hidden"></i>
               <span class="theme-toggle-label">Cambia tema</span>

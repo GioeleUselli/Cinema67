@@ -94,4 +94,7 @@ public class Ordine
     public decimal CreditoRiservato { get; set; }
 
     public ICollection<Biglietto> Biglietti { get; set; } = new List<Biglietto>();
+
+    [Timestamp]
+    public DateTime RowVersion { get; set; }
 }

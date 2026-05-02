@@ -1,7 +1,7 @@
 # Tutorial operativo per sviluppatori: implementazione Iterazione 4 fase-per-fase
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** Guida pratica per sviluppatori all'implementazione dell'iterazione 4  
 **Target:** sviluppatori backend/frontend, revisori tecnici, studenti che devono eseguire il piano in modo incrementale
 
@@ -620,9 +620,9 @@ Sostituire l'attuale UI show-centric con una UI film-centric.
 
 ## 14.2 File principali da toccare
 
-- `frontend/CineBase.Web/wwwroot/programmazione.html`
-- `frontend/CineBase.Web/wwwroot/js/pages/programmazione.js`
-- `frontend/CineBase.Web/wwwroot/js/api.js`
+- `frontend/Cinema67.Web/wwwroot/programmazione.html`
+- `frontend/Cinema67.Web/wwwroot/js/pages/programmazione.js`
+- `frontend/Cinema67.Web/wwwroot/js/api.js`
 - `components/navbar-landing.html`
 - `index.html` e/o `home.js`
 

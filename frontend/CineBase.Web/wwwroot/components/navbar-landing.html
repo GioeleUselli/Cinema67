@@ -4,7 +4,7 @@
       <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/40 bg-brand-surface-container-high text-brand-gold">
         <i class="fa-solid fa-film"></i>
       </span>
-      <span class="font-serif text-lg font-bold uppercase tracking-[0.22em] text-brand-gold">CineAura</span>
+      <span class="font-serif text-lg font-bold uppercase tracking-[0.22em] text-brand-gold">Cinema67</span>
     </a>
 
     <div class="hidden items-center gap-3 md:flex">
@@ -16,7 +16,7 @@
       <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Programmazione</a>
       <a href="/my-cinemas.html" class="btn-ghost text-xs uppercase tracking-[0.18em]">Cinema</a>
 
-      <button onclick="CineBaseTheme.toggle()" class="theme-toggle-btn" title="Cambia tema">
+      <button onclick="Cinema67Theme.toggle()" class="theme-toggle-btn" title="Cambia tema">
         <i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i>
         <i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i>
       </button>
@@ -76,7 +76,7 @@
       </div>
 
       <div class="border-t border-brand-outline-variant/20 pt-3">
-        <button onclick="CineBaseTheme.toggle()" class="flex w-full items-center gap-3 py-2 text-brand-on-surface hover:text-brand-gold" title="Cambia tema">
+        <button onclick="Cinema67Theme.toggle()" class="flex w-full items-center gap-3 py-2 text-brand-on-surface hover:text-brand-gold" title="Cambia tema">
           <i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i>
           <i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i>
           <span>Tema</span>
@@ -88,141 +88,104 @@
 
 <script>
 (function() {
-  const loginBtn = document.getElementById('login-btn');
-  const registerBtn = document.getElementById('register-btn');
-  const userDropdown = document.getElementById('user-dropdown');
-  const userName = document.getElementById('user-name');
-  const userMenuToggle = document.getElementById('user-menu-toggle');
-  const userMenu = document.getElementById('user-menu');
-  const logoutBtn = document.getElementById('logout-btn');
-  const mobileAuthLinks = document.getElementById('mobile-auth-links');
-  const mobileUserMenu = document.getElementById('mobile-user-menu');
-  const mobileUserName = document.getElementById('mobile-user-name');
-  const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+  var loginBtn = document.getElementById('login-btn');
+  var registerBtn = document.getElementById('register-btn');
+  var userDropdown = document.getElementById('user-dropdown');
+  var userName = document.getElementById('user-name');
+  var userMenuToggle = document.getElementById('user-menu-toggle');
+  var userMenu = document.getElementById('user-menu');
+  var logoutBtn = document.getElementById('logout-btn');
+  var mobileAuthLinks = document.getElementById('mobile-auth-links');
+  var mobileUserMenu = document.getElementById('mobile-user-menu');
+  var mobileUserName = document.getElementById('mobile-user-name');
+  var mobileLogoutBtn = document.getElementById('mobile-logout-btn');
 
-  function normalizeRole(role) {
-    if (role == null) return '';
-    const value = String(role).trim().toLowerCase();
-    if (value === '2' || value === 'admin') return 'admin';
-    if (value === '1' || value === 'poweruser') return 'poweruser';
-    if (value === '0' || value === 'user') return 'user';
-    return value;
-  }
+  function applyAuthUI() {
+    var hasToken = false;
+    var displayName = 'Account';
+    var admin = false;
+    try {
+      if (typeof Auth !== 'undefined' && Auth && typeof Auth.getAccessToken === 'function') {
+        var token = Auth.getAccessToken();
+        if (token && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn()) {
+          hasToken = true;
+          try { var u = Auth.getUser(); displayName = (u && (u.nome || u.email)) || 'Account'; } catch (e) {}
+          try { var r = String((Auth.getUserRole ? Auth.getUserRole() : '') || '').toLowerCase(); admin = r === 'admin' || r === 'poweruser'; } catch (e) {}
+        }
+      }
+    } catch (e) {}
 
-  function updateAuthUI() {
-    if (typeof Auth === 'undefined' || !Auth) {
-      document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-      return;
+    function toggle(el, show) {
+      if (!el) return;
+      if (show) { el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
     }
 
-    const isLoggedIn = Auth.isLoggedIn();
-    const role = normalizeRole(isLoggedIn ? (Auth.getUserRole() ?? null) : null);
-    const isAdminOrPowerUser = role === 'admin' || role === 'poweruser';
+    toggle(loginBtn, !hasToken);
+    toggle(registerBtn, !hasToken);
+    toggle(mobileAuthLinks, !hasToken);
+    toggle(userDropdown, hasToken);
+    if (userName) userName.textContent = displayName;
+    toggle(mobileUserMenu, hasToken);
+    if (mobileUserName) mobileUserName.textContent = displayName;
 
-    if (isLoggedIn && Auth.getUser()) {
-      const user = Auth.getUser();
-      if (loginBtn) loginBtn.classList.add('hidden');
-      if (registerBtn) registerBtn.classList.add('hidden');
-      if (userDropdown) {
-        userDropdown.classList.remove('hidden');
-        userName.textContent = user.nome || user.email || 'Utente';
-      }
-      if (mobileAuthLinks) mobileAuthLinks.classList.add('hidden');
-      if (mobileUserMenu) {
-        mobileUserMenu.classList.remove('hidden');
-        mobileUserName.textContent = user.nome || user.email || 'Utente';
-      }
-    } else {
-      if (loginBtn) loginBtn.classList.remove('hidden');
-      if (registerBtn) registerBtn.classList.remove('hidden');
-      if (userDropdown) userDropdown.classList.add('hidden');
-      if (mobileAuthLinks) mobileAuthLinks.classList.remove('hidden');
-      if (mobileUserMenu) mobileUserMenu.classList.add('hidden');
-    }
-
-    document.querySelectorAll('.admin-only').forEach(el => {
-      if (isAdminOrPowerUser) {
-        el.classList.remove('hidden');
-      } else {
-        el.classList.add('hidden');
-      }
+    document.querySelectorAll('.admin-only').forEach(function (el) {
+      toggle(el, admin);
     });
+
+    var hl = document.getElementById('hero-login-btn');
+    var hp = document.getElementById('hero-profile-btn');
+    toggle(hl, !hasToken);
+    toggle(hp, hasToken);
   }
 
-  function toggleUserMenu() {
+  applyAuthUI();
+  window.updateAuthUI = applyAuthUI;
+
+  if (userMenuToggle) userMenuToggle.addEventListener('click', function () {
     if (userMenu) userMenu.classList.toggle('hidden');
-  }
+  });
 
-  function handleLogout() {
-    Auth?.logout().then(() => {
+  function doLogout() {
+    if (window.Auth && window.Auth.logout) {
+      window.Auth.logout().finally(function () { window.location.href = '/index.html'; });
+    } else {
       window.location.href = '/index.html';
-    }).catch(() => {
-      window.location.href = '/index.html';
-    });
+    }
   }
+  if (logoutBtn) logoutBtn.addEventListener('click', doLogout);
+  if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', doLogout);
 
-  if (userMenuToggle) {
-    userMenuToggle.addEventListener('click', toggleUserMenu);
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', handleLogout);
-  }
-
-  if (mobileLogoutBtn) {
-    mobileLogoutBtn.addEventListener('click', handleLogout);
-  }
-
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', function (e) {
     if (userMenuToggle && userMenu && !userMenuToggle.contains(e.target) && !userMenu.contains(e.target)) {
       userMenu.classList.add('hidden');
     }
   });
 
-  window.updateAuthUI = updateAuthUI;
-
   function updateCinemaDisplay(cinemaName) {
-    const desktopDisplay = document.getElementById('navbar-cinema-display');
-    const desktopName = document.getElementById('navbar-selected-cinema');
-    const mobileDisplay = document.getElementById('mobile-navbar-cinema-display');
-    const mobileName = document.getElementById('mobile-navbar-selected-cinema');
-
+    var d1 = document.getElementById('navbar-cinema-display');
+    var d2 = document.getElementById('navbar-selected-cinema');
+    var m1 = document.getElementById('mobile-navbar-cinema-display');
+    var m2 = document.getElementById('mobile-navbar-selected-cinema');
     if (cinemaName) {
-      if (desktopDisplay) desktopDisplay.classList.remove('hidden');
-      if (desktopDisplay) desktopDisplay.classList.add('flex');
-      if (desktopName) desktopName.textContent = cinemaName;
-      if (mobileDisplay) mobileDisplay.classList.remove('hidden');
-      if (mobileDisplay) mobileDisplay.classList.add('flex');
-      if (mobileName) mobileName.textContent = cinemaName;
+      if (d1) { d1.classList.remove('hidden'); d1.classList.add('flex'); }
+      if (d2) d2.textContent = cinemaName;
+      if (m1) { m1.classList.remove('hidden'); m1.classList.add('flex'); }
+      if (m2) m2.textContent = cinemaName;
     } else {
-      if (desktopDisplay) {
-        desktopDisplay.classList.add('hidden');
-        desktopDisplay.classList.remove('flex');
-      }
-      if (mobileDisplay) {
-        mobileDisplay.classList.add('hidden');
-        mobileDisplay.classList.remove('flex');
-      }
+      if (d1) { d1.classList.add('hidden'); d1.classList.remove('flex'); }
+      if (m1) { m1.classList.add('hidden'); m1.classList.remove('flex'); }
     }
   }
 
   window.updateNavbarCinema = updateCinemaDisplay;
 
   if (typeof window.initializeNavbar === 'function') {
-    const originalInitialize = window.initializeNavbar;
-    window.initializeNavbar = function() {
-      originalInitialize();
-      updateAuthUI();
-    };
-  } else {
-    window.initializeNavbar = updateAuthUI;
+    var orig = window.initializeNavbar;
+    window.initializeNavbar = function () { orig(); };
   }
 
-  updateAuthUI();
-
-  document.addEventListener('components:loaded', updateAuthUI);
-  document.addEventListener('cinema:changed', (e) => {
-    updateCinemaDisplay(e.detail?.cinemaName || null);
+  document.addEventListener('cinema:changed', function (e) {
+    updateCinemaDisplay(e.detail ? e.detail.cinemaName : null);
   });
 })();
 </script>

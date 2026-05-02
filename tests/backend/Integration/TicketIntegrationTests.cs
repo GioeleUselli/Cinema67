@@ -83,7 +83,7 @@ public class TicketIntegrationTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(2, document.NumberOfPages);
 
         var fullText = string.Join("\n", document.GetPages().Select(page => ContentOrderTextExtractor.GetText(page)));
-        Assert.Contains("CineBase - Biglietto digitale", fullText);
+        Assert.Contains("Cinema67 - Biglietto digitale", fullText);
         Assert.Contains("Film Test", fullText);
         Assert.Contains("Cinema Test", fullText);
         Assert.Contains("Via Test 1", fullText);

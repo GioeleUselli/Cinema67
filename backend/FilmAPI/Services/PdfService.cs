@@ -30,7 +30,7 @@ public class PdfService : IPdfService
                         page.Header().Column(column =>
                         {
                             column.Spacing(4);
-                            column.Item().Text("CineBase - Biglietto digitale").Bold().FontSize(20);
+                            column.Item().Text("Cinema67 - Biglietto digitale").Bold().FontSize(20);
                             column.Item().Text($"Ordine {orderDocument.CodiceOrdine}").FontSize(11).FontColor(Colors.Grey.Darken2);
                         });
 

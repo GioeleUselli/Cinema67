@@ -26,7 +26,7 @@ Branch target suggerito: `dev_iteration_4`
 
 ## 1) Obiettivo Iterazione
 
-Trasformare CineBase da piattaforma con proiezioni semplici (1 cinema = 1 sala implicita) a sistema completo di gestione multisala con prenotazione posti, acquisto biglietti e pagamento:
+Trasformare Cinema67 da piattaforma con proiezioni semplici (1 cinema = 1 sala implicita) a sistema completo di gestione multisala con prenotazione posti, acquisto biglietti e pagamento:
 
 - **Gestione cinema multisala**: ogni cinema ha N sale identificate da numero progressivo e tipologia (2D, 3D, ISENSE, XL)
 - **Programmazione film-centric**: la pagina programmazione mostra film (non singole proiezioni) con indicazione disponibilita nel cinema scelto, simile a ucicinemas.it/film
@@ -50,7 +50,7 @@ Trasformare CineBase da piattaforma con proiezioni semplici (1 cinema = 1 sala i
 ```text
 repo-root/
 |- backend/FilmAPI/          (API .NET 9 Minimal API + MariaDB)
-|- frontend/CineBase.Web/    (MPA statico, vanilla JS + Tailwind)
+|- frontend/Cinema67.Web/    (MPA statico, vanilla JS + Tailwind)
 |- tests/backend/            (xUnit + integration)
 |- docs/
 ```
@@ -444,13 +444,13 @@ SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_USER=
 SMTP_PASSWORD=
-SMTP_FROM=noreply@cinebase.it
-SMTP_FROM_NAME=CineBase
+SMTP_FROM=noreply@Cinema67.it
+SMTP_FROM_NAME=Cinema67
 
 # Configurazione biglietti
 DEFAULT_TICKET_PRICE=8.00
 SEAT_HOLD_DURATION_MINUTES=8
-CINEMA_ORGANIZZATORE=CineBase S.r.l.
+CINEMA_ORGANIZZATORE=Cinema67 S.r.l.
 BASE_URL=http://localhost:5001
 ```
 
@@ -1275,7 +1275,7 @@ Quando un operatore PowerUser/Admin scansiona il QR code:
 - `Endpoints/ProiezioniEndpoints.cs`
 - `Endpoints/PrenotazioniEndpoints.cs`
 
-## 5.2 Frontend (`frontend/CineBase.Web/wwwroot/`)
+## 5.2 Frontend (`frontend/Cinema67.Web/wwwroot/`)
 
 **Nuove pagine**:
 - `scheda-film.html`

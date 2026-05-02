@@ -1,7 +1,7 @@
 # Tutorial completo: Iterazione 4 - cinema multisala, show, ticketing e compat layer
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** Iterazione 4 / Fase 4 dello sviluppo intesa come quarta grande evoluzione funzionale del progetto  
 
 ---
@@ -32,7 +32,7 @@
 
 ## 1. Obiettivo del tutorial
 
-Questo tutorial documenta in dettaglio l'evoluzione architetturale e funzionale introdotta dall'iterazione 4 di CineBase.
+Questo tutorial documenta in dettaglio l'evoluzione architetturale e funzionale introdotta dall'iterazione 4 di Cinema67.
 
 L'obiettivo non è solo descrivere "cosa cambia", ma chiarire anche:
 
@@ -56,7 +56,7 @@ Nota terminologica importante:
 
 ## 2. Contesto di partenza: dove si ferma l'iterazione 3
 
-Alla fine dell'iterazione 3, CineBase dispone già di una base applicativa solida:
+Alla fine dell'iterazione 3, Cinema67 dispone già di una base applicativa solida:
 
 - backend .NET 9 stabile
 - frontend pubblico e admin già separati
@@ -160,7 +160,7 @@ Il modello legacy non riesce a rappresentare correttamente:
 
 ## 3. Quali funzionalità introduce l'iterazione 4
 
-L'iterazione 4 trasforma CineBase da sistema di discovery con prenotazione virtuale a piattaforma più vicina a un sistema di ticketing cinema reale.
+L'iterazione 4 trasforma Cinema67 da sistema di discovery con prenotazione virtuale a piattaforma più vicina a un sistema di ticketing cinema reale.
 
 ### 3.1 Funzionalità lato utente finale
 
@@ -729,9 +729,9 @@ Svantaggi:
 
 - bisogna gestire scadenza lock, abbandoni, refresh pagina e rilascio posti
 
-## 9.1.2 Quale strategia usa CineBase
+## 9.1.2 Quale strategia usa Cinema67
 
-`CineBase` usa una strategia **pessimista applicativa con hold temporaneo a TTL**, non una strategia ottimista pura.
+`Cinema67` usa una strategia **pessimista applicativa con hold temporaneo a TTL**, non una strategia ottimista pura.
 
 Detto in modo più preciso:
 
@@ -762,7 +762,7 @@ Per i posti numerati di un cinema, invece, il conflitto è strutturale:
 - l'utente lo ha scelto intenzionalmente
 - perdere quel posto all'ultimo secondo peggiora molto l'esperienza
 
-Per questo `CineBase` preferisce acquisire il posto prima del pagamento, con una protezione temporanea ma reale.
+Per questo `Cinema67` preferisce acquisire il posto prima del pagamento, con una protezione temporanea ma reale.
 
 ## 9.2 Stati concettuali di un posto per uno show
 
@@ -974,7 +974,7 @@ In pratica sarebbe molto problematica, perché:
 - la connessione può interrompersi
 - i lock lunghi peggiorano scalabilita e affidabilita
 
-Per questo `CineBase` usa una forma più realistica:
+Per questo `Cinema67` usa una forma più realistica:
 
 - persistenza dello stato di hold nel database
 - nessuna transazione lunga aperta per tutta la sessione utente
@@ -989,7 +989,7 @@ Questa è la vera idea generale del progetto:
 
 La race condition nasce perché due utenti possono vedere lo stesso posto come disponibile quasi nello stesso istante.
 
-La soluzione di `CineBase` è:
+La soluzione di `Cinema67` è:
 
 1. lettura iniziale della `seat-map`
 2. primo utente che chiede hold valido ottiene il posto
@@ -1102,7 +1102,7 @@ Se il pagamento non viene finalizzato correttamente:
 
 Quindi i posti non risultano venduti.
 
-Nel modello di `CineBase`, i posti non pagati tornano disponibili agli altri utenti in uno di questi modi:
+Nel modello di `Cinema67`, i posti non pagati tornano disponibili agli altri utenti in uno di questi modi:
 
 1. `release` esplicito del hold
 2. scadenza del TTL del hold
@@ -1563,7 +1563,7 @@ Queste regole devono restare vere in tutto il codice dell'iterazione 4.
 
 ## 19. Conclusione
 
-L'iterazione 4 è la trasformazione più importante di CineBase dopo l'introduzione di auth e RBAC.
+L'iterazione 4 è la trasformazione più importante di Cinema67 dopo l'introduzione di auth e RBAC.
 
 Il salto non è solo funzionale ma concettuale:
 

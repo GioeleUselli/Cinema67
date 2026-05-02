@@ -2,6 +2,8 @@ let orderId = null;
 let ordine = null;
 let creditoData = null;
 let frontendConfig = null;
+let countdownInterval = null;
+let checkoutExpiresAt = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!Auth?.isLoggedIn?.()) {
@@ -9,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  const params = new URLSearchParams(window.location.search);
+  var params = new URLSearchParams(window.location.search);
   orderId = parseInt(params.get('orderId'));
 
   if (!orderId) {
@@ -21,13 +23,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!ordine) return;
   if (ordine.stato !== 'Pending') {
-    window.location.href = `/esito-acquisto.html?orderId=${ordine.id}`;
+    window.location.href = '/esito-acquisto.html?orderId=' + ordine.id;
     return;
   }
 
   renderOrderSummary();
   setupPaymentOptions();
   setupActions();
+  startCountdown();
 });
 
 async function loadFrontendConfig() {
@@ -206,16 +209,25 @@ function setupActions() {
   });
 
   btnCancel.addEventListener('click', async () => {
+    if (!confirm('Sei sicuro? I posti saranno rilasciati e potrai riprovare dalla programmazione.')) return;
+
     btnCancel.disabled = true;
     btnCancel.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Annullamento...';
 
     try {
       await API.cancelOrdine(orderId);
-      window.location.href = `/acquista.html?showId=${ordine?.showId}`;
+      window.location.href = ordine && ordine.showId ? '/acquista.html?showId=' + ordine.showId : '/programmazione.html';
     } catch (error) {
       handleApiError(error);
       btnCancel.disabled = false;
       btnCancel.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i>Annulla e torna ai posti';
+    }
+  });
+
+  window.addEventListener('beforeunload', function () {
+    if (orderId && navigator.sendBeacon) {
+      var data = new Blob([JSON.stringify({})], { type: 'application/json' });
+      navigator.sendBeacon(API_BASE_URL + '/checkout/orders/' + orderId + '/cancel', data);
     }
   });
 }
@@ -308,6 +320,38 @@ function showError(message) {
   document.getElementById('loading-state').classList.add('hidden');
   document.getElementById('error-state').classList.remove('hidden');
   document.getElementById('main-content').classList.add('hidden');
-  const msgEl = document.getElementById('error-message');
+  var msgEl = document.getElementById('error-message');
   if (msgEl) msgEl.textContent = message;
+}
+
+function startCountdown() {
+  var card = document.getElementById('countdown-card');
+  var timerEl = document.getElementById('countdown-timer');
+  if (!card || !timerEl) return;
+
+  if (ordine && ordine.checkoutExpiresAtUtc) {
+    checkoutExpiresAt = new Date(ordine.checkoutExpiresAtUtc + (ordine.checkoutExpiresAtUtc.indexOf('Z') === -1 && ordine.checkoutExpiresAtUtc.indexOf('+') === -1 ? 'Z' : ''));
+  }
+  if (!checkoutExpiresAt || isNaN(checkoutExpiresAt.getTime())) {
+    checkoutExpiresAt = new Date(Date.now() + 4 * 60 * 1000);
+  }
+  card.classList.remove('hidden');
+
+  function tick() {
+    var now = new Date();
+    var diff = Math.max(0, Math.floor((checkoutExpiresAt - now) / 1000));
+    var mins = Math.floor(diff / 60);
+    var secs = diff % 60;
+    timerEl.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+    if (diff <= 30) timerEl.style.color = 'var(--brand-error)';
+    if (diff <= 0) {
+      clearInterval(countdownInterval);
+      card.innerHTML = '<div class="flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-brand-error"></i><span class="text-sm font-semibold text-brand-error">Tempo scaduto</span></div><p class="text-xs text-brand-on-surface-variant mt-1">Ordine annullato. Torna alla programmazione per riprovare.</p>';
+      var payBtn = document.getElementById('btn-pay');
+      if (payBtn) { payBtn.disabled = true; payBtn.textContent = 'Ordine scaduto'; }
+    }
+  }
+
+  tick();
+  countdownInterval = setInterval(tick, 1000);
 }

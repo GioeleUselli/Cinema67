@@ -4,7 +4,7 @@ Autore: OpenCode con Opus 4.6
 
 ## 1) Panoramica
 
-Questa iterazione mette in sicurezza le API del backend CineBase e introduce nuove funzionalita:
+Questa iterazione mette in sicurezza le API del backend Cinema67 e introduce nuove funzionalita:
 
 - Categorie Film con relazione many-to-many e CRUD completo
 - Autenticazione JWT con access token (breve durata) + refresh token (lunga durata)
@@ -18,7 +18,7 @@ Questa iterazione mette in sicurezza le API del backend CineBase e introduce nuo
 ```text
 repo-root/
 |- backend/FilmAPI/          (API .NET 9, porta 5000)
-|- frontend/CineBase.Web/    (Static files, porta 5001)
+|- frontend/Cinema67.Web/    (Static files, porta 5001)
 |- tests/backend/            (71 test esistenti)
 `- docs/
 ```
@@ -178,11 +178,11 @@ Prenotazione(Id, UserId[FK], ProiezioneId[FK], NumeroPosti, Note?, DataPrenotazi
 
 ```env
 JWT_SECRET=<chiave segreta min 256 bit>
-JWT_ISSUER=CineBaseAPI
-JWT_AUDIENCE=CineBaseWeb
+JWT_ISSUER=Cinema67API
+JWT_AUDIENCE=Cinema67Web
 JWT_ACCESS_TOKEN_EXPIRY_MINUTES=15
 JWT_REFRESH_TOKEN_EXPIRY_DAYS=7
-ADMIN_SEED_EMAIL=admin@cinebase.it
+ADMIN_SEED_EMAIL=admin@Cinema67.it
 ADMIN_SEED_PASSWORD=Admin123!
 ```
 
@@ -409,11 +409,11 @@ dotnet test tests/backend/FilmAPI.Tests.csproj
 
 **Attivita**:
 
-1. Creare `frontend/CineBase.Web/wwwroot/js/auth.js`:
+1. Creare `frontend/Cinema67.Web/wwwroot/js/auth.js`:
    - `getAccessToken`, `getRefreshToken`, `saveTokens`, `clearTokens`
    - `isLoggedIn`, `getCurrentUser`, `getUserRole`
    - `login`, `register`, `logout`, `refreshAccessToken`
-2. Aggiornare `frontend/CineBase.Web/wwwroot/js/api.js`:
+2. Aggiornare `frontend/Cinema67.Web/wwwroot/js/api.js`:
    - header auth automatico
    - retry su 401 con refresh
    - fallback logout+redirect se refresh fallisce
@@ -431,7 +431,7 @@ dotnet test tests/backend/FilmAPI.Tests.csproj
 
 **Attivita**:
 
-1. Creare `frontend/CineBase.Web/wwwroot/js/route-guard.js`:
+1. Creare `frontend/Cinema67.Web/wwwroot/js/route-guard.js`:
    - mappa pagine/permessi
    - redirect login con `?redirect=`
    - redirect su accesso vietato
@@ -569,15 +569,15 @@ dotnet test tests/backend/FilmAPI.Tests.csproj
 | `backend/FilmAPI/DTO/FilmUpdateDTO.cs` | Campo `CategorieIds` |
 | `backend/FilmAPI/Services/FilmService.cs` | Gestione categorie film |
 | `backend/FilmAPI/Endpoints/*.cs` | `RequireAuthorization` / `AllowAnonymous` |
-| `frontend/CineBase.Web/wwwroot/js/api.js` | Token header, refresh interceptor, nuovi metodi |
-| `frontend/CineBase.Web/wwwroot/js/navbar.js` | Rimozione mock auth, UI ruolo-based |
-| `frontend/CineBase.Web/wwwroot/components/navbar-landing.html` | Menu auth-aware |
-| `frontend/CineBase.Web/wwwroot/components/navbar-admin.html` | Menu admin aggiornato + link categorie |
-| `frontend/CineBase.Web/wwwroot/index.html` | Link programmazione + prenota auth-aware |
-| `frontend/CineBase.Web/wwwroot/dashboard.html` | Sidebar aggiornata |
-| `frontend/CineBase.Web/wwwroot/films.html` | Categorie film in UI |
-| `frontend/CineBase.Web/wwwroot/js/pages/films.js` | CRUD film con categorie |
-| `frontend/CineBase.Web/wwwroot/*.html` | include `auth.js` e `route-guard.js` |
+| `frontend/Cinema67.Web/wwwroot/js/api.js` | Token header, refresh interceptor, nuovi metodi |
+| `frontend/Cinema67.Web/wwwroot/js/navbar.js` | Rimozione mock auth, UI ruolo-based |
+| `frontend/Cinema67.Web/wwwroot/components/navbar-landing.html` | Menu auth-aware |
+| `frontend/Cinema67.Web/wwwroot/components/navbar-admin.html` | Menu admin aggiornato + link categorie |
+| `frontend/Cinema67.Web/wwwroot/index.html` | Link programmazione + prenota auth-aware |
+| `frontend/Cinema67.Web/wwwroot/dashboard.html` | Sidebar aggiornata |
+| `frontend/Cinema67.Web/wwwroot/films.html` | Categorie film in UI |
+| `frontend/Cinema67.Web/wwwroot/js/pages/films.js` | CRUD film con categorie |
+| `frontend/Cinema67.Web/wwwroot/*.html` | include `auth.js` e `route-guard.js` |
 | `tests/backend/CustomWebApplicationFactory.cs` | helper client autenticati |
 | `tests/backend/Integration/ApiIntegrationTests.cs` | update test + nuovi scenari |
 

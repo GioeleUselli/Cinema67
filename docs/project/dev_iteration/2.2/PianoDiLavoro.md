@@ -2,7 +2,7 @@
 
 ## 1) Obiettivo
 
-Rework completo della UI del frontend CineBase basato sul design system **"Cinema Graphite"** generato nel progetto Stitch "Modern CineBase Style" (ID: `3151130682396165519`).
+Rework completo della UI del frontend Cinema67 basato sul design system **"Cinema Graphite"** generato nel progetto Stitch "Modern Cinema67 Style" (ID: `3151130682396165519`).
 
 **Principi guida:**
 - **Nessuna modifica funzionale** alle logiche JS esistenti (API calls, CRUD, paginazione, filtri, upload)
@@ -71,9 +71,9 @@ colors: {
 
 Quando l'utente cambia tema (o il system preference cambia), viene aggiunta/rimossa la classe `dark` su `<html>`. Le CSS variables cambiano valori e TUTTI i componenti si aggiornano automaticamente.
 
-**Toggle**: bottone con icone moon/sun nelle navbar. Persistenza via `localStorage` key `cinebase-theme`. Fallback a `prefers-color-scheme`.
+**Toggle**: bottone con icone moon/sun nelle navbar. Persistenza via `localStorage` key `Cinema67-theme`. Fallback a `prefers-color-scheme`.
 
-**File**: `js/theme.js` — IIFE che espone `window.CineBaseTheme` (toggle, set, get, getSystem).
+**File**: `js/theme.js` — IIFE che espone `window.Cinema67Theme` (toggle, set, get, getSystem).
 
 ### 2.4 Schermate Stitch di Riferimento
 
@@ -81,20 +81,20 @@ Screens disponibili nel progetto Stitch:
 
 | Screen ID | Titolo | Pagina corrispondente |
 |-----------|--------|-----------------------|
-| `9c53e47e41df4334816f40d7d5aa9799` | CineBase Cinema Landing Page | index.html |
+| `9c53e47e41df4334816f40d7d5aa9799` | Cinema67 Cinema Landing Page | index.html |
 | `3d7b7611a2844b5bb49821119323b031` | Unified Admin Dashboard | dashboard.html |
 | `141f766e2cd04e95a3b0c536419f97c2` | Film Management Workspace | films.html |
-| `f222a4857f7e407faf51b26892285289` | CineBase Visual System Design | Component library (light) |
-| `e4fb8b16635d4f4a9f325e0a7d4c0600` | CineBase Dark Visual System Design | Component library (dark) |
-| `7145b92052ee44f897e2efef31765ee5` | CineBase UI Component Library (Dark Mode) | UI kit dark |
-| `f42cb23501454628964362cfdd4dad57` | CineBase UI Component Library (Refined Nav) | UI kit con nav |
+| `f222a4857f7e407faf51b26892285289` | Cinema67 Visual System Design | Component library (light) |
+| `e4fb8b16635d4f4a9f325e0a7d4c0600` | Cinema67 Dark Visual System Design | Component library (dark) |
+| `7145b92052ee44f897e2efef31765ee5` | Cinema67 UI Component Library (Dark Mode) | UI kit dark |
+| `f42cb23501454628964362cfdd4dad57` | Cinema67 UI Component Library (Refined Nav) | UI kit con nav |
 
 ---
 
 ## 3) Struttura Attuale del Frontend
 
 ```
-frontend/CineBase.Web/wwwroot/
+frontend/Cinema67.Web/wwwroot/
 ├── index.html          ← Landing page (dark theme) → diventa LIGHT
 ├── dashboard.html      ← Dashboard admin (light, slate/indigo) → Cinema Graphite
 ├── films.html          ← CRUD Film → Cinema Graphite

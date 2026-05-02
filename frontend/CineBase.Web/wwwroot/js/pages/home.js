@@ -14,7 +14,52 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await loadFeaturedFilms();
+  loadPromotionsBanners();
 });
+
+async function loadPromotionsBanners() {
+  var container = document.getElementById('promo-banners');
+  if (!container) return;
+  try {
+    var promos = await API.getPromotionsActive();
+    if (!promos || !promos.length) {
+      container.innerHTML = '<p class="text-sm text-brand-on-surface-variant col-span-full text-center">Nessuna promozione attiva al momento.</p>';
+      return;
+    }
+    var typeLabels = { MoviePromo: 'Promo Film', FoodBundle: 'Combo Cibo', GeneralAd: 'Pubblicità', Event: 'Evento', Discount: 'Sconto' };
+    container.innerHTML = promos.map(function (p) {
+      var bg = getPromoBannerImage(p);
+      return '<a href="' + (p.linkUrl || '#') + '" class="promo-card" style="' + bg + '">' +
+        '<div class="promo-card-inner">' +
+          '<span class="promo-card-tag">' + (typeLabels[p.type] || p.type) + '</span>' +
+          '<div class="promo-card-logo">CINEMA67</div>' +
+          '<p class="promo-card-title">' + escapeHtml(p.title) + '</p>' +
+          '<p class="promo-card-desc">' + escapeHtml(p.description) + '</p>' +
+          (p.price ? '<span class="promo-card-price">' + formatCurrency(p.price) + '</span>' : '') +
+          '<span class="promo-card-watermark">' + getPromoIcon(p.type) + '</span>' +
+        '</div></a>';
+    }).join('');
+  } catch (e) { console.error('Promo load error:', e); }
+}
+
+function getPromoIcon(type) {
+  var map = { MoviePromo: '🎬', FoodBundle: '🍿', GeneralAd: '📢', Event: '🎪', Discount: '🏷️' };
+  return map[type] || '✨';
+}
+
+function getPromoBannerImage(promo) {
+  var palettes = {
+    MoviePromo:   'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #312e81 100%)',
+    FoodBundle:   'linear-gradient(135deg, #1c1917 0%, #4a2e1a 50%, #7c2d12 100%)',
+    GeneralAd:    'linear-gradient(135deg, #0f0f23 0%, #164e63 50%, #1e3a5f 100%)',
+    Event:        'linear-gradient(135deg, #1a0a2e 0%, #581c87 50%, #312e81 100%)',
+    Discount:     'linear-gradient(135deg, #0f1a0f 0%, #14532d 50%, #164e63 100%)'
+  };
+  if (promo.imagePath) {
+    return 'background:linear-gradient(135deg, rgba(6,20,36,0.7), rgba(6,20,36,0.3)),url(' + promo.imagePath + ') center/cover';
+  }
+  return 'background:' + (palettes[promo.type] || palettes.GeneralAd);
+}
 
 async function loadFeaturedFilms() {
   const featuredGrid = document.getElementById("featured-grid");

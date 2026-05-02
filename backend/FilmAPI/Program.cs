@@ -1,4 +1,4 @@
-using DotNetEnv;
+ using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FilmAPI.Data;
 using FilmAPI.Endpoints;
+using FilmAPI.Middleware;
 using FilmAPI.Services;
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
@@ -64,8 +65,6 @@ builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfiloService, ProfiloService>();
-// Prenotazione: deprecated, kept for backward compat. Not exposed via API.
-builder.Services.AddScoped<IPrenotazioneService, PrenotazioneService>();
 builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 builder.Services.AddScoped<IProgrammazioneService, ProgrammazioneService>();
 builder.Services.AddScoped<ISalaService, SalaService>();
@@ -80,6 +79,7 @@ builder.Services.AddScoped<IValidazioneBigliettoService, ValidazioneBigliettoSer
 builder.Services.AddScoped<IStripePaymentGateway, StripePaymentGateway>();
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 builder.Services.AddScoped<ISupportService, SupportService>();
+builder.Services.AddScoped<IPromotionService, PromotionService>();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();
 
@@ -88,7 +88,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowCineBaseFrontend", policy =>
+    options.AddPolicy("AllowCinema67Frontend", policy =>
     {
         policy.WithOrigins("http://localhost:5001", "http://127.0.0.1:5001")
               .AllowAnyHeader()
@@ -119,9 +119,9 @@ builder.Services.AddOpenApiDocument(config =>
 var rawJwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")?.Trim();
 var jwtSecret = !string.IsNullOrWhiteSpace(rawJwtSecret) && Encoding.UTF8.GetByteCount(rawJwtSecret) >= 32
     ? rawJwtSecret
-    : "SuperSecretKeyForCineBaseJWTAuth2026!";
-var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "CineBaseAPI";
-var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "CineBaseWeb";
+    : "SuperSecretKeyForCinema67JWTAuth2026!";
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "Cinema67API";
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "Cinema67Web";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -161,10 +161,55 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowCineBaseFrontend");
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (BadHttpRequestException ex)
+    {
+        context.Response.StatusCode = ex.StatusCode;
+        await context.Response.WriteAsJsonAsync(new { message = ex.Message });
+    }
+    catch (ArgumentException ex)
+    {
+        context.Response.StatusCode = 400;
+        await context.Response.WriteAsJsonAsync(new { message = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        context.Response.StatusCode = 409;
+        await context.Response.WriteAsJsonAsync(new { message = ex.Message });
+    }
+    catch (UnauthorizedAccessException)
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsJsonAsync(new { message = "Accesso non autorizzato." });
+    }
+    catch (Exception ex)
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Unhandled exception {Path}", context.Request.Path);
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new { message = "Errore interno del server." });
+    }
+});
+
+app.UseCors("AllowCinema67Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store");
+        ctx.Context.Response.Headers.Append("Pragma", "no-cache");
+        ctx.Context.Response.Headers.Append("Expires", "0");
+    }
+});
+
+app.UseMiddleware<RateLimiterMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -196,11 +241,14 @@ app.MapCreditoEndpoints();
 app.MapPagamentoEndpoints();
 app.MapValidazioneBigliettiEndpoints();
 app.MapSupportEndpoints();
+app.MapPromotionEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {
     stripePublishableKey = config.StripePublishableKey
 })).AllowAnonymous();
+
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow })).AllowAnonymous();
 
 using (var scope = app.Services.CreateScope())
 {

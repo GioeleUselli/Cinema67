@@ -29,7 +29,7 @@ Branch target suggerito: `dev_iteration_4`
 
 ## 1) Obiettivo Iterazione
 
-Evolvere CineBase da piattaforma con proiezioni semplici (cinema→film→data/ora) a un sistema completo di gestione cinematografica multi-sala con:
+Evolvere Cinema67 da piattaforma con proiezioni semplici (cinema→film→data/ora) a un sistema completo di gestione cinematografica multi-sala con:
 
 - **Gestione sale**: ogni cinema ha N sale numerate, ognuna con tipologia (ISENSE, XL, 3D, 2D, ecc.) e piantina posti
 - **Show (ex proiezioni)**: legati a film + sala + data/ora, con validazione sovrapposizioni temporali
@@ -55,7 +55,7 @@ Evolvere CineBase da piattaforma con proiezioni semplici (cinema→film→data/o
 ```text
 repo-root/
 ├── backend/FilmAPI/          (API .NET 9 - porta 5000)
-├── frontend/CineBase.Web/    (MPA statico - porta 5001)
+├── frontend/Cinema67.Web/    (MPA statico - porta 5001)
 ├── tests/backend/            (xUnit + integration)
 └── docs/
 ```
@@ -766,10 +766,10 @@ User → Cinema (CinemaPreferito, nullable, SetNull)
    ```env
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
-   SMTP_USER=noreply@cinebase.it
+   SMTP_USER=noreply@Cinema67.it
    SMTP_PASSWORD=...
-   SMTP_FROM_NAME=CineBase
-   SMTP_FROM_EMAIL=noreply@cinebase.it
+   SMTP_FROM_NAME=Cinema67
+   SMTP_FROM_EMAIL=noreply@Cinema67.it
    ```
 3. Creare `Services/IBigliettoService.cs` + `Services/BigliettoService.cs`:
    - `GeneraBigliettoPdfAsync(bigliettoId)` — genera PDF con:
@@ -1063,7 +1063,7 @@ User → Cinema (CinemaPreferito, nullable, SetNull)
 - `Endpoints/ValidazioneEndpoints.cs`
 - `Endpoints/ProgrammazioneEndpoints.cs`
 
-### 5.2 Frontend (`frontend/CineBase.Web/wwwroot/`)
+### 5.2 Frontend (`frontend/Cinema67.Web/wwwroot/`)
 
 **Pagine HTML**:
 - `scheda-film.html`
@@ -1117,10 +1117,10 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # SMTP Email
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=noreply@cinebase.it
+SMTP_USER=noreply@Cinema67.it
 SMTP_PASSWORD=...
-SMTP_FROM_NAME=CineBase
-SMTP_FROM_EMAIL=noreply@cinebase.it
+SMTP_FROM_NAME=Cinema67
+SMTP_FROM_EMAIL=noreply@Cinema67.it
 
 # Seat Lock
 SEAT_LOCK_DURATION_MINUTES=10

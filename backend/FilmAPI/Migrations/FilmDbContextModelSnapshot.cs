@@ -328,6 +328,11 @@ namespace FilmAPI.Migrations
                     b.Property<DateTime?>("PaidAtUtc")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("SalaId")
                         .HasColumnType("int");
 
@@ -440,6 +445,67 @@ namespace FilmAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Proiezioni");
+                });
+
+            modelBuilder.Entity("FilmAPI.Model.Promotion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("LinkUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Active");
+
+                    b.HasIndex("Priority");
+
+                    b.HasIndex("StartDate");
+
+                    b.ToTable("Promotions");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.RefreshToken", b =>
@@ -624,6 +690,8 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("SalaId");
 
+                    b.HasIndex("StartAtUtc");
+
                     b.HasIndex("CinemaId", "SalaId", "StartAtUtc")
                         .IsUnique();
 
@@ -644,6 +712,11 @@ namespace FilmAPI.Migrations
 
                     b.Property<int?>("OrdineId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("SalaPostoId")
                         .HasColumnType("int");

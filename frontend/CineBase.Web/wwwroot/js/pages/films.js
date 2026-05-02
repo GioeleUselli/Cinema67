@@ -4,90 +4,43 @@ let allRegisti = [];
 let allCategorie = [];
 let isUploading = false;
 let currentPage = 1;
-const pageSize = 10;
+var pageSize = 10;
 let totalPages = 1;
 let totalFilmsCount = 0;
 let currentSearch = '';
 let currentGenre = 'all';
 
-document.addEventListener('DOMContentLoaded', async () => {
-  await Promise.all([
+document.addEventListener('DOMContentLoaded', function () {
+  Promise.all([
     loadRegistiList(),
     loadCategorieList()
-  ]);
-  populateRegistiSelect();
-  populateCategorieCheckboxes();
-  setupFilters();
-  setupFormSubmit();
-  await loadFilms();
+  ]).then(function () {
+    populateRegistiSelect();
+    populateCategorieCheckboxes();
+    setupFilters();
+    setupFormSubmit();
+    loadFilms();
+    setupExport();
+  });
 });
 
-function normalizeCollection(data) {
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.$values)) return data.$values;
-  if (Array.isArray(data?.items)) return data.items;
-  return [];
-}
-
-async function loadFilms() {
-  const tableBody = document.getElementById('films-table-body');
-  if (!tableBody) return;
-  
-  try {
-    const response = await API.getFilms({
-      page: currentPage,
-      pageSize,
-      search: currentSearch || undefined
+function setupExport() {
+  var btn = document.getElementById('btn-export');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var rows = [['ID', 'Titolo', 'Regista', 'Durata', 'Anno', 'Categorie']];
+    allFilms.forEach(function (f) {
+      var cats = (f.categorie || []).map(function (c) { return c.nome; }).join('; ');
+      rows.push([f.id, f.titolo, getRegistaName(f), (f.durata || '') + ' min', formatDate(f.dataProduzione), cats]);
     });
-
-    const paged = normalizePagedFilms(response);
-    totalPages = paged.totalPages;
-    totalFilmsCount = paged.totalCount;
-    currentPage = paged.page;
-
-    allFilms = applyGenreFilter(paged.items);
-    renderFilms(allFilms);
-    updateStats(totalFilmsCount, allFilms);
-    renderPagination(allFilms.length);
-  } catch (error) {
-    handleApiError(error);
-    tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-brand-error">Errore nel caricamento dei film</td></tr>';
-    renderPagination(0);
-  }
-}
-
-function normalizePagedFilms(data) {
-  if (Array.isArray(data) || Array.isArray(data?.$values)) {
-    const items = normalizeCollection(data);
-    return {
-      items,
-      page: 1,
-      pageSize: items.length || pageSize,
-      totalCount: items.length,
-      totalPages: 1
-    };
-  }
-
-  const items = normalizeCollection(data?.items ?? data?.Items ?? []);
-  const resolvedPage = Number(data?.page ?? data?.Page ?? 1);
-  const resolvedPageSize = Number(data?.pageSize ?? data?.PageSize ?? pageSize);
-  const resolvedTotalCount = Number(data?.totalCount ?? data?.TotalCount ?? items.length);
-  const resolvedTotalPages = Number(data?.totalPages ?? data?.TotalPages ?? 1);
-
-  return {
-    items,
-    page: Number.isFinite(resolvedPage) && resolvedPage > 0 ? resolvedPage : 1,
-    pageSize: Number.isFinite(resolvedPageSize) && resolvedPageSize > 0 ? resolvedPageSize : pageSize,
-    totalCount: Number.isFinite(resolvedTotalCount) && resolvedTotalCount >= 0 ? resolvedTotalCount : items.length,
-    totalPages: Number.isFinite(resolvedTotalPages) && resolvedTotalPages > 0 ? resolvedTotalPages : 1
-  };
-}
-
-function applyGenreFilter(films) {
-  if (!currentGenre || currentGenre === 'all') return films;
-  return films.filter(f => {
-    if (!f.categorie || !Array.isArray(f.categorie)) return false;
-    return f.categorie.some(c => String(c.id) === currentGenre || c.nome?.toLowerCase() === currentGenre.toLowerCase());
+    var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v || '').replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'films-export.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   });
 }
 
@@ -133,51 +86,24 @@ function populateCategorieCheckboxes() {
 }
 
 function renderFilms(films) {
-  const tableBody = document.getElementById('films-table-body');
+  var tableBody = document.getElementById('films-table-body');
   if (!tableBody) return;
   
-if (!films.length) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessun film trovato</td></tr>';
-        return;
-    }
+  if (!films.length) {
+    tableBody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessun film trovato</td></tr>';
+    return;
+  }
 
-    tableBody.innerHTML = films.map(film => {
-      const categorie = film.categorie || [];
-      const categorieBadges = categorie.length
-        ? categorie.map(c => `<span class="inline-block bg-brand-surface-container text-brand-on-surface text-xs px-1.5 py-0.5 rounded mr-1">${c.nome}</span>`).join('')
-        : '<span class="text-brand-on-surface-variant text-xs">-</span>';
-      return `
-        <tr class="row-hover">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">${film.id}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="h-10 w-8 flex-shrink-0 bg-brand-surface-container rounded overflow-hidden">
-                    <img class="h-full w-full object-cover" src="${film.copertinaPath?.startsWith('/media/') ? `http://localhost:5000${film.copertinaPath}` : (film.copertinaPath || '/assets/images/defaults/cover-default.jpg')}" alt="${film.titolo}">
-                </div>
-            </td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-on-surface">${film.titolo}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">${formatDate(film.dataProduzione)}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">${getRegistaName(film)}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">${film.durata || '-'} min</td>
-      <td class="px-6 py-4 whitespace-nowrap">${categorieBadges}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <button onclick="editFilm(${film.id})" class="text-brand-gold hover:text-brand-gold-dark mr-3">
-          <i class="fa-solid fa-pencil"></i>
-        </button>
-        <button onclick="deleteFilm(${film.id}, '${escapeHtml(film.titolo)}')" class="text-red-600 hover:text-red-900">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </td>
-    </tr>
-  `}).join('');
+  tableBody.innerHTML = films.map(function (film) {
+    var categorie = film.categorie || [];
+    var categorieBadges = categorie.length
+      ? categorie.map(function (c) { return '<span class="inline-block bg-brand-surface-container text-brand-on-surface text-xs px-1.5 py-0.5 rounded mr-1">' + escapeHtml(c.nome) + '</span>'; }).join('')
+      : '<span class="text-brand-on-surface-variant text-xs">-</span>';
+    return '<tr class="row-hover"><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + film.id + '</td><td class="px-6 py-4 whitespace-nowrap"><div class="h-10 w-8 flex-shrink-0 bg-brand-surface-container rounded overflow-hidden"><img class="h-full w-full object-cover" src="' + escapeHtml(film.copertinaPath && film.copertinaPath.indexOf('/media/') === 0 ? 'http://localhost:5000' + film.copertinaPath : (film.copertinaPath || '/assets/images/defaults/cover-default.jpg')) + '" alt="' + escapeHtml(film.titolo) + '"></div></td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-on-surface">' + escapeHtml(film.titolo) + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + formatDate(film.dataProduzione) + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + escapeHtml(getRegistaName(film)) + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + (film.durata || '-') + ' min</td><td class="px-6 py-4 whitespace-nowrap">' + categorieBadges + '</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><button onclick="editFilm(' + film.id + ')" class="text-brand-gold hover:text-brand-gold-dark mr-3"><i class="fa-solid fa-pencil"></i></button><button onclick="deleteFilm(' + film.id + ', \'' + escapeHtml(film.titolo).replace(/'/g, '\\\'') + '\')" class="text-red-600 hover:text-red-900"><i class="fa-solid fa-trash"></i></button></td></tr>';
+  }).join('');
 }
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
- function getRegistaName(film) {
+function getRegistaName(film) {
   if (film.registaNome || film.registaCognome) {
     return `${film.registaNome || ''} ${film.registaCognome || ''}`.trim();
   }

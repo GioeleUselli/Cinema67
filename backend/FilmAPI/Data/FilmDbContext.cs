@@ -29,6 +29,7 @@ public class FilmDbContext : DbContext
     public DbSet<SupportMessage> SupportMessages { get; set; }
     public DbSet<SupportTicket> SupportTickets { get; set; }
     public DbSet<SupportTicketAudit> SupportTicketAudits { get; set; }
+    public DbSet<Promotion> Promotions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -137,6 +138,7 @@ public class FilmDbContext : DbContext
         {
             entity.HasIndex(e => new { e.CinemaId, e.SalaId, e.StartAtUtc })
                   .IsUnique();
+            entity.HasIndex(e => e.StartAtUtc);
 
             entity.HasOne(s => s.Cinema)
                   .WithMany()
@@ -221,6 +223,7 @@ public class FilmDbContext : DbContext
                   .IsUnique();
             entity.HasIndex(e => e.CodiceBiglietto)
                   .IsUnique();
+            entity.HasIndex(e => e.UserId);
 
             entity.HasOne(b => b.Ordine)
                   .WithMany(o => o.Biglietti)
@@ -348,6 +351,13 @@ public class FilmDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(a => a.ActorUserId)
                   .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Promotion>(entity =>
+        {
+            entity.HasIndex(e => e.Active);
+            entity.HasIndex(e => e.Priority);
+            entity.HasIndex(e => e.StartDate);
         });
     }
 }

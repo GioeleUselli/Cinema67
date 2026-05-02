@@ -16,6 +16,7 @@ var RouteGuard = (function () {
     '/ricarica-credito.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/validazione-biglietti.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/support-tickets.html': { roles: ['poweruser', 'admin'], authRequired: true },
+    '/promozioni.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/profilo.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
     '/acquista.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
     '/pagamento.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },

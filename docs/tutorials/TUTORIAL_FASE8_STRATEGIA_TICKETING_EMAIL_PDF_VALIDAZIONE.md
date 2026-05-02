@@ -1,7 +1,7 @@
 # Strategia di implementazione della Fase 8: ticketing digitale, PDF, email e validazione
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** strategia tecnica e didattica per la `FASE 8 - Backend ticketing digitale, PDF/email e validazione biglietti`  
 
 ---
@@ -31,7 +31,7 @@
 
 ## 1. Obiettivo del documento
 
-Questo documento descrive la strategia consigliata per implementare correttamente la `FASE 8` in `CineBase`.
+Questo documento descrive la strategia consigliata per implementare correttamente la `FASE 8` in `Cinema67`.
 
 L'obiettivo non è solo spiegare quali librerie usare, ma chiarire:
 
@@ -294,7 +294,7 @@ Il `BarcodeValue` può coincidere con `CodiceBiglietto` per semplicità didattic
 - produce output PDF consistente
 - si integra bene con .NET
 
-Strategia consigliata per CineBase:
+Strategia consigliata per Cinema67:
 
 - un biglietto per pagina
 - intestazione con brand e dati cinema
@@ -371,7 +371,7 @@ Regola importante:
 
 - il servizio email non deve lanciare eccezioni non gestite fino al livello del pagamento; deve restituire un errore applicativo registrabile
 
-Implicazione pratica per `CineBase`:
+Implicazione pratica per `Cinema67`:
 
 - l'infrastruttura email della fase deve usare le variabili già previste dal repository in `backend/.env.example`
 - i nomi da considerare ufficiali sono `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME`
@@ -419,7 +419,7 @@ SMTP_PORT=587
 SMTP_USER=<gmail_completo>
 SMTP_PASSWORD=<password_per_app_google>
 SMTP_FROM_EMAIL=<gmail_completo>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 ### Outlook.com personale
@@ -430,7 +430,7 @@ SMTP_PORT=587
 SMTP_USER=<outlook_completo>
 SMTP_PASSWORD=<app_password_microsoft>
 SMTP_FROM_EMAIL=<outlook_completo>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 Osservazione strategica:
@@ -470,7 +470,7 @@ Vantaggi:
 - webhooks e audit più ricchi
 - maggiore adattabilità a grandi quantità di email
 
-Decisione strategica consigliata per CineBase:
+Decisione strategica consigliata per Cinema67:
 
 - durante la fase didattica si può iniziare da SMTP semplice
 - l'interfaccia `IEmailService` va però progettata in modo da non dipendere da Gmail o Microsoft in modo rigido
@@ -484,7 +484,7 @@ SMTP_PORT=587
 SMTP_USER=apikey
 SMTP_PASSWORD=<twilio_sendgrid_api_key>
 SMTP_FROM_EMAIL=<indirizzo_verificato_oppure_su_dominio_autenticato>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 Regola operativa importante:

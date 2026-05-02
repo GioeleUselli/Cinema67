@@ -24,7 +24,7 @@ Branch target suggerito: `dev_iteration_4`
 
 ## 1) Obiettivo Iterazione
 
-Con questa iterazione portiamo CineBase da gestione CRUD + prenotazioni virtuali a piattaforma operativa per:
+Con questa iterazione portiamo Cinema67 da gestione CRUD + prenotazioni virtuali a piattaforma operativa per:
 
 - gestione cinema distribuiti sul territorio nazionale
 - discovery film in programmazione con UX moderna e centrata sul cinema preferito
@@ -845,7 +845,7 @@ L'iterazione e completata quando tutte le condizioni seguenti sono vere:
 - `Endpoints/CreditoEndpoints.cs`
 - `Endpoints/ProgrammazioneEndpoints.cs`
 
-## 12.2 Frontend (`frontend/CineBase.Web/wwwroot/`)
+## 12.2 Frontend (`frontend/Cinema67.Web/wwwroot/`)
 
 - `scheda-film.html`
 - `acquista.html`

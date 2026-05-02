@@ -20,7 +20,7 @@ Autore: OpenCode con GPT-5.3-Codex fondendo i piani di lavoro fatti con Opus 4.6
 
 ## 1) Obiettivo Iterazione
 
-Mettere in sicurezza il backend CineBase e completare il flusso auth end-to-end introducendo:
+Mettere in sicurezza il backend Cinema67 e completare il flusso auth end-to-end introducendo:
 
 - autenticazione JWT con **access token + refresh token**
 - autorizzazione **RBAC** con ruoli `Admin`, `PowerUser`, `User`, `Anonimo`
@@ -34,14 +34,14 @@ Mettere in sicurezza il backend CineBase e completare il flusso auth end-to-end 
 - API backend attualmente aperte (nessuna auth/role enforcement)
 - Frontend con autenticazione mock (`sessionStorage`) da sostituire
 - Backend .NET 9 Minimal API in `backend/FilmAPI` (porta 5000)
-- Frontend statico in `frontend/CineBase.Web` (porta 5001)
+- Frontend statico in `frontend/Cinema67.Web` (porta 5001)
 
 ## 1.2 Architettura repository
 
 ```text
 repo-root/
 |- backend/FilmAPI/          (API .NET 9)
-|- frontend/CineBase.Web/    (MPA statico)
+|- frontend/Cinema67.Web/    (MPA statico)
 |- tests/backend/            (xUnit + integration)
 `- docs/
 ```
@@ -238,11 +238,11 @@ Note:
 
 ```env
 JWT_SECRET=<chiave segreta minimo 256 bit>
-JWT_ISSUER=CineBaseAPI
-JWT_AUDIENCE=CineBaseWeb
+JWT_ISSUER=Cinema67API
+JWT_AUDIENCE=Cinema67Web
 JWT_ACCESS_TOKEN_EXPIRY_MINUTES=15
 JWT_REFRESH_TOKEN_EXPIRY_DAYS=7
-ADMIN_SEED_EMAIL=admin@cinebase.it
+ADMIN_SEED_EMAIL=admin@Cinema67.it
 ADMIN_SEED_PASSWORD=Admin123!
 ```
 
@@ -398,7 +398,7 @@ Fantascienza, Thriller, Animazione, Documentario, Romantico, Storico
 1. Attivare middleware in `Program.cs` nell'ordine corretto:
 
    ```csharp
-   app.UseCors("AllowCineBaseFrontend");
+   app.UseCors("AllowCinema67Frontend");
    app.UseAuthentication();
    app.UseAuthorization();
    app.UseStaticFiles();
@@ -751,7 +751,7 @@ Fantascienza, Thriller, Animazione, Documentario, Romantico, Storico
 - `Endpoints/PrenotazioniEndpoints.cs`
 - `Endpoints/AdminUtentiEndpoints.cs`
 
-## 5.2 Frontend (`frontend/CineBase.Web/wwwroot/`)
+## 5.2 Frontend (`frontend/Cinema67.Web/wwwroot/`)
 
 - `login.html`
 - `registrazione.html`

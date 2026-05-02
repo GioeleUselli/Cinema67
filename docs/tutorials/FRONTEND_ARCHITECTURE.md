@@ -2,7 +2,7 @@
 
 **Autore:** Claude AI Assistant
 **Data:** Marzo 2026
-**Progetto di Riferimento:** CineBase
+**Progetto di Riferimento:** Cinema67
 **Framework:** JavaScript ES6+ (Vanilla)
 **Linguaggio:** JavaScript / HTML5
 
@@ -23,7 +23,7 @@
 
 ### 1.1 Architettura Generale
 
-L'applicazione CineBase utilizza un'architettura **client-side** basata su JavaScript vanilla, con caricamento dinamico dei componenti HTML.
+L'applicazione Cinema67 utilizza un'architettura **client-side** basata su JavaScript vanilla, con caricamento dinamico dei componenti HTML.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -480,7 +480,7 @@ async function loadRegisti() {
 
 ### 4.1 Strategie di State Management
 
-L'applicazione CineBase utilizza un approccio **ibrido** per la gestione dello stato:
+L'applicazione Cinema67 utilizza un approccio **ibrido** per la gestione dello stato:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -868,7 +868,7 @@ sequenceDiagram
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Gestione Films - CineBase</title>
+  <title>Gestione Films - Cinema67</title>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -1274,7 +1274,7 @@ Per effetto delle nuove regole backend:
 
 ## Riepilogo
 
-L'architettura frontend di CineBase implementa un pattern **modulare** e **separato** che facilita la manutenibilità:
+L'architettura frontend di Cinema67 implementa un pattern **modulare** e **separato** che facilita la manutenibilità:
 
 1. **Template Loader**: Carica dinamicamente i componenti HTML con caching intelligente
 2. **API Module**: Centralizza le comunicazioni HTTP con gestione errori robusta

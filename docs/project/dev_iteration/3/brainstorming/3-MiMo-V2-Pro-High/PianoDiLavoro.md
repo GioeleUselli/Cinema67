@@ -4,7 +4,7 @@ Autore: OpenCode con MiMo V2 Pro High
 
 ## 1) Obiettivo
 
-Trasformare CineBase da applicazione "tutto aperto" a sistema sicuro con autenticazione JWT, controllo accessi basato su ruoli (RBAC), gestione categorie film (many-to-many), area personale utente con prenotazioni virtuali e protezione route frontend.
+Trasformare Cinema67 da applicazione "tutto aperto" a sistema sicuro con autenticazione JWT, controllo accessi basato su ruoli (RBAC), gestione categorie film (many-to-many), area personale utente con prenotazioni virtuali e protezione route frontend.
 
 ### 1.1 Stato attuale
 
@@ -20,7 +20,7 @@ Trasformare CineBase da applicazione "tutto aperto" a sistema sicuro con autenti
 ```text
 repo-root/
 ├── backend/FilmAPI/          ← API .NET 9 (porta 5000)
-├── frontend/CineBase.Web/    ← Static files (porta 5001)
+├── frontend/Cinema67.Web/    ← Static files (porta 5001)
 ├── tests/backend/            ← xUnit + FluentAssertions
 └── docs/
 ```
@@ -158,11 +158,11 @@ BCrypt.Net-Next
 
 ```env
 JWT_SECRET=<chiave segreta minimo 256 bit>
-JWT_ISSUER=CineBaseAPI
-JWT_AUDIENCE=CineBaseWeb
+JWT_ISSUER=Cinema67API
+JWT_AUDIENCE=Cinema67Web
 JWT_ACCESS_TOKEN_EXPIRY_MINUTES=15
 JWT_REFRESH_TOKEN_EXPIRY_DAYS=7
-ADMIN_SEED_EMAIL=admin@cinebase.it
+ADMIN_SEED_EMAIL=admin@Cinema67.it
 ADMIN_SEED_PASSWORD=Admin123!
 ```
 
@@ -326,7 +326,7 @@ Fantascienza, Thriller, Animazione, Documentario, Romantico, Storico
 1. Attivare middleware in `Program.cs` (ordine critico):
 
    ```csharp
-   app.UseCors("AllowCineBaseFrontend");
+   app.UseCors("AllowCinema67Frontend");
    app.UseAuthentication();    // ← NUOVO
    app.UseAuthorization();     // ← NUOVO
    app.UseStaticFiles();
@@ -756,7 +756,7 @@ Fantascienza, Thriller, Animazione, Documentario, Romantico, Storico
 | `Endpoints/PrenotazioniEndpoints.cs` | Endpoint /prenotazioni/* |
 | `Endpoints/AdminUtentiEndpoints.cs` | Endpoint /admin/utenti/* |
 
-### Frontend (`frontend/CineBase.Web/wwwroot/`)
+### Frontend (`frontend/Cinema67.Web/wwwroot/`)
 
 | File | Descrizione |
 |---|---|

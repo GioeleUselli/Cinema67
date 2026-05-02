@@ -1,7 +1,7 @@
 # Tutorial completo: Stripe CLI per sviluppo, test e webhook
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** uso pratico di Stripe CLI in contesto locale e semi-produttivo  
 
 ---
@@ -12,13 +12,13 @@
   - [Indice](#indice)
   - [1. Obiettivo del tutorial](#1-obiettivo-del-tutorial)
   - [2. Che cos'è Stripe CLI](#2-che-cosè-stripe-cli)
-  - [3. Perché è utile in un progetto come CineBase](#3-perché-è-utile-in-un-progetto-come-cinebase)
+  - [3. Perché è utile in un progetto come Cinema67](#3-perché-è-utile-in-un-progetto-come-Cinema67)
   - [4. Installazione e login](#4-installazione-e-login)
     - [4.1 Installazione](#41-installazione)
     - [4.2 Verifica installazione](#42-verifica-installazione)
     - [4.3 Login](#43-login)
   - [5. Comando fondamentale: ascoltare e inoltrare webhook](#5-comando-fondamentale-ascoltare-e-inoltrare-webhook)
-  - [6. Workflow locale tipico per CineBase](#6-workflow-locale-tipico-per-cinebase)
+  - [6. Workflow locale tipico per Cinema67](#6-workflow-locale-tipico-per-Cinema67)
     - [6.1 Preparazione](#61-preparazione)
     - [6.2 Sequenza pratica](#62-sequenza-pratica)
     - [6.3 Carte di test](#63-carte-di-test)
@@ -28,7 +28,7 @@
     - [8.2 Esempio: pagamento fallito](#82-esempio-pagamento-fallito)
     - [8.3 Limite da comprendere](#83-limite-da-comprendere)
   - [9. Come leggere il webhook secret corretto](#9-come-leggere-il-webhook-secret-corretto)
-  - [10. Workflow principali oltre a CineBase](#10-workflow-principali-oltre-a-cinebase)
+  - [10. Workflow principali oltre a Cinema67](#10-workflow-principali-oltre-a-Cinema67)
     - [10.1 Test di un e-commerce classico](#101-test-di-un-e-commerce-classico)
     - [10.2 Test di abbonamenti](#102-test-di-abbonamenti)
     - [10.3 Test di rimborsi](#103-test-di-rimborsi)
@@ -50,7 +50,7 @@
 
 ## 1. Obiettivo del tutorial
 
-Questo tutorial documenta come usare Stripe CLI in modo pratico, con particolare attenzione ai workflow utili durante lo sviluppo di `CineBase`.
+Questo tutorial documenta come usare Stripe CLI in modo pratico, con particolare attenzione ai workflow utili durante lo sviluppo di `Cinema67`.
 
 L'obiettivo è chiarire:
 
@@ -76,9 +76,9 @@ In ambito didattico, il valore principale di Stripe CLI è che elimina il bisogn
 
 ---
 
-## 3. Perché è utile in un progetto come CineBase
+## 3. Perché è utile in un progetto come Cinema67
 
-Nel progetto `CineBase`, l'endpoint webhook previsto è:
+Nel progetto `Cinema67`, l'endpoint webhook previsto è:
 
 ```text
 POST /payments/stripe/webhook
@@ -142,7 +142,7 @@ Questo comando:
 
 ## 5. Comando fondamentale: ascoltare e inoltrare webhook
 
-Il comando più importante per `CineBase` è:
+Il comando più importante per `Cinema67` è:
 
 ```powershell
 stripe listen --forward-to localhost:5000/payments/stripe/webhook
@@ -173,7 +173,7 @@ Nota importante:
 
 ---
 
-## 6. Workflow locale tipico per CineBase
+## 6. Workflow locale tipico per Cinema67
 
 ### 6.1 Preparazione
 
@@ -198,7 +198,7 @@ stripe listen --forward-to localhost:5000/payments/stripe/webhook
 
 Terminale 3 o browser:
 
-- eseguire il flusso di acquisto in `CineBase`
+- eseguire il flusso di acquisto in `Cinema67`
 - confermare un pagamento di test
 
 Il backend riceverà i webhook inoltrati da Stripe CLI come se fosse già pubblicamente raggiungibile.
@@ -217,7 +217,7 @@ Per lo sviluppo occorre sempre usare carte di test documentate da Stripe.
 
 ## 7. Eventi da ascoltare per il progetto
 
-Per la direzione hosted di `CineBase`, gli eventi minimi consigliati sono:
+Per la direzione hosted di `Cinema67`, gli eventi minimi consigliati sono:
 
 - `checkout.session.completed`
 - `checkout.session.expired`
@@ -263,7 +263,7 @@ Gli eventi generati con `trigger` sono utilissimi per testare:
 
 Non sostituiscono completamente il test del flusso reale ordine-pagamento, perché potrebbero non corrispondere esattamente ai metadati o agli ID generati dall'applicazione.
 
-Per `CineBase`, il test migliore resta:
+Per `Cinema67`, il test migliore resta:
 
 1. creare davvero l'ordine `Pending`
 2. creare davvero la `Checkout Session`
@@ -287,7 +287,7 @@ Regola pratica:
 
 ---
 
-## 10. Workflow principali oltre a CineBase
+## 10. Workflow principali oltre a Cinema67
 
 Stripe CLI è utile anche in altri contesti.
 
@@ -370,7 +370,7 @@ I trigger aiutano, ma il flusso reale con `Checkout Session` hosted e ritorno ap
 
 ### 12.3 Mettere metadati utili nelle Checkout Session
 
-Per `CineBase` è utile includere almeno:
+Per `Cinema67` è utile includere almeno:
 
 ```text
 orderId
@@ -401,7 +401,7 @@ Verificare davvero tutti i punti seguenti:
 
 - il backend crea la `Checkout Session`
 - Stripe completa il checkout in `test mode`
-- il frontend torna su CineBase e interroga lo stato ordine
+- il frontend torna su Cinema67 e interroga lo stato ordine
 - il webhook inoltrato da Stripe CLI finalizza o riconcilia l'ordine correttamente
 
 ### 13.2 Controlli preliminari
@@ -521,7 +521,7 @@ In assenza di questi accessi, l'assistente può aiutare a progettare il test, ma
 
 Stripe CLI è lo strumento più semplice e lineare per testare i webhook di Stripe in locale.
 
-Per `CineBase` rappresenta il ponte ideale tra:
+Per `Cinema67` rappresenta il ponte ideale tra:
 
 - semplicità di sviluppo locale
 - necessità didattica di comprendere i webhook

@@ -1,7 +1,7 @@
 # Tutorial completo: come funziona Stripe come gateway di pagamento
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** comprensione del modello Stripe per integrazione applicativa backend/frontend  
 
 ---
@@ -18,7 +18,7 @@
 8. [Confronto tra modello sincrono e modello asincrono](#8-confronto-tra-modello-sincrono-e-modello-asincrono)
 9. [Sviluppo locale: cosa cambia rispetto al deployment](#9-sviluppo-locale-cosa-cambia-rispetto-al-deployment)
 10. [Deployment: requisiti minimi per una integrazione robusta](#10-deployment-requisiti-minimi-per-una-integrazione-robusta)
-11. [Come applicare questi concetti al progetto CineBase](#11-come-applicare-questi-concetti-al-progetto-cinebase)
+11. [Come applicare questi concetti al progetto Cinema67](#11-come-applicare-questi-concetti-al-progetto-Cinema67)
 12. [Errori tipici da evitare](#12-errori-tipici-da-evitare)
 13. [Conclusione](#13-conclusione)
 
@@ -52,11 +52,11 @@ Stripe è un'infrastruttura di pagamento che mette a disposizione:
 
 In termini architetturali, Stripe svolge il ruolo di sistema esterno affidabile che coordina il pagamento vero e proprio, mentre l'applicazione mantiene la propria logica di business.
 
-Nel caso di `CineBase`, la logica di business resta interna all'applicazione:
+Nel caso di `Cinema67`, la logica di business resta interna all'applicazione:
 
-- i posti si selezionano nel backend CineBase
-- il totale viene calcolato nel backend CineBase
-- l'ordine viene finalizzato nel backend CineBase
+- i posti si selezionano nel backend Cinema67
+- il totale viene calcolato nel backend Cinema67
+- l'ordine viene finalizzato nel backend Cinema67
 - Stripe viene usato solo per la parte di incasso con carta
 
 ---
@@ -123,7 +123,7 @@ Caratteristiche:
 - serve a inizializzare Stripe.js
 - non consente operazioni sensibili server-side
 
-Nel progetto `CineBase`, questa chiave appartiene al frontend.
+Nel progetto `Cinema67`, questa chiave appartiene al frontend.
 
 ### 4.2 Secret key
 
@@ -140,7 +140,7 @@ Caratteristiche:
 - non deve mai comparire nel frontend
 - serve a creare `PaymentIntent`, leggere pagamenti, gestire rimborsi e altre operazioni sensibili
 
-Nel progetto `CineBase`, questa chiave corrisponde al valore da mettere in `STRIPE_API_KEY`.
+Nel progetto `Cinema67`, questa chiave corrisponde al valore da mettere in `STRIPE_API_KEY`.
 
 ### 4.3 Webhook signing secret
 
@@ -156,7 +156,7 @@ Caratteristiche:
 - serve solo per verificare la firma delle richieste webhook inviate da Stripe
 - viene generata per ogni endpoint webhook configurato
 
-Nel progetto `CineBase`, questa chiave corrisponde al valore da mettere in `STRIPE_WEBHOOK_SECRET`.
+Nel progetto `Cinema67`, questa chiave corrisponde al valore da mettere in `STRIPE_WEBHOOK_SECRET`.
 
 ### 4.4 Client secret del PaymentIntent
 
@@ -182,7 +182,7 @@ Differenza pratica:
 - la `publishable key` identifica l'applicazione frontend presso Stripe e inizializza `Stripe.js`
 - il `client_secret` identifica uno specifico tentativo di pagamento e permette al frontend di completarlo
 
-Nel progetto `CineBase`, il `client_secret` viene ottenuto così:
+Nel progetto `Cinema67`, il `client_secret` viene ottenuto così:
 
 1. il backend usa la `secret key` `sk_test_...` per creare un `PaymentIntent`
 2. Stripe restituisce nella risposta l'`id` del `PaymentIntent` e il suo `client_secret`
@@ -194,7 +194,7 @@ Conclusione importante:
 - la `publishable key` è stabile e appartiene alla configurazione frontend
 - il `client_secret` è dinamico e viene creato ogni volta che nasce un nuovo `PaymentIntent`
 
-Nota di contesto per `CineBase`:
+Nota di contesto per `Cinema67`:
 
 - nel flusso storico con `Stripe Elements`, il `client_secret` era centrale nel browser
 - nella direzione hosted con `Stripe Checkout`, il `client_secret` non è il perno del flusso lato frontend, perché il browser riceve soprattutto una URL di checkout hosted
@@ -299,7 +299,7 @@ Per flusso sincrono si intende un modello in cui l'applicazione conclude il prop
 sequenceDiagram
     participant U as Utente
     participant FE as Frontend
-    participant BE as Backend CineBase
+    participant BE as Backend Cinema67
     participant ST as Stripe
 
     U->>FE: Conferma acquisto
@@ -345,7 +345,7 @@ Per flusso asincrono si intende un modello in cui l'applicazione non si fida sol
 sequenceDiagram
     participant U as Utente
     participant FE as Frontend
-    participant BE as Backend CineBase
+    participant BE as Backend Cinema67
     participant ST as Stripe
 
     U->>FE: Conferma acquisto
@@ -405,7 +405,7 @@ Buona architettura:
 
 ### 8.3 Conclusione operativa
 
-Per un progetto didattico come `CineBase`, l'approccio più ragionevole è:
+Per un progetto didattico come `Cinema67`, l'approccio più ragionevole è:
 
 1. partire con il flusso sincrono verificato dal backend
 2. implementare comunque il webhook endpoint lato codice
@@ -426,7 +426,7 @@ Backend:  http://localhost:5000
 
 - creazione di `Checkout Session`
 - redirect verso Stripe Checkout in `test mode`
-- ritorno su URL applicativo CineBase
+- ritorno su URL applicativo Cinema67
 - verifica server-side dello stato dell'ordine e della sessione
 
 ### 9.2 Cosa non funziona da solo in locale
@@ -441,7 +441,7 @@ Quindi i webhook in locale richiedono una delle seguenti soluzioni:
 
 ### 9.3 Implicazione pratica
 
-In locale si può sviluppare parte del flusso anche prima di collaudare i webhook, ma la strategia hosted di `CineBase` richiede comunque test reali di webhook e riconciliazione prima di poter essere considerata robusta.
+In locale si può sviluppare parte del flusso anche prima di collaudare i webhook, ma la strategia hosted di `Cinema67` richiede comunque test reali di webhook e riconciliazione prima di poter essere considerata robusta.
 
 ---
 
@@ -478,9 +478,9 @@ Senza idempotenza il sistema rischia:
 
 ---
 
-## 11. Come applicare questi concetti al progetto CineBase
+## 11. Come applicare questi concetti al progetto Cinema67
 
-Nel contesto di `CineBase`, la Fase 7 richiede una soluzione bilanciata tra semplicità didattica e buone pratiche.
+Nel contesto di `Cinema67`, la Fase 7 richiede una soluzione bilanciata tra semplicità didattica e buone pratiche.
 
 ### 11.1 Configurazione prevista
 
@@ -536,7 +536,7 @@ Il browser non è la fonte di verità del pagamento. Il backend deve sempre veri
 
 ### 12.3 Finalizzare l'ordine prima della verifica reale
 
-`CineBase` non dovrebbe trasformare i posti in `Sold` solo perché il browser dice che il pagamento è riuscito.
+`Cinema67` non dovrebbe trasformare i posti in `Sold` solo perché il browser dice che il pagamento è riuscito.
 
 ### 12.4 Non gestire gli eventi duplicati
 

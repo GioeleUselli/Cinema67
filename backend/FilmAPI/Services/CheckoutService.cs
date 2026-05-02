@@ -8,10 +8,13 @@ namespace FilmAPI.Services;
 public class CheckoutService : ICheckoutService
 {
     private readonly FilmDbContext _db;
+    private readonly TimeSpan _orderTimeout;
 
     public CheckoutService(FilmDbContext db)
     {
         _db = db;
+        var orderTimeoutMinutes = int.Parse(Environment.GetEnvironmentVariable("ORDER_TIMEOUT_MINUTES") ?? "4");
+        _orderTimeout = TimeSpan.FromMinutes(Math.Max(1, orderTimeoutMinutes));
     }
 
     public async Task<OrdineSummaryDTO> CreateOrdineAsync(int userId, CreateOrdineRequestDTO dto)
@@ -84,7 +87,8 @@ public class CheckoutService : ICheckoutService
             ImportoCarta = totaleLordo,
             IdempotencyKey = dto.IdempotencyKey,
             Stato = OrdineState.Pending,
-            CreatedAtUtc = now
+            CreatedAtUtc = now,
+            CheckoutExpiresAtUtc = now.Add(_orderTimeout)
         };
 
         _db.Ordini.Add(ordine);

@@ -1,7 +1,7 @@
 # Tutorial completo: esporre applicazioni locali con URL pubblici per webhook
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** strumenti e strategie per rendere raggiungibile un backend locale da servizi esterni come Stripe  
 
 ---
@@ -39,11 +39,11 @@
     - [9.2 Sequenza pratica generale](#92-sequenza-pratica-generale)
     - [9.3 Considerazione importante](#93-considerazione-importante)
   - [10. Come collegare il tunnel a Stripe](#10-come-collegare-il-tunnel-a-stripe)
-    - [10.1 Esempio con endpoint CineBase](#101-esempio-con-endpoint-cinebase)
+    - [10.1 Esempio con endpoint Cinema67](#101-esempio-con-endpoint-Cinema67)
     - [10.2 Eventi minimi consigliati](#102-eventi-minimi-consigliati)
     - [10.3 Verifica operativa](#103-verifica-operativa)
   - [11. Confronto tra tunnel pubblico e Stripe CLI](#11-confronto-tra-tunnel-pubblico-e-stripe-cli)
-    - [11.1 Regola pratica per CineBase](#111-regola-pratica-per-cinebase)
+    - [11.1 Regola pratica per Cinema67](#111-regola-pratica-per-Cinema67)
   - [12. Buone pratiche di sicurezza e diagnostica](#12-buone-pratiche-di-sicurezza-e-diagnostica)
     - [12.1 Non trasformare un tunnel in un ambiente stabile di produzione](#121-non-trasformare-un-tunnel-in-un-ambiente-stabile-di-produzione)
     - [12.2 Tenere separati secret e ambienti](#122-tenere-separati-secret-e-ambienti)
@@ -63,7 +63,7 @@ Il documento chiarisce:
 - quando conviene usare `ngrok`
 - quando può essere sufficiente `VS Code Dev Tunnels`
 - quali sono i vantaggi e i limiti delle varie opzioni
-- come applicare questi strumenti al progetto `CineBase`
+- come applicare questi strumenti al progetto `Cinema67`
 
 ---
 
@@ -101,7 +101,7 @@ Non sempre serve.
 - integrazioni con sistemi terzi che richiedono callback HTTP
 - demo condivise su ambiente ancora non deployato
 
-Nel progetto `CineBase`, il tunnel pubblico serve soprattutto quando si vuole testare davvero:
+Nel progetto `Cinema67`, il tunnel pubblico serve soprattutto quando si vuole testare davvero:
 
 - `POST /payments/stripe/webhook`
 
@@ -185,7 +185,7 @@ I Dev Tunnels permettono di esporre una porta locale tramite un endpoint pubblic
 
 ### 6.3 Quando possono avere senso
 
-Nel caso di `CineBase`, i Dev Tunnels possono essere utili se il team vuole:
+Nel caso di `Cinema67`, i Dev Tunnels possono essere utili se il team vuole:
 
 - esporre contemporaneamente backend e frontend
 - fare demo condivise oltre al semplice test webhook
@@ -220,7 +220,7 @@ cloudflared tunnel login
 7. creare un tunnel nominato, ad esempio:
 
 ```powershell
-cloudflared tunnel create cinebase-local
+cloudflared tunnel create Cinema67-local
 ```
 
 8. creare il file di configurazione `config.yml` nella cartella `.cloudflared`, ad esempio:
@@ -234,19 +234,19 @@ credentials-file: C:/Users/<utente>/.cloudflared/<Tunnel-UUID>.json
 9. associare un hostname pubblico al tunnel:
 
 ```powershell
-cloudflared tunnel route dns cinebase-local webhook-cinebase.example.com
+cloudflared tunnel route dns Cinema67-local webhook-Cinema67.example.com
 ```
 
 10. avviare il tunnel:
 
 ```powershell
-cloudflared tunnel run cinebase-local
+cloudflared tunnel run Cinema67-local
 ```
 
 11. usare poi in Stripe un endpoint del tipo:
 
 ```text
-https://webhook-cinebase.example.com/payments/stripe/webhook
+https://webhook-Cinema67.example.com/payments/stripe/webhook
 ```
 
 Osservazione pratica:
@@ -282,7 +282,7 @@ lt --port 5000
 5. se si desidera provare a richiedere un sottodominio leggibile, usare:
 
 ```powershell
-lt --port 5000 --subdomain cinebase-demo
+lt --port 5000 --subdomain Cinema67-demo
 ```
 
 6. copiare l'URL pubblico restituito dal tool e configurare in Stripe:
@@ -390,7 +390,7 @@ ngrok config add-authtoken <TOKEN>
 
 ### 8.2 Esempio di avvio tunnel HTTP
 
-Se il backend di `CineBase` gira su porta `5000`:
+Se il backend di `Cinema67` gira su porta `5000`:
 
 ```powershell
 ngrok http 5000
@@ -474,7 +474,7 @@ Qualunque sia lo strumento scelto, il processo concettuale è sempre questo:
 3. Stripe invia un test webhook
 4. il backend verifica la firma con `STRIPE_WEBHOOK_SECRET`
 
-### 10.1 Esempio con endpoint CineBase
+### 10.1 Esempio con endpoint Cinema67
 
 Endpoint applicativo:
 
@@ -514,7 +514,7 @@ Una volta configurato il webhook, conviene controllare:
 | Utile per altri callback HTTP | limitato | eccellente |
 | Configurazione dashboard Stripe | non sempre necessaria per test locale | spesso necessaria |
 
-### 11.1 Regola pratica per CineBase
+### 11.1 Regola pratica per Cinema67
 
 - per sviluppare i webhook Stripe in locale: `Stripe CLI`
 - per esporre un backend locale a più servizi o per demo condivise: `ngrok` o `Dev Tunnels`
@@ -553,4 +553,4 @@ Stripe può reinviare un evento. Il backend deve essere idempotente anche quando
 
 Gli strumenti di tunneling pubblico risolvono un problema preciso: rendere accessibile un servizio locale da Internet per ricevere callback e webhook.
 
-Nel contesto di `CineBase`, la scelta più semplice per i webhook Stripe è spesso `Stripe CLI`, mentre `ngrok` o `Dev Tunnels` diventano utili quando il progetto ha bisogno di un URL pubblico più generale, ad esempio per demo, debugging multi-servizio o integrazioni non limitate a Stripe.
+Nel contesto di `Cinema67`, la scelta più semplice per i webhook Stripe è spesso `Stripe CLI`, mentre `ngrok` o `Dev Tunnels` diventano utili quando il progetto ha bisogno di un URL pubblico più generale, ad esempio per demo, debugging multi-servizio o integrazioni non limitate a Stripe.

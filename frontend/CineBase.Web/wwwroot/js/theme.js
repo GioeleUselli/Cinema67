@@ -1,78 +1,47 @@
 /**
- * CineAura Theme Manager
+ * Cinema67 Theme Manager
  *
- * Manages light/dark theme with:
- * - localStorage persistence
- * - System preference fallback (prefers-color-scheme)
- * - Exposes window.CineBaseTheme and window.CineAuraTheme for compatibility
+ * - Exposes window.Cinema67Theme for compatibility
  */
+
 (function () {
-  const STORAGE_KEY = 'cineaura-theme';
+  var THEME_KEY = 'cb_color_theme';
 
-  function getSystemTheme() {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-
-  function getSavedTheme() {
-    return localStorage.getItem(STORAGE_KEY);
-  }
-
-  function applyTheme(theme) {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+  var themeApi = {
+    STORAGE_KEY: THEME_KEY,
+    get: function () {
+      return localStorage.getItem(THEME_KEY) || 'light';
+    },
+    set: function (value) {
+      localStorage.setItem(THEME_KEY, value);
+      document.documentElement.classList.toggle('dark', value === 'dark');
+    },
+    toggle: function () {
+      this.set(this.get() === 'dark' ? 'light' : 'dark');
+      this._updateToggleIcons();
+    },
+    init: function () {
+      var saved = this.get();
+      this.set(saved);
+      this._updateToggleIcons();
+    },
+    _updateToggleIcons: function () {
+      var isDark = this.get() === 'dark';
+      document.querySelectorAll('.theme-toggle-icon-moon').forEach(function (el) {
+        el.style.display = isDark ? 'none' : '';
+      });
+      document.querySelectorAll('.theme-toggle-icon-sun').forEach(function (el) {
+        el.style.display = isDark ? '' : 'none';
+      });
+      document.querySelectorAll('.theme-toggle-label').forEach(function (el) {
+        el.textContent = isDark ? 'Tema chiaro' : 'Tema scuro';
+      });
     }
-    updateToggleIcons(theme);
-  }
-
-  function updateToggleIcons(theme) {
-    document.querySelectorAll('.theme-toggle-icon-sun').forEach(el => {
-      el.style.display = theme === 'dark' ? 'inline' : 'none';
-    });
-    document.querySelectorAll('.theme-toggle-icon-moon').forEach(el => {
-      el.style.display = theme === 'dark' ? 'none' : 'inline';
-    });
-  }
-
-  function getCurrentTheme() {
-    const saved = getSavedTheme();
-    if (saved) return saved;
-    return getSystemTheme();
-  }
-
-  function toggleTheme() {
-    const current = getCurrentTheme();
-    const next = current === 'dark' ? 'light' : 'dark';
-    localStorage.setItem(STORAGE_KEY, next);
-    applyTheme(next);
-  }
-
-  function setTheme(theme) {
-    localStorage.setItem(STORAGE_KEY, theme);
-    applyTheme(theme);
-  }
-
-  // Apply immediately (before DOMContentLoaded to prevent flash)
-  applyTheme(getCurrentTheme());
-
-  // Listen for system preference changes
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    // Only react to system changes if user hasn't set a manual preference
-    if (!getSavedTheme()) {
-      applyTheme(e.matches ? 'dark' : 'light');
-    }
-  });
-
-  // Export API
-  const themeApi = {
-    toggle: toggleTheme,
-    set: setTheme,
-    get: getCurrentTheme,
-    getSystem: getSystemTheme
   };
 
+  themeApi.init();
+
+  window.Cinema67Theme = themeApi;
   window.CineBaseTheme = themeApi;
   window.CineAuraTheme = themeApi;
 })();

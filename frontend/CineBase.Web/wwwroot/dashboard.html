@@ -2,9 +2,9 @@
 <html lang="it-IT">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineAura - Dashboard</title>
+  <title>Cinema67 - Dashboard</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
@@ -24,7 +24,7 @@
       <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p class="cine-kicker">Control Room</p>
-          <h2 class="cine-headline text-brand-on-surface">Dashboard operativa CineAura</h2>
+          <h2 class="cine-headline text-brand-on-surface">Dashboard operativa Cinema67</h2>
           <p class="mt-2 max-w-2xl text-sm text-brand-on-surface-variant">Vista ridisegnata in stile control panel: blocchi modulari, dati live e accesso rapido ai flussi admin.</p>
         </div>
         <a href="/proiezioni.html" class="btn-gold whitespace-nowrap inline-block">
@@ -131,13 +131,13 @@
       </table>
     </section>
 
-    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2" id="dashboard-registi">
       <article class="cine-admin-slab overflow-hidden">
         <header class="cine-admin-slab-header">
           <h2 class="text-lg font-semibold text-brand-on-surface">Registi in Evidenza</h2>
           <span class="cine-admin-chip">Insights</span>
         </header>
-        <div class="p-6">
+        <div class="p-6" id="dashboard-registi-content">
           <p class="text-sm text-brand-on-surface-variant">Caricamento in corso...</p>
         </div>
       </article>
@@ -146,7 +146,7 @@
           <h2 class="text-lg font-semibold text-brand-on-surface">Analisi Cinema</h2>
           <span class="cine-admin-chip">Trend</span>
         </header>
-        <div class="p-6">
+        <div class="p-6" id="dashboard-analytics-content">
           <p class="text-sm text-brand-on-surface-variant">Caricamento in corso...</p>
         </div>
       </article>
@@ -155,25 +155,18 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
-  <script src="/js/utils.js"></script>
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/admin-shell.js"></script>
+  <script src="/js/utils.js?v=3"></script>
+  <script src="/js/api-app.js?v=1"></script>
+  <script src="/js/auth.js?v=3"></script>
+  <script src="/js/admin-shell.js?v=3"></script>
   <script>
-    function normalizeCollection(data) {
-      if (Array.isArray(data)) return data;
-      if (Array.isArray(data?.$values)) return data.$values;
-      if (Array.isArray(data?.items)) return data.items;
-      return [];
-    }
+    var cachedFilms = [];
+    var cachedCinemas = [];
+    var cachedRegisti = [];
 
-    // Cache per dropdown
-    let cachedFilms = [];
-    let cachedCinemas = [];
-
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', async function () {
       try {
-        const [filmsRaw, registiRaw, cinemasRaw, showsRaw, openTicketsRaw, inProgressTicketsRaw] = await Promise.all([
+        var results = await Promise.all([
           API.getFilms(),
           API.getRegisti(),
           API.getCinemas(),
@@ -182,75 +175,97 @@
           API.getSupportTickets({ status: 'InProgress', page: 1, pageSize: 100 })
         ]);
 
-        const films = normalizeCollection(filmsRaw);
-        const registi = normalizeCollection(registiRaw);
-        const cinemas = normalizeCollection(cinemasRaw);
-        const shows = normalizeCollection(showsRaw);
-        const openTickets = normalizeCollection(openTicketsRaw);
-        const inProgressTickets = normalizeCollection(inProgressTicketsRaw);
+        var films = normalizeCollection(results[0]);
+        var registi = normalizeCollection(results[1]);
+        var cinemas = normalizeCollection(results[2]);
+        var shows = normalizeCollection(results[3]);
+        var openTickets = normalizeCollection(results[4]);
+        var inProgressTickets = normalizeCollection(results[5]);
 
         cachedFilms = films;
         cachedCinemas = cinemas;
+        cachedRegisti = registi;
 
         document.getElementById('stat-movies').textContent = films.length;
         document.getElementById('stat-directors').textContent = registi.length;
         document.getElementById('stat-cinemas').textContent = cinemas.length;
         document.getElementById('stat-screenings').textContent = shows.length;
-        const supportCountEl = document.getElementById('support-open-count');
+        var supportCountEl = document.getElementById('support-open-count');
         if (supportCountEl) supportCountEl.textContent = String(openTickets.length + inProgressTickets.length);
 
         renderUpcomingShows(shows);
+        renderTopRegisti(registi);
+        renderCinemaAnalytics(cinemas, shows);
       } catch (error) {
         console.error('Error loading dashboard:', error);
       }
     });
 
     function getDashboardFilmTitle(filmId) {
-      const film = cachedFilms.find(f => Number(f.id) === Number(filmId));
-      return film ? film.titolo : `ID ${filmId}`;
+      var film = cachedFilms.find(function (f) { return Number(f.id) === Number(filmId); });
+      return film ? film.titolo : 'ID ' + filmId;
     }
 
     function getDashboardCinemaName(cinemaId) {
-      const cinema = cachedCinemas.find(c => Number(c.id) === Number(cinemaId));
-      return cinema ? cinema.nome : `ID ${cinemaId}`;
+      var cinema = cachedCinemas.find(function (c) { return Number(c.id) === Number(cinemaId); });
+      return cinema ? cinema.nome : 'ID ' + cinemaId;
     }
 
     function renderUpcomingShows(shows) {
-      const tbody = document.getElementById('upcoming-screenings');
+      var tbody = document.getElementById('upcoming-screenings');
       if (!shows.length) {
         tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessuno show in programma</td></tr>';
         return;
       }
 
-      const now = new Date();
+      var now = new Date();
 
-      tbody.innerHTML = shows.slice(0, 5).map(s => {
-        let showDate = null;
+      tbody.innerHTML = shows.slice(0, 5).map(function (s) {
+        var showDate = null;
         if (s.startAtUtc) showDate = new Date(s.startAtUtc);
-        const isPast = showDate && showDate < now;
-        const statusClass = isPast ? 'chip-past' : 'chip-active';
-        const statusText = isPast ? 'Passato' : 'In programma';
+        var isPast = showDate && showDate < now;
+        var statusClass = isPast ? 'chip-past' : 'chip-active';
+        var statusText = isPast ? 'Passato' : 'In programma';
 
-        const formattedDate = showDate ? formatDate(s.startAtUtc) : '-';
-        const formattedTime = showDate ? formatTime(s.startAtUtc) : '-';
-        const filmTitle = s.filmTitolo || getDashboardFilmTitle(s.filmId);
-        const cinemaNome = s.cinemaNome || getDashboardCinemaName(s.cinemaId);
+        var formattedDate = showDate ? formatDate(s.startAtUtc) : '-';
+        var formattedTime = showDate ? formatTime(s.startAtUtc) : '-';
+        var filmTitle = escapeHtml(s.filmTitolo || getDashboardFilmTitle(s.filmId));
+        var cinemaNome = escapeHtml(s.cinemaNome || getDashboardCinemaName(s.cinemaId));
 
-        return `
-    <tr class="row-hover">
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">${s.id}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-on-surface">${filmTitle}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface">${cinemaNome}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">${formattedDate}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">${formattedTime}</td>
-      <td class="px-6 py-4 whitespace-nowrap">
-        <span class="chip-status ${statusClass}">${statusText}</span>
-      </td>
-    </tr>
-    `;
+        return '<tr class="row-hover"><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + s.id + '</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-on-surface">' + filmTitle + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface">' + cinemaNome + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + formattedDate + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + formattedTime + '</td><td class="px-6 py-4 whitespace-nowrap"><span class="chip-status ' + statusClass + '">' + statusText + '</span></td></tr>';
       }).join('');
     }
 
+    function renderTopRegisti(registi) {
+      var host = document.querySelector('#dashboard-registi .cine-admin-slab-content') || document.getElementById('dashboard-registi-content');
+      if (!host) return;
+      var top = registi.slice(0, 5);
+      if (!top.length) {
+        host.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessun regista nel catalogo.</p>';
+        return;
+      }
+      host.innerHTML = top.map(function (r) {
+        return '<p class="text-sm text-brand-on-surface"><i class="fa-solid fa-user mr-2 text-brand-gold"></i>' + escapeHtml(r.nome + ' ' + r.cognome) + ' <span class="text-brand-on-surface-variant">· ' + escapeHtml(r.nazionalita || '-') + '</span></p>';
+      }).join('');
+    }
+
+    function renderCinemaAnalytics(cinemas, shows) {
+      var host = document.getElementById('dashboard-analytics-content');
+      if (!host) return;
+      var cinemaShowCount = {};
+      shows.forEach(function (s) {
+        var cid = s.cinemaId;
+        cinemaShowCount[cid] = (cinemaShowCount[cid] || 0) + 1;
+      });
+      var data = cinemas.map(function (c) { return { nome: c.nome, count: cinemaShowCount[c.id] || 0 }; }).sort(function (a, b) { return b.count - a.count; }).slice(0, 5);
+      if (!data.length) {
+        host.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessuna programmazione disponibile.</p>';
+        return;
+      }
+      host.innerHTML = data.map(function (d) {
+        return '<div class="flex justify-between items-center mb-2"><span class="text-sm text-brand-on-surface">' + escapeHtml(d.nome) + '</span><span class="text-sm font-semibold text-brand-gold">' + d.count + ' show</span></div>';
+      }).join('');
+    }
   </script>
 </body>
 

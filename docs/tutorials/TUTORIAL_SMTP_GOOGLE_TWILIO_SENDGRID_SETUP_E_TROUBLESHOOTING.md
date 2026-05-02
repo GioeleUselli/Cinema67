@@ -1,7 +1,7 @@
-# Tutorial operativo: configurazione SMTP Google e Twilio SendGrid per CineBase
+# Tutorial operativo: configurazione SMTP Google e Twilio SendGrid per Cinema67
 
 **Autore:** OpenCode  
-**Progetto di riferimento:** CineBase  
+**Progetto di riferimento:** Cinema67  
 **Ambito:** guida tutoriale operativa per predisporre, configurare e collaudare l'invio email SMTP in ambiente didattico e in scenari più professionali  
 
 ---
@@ -10,7 +10,7 @@
 
 1. [Obiettivo del documento](#1-obiettivo-del-documento)
 2. [Quando usare questo tutorial](#2-quando-usare-questo-tutorial)
-3. [Premessa architetturale su CineBase](#3-premessa-architetturale-su-cinebase)
+3. [Premessa architetturale su Cinema67](#3-premessa-architetturale-su-Cinema67)
 4. [Variabili d'ambiente ufficiali del progetto](#4-variabili-dambiente-ufficiali-del-progetto)
 5. [Scelta operativa raccomandata per la Fase 8](#5-scelta-operativa-raccomandata-per-la-fase-8)
 6. [Scenario A: configurazione SMTP con account Google personale](#6-scenario-a-configurazione-smtp-con-account-google-personale)
@@ -25,7 +25,7 @@
 
 ## 1. Obiettivo del documento
 
-Questo tutorial descrive in modo operativo come predisporre il sottosistema email SMTP del progetto `CineBase` in due scenari distinti:
+Questo tutorial descrive in modo operativo come predisporre il sottosistema email SMTP del progetto `Cinema67` in due scenari distinti:
 
 - scenario didattico o locale con server SMTP di Google
 - scenario più professionale o quasi-produzione con `Twilio SendGrid`
@@ -51,9 +51,9 @@ Questo tutorial non spiega solo come impostare i parametri: spiega anche quale s
 
 ---
 
-## 3. Premessa architetturale su CineBase
+## 3. Premessa architetturale su Cinema67
 
-Il backend di `CineBase` legge le variabili d'ambiente dal file `backend/.env` all'avvio, perché in `backend/FilmAPI/Program.cs` è presente:
+Il backend di `Cinema67` legge le variabili d'ambiente dal file `backend/.env` all'avvio, perché in `backend/FilmAPI/Program.cs` è presente:
 
 ```csharp
 Env.Load();
@@ -82,8 +82,8 @@ SMTP_HOST=<smtp_host>
 SMTP_PORT=587
 SMTP_USER=<smtp_user>
 SMTP_PASSWORD=<smtp_password>
-SMTP_FROM_EMAIL=noreply@cinebase.it
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_EMAIL=noreply@Cinema67.it
+SMTP_FROM_NAME=Cinema67
 ```
 
 Significato pratico:
@@ -138,10 +138,10 @@ Questo scenario è consigliato quando serve:
 
 ## 6.3 Procedura passo passo per l'operatore umano
 
-1. L'operatore umano sceglie un account Google personale da usare come mittente tecnico, ad esempio `cinebase.demo@gmail.com`.
+1. L'operatore umano sceglie un account Google personale da usare come mittente tecnico, ad esempio `Cinema67.demo@gmail.com`.
 2. Apre la guida ufficiale della verifica in due passaggi e attiva `2-Step Verification` sull'account.
 3. Completata la verifica in due passaggi, apre la pagina ufficiale delle password per app.
-4. Crea una nuova password per app, con un nome esplicito come `CineBase SMTP`.
+4. Crea una nuova password per app, con un nome esplicito come `Cinema67 SMTP`.
 5. Copia il valore generato da Google e lo conserva in modo sicuro.
 6. Apre `backend/.env.example` per verificare i nomi delle variabili richieste dal progetto.
 7. Crea oppure aggiorna `backend/.env`.
@@ -155,10 +155,10 @@ Questo scenario è consigliato quando serve:
 # Provider attivo: Google SMTP
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=cinebase.demo@gmail.com
+SMTP_USER=Cinema67.demo@gmail.com
 SMTP_PASSWORD=<password_per_app_google>
-SMTP_FROM_EMAIL=cinebase.demo@gmail.com
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_EMAIL=Cinema67.demo@gmail.com
+SMTP_FROM_NAME=Cinema67
 ```
 
 ## 6.5 Note operative importanti per Google
@@ -228,7 +228,7 @@ SMTP_PORT=587
 SMTP_USER=apikey
 SMTP_PASSWORD=<twilio_sendgrid_api_key>
 SMTP_FROM_EMAIL=<indirizzo_verificato>
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 ## 7.5 Note operative importanti per Twilio SendGrid
@@ -264,7 +264,7 @@ SMTP_PORT=587
 SMTP_USER=apikey
 SMTP_PASSWORD=<twilio_sendgrid_api_key>
 SMTP_FROM_EMAIL=tickets@example.com
-SMTP_FROM_NAME=CineBase
+SMTP_FROM_NAME=Cinema67
 ```
 
 ---
@@ -421,7 +421,7 @@ Controlli da fare:
 
 ## 12. Conclusione operativa
 
-La strategia più equilibrata per `CineBase` consiste nell'avviare la `FASE 8` con Google SMTP come baseline didattica, mantenendo però l'implementazione e la configurazione già pronte per funzionare anche con `Twilio SendGrid`.
+La strategia più equilibrata per `Cinema67` consiste nell'avviare la `FASE 8` con Google SMTP come baseline didattica, mantenendo però l'implementazione e la configurazione già pronte per funzionare anche con `Twilio SendGrid`.
 
 In questo modo il progetto resta:
 

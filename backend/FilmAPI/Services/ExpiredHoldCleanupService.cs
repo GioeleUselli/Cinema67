@@ -62,6 +62,31 @@ public class ExpiredHoldCleanupService : BackgroundService
             await db.SaveChangesAsync(cancellationToken);
         }
 
+        var expiredPendingOrders = await db.Ordini
+            .Where(o => o.Stato == OrdineState.Pending && o.CheckoutExpiresAtUtc != null && o.CheckoutExpiresAtUtc <= now)
+            .ToListAsync(cancellationToken);
+
+        if (expiredPendingOrders.Count > 0)
+        {
+            var pendingOrderIds = expiredPendingOrders.Select(o => o.Id).ToList();
+            var pendingSeats = await db.ShowPostiStato
+                .Where(sps => sps.OrdineId != null && pendingOrderIds.Contains(sps.OrdineId.Value))
+                .ToListAsync(cancellationToken);
+
+            if (pendingSeats.Count > 0)
+            {
+                db.ShowPostiStato.RemoveRange(pendingSeats);
+            }
+
+            foreach (var ordine in expiredPendingOrders)
+            {
+                ordine.Stato = OrdineState.Expired;
+                ordine.LastPaymentError ??= "Ordine scaduto: pagamento non completato entro il timeout.";
+            }
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         var expiredHostedOrders = await db.Ordini
             .Where(o => o.Stato == OrdineState.CheckoutInProgress && o.CheckoutExpiresAtUtc != null && o.CheckoutExpiresAtUtc <= now)
             .ToListAsync(cancellationToken);

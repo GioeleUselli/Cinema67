@@ -203,6 +203,7 @@ async function loadOrdini() {
               <p class="text-xs text-brand-on-surface-variant mt-1 font-mono">${o.codiceOrdine}</p>
             </div>
             <div class="flex flex-col gap-1 ml-2 flex-shrink-0">
+              ${o.stato === 'Pending' ? `<a href="/pagamento.html?orderId=${o.id}" class="btn-gold-sm text-xs" title="Completa pagamento"><i class="fa-solid fa-credit-card mr-1"></i>Paga ora</a>` : ''}
               ${o.stato === 'Paid' ? `<button onclick="downloadPdf(${o.id})" class="btn-ghost text-xs" title="Scarica PDF"><i class="fa-solid fa-file-pdf mr-1"></i>PDF</button>` : ''}
               <a href="/esito-acquisto.html?orderId=${o.id}" class="btn-ghost text-xs" title="Dettagli"><i class="fa-solid fa-eye mr-1"></i>Dettagli</a>
             </div>

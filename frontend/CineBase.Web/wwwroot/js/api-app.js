@@ -17,15 +17,6 @@ function getAuthSafe() {
   return typeof window !== 'undefined' && window.Auth ? window.Auth : null;
 }
 
-function normalizeRole(role) {
-  if (role == null) return '';
-  const value = String(role).trim().toLowerCase();
-  if (value === '2' || value === 'admin') return 'admin';
-  if (value === '1' || value === 'poweruser') return 'poweruser';
-  if (value === '0' || value === 'user') return 'user';
-  return value;
-}
-
 function isAdminAreaPath(pathname) {
   const adminPaths = new Set([
     '/dashboard.html',
@@ -53,7 +44,10 @@ function enforceAdminAreaAccess() {
     return false;
   }
 
-  const role = normalizeRole(auth.getUserRole?.());
+  var role = String(auth.getUserRole ? auth.getUserRole() : '').trim().toLowerCase();
+  if (role === '2' || role === 'admin') role = 'admin';
+  else if (role === '1' || role === 'poweruser') role = 'poweruser';
+  else if (role === '0' || role === 'user') role = 'user';
   if (role === 'admin' || role === 'poweruser') {
     return true;
   }
@@ -564,5 +558,16 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
     method: 'PUT',
     body: JSON.stringify(data)
   }),
-  getSupportAdmins: () => apiFetch('/admin/support/admins')
+  getSupportAdmins: () => apiFetch('/admin/support/admins'),
+
+  getPromotionsActive: () => apiFetch('/promotions/active'),
+  getPromotions: function (params) {
+    var q = new URLSearchParams();
+    if (params && params.active != null) q.set('active', params.active);
+    return apiFetch('/admin/promotions' + (q.toString() ? '?' + q.toString() : ''));
+  },
+  getPromotion: function (id) { return apiFetch('/admin/promotions/' + id); },
+  createPromotion: function (data) { return apiFetch('/admin/promotions', { method: 'POST', body: JSON.stringify(data) }); },
+  updatePromotion: function (id, data) { return apiFetch('/admin/promotions/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
+  deletePromotion: function (id) { return apiFetch('/admin/promotions/' + id, { method: 'DELETE' }); }
 };

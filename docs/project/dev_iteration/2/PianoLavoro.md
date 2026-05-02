@@ -2,14 +2,14 @@
 
 ## 1) Panoramica
 
-Questa iterazione implementa il frontend dell'applicazione CineBase come Web App didattica con:
+Questa iterazione implementa il frontend dell'applicazione Cinema67 come Web App didattica con:
 - **Backend esistente**: FilmAPI (ASP.NET Core Minimal API con MariaDB)
 - **Frontend nuovo**: Applicazione ASP.NET Core Minimal API per servire pagine statiche
 - **Tecnologie**: HTML5, CSS3, JavaScript (vanilla), Tailwind CSS (CDN), Fetch API
 
 ### 1.1 Riferimenti Design
-I mock UI sono disponibili in `docs/project/dev_iteration/2/stitch_cinebase/`:
-- `landing_page_cinebase/` - Home page con hero e griglia film
+I mock UI sono disponibili in `docs/project/dev_iteration/2/stitch_Cinema67/`:
+- `landing_page_Cinema67/` - Home page con hero e griglia film
 - `gestione_registi/` - CRUD Registi con tabella
 - `gestione_film/` - CRUD Film con poster
 - `cinema_e_proiezioni/` - Gestione Cinema e Proiezioni
@@ -18,7 +18,7 @@ I mock UI sono disponibili in `docs/project/dev_iteration/2/stitch_cinebase/`:
 ## 2) Setup Progetto Frontend
 
 ### 2.1 Creazione Progetto
-- Creare un nuovo progetto ASP.NET Core Empty chiamato `CineBase.Web`
+- Creare un nuovo progetto ASP.NET Core Empty chiamato `Cinema67.Web`
 - Configurare middleware per file statici (`UseStaticFiles`, `UseDefaultFiles`)
 - Configurare `.NET 9`
 
@@ -44,10 +44,10 @@ repo-root/
 │       ├── Properties/
 │       └── Services/
 ├── frontend/
-│   └── CineBase.Web/
+│   └── Cinema67.Web/
 │       ├── .env
 │       ├── .env.example
-│       ├── CineBase.Web.csproj
+│       ├── Cinema67.Web.csproj
 │       ├── Program.cs
 │       ├── appsettings.json
 │       ├── appsettings.Development.json
@@ -242,7 +242,7 @@ tailwind.config = {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineBase - [Nome Pagina]</title>
+  <title>Cinema67 - [Nome Pagina]</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -308,7 +308,7 @@ tailwind.config = {
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  NAVBAR (sticky, backdrop-blur)                              │
-│  Logo 🎬 CineBase | Home | Film | Registi | Cinema | [Login]│
+│  Logo 🎬 Cinema67 | Home | Film | Registi | Cinema | [Login]│
 ├─────────────────────────────────────────────────────────────┤
 │  HERO SECTION (80vh, bg-image + overlay)                    │
 │  "La Tua Rete Cinematografica, Gestita in un Click"        │
@@ -353,7 +353,7 @@ tailwind.config = {
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  HEADER (sticky, white bg)                                   │
-│  Logo CineBase | Director Management | [Add Director]       │
+│  Logo Cinema67 | Director Management | [Add Director]       │
 ├─────────────────────────────────────────────────────────────┤
 │  STATS GRID (3 colonne)                                      │
 │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │
@@ -435,7 +435,7 @@ tailwind.config = {
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  HEADER                                                      │
-│  CineBase Management Console | [New Entry]                   │
+│  Cinema67 Management Console | [New Entry]                   │
 ├─────────────────────────────────────────────────────────────┤
 │  CINEMAS SECTION                                             │
 │  🏢 Cinemas (Total: 4)                                       │
@@ -872,7 +872,7 @@ function mockLogout() {
           <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
             <i class="fa-solid fa-film"></i>
           </div>
-          <span class="text-xl font-bold text-slate-900">CineBase</span>
+          <span class="text-xl font-bold text-slate-900">Cinema67</span>
         </a>
         
         <!-- Desktop Navigation -->
@@ -949,7 +949,7 @@ function mockLogout() {
     <!-- Logo -->
     <a href="/index.html" class="text-2xl font-bold text-brand-orange tracking-tight flex items-center gap-2">
       <span class="text-3xl">🎬</span>
-      CineBase
+      Cinema67
     </a>
     
     <!-- Desktop Links -->
@@ -995,7 +995,7 @@ function mockLogout() {
 <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-slate-200 mt-8">
   <div class="flex flex-col md:flex-row justify-between items-center gap-4">
     <div class="text-sm text-slate-400">
-      © 2024 CineBase Administration. All rights reserved.
+      © 2024 Cinema67 Administration. All rights reserved.
     </div>
     <div class="flex gap-6 text-sm text-slate-400">
       <a href="#" class="hover:text-indigo-600 transition-colors">Privacy Policy</a>
@@ -1016,7 +1016,7 @@ function mockLogout() {
       <!-- Brand Info -->
       <div class="space-y-4">
         <a href="/index.html" class="text-2xl font-bold text-brand-orange tracking-tight flex items-center gap-2">
-          🎬 CineBase
+          🎬 Cinema67
         </a>
         <p class="text-gray-400 leading-relaxed">
           La piattaforma leader per la gestione centralizzata delle sale cinematografiche.
@@ -1065,7 +1065,7 @@ function mockLogout() {
     <!-- Footer Bottom -->
     <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
       <p>Sviluppato con ASP.NET Core + Tailwind CSS per scopo didattico.</p>
-      <p>© 2024 CineBase. Tutti i diritti riservati.</p>
+      <p>© 2024 Cinema67. Tutti i diritti riservati.</p>
     </div>
   </div>
 </footer>
@@ -1075,7 +1075,7 @@ function mockLogout() {
 
 ```css
 /*
- * CineBase - Custom Styles
+ * Cinema67 - Custom Styles
  * Tailwind CSS Extensions
  */
 
@@ -1289,7 +1289,7 @@ Aggiornare il backend FilmAPI (`Program.cs`) per permettere richieste dal fronte
 // Aggiungere dopo builder.Services
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowCineBaseFrontend", policy =>
+    options.AddPolicy("AllowCinema67Frontend", policy =>
     {
         policy.WithOrigins("http://localhost:5001", "http://localhost:5173", "http://127.0.0.1:5001")
               .AllowAnyHeader()
@@ -1298,7 +1298,7 @@ builder.Services.AddCors(options =>
 });
 
 // Aggiungere prima di app.UseSwagger()
-app.UseCors("AllowCineBaseFrontend");
+app.UseCors("AllowCinema67Frontend");
 ```
 
 ## 10) Gestione Errori API
@@ -1388,8 +1388,8 @@ Nota: evitare porte hardcoded in `Program.cs`; usare `ASPNETCORE_URLS` in `.env`
 ## 13) Checklist Implementazione
 
 ### Fase 1: Setup Progetto
-- [ ] Creare cartella `CineBase.Web`
-- [ ] Eseguire `dotnet new web -n CineBase.Web`
+- [ ] Creare cartella `Cinema67.Web`
+- [ ] Eseguire `dotnet new web -n Cinema67.Web`
 - [ ] Configurare `Program.cs` per static files
 - [ ] Creare struttura cartelle `wwwroot/`
 - [ ] Creare `css/styles.css` con custom styles
@@ -1446,7 +1446,7 @@ Nota: evitare porte hardcoded in `Program.cs`; usare `ASPNETCORE_URLS` in `.env`
 dotnet run --project backend/FilmAPI/FilmAPI.csproj
 
 # Terminale 2: Frontend
-dotnet run --project frontend/CineBase.Web/CineBase.Web.csproj
+dotnet run --project frontend/Cinema67.Web/Cinema67.Web.csproj
 ```
 
 Le porte sono configurate tramite env (`ASPNETCORE_URLS`) + launch settings:
@@ -1483,7 +1483,7 @@ Tutte le dipendenze sono caricate via CDN, nessun build step richiesto:
 - Lazy loading per immagini poster film
 
 ### 14.6 Note per sviluppo assistito da AI
-- Specificare esplicitamente all'AI la struttura target del repo (`backend/FilmAPI`, `frontend/CineBase.Web`, `tests/backend`, `docs`).
+- Specificare esplicitamente all'AI la struttura target del repo (`backend/FilmAPI`, `frontend/Cinema67.Web`, `tests/backend`, `docs`).
 - Chiedere all'AI di verificare allineamento tra DTO backend e payload frontend prima di implementare i form CRUD.
 - Richiedere una verifica esplicita DevTools (Network + Console) su ogni pagina CRUD per evitare errori silenziosi.
 - Chiedere sempre test automatici backend (`dotnet test tests/backend/FilmAPI.Tests.csproj`) dopo refactor di path/routing.

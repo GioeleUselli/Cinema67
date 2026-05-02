@@ -1,6 +1,6 @@
-## Project Requirements Document (PRD) - CineBase: Design & UI/UX Phase
+## Project Requirements Document (PRD) - Cinema67: Design & UI/UX Phase
 
-**Project Name:** CineBase
+**Project Name:** Cinema67
 **Document Version:** 1.0
 **Date:** April 6, 2026
 **Author:** Prof. Gennaro Malafronte con l'uso di Google Stitch
@@ -9,7 +9,7 @@
 
 ### 1. Executive Summary
 
-CineBase is envisioned as a cutting-edge management platform for cinema networks. Its primary goal is to provide advanced technical functionalities for managing films, directors, and projections, while simultaneously upholding a **premium, modern, and artistic aesthetic**. This document outlines the foundational design principles, visual identity, and UI/UX guidelines that will shape the platform, ensuring a uniform, professional, and intuitive user experience. This phase focuses specifically on defining the comprehensive System Design and UI Kit to guide all subsequent development.
+Cinema67 is envisioned as a cutting-edge management platform for cinema networks. Its primary goal is to provide advanced technical functionalities for managing films, directors, and projections, while simultaneously upholding a **premium, modern, and artistic aesthetic**. This document outlines the foundational design principles, visual identity, and UI/UX guidelines that will shape the platform, ensuring a uniform, professional, and intuitive user experience. This phase focuses specifically on defining the comprehensive System Design and UI Kit to guide all subsequent development.
 
 ### 2. Project Vision & Goals
 
@@ -23,11 +23,11 @@ CineBase is envisioned as a cutting-edge management platform for cinema networks
 
 ### 3. Target Audience
 
-The primary users of CineBase are **operators and managers of cinema networks**. They require a powerful, efficient, and visually appealing tool to manage complex data and operations related to film scheduling, director information, and projection logistics.
+The primary users of Cinema67 are **operators and managers of cinema networks**. They require a powerful, efficient, and visually appealing tool to manage complex data and operations related to film scheduling, director information, and projection logistics.
 
 ### 4. Scope of Work (Current Phase: System Design & UI Kit)
 
-This phase focuses exclusively on the design and UI/UX architecture for CineBase. It includes:
+This phase focuses exclusively on the design and UI/UX architecture for Cinema67. It includes:
 
 *   **Definition of Core Design Principles:** Vision, UX, and UI guidelines.
 *   **Full Visual Identity Specification:** Color palette, typography, graphic elements.
@@ -86,7 +86,7 @@ While the full functional scope is beyond this design document, the UI/UX design
 #### 6.3. Standard Page Layout Structure
 
 All management pages will adhere to the following schema:
-1.  **Left Sidebar:** Fixed navigation with CineBase logo.
+1.  **Left Sidebar:** Fixed navigation with Cinema67 logo.
 2.  **Top Bar:** Global search, notifications, user profile.
 3.  **Page Header:** Section title, primary action button (e.g., "Add Film") in gold.
 4.  **Metric Cards Row:** 3-4 statistical data cards.

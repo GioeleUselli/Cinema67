@@ -116,7 +116,7 @@
         messages: [
           {
             role: 'Bot',
-            message: "Ciao! Sono l'assistente CineAura. Posso aiutarti subito con FAQ. Per aprire ticket devi essere autenticato."
+            message: "Ciao! Sono l'assistente Cinema67. Posso aiutarti subito con FAQ. Per aprire ticket devi essere autenticato."
           }
         ],
         tickets: []
@@ -271,7 +271,7 @@
       <section id="support-chat-panel" class="support-chat-panel hidden">
         <header class="support-chat-header">
           <div>
-            <p class="support-chat-kicker">Supporto CineAura</p>
+            <p class="support-chat-kicker">Supporto Cinema67</p>
             <h3>Assistente virtuale</h3>
           </div>
           <button id="support-chat-close" class="support-chat-close" title="Chiudi" aria-label="Chiudi">

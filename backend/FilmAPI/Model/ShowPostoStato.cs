@@ -41,4 +41,7 @@ public class ShowPostoStato
 
     [Required]
     public DateTime UpdatedAtUtc { get; set; }
+
+    [Timestamp]
+    public DateTime RowVersion { get; set; }
 }

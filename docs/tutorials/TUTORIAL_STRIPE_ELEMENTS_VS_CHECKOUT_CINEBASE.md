@@ -1,10 +1,10 @@
-# Tutorial Stripe Elements vs Stripe Checkout in CineBase
+# Tutorial Stripe Elements vs Stripe Checkout in Cinema67
 
 Autore: OpenCode
 
 ## Obiettivo del documento
 
-Questo documento descrive in modo dettagliato il flusso di pagamento attuale di CineBase basato su `Stripe Elements` e il flusso target basato su `Stripe Checkout` hosted.
+Questo documento descrive in modo dettagliato il flusso di pagamento attuale di Cinema67 basato su `Stripe Elements` e il flusso target basato su `Stripe Checkout` hosted.
 
 L'obiettivo è chiarire:
 
@@ -32,7 +32,7 @@ Nel flusso attuale, l'utente:
 
 Dal punto di vista tecnico, questo approccio è corretto e sicuro, perché i dati carta non transitano nel backend applicativo. Tuttavia, dal punto di vista della fiducia percepita, un utente può sentirsi più tranquillo vedendo una pagina di pagamento hosted da Stripe.
 
-Per questa ragione, la variante futura prevede l'uso di `Stripe Checkout`, cioè una pagina di pagamento ospitata da Stripe, con ritorno finale su CineBase.
+Per questa ragione, la variante futura prevede l'uso di `Stripe Checkout`, cioè una pagina di pagamento ospitata da Stripe, con ritorno finale su Cinema67.
 
 ---
 
@@ -220,7 +220,7 @@ Questo approccio funziona, ma il browser resta parte attiva della conferma di bu
 
 ## 4.1 Obiettivo architetturale
 
-Nel modello target, CineBase non raccoglie più il dato carta dentro `pagamento.html`.
+Nel modello target, Cinema67 non raccoglie più il dato carta dentro `pagamento.html`.
 
 Il frontend:
 
@@ -290,7 +290,7 @@ Se l'utente decide di usare parte del credito:
 
 ## 6. Problema chiave: i posti durante il redirect verso Stripe
 
-Con `Stripe Elements`, il frontend può fare keep-alive del hold mentre l'utente resta su CineBase.
+Con `Stripe Elements`, il frontend può fare keep-alive del hold mentre l'utente resta su Cinema67.
 
 Con `Stripe Checkout`, durante il redirect hosted questo non è più affidabile.
 
@@ -542,7 +542,7 @@ public sealed class StripeHostedCheckoutGateway : IStripeHostedCheckoutGateway
                         UnitAmountDecimal = request.Amount * 100m,
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = "Ordine CineBase"
+                            Name = "Ordine Cinema67"
                         }
                     }
                 }
@@ -681,7 +681,7 @@ In questo modello il frontend non decide se il pagamento è riuscito. Si limita 
 
 - avviare il flusso
 - reindirizzare l'utente a Stripe
-- interrogare il backend quando l'utente torna su CineBase
+- interrogare il backend quando l'utente torna su Cinema67
 
 ---
 
@@ -789,7 +789,7 @@ Se il pagamento hosted viene annullato, fallisce o scade:
 
 ---
 
-## 16. Strategia di migrazione consigliata per CineBase
+## 16. Strategia di migrazione consigliata per Cinema67
 
 Per minimizzare i rischi, conviene introdurre il nuovo flusso con rollout graduale.
 
@@ -834,7 +834,7 @@ La migrazione a hosted checkout richiede una suite di test più esplicita.
 
 ## 18. Conclusione operativa
 
-Dal punto di vista tecnico, il flusso attuale con `Stripe Elements` è corretto e sicuro. Tuttavia, se CineBase vuole migliorare la fiducia percepita dell'utente finale, il passaggio a `Stripe Checkout` hosted è sensato.
+Dal punto di vista tecnico, il flusso attuale con `Stripe Elements` è corretto e sicuro. Tuttavia, se Cinema67 vuole migliorare la fiducia percepita dell'utente finale, il passaggio a `Stripe Checkout` hosted è sensato.
 
 Affinché la migrazione sia davvero robusta, non basta sostituire il widget frontend. È necessario implementare in modo esplicito:
 

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 - Promozioni</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=3" rel="stylesheet">
+  <script src="/js/theme.js?v=3"></script>
+  <script src="/js/route-guard.js?v=3"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans">
+  <div id="navbar-container"></div>
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+    <section class="cine-grid-shell mb-8 p-5 sm:p-6">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="cine-kicker">Marketing editor</p>
+          <h1 class="cine-headline text-brand-on-surface">Gestione Promozioni</h1>
+          <p class="mt-2 text-sm text-brand-on-surface-variant">Pubblicita, offerte combo, eventi e sconti visibili agli utenti.</p>
+        </div>
+        <button onclick="openModal()" class="btn-gold text-white px-4 py-2 rounded-lg text-sm font-medium">
+          <i class="fa-solid fa-plus mr-2"></i>Nuova Promozione
+        </button>
+      </div>
+    </section>
+
+    <section class="cine-admin-slab overflow-x-auto">
+      <table class="min-w-full divide-y divide-brand-outline-variant/10">
+        <thead class="bg-brand-surface-container">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Titolo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Tipo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Prezzo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Attiva</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="promo-table-body" class="divide-y divide-brand-outline-variant/10">
+          <tr><td colspan="5" class="px-6 py-4 text-center text-brand-on-surface-variant">Caricamento...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <div id="footer-container"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <div id="promo-modal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-gray-500/75"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-xl bg-brand-surface-container-lowest text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+          <div class="px-6 pt-6 pb-4 flex justify-between items-center">
+            <h3 class="text-lg font-bold" id="modal-title">Nuova Promozione</h3>
+            <button class="text-brand-on-surface-variant" onclick="closeModal()"><i class="fa-solid fa-xmark text-xl"></i></button>
+          </div>
+          <div class="px-6 pb-4">
+            <form id="promo-form" class="space-y-4">
+              <input type="hidden" name="id">
+              <div><label class="block text-sm mb-1">Titolo</label><input name="title" required class="ghost-input w-full px-4 py-2" placeholder="Nome promo"></div>
+              <div><label class="block text-sm mb-1">Descrizione</label><textarea name="description" rows="3" required class="ghost-input w-full px-4 py-2" placeholder="Dettagli offerta..."></textarea></div>
+              <div class="grid grid-cols-2 gap-3">
+                <div><label class="block text-sm mb-1">Tipo</label><select name="type" class="ghost-input w-full px-3 py-2"><option value="MoviePromo">Promo Film</option><option value="FoodBundle">Combo Cibo</option><option value="GeneralAd">Pubblicita</option><option value="Event">Evento</option><option value="Discount">Sconto</option></select></div>
+                <div><label class="block text-sm mb-1">Prezzo (se applicabile)</label><input name="price" type="number" step="0.01" class="ghost-input w-full px-3 py-2" placeholder="0.00"></div>
+              </div>
+              <div><label class="block text-sm mb-1">URL Link (opzionale)</label><input name="linkUrl" class="ghost-input w-full px-3 py-2" placeholder="/programmazione.html"></div>
+              <div><label class="block text-sm mb-1">Immagine URL</label><input name="imagePath" class="ghost-input w-full px-3 py-2" placeholder="https://..."></div>
+              <div class="grid grid-cols-3 gap-3">
+                <div><label class="block text-sm mb-1">Priorita</label><input name="priority" type="number" value="0" class="ghost-input w-full px-3 py-2"></div>
+                <div><label class="block text-sm mb-1">Attiva</label><select name="active" class="ghost-input w-full px-3 py-2"><option value="true">Si</option><option value="false">No</option></select></div>
+                <div>&nbsp;</div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div><label class="block text-sm mb-1">Data inizio</label><input name="startDate" type="datetime-local" class="ghost-input w-full px-3 py-2"></div>
+                <div><label class="block text-sm mb-1">Data fine</label><input name="endDate" type="datetime-local" class="ghost-input w-full px-3 py-2"></div>
+              </div>
+            </form>
+          </div>
+          <div class="bg-brand-surface-container-low px-6 py-4 flex justify-end gap-3">
+            <button onclick="closeModal()" class="btn-outline-brand px-4 py-2 rounded-lg text-sm">Annulla</button>
+            <button id="modal-submit" class="btn-gold px-4 py-2 rounded-lg text-sm">Salva</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/utils.js?v=3"></script>
+  <script src="/js/api-app.js?v=1"></script>
+  <script src="/js/auth.js?v=3"></script>
+  <script src="/js/template-loader.js?v=3"></script>
+  <script src="/js/admin-shell.js?v=3"></script>
+  <script src="/js/pages/promozioni.js?v=1"></script>
+</body>
+</html>

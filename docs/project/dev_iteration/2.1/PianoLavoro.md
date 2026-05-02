@@ -20,7 +20,7 @@ repo-root/
 ├── backend/
 │   └── FilmAPI/
 ├── frontend/
-│   └── CineBase.Web/
+│   └── Cinema67.Web/
 ├── tests/
 │   └── backend/
 └── docs/
@@ -130,7 +130,7 @@ Aggiungere validazione applicativa su `filmatoPath`:
 
 ### 5.1 Aggiornamento modal film
 
-In `frontend/CineBase.Web/wwwroot/films.html`:
+In `frontend/Cinema67.Web/wwwroot/films.html`:
 
 - sostituire campo testo `Copertina URL` con input file:
   - `type="file"`
@@ -246,4 +246,4 @@ L'iterazione e completata quando:
 
 Usare un prompt operativo esplicito (adattabile):
 
-"Implementa Iterazione 2.1 nel repo corrente rispettando la struttura `backend/FilmAPI`, `frontend/CineBase.Web`, `tests/backend`. Aggiungi upload copertina immagini lato backend (`POST /media/covers`, multipart), mantieni trailer come URL esterno in `filmatoPath`, aggiorna modal film frontend per file upload + trailer URL, valida input lato backend, aggiungi test integration dedicati, esegui `dotnet test tests/backend/FilmAPI.Tests.csproj` e riporta esito. Non introdurre porte hardcoded in Program.cs."
+"Implementa Iterazione 2.1 nel repo corrente rispettando la struttura `backend/FilmAPI`, `frontend/Cinema67.Web`, `tests/backend`. Aggiungi upload copertina immagini lato backend (`POST /media/covers`, multipart), mantieni trailer come URL esterno in `filmatoPath`, aggiorna modal film frontend per file upload + trailer URL, valida input lato backend, aggiungi test integration dedicati, esegui `dotnet test tests/backend/FilmAPI.Tests.csproj` e riporta esito. Non introdurre porte hardcoded in Program.cs."

@@ -35,7 +35,7 @@ Branch target suggerito: `dev_iteration_4`
 
 ## 1) Obiettivo Iterazione
 
-Portare CineBase da piattaforma con proiezioni semplici e prenotazioni virtuali a piattaforma operativa per cinema multisala, con:
+Portare Cinema67 da piattaforma con proiezioni semplici e prenotazioni virtuali a piattaforma operativa per cinema multisala, con:
 
 - gestione dei cinema distribuiti sul territorio nazionale
 - gestione delle sale di ciascun cinema con tipologia e piantina posti
@@ -81,7 +81,7 @@ Portare CineBase da piattaforma con proiezioni semplici e prenotazioni virtuali 
 ```text
 repo-root/
 |- backend/FilmAPI/          (API .NET 9 Minimal API + MariaDB)
-|- frontend/CineBase.Web/    (MPA statico, vanilla JS + Tailwind)
+|- frontend/Cinema67.Web/    (MPA statico, vanilla JS + Tailwind)
 |- tests/backend/            (xUnit + integration)
 |- docs/
 ```
@@ -160,14 +160,14 @@ Per la preparazione, l'implementazione e il collaudo della `FASE 7`, i seguenti 
   - spiega installazione, autenticazione, listener locale, trigger e workflow di debugging con `Stripe CLI`
 - `docs/tutorials/TUTORIAL_URL_PUBBLICI_WEBHOOKS.md`
   - documenta `ngrok`, `Dev Tunnels`, `Cloudflare Tunnel`, `localtunnel` e `Tailscale Funnel`, da considerare come opzioni secondarie rispetto a `Stripe CLI` per il caso d'uso locale di questa iterazione
-- `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_CINEBASE.md`
-  - definisce la strategia ufficiale adottata per `CineBase`, incluse la configurazione manuale della dashboard Stripe e la scelta operativa della strategia locale di test webhook
+- `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_Cinema67.md`
+  - definisce la strategia ufficiale adottata per `Cinema67`, incluse la configurazione manuale della dashboard Stripe e la scelta operativa della strategia locale di test webhook
 
 Strategia ufficiale approvata per l'iterazione:
 
-- applicazione di test Stripe di riferimento: `CineBase_Demo`
+- applicazione di test Stripe di riferimento: `Cinema67_Demo`
 - modello di integrazione: flusso applicativo principale sincrono con verifica backend del `PaymentIntent`, più webhook Stripe implementato fin da subito
-- strategia locale di test webhook adottata: `Scenario B - Test webhook in locale con Stripe CLI`, come descritto in `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_CINEBASE.md`, sezione `9.6`, passo `5`
+- strategia locale di test webhook adottata: `Scenario B - Test webhook in locale con Stripe CLI`, come descritto in `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_Cinema67.md`, sezione `9.6`, passo `5`
 - `Stripe CLI` viene usata come strumento di collaudo e debugging locale dei webhook, non come dipendenza runtime dell'applicazione
 - il progetto deve comunque poter completare il flusso sincrono principale anche quando `Stripe CLI` non è attiva, fermo restando che in tale condizione non è possibile validare end-to-end la parte webhook
 
@@ -180,7 +180,7 @@ Strategia ufficiale approvata per l'iterazione:
 La nuova pagina deve:
 
 - mostrare una card per film, non una card per show
-- avere UX e layout simili al comportamento di un portale cinema moderno come UCI, ma coerenti con il design system CineBase già in uso
+- avere UX e layout simili al comportamento di un portale cinema moderno come UCI, ma coerenti con il design system Cinema67 già in uso
 - avere tabs/tag minime:
   - `In evidenza`
   - `In uscita`
@@ -1360,20 +1360,20 @@ Nota importante:
 - `docs/tutorials/TUTORIAL_STRIPE_GATEWAY_PAGAMENTI.md`
 - `docs/tutorials/TUTORIAL_STRIPE_CLI.md`
 - `docs/tutorials/TUTORIAL_URL_PUBBLICI_WEBHOOKS.md`
-- `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_CINEBASE.md`
+- `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_Cinema67.md`
 
 **Strategia approvata per la fase**:
 
 - l'integrazione Stripe usa un modello ibrido e progressivo: flusso applicativo principale sincrono più webhook implementato fin da subito
-- l'applicazione Stripe di test usata per la fase è `CineBase_Demo`
+- l'applicazione Stripe di test usata per la fase è `Cinema67_Demo`
 - per il collaudo locale del webhook si adotta in modo esplicito `Scenario B - Test webhook in locale con Stripe CLI`
 - `Stripe CLI` serve per inoltro, verifica firma e debugging webhook locale, ma non è una dipendenza necessaria per il solo happy path sincrono del progetto didattico
 
 **Attivita**:
 
-1. L'operatore umano prepara l'ambiente Stripe `CineBase_Demo` in `test mode`.
+1. L'operatore umano prepara l'ambiente Stripe `Cinema67_Demo` in `test mode`.
    - verificare che la dashboard Stripe sia in `test mode`
-   - verificare il riferimento applicativo `CineBase_Demo`
+   - verificare il riferimento applicativo `Cinema67_Demo`
    - recuperare dalla dashboard le standard keys `pk_test_...` e `sk_test_...`
    - verificare che il metodo di pagamento `Card` sia attivo in `test mode`
    - riportare i valori corretti nei file locali di configurazione del progetto
@@ -1416,7 +1416,7 @@ Nota importante:
 
 **Checklist fase**:
 
-- [x] Ambiente Stripe `CineBase_Demo` preparato in `test mode`
+- [x] Ambiente Stripe `Cinema67_Demo` preparato in `test mode`
 - [x] Strategia locale `Scenario B - Test webhook in locale con Stripe CLI` preparata e documentata
 - [x] Stripe integrato lato backend
 - [x] Finalizzazione ordine implementata
@@ -1675,9 +1675,9 @@ Nota importante:
 **Riferimenti operativi fase**:
 
 - `docs/tutorials/TUTORIAL_STRIPE_GATEWAY_PAGAMENTI.md`
-- `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_CINEBASE.md`
+- `docs/tutorials/TUTORIAL_STRIPE_STRATEGIA_INTEGRAZIONE_Cinema67.md`
 - `docs/tutorials/TUTORIAL_STRIPE_CLI.md`
-- `docs/tutorials/TUTORIAL_STRIPE_ELEMENTS_VS_CHECKOUT_CINEBASE.md`
+- `docs/tutorials/TUTORIAL_STRIPE_ELEMENTS_VS_CHECKOUT_Cinema67.md`
 
 **Strategia approvata per la fase**:
 
@@ -1765,7 +1765,7 @@ Nota importante:
 - nessun posto in lock d'ordine deve essere rilasciato prima della scadenza hosted o del cancel esplicito, salvo errore applicativo che imponga rollback immediato
 - ogni handler webhook deve essere replay-safe e idempotente rispetto a ordine, biglietti, movimenti credito e stato posti
 - ogni endpoint di checkout hosted deve verificare ownership dell'ordine e coerenza con l'utente autenticato
-- ogni `success_url` o `cancel_url` deve puntare a path interni controllati da CineBase
+- ogni `success_url` o `cancel_url` deve puntare a path interni controllati da Cinema67
 - ogni `cancel_url` deve essere trattato come semplice ritorno applicativo e non come prova sufficiente di annullamento del pagamento
 - la fase deve riutilizzare l'infrastruttura Stripe esistente dove sensato, evitando duplicazioni non necessarie tra gateway hosted e gateway `PaymentIntent`
 
@@ -1781,7 +1781,7 @@ Nota importante:
 
 **Verifica fase**:
 
-- l'utente che paga con sola carta viene reindirizzato a una pagina Stripe hosted e torna su CineBase con esito coerente
+- l'utente che paga con sola carta viene reindirizzato a una pagina Stripe hosted e torna su Cinema67 con esito coerente
 - l'utente che paga con solo credito non passa da Stripe e riceve direttamente ordine pagato, biglietti ed email se il saldo è sufficiente
 - il pagamento misto riserva il credito, addebita su Stripe soltanto il residuo e finalizza l'ordine una sola volta
 - i posti restano bloccati durante il checkout hosted e vengono rilasciati correttamente se la sessione fallisce, viene annullata o scade
@@ -1918,25 +1918,25 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # Caso baseline Fase 8: Google SMTP
 # SMTP_HOST=smtp.gmail.com
 # SMTP_PORT=587
-# SMTP_USER=cinebase.demo@gmail.com
+# SMTP_USER=Cinema67.demo@gmail.com
 # SMTP_PASSWORD=<google_app_password>
-# SMTP_FROM_NAME=CineBase
-# SMTP_FROM_EMAIL=cinebase.demo@gmail.com
+# SMTP_FROM_NAME=Cinema67
+# SMTP_FROM_EMAIL=Cinema67.demo@gmail.com
 
 # Caso alternativo previsto: Twilio SendGrid SMTP relay
 # SMTP_HOST=smtp.sendgrid.net
 # SMTP_PORT=587
 # SMTP_USER=apikey
 # SMTP_PASSWORD=<twilio_sendgrid_api_key>
-# SMTP_FROM_NAME=CineBase
+# SMTP_FROM_NAME=Cinema67
 # SMTP_FROM_EMAIL=tickets@example.com
 
 SMTP_HOST=<smtp_host>
 SMTP_PORT=587
 SMTP_USER=<smtp_user>
 SMTP_PASSWORD=<smtp_password>
-SMTP_FROM_NAME=CineBase
-SMTP_FROM_EMAIL=noreply@cinebase.it
+SMTP_FROM_NAME=Cinema67
+SMTP_FROM_EMAIL=noreply@Cinema67.it
 
 # Ticketing / checkout
 FRONTEND_BASE_URL=http://localhost:5001
@@ -2011,7 +2011,7 @@ TICKET_VALIDATION_BASE_URL=http://localhost:5001/validazione-biglietti.html
 
 - `Background/SeatHoldCleanupService.cs`
 
-## 9.2 Frontend (`frontend/CineBase.Web/wwwroot/`)
+## 9.2 Frontend (`frontend/Cinema67.Web/wwwroot/`)
 
 **Nuove pagine**
 
@@ -2407,7 +2407,7 @@ dotnet ef database update --project backend/FilmAPI/FilmAPI.csproj
 
 | File | Azione |
 |------|--------|
-| `frontend/CineBase.Web/wwwroot/js/api.js` | Rimuovere `getProiezioni` e `getProiezione` (già gli unici rimasti) |
+| `frontend/Cinema67.Web/wwwroot/js/api.js` | Rimuovere `getProiezioni` e `getProiezione` (già gli unici rimasti) |
 
 ### Valutazione Rischi
 
