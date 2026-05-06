@@ -477,6 +477,20 @@ body {
   font-weight: 600;
 }
 
+/* Hardcoded admin sidebar — always works regardless of CSS variable state */
+.admin-sidebar { background: linear-gradient(180deg, #ffffff, #f1f6fb); color: #0d1b2a; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.dark .admin-sidebar { background: linear-gradient(180deg, #06101d, #0f2238); color: #c8d9ee; }
+.sidebar-text { color: #0d1b2a; }
+.dark .sidebar-text { color: #c8d9ee; }
+.sidebar-logo-bg { background: rgba(255, 107, 53, 0.12); }
+.dark .sidebar-logo-bg { background: rgba(255, 255, 255, 0.1); }
+.admin-sidebar a { color: #0d1b2a; transition: all 0.2s ease; }
+.dark .admin-sidebar a { color: #c8d9ee; }
+.admin-sidebar a:hover { background: rgba(0, 0, 0, 0.06); color: #c9471f; }
+.dark .admin-sidebar a:hover { background: rgba(255, 255, 255, 0.06); color: #ff9a74; }
+.admin-sidebar a.active { background: rgba(255, 107, 53, 0.12); color: #c9471f; font-weight: 600; }
+.dark .admin-sidebar a.active { background: rgba(255, 255, 255, 0.1); color: #ff9a74; }
+
 /* ========================================================================
    Ambient Shadows
    ======================================================================== */

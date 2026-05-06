@@ -113,14 +113,13 @@
       <div id="admin-shell-root" class="bg-brand-surface">
       <div id="admin-sidebar-backdrop" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
       <div class="flex w-full min-h-screen">
-        <aside id="admin-sidebar" class="w-64 sidebar-glass flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20">
+        <aside id="admin-sidebar" class="admin-sidebar w-64 flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20">
           <div class="p-6">
             <a href="/index.html" class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full border border-brand-gold/40 bg-brand-sidebar-active-bg flex items-center justify-center text-brand-gold">
-              <div class="w-10 h-10 rounded-full border border-brand-gold/40 bg-brand-sidebar-active-bg flex items-center justify-center text-brand-gold">
+              <div class="w-10 h-10 rounded-full border border-brand-gold/40 sidebar-logo-bg flex items-center justify-center text-brand-gold">
                 <i class="fa-solid fa-film"></i>
               </div>
-              <span class="font-serif text-lg font-bold uppercase tracking-[0.2em] text-brand-sidebar-text">Cinema67</span>
+              <span class="font-serif text-lg font-bold uppercase tracking-[0.2em] sidebar-text">Cinema67</span>
             </a>
           </div>
           <p class="px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
