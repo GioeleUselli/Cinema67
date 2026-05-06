@@ -113,9 +113,9 @@
       <div id="admin-shell-root" class="bg-brand-surface">
       <div id="admin-sidebar-backdrop" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
       <div class="flex w-full min-h-screen">
-        <aside id="admin-sidebar" class="w-64 sidebar-glass flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20" style="background:var(--brand-sidebar-from, #fff);color:var(--brand-sidebar-text, #0d1b2a)">
+        <aside id="admin-sidebar" class="w-64 sidebar-glass flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20">
           <div class="p-6">
-            <a href="/index.html" class="flex items-center gap-3" style="color:inherit;text-decoration:none">
+            <a href="/index.html" class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-full border border-brand-gold/40 bg-brand-sidebar-active-bg flex items-center justify-center text-brand-gold">
               <div class="w-10 h-10 rounded-full border border-brand-gold/40 bg-brand-sidebar-active-bg flex items-center justify-center text-brand-gold">
                 <i class="fa-solid fa-film"></i>
@@ -125,19 +125,19 @@
           </div>
           <p class="px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
           <nav class="admin-sidebar-rail flex-1 px-4 space-y-1">
-            <a data-admin-link href="/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-            <a data-admin-link href="/films.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-film"></i>Film</a>
-            <a data-admin-link href="/registi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-user"></i>Registi</a>
-            <a data-admin-link href="/cinemas.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-building"></i>Cinema</a>
-            <a data-admin-link href="/proiezioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-clock"></i>Proiezioni</a>
-            <a data-admin-link href="/categorie.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-tags"></i>Categorie</a>
+            <a data-admin-link href="/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+            <a data-admin-link href="/films.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-film"></i>Film</a>
+            <a data-admin-link href="/registi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-user"></i>Registi</a>
+            <a data-admin-link href="/cinemas.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-building"></i>Cinema</a>
+            <a data-admin-link href="/proiezioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-clock"></i>Proiezioni</a>
+            <a data-admin-link href="/categorie.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-tags"></i>Categorie</a>
             <div class="my-2 border-t border-brand-outline-variant/20"></div>
-            <a data-admin-link href="/sale.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-chair"></i>Sale</a>
-            <a data-admin-link href="/ricarica-credito.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-coins"></i>Ricarica Credito</a>
-            <a data-admin-link href="/validazione-biglietti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-qrcode"></i>Validazione</a>
-            <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-headset"></i>Support Tickets</a>
-            <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
-            <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl" style="color:inherit;text-decoration:none"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
+            <a data-admin-link href="/sale.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-chair"></i>Sale</a>
+            <a data-admin-link href="/ricarica-credito.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-coins"></i>Ricarica Credito</a>
+            <a data-admin-link href="/validazione-biglietti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-qrcode"></i>Validazione</a>
+            <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-headset"></i>Support Tickets</a>
+            <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
+            <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
