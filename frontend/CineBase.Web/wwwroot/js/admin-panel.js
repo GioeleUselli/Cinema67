@@ -116,9 +116,7 @@
         <aside id="admin-sidebar" class="admin-sidebar w-64 flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20" style="overflow-y:auto;overflow-x:hidden">
           <div class="p-6">
             <a href="/index.html" class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full border border-brand-gold/40 sidebar-logo-bg flex items-center justify-center text-brand-gold">
-                <i class="fa-solid fa-film"></i>
-              </div>
+              <img src="/assets/logo.png" alt="Cinema67" class="h-10 w-10 rounded-full object-cover border border-brand-gold/40">
               <span class="font-serif text-lg font-bold uppercase tracking-[0.2em] sidebar-text">Cinema67</span>
             </a>
           </div>
