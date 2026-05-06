@@ -215,6 +215,24 @@
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   });
 
+  function applySidebarTheme() {
+    var sb = document.getElementById('admin-sidebar');
+    if (!sb) return;
+    var isDark = document.documentElement.classList.contains('dark');
+    sb.style.background = isDark ? 'linear-gradient(180deg, #06101d, #0f2238)' : 'linear-gradient(180deg, #ffffff, #f1f6fb)';
+    sb.style.color = isDark ? '#94a3b8' : '#0d1b2a';
+    var links = sb.querySelectorAll('a');
+    for (var i = 0; i < links.length; i++) {
+      links[i].style.color = isDark ? '#94a3b8' : '#0d1b2a';
+    }
+    var moon = sb.querySelector('.theme-toggle-icon-moon');
+    var sun = sb.querySelector('.theme-toggle-icon-sun');
+    if (moon) moon.style.display = isDark ? 'none' : '';
+    if (sun) sun.style.display = isDark ? '' : 'none';
+    var label = sb.querySelector('.theme-toggle-label');
+    if (label) label.textContent = isDark ? 'Tema chiaro' : 'Tema scuro';
+  }
+
   window.toggleAdminTheme = function() {
     if (window.Cinema67Theme && window.Cinema67Theme.toggle) {
       window.Cinema67Theme.toggle();
@@ -225,20 +243,4 @@
     }
     setTimeout(applySidebarTheme, 60);
   };
-    var moon = sb.querySelector('.theme-toggle-icon-moon');
-    var sun = sb.querySelector('.theme-toggle-icon-sun');
-    if (moon) moon.style.display = isDark ? 'none' : '';
-    if (sun) sun.style.display = isDark ? '' : 'none';
-    var label = sb.querySelector('.theme-toggle-label');
-    if (label) label.textContent = isDark ? 'Tema chiaro' : 'Tema scuro';
-  }
-
-  var originalToggle = window.Cinema67Theme ? window.Cinema67Theme.toggle : null;
-  if (window.Cinema67Theme && originalToggle) {
-    var themeObj = window.Cinema67Theme;
-    window.Cinema67Theme.toggle = function() {
-      originalToggle.call(themeObj);
-      setTimeout(applySidebarTheme, 50);
-    };
-  }
 })();
