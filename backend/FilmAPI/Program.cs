@@ -135,6 +135,24 @@ builder.Services.AddAuthentication(options =>
                     identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, roleClaim.Value));
                 }
             }
+
+            var userIdClaim = context.Principal?.FindFirst("sub")?.Value
+                ?? context.Principal?.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+            var authVersionClaim = context.Principal?.FindFirst("auth_version")?.Value;
+
+            if (!string.IsNullOrWhiteSpace(userIdClaim) && int.TryParse(userIdClaim, out var uid)
+                && !string.IsNullOrWhiteSpace(authVersionClaim) && int.TryParse(authVersionClaim, out var tokenAuthVersion))
+            {
+                using var scope = context.HttpContext.RequestServices.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<FilmAPI.Data.FilmDbContext>();
+                var user = db.Users.Find(uid);
+                if (user != null && user.AuthVersion != tokenAuthVersion)
+                {
+                    context.Fail("La sessione non è più valida. Effettua nuovamente il login.");
+                    return System.Threading.Tasks.Task.CompletedTask;
+                }
+            }
+
             return System.Threading.Tasks.Task.CompletedTask;
         }
     };

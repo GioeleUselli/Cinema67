@@ -143,6 +143,16 @@ public static class AuthEndpoints
 
             return Results.Redirect(url);
         }).AllowAnonymous();
+
+        group.MapPost("/set-password/request", async (HttpContext context, IAuthService service) =>
+        {
+            var userId = GetUserId(context);
+            if (userId == 0) return Results.Unauthorized();
+            var user = await service.GetUserByIdAsync(userId);
+            if (user is null) return Results.NotFound();
+            var token = await service.ForgotPasswordAsync(user.Email);
+            return Results.Ok(new { message = string.IsNullOrEmpty(token) ? "Controlla la tua email per il link." : "Token (dev): " + token });
+        }).RequireAuthorization("Authenticated");
     }
 
     private static int GetUserId(HttpContext context)

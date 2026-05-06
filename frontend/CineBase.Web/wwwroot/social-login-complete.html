@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 - Accesso in corso...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/css/styles.css?v=99" rel="stylesheet">
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans min-h-screen flex items-center justify-center">
+  <div class="text-center">
+    <i class="fa-solid fa-spinner fa-spin text-4xl text-brand-gold mb-4"></i>
+    <p class="text-brand-on-surface-variant">Completando l'accesso...</p>
+    <p id="err" class="hidden text-brand-error text-sm mt-2"></p>
+  </div>
+  <script>
+    (function(){
+      var p = new URLSearchParams(window.location.search);
+      var code = p.get('code');
+      if (!code) { showError('Codice mancante.'); return; }
+      fetch('http://localhost:5000/auth/external/exchange?code=' + encodeURIComponent(code), { method: 'POST' })
+        .then(function(r){ if(!r.ok) throw new Error('errore server'); return r.json(); })
+        .then(function(d){
+          if (d.accessToken && d.refreshToken) {
+            try { localStorage.setItem('cb_access_token', d.accessToken); } catch(e){}
+            try { localStorage.setItem('cb_refresh_token', d.refreshToken); } catch(e){}
+            try { localStorage.setItem('cb_user', JSON.stringify({ id: d.userId, nome: d.nome || '', email: d.email || '', ruolo: 'User' })); } catch(e){}
+            window.location.href = '/scegli-cinema.html';
+          } else { showError('Risposta non valida.'); }
+        })
+        .catch(function(e){ showError(e.message || 'Errore di connessione.'); });
+
+      function showError(m){
+        var el = document.getElementById('err');
+        el.textContent = m;
+        el.classList.remove('hidden');
+      }
+    })();
+  </script>
+</body>
+</html>

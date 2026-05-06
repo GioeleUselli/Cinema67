@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (successAlert) successAlert.classList.remove('hidden');
       
       setTimeout(() => {
-        window.location.href = '/index.html';
+        window.location.href = '/scegli-cinema.html';
       }, 1500);
     } catch (err) {
       setLoading(false);

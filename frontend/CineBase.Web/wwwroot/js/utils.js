@@ -97,3 +97,9 @@ function confirmDelete(itemName, callback) {
 function formatCurrency(amount) {
   return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(amount);
 }
+
+function sanitizeRedirect(url) {
+  if (!url) return '/index.html';
+  if (url.indexOf('/') === 0 && url.indexOf('//') !== 0 && url.indexOf('\\') === -1) return url;
+  return '/index.html';
+}

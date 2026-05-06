@@ -14,6 +14,36 @@ public class UserAdminService : IUserAdminService
         _context = context;
     }
 
+    public async Task<object> GetUsersPagedAsync(string? search, string? role, int page, int pageSize)
+    {
+        var query = _context.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLowerInvariant();
+            query = query.Where(u => u.Email.ToLower().Contains(term)
+                || u.Nome.ToLower().Contains(term)
+                || u.Cognome.ToLower().Contains(term));
+        }
+
+        if (!string.IsNullOrWhiteSpace(role) && Enum.TryParse<UserRole>(role, true, out var parsedRole))
+            query = query.Where(u => u.Ruolo == parsedRole);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .OrderBy(u => u.Cognome).ThenBy(u => u.Nome)
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(u => new UserAdminDTO
+            {
+                Id = u.Id, Email = u.Email, Nome = u.Nome, Cognome = u.Cognome,
+                Telefono = u.Telefono, Ruolo = u.Ruolo.ToString(),
+                CinemaPreferitoId = u.CinemaPreferitoId, CreditoResiduo = u.CreditoResiduo,
+                DataRegistrazione = u.DataRegistrazione
+            }).ToListAsync();
+
+        return new { items, total, page, pageSize, totalPages = (int)Math.Ceiling(total / (double)pageSize) };
+    }
+
     public async Task<List<UserAdminDTO>> GetAllUsersAsync()
     {
         return await _context.Users
@@ -25,6 +55,8 @@ public class UserAdminService : IUserAdminService
                 Cognome = u.Cognome,
                 Telefono = u.Telefono,
                 Ruolo = u.Ruolo.ToString(),
+                CinemaPreferitoId = u.CinemaPreferitoId,
+                CreditoResiduo = u.CreditoResiduo,
                 DataRegistrazione = u.DataRegistrazione
             })
             .ToListAsync();
@@ -36,20 +68,24 @@ public class UserAdminService : IUserAdminService
         if (user is null) return null;
 
         if (!Enum.TryParse<UserRole>(dto.NuovoRuolo, out var newRole))
-        {
             throw new InvalidOperationException("Ruolo non valido");
-        }
 
         if (user.Ruolo == UserRole.Admin && newRole != UserRole.Admin)
         {
             var adminCount = await _context.Users.CountAsync(u => u.Ruolo == UserRole.Admin);
             if (adminCount <= 1)
-            {
                 throw new InvalidOperationException("Non e possibile degradare l'ultimo admin");
-            }
         }
 
+        if ((newRole == UserRole.PowerUser || newRole == UserRole.Admin) && !user.LocalCredentialsEnabled)
+            throw new InvalidOperationException("Utente senza password locale. Deve prima impostare una password dal profilo.");
+
         user.Ruolo = newRole;
+        user.AuthVersion++;
+
+        _context.RefreshTokens.RemoveRange(
+            _context.RefreshTokens.Where(rt => rt.UserId == userId));
+
         await _context.SaveChangesAsync();
 
         return new UserAdminDTO

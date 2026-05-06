@@ -58,6 +58,8 @@ public class UserInfoDTO
     public string? Telefono { get; set; }
     public string Ruolo { get; set; } = string.Empty;
     public DateTime DataRegistrazione { get; set; }
+    public int? CinemaPreferitoId { get; set; }
+    public bool LocalCredentialsEnabled { get; set; } = true;
 }
 
 public class RefreshTokenRequestDTO

@@ -9,9 +9,21 @@ namespace FilmAPI.Endpoints;
 
 public static class SocialAuthEndpoints
 {
+    private static readonly Dictionary<string, (string accessToken, string refreshToken, string email, string nome, int userId)> _exchangeCodes = new();
+
     public static void MapSocialAuthEndpoints(this WebApplication app)
     {
         var frontendBase = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+
+        app.MapPost("/auth/external/exchange", (HttpContext ctx) =>
+        {
+            var code = ctx.Request.Query["code"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(code) || !_exchangeCodes.TryGetValue(code, out var entry))
+                return Results.BadRequest(new { message = "Codice non valido o scaduto." });
+
+            _exchangeCodes.Remove(code);
+            return Results.Ok(new { accessToken = entry.accessToken, refreshToken = entry.refreshToken, email = entry.email, nome = entry.nome, userId = entry.userId });
+        }).AllowAnonymous();
 
         app.MapGet("/auth/social-callback", async (HttpContext ctx) =>
         {
@@ -45,7 +57,8 @@ public static class SocialAuthEndpoints
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
                     Nome = string.IsNullOrWhiteSpace(givenName) ? "Utente" : givenName.Trim(),
                     Cognome = string.IsNullOrWhiteSpace(surname) ? "Social" : surname.Trim(),
-                    Ruolo = UserRole.User, CreditoResiduo = 0, DataRegistrazione = DateTime.UtcNow
+                    Ruolo = UserRole.User, CreditoResiduo = 0, DataRegistrazione = DateTime.UtcNow,
+                    LocalCredentialsEnabled = false
                 };
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
@@ -66,7 +79,10 @@ public static class SocialAuthEndpoints
             });
             await db.SaveChangesAsync();
 
-            ctx.Response.Redirect($"{frontendBase}/login.html?accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}&name={Uri.EscapeDataString(user.Nome)}&email={Uri.EscapeDataString(user.Email)}");
+            var exchangeCode = Guid.NewGuid().ToString("N");
+            _exchangeCodes[exchangeCode] = (accessToken, refreshToken, user.Email, user.Nome, user.Id);
+
+            ctx.Response.Redirect($"{frontendBase}/social-login-complete.html?code={Uri.EscapeDataString(exchangeCode)}");
         }).AllowAnonymous();
     }
 
@@ -94,8 +110,16 @@ public static class SocialAuthEndpoints
                         var ur = await h.GetAsync("https://www.googleapis.com/oauth2/v2/userinfo");
                         if (ur.IsSuccessStatusCode)
                         {
-                            var u = await ur.Content.ReadFromJsonAsync<JsonElement>();
-                            return (u.TryGetProperty("email", out var e) ? e.GetString() ?? "" : "",
+                        var u = await ur.Content.ReadFromJsonAsync<JsonElement>();
+                        var emailVerified = u.TryGetProperty("verified_email", out var ve) && ve.GetBoolean();
+                        if (!emailVerified && u.TryGetProperty("email_verified", out var ev) && ev.ValueKind == JsonValueKind.True)
+                            emailVerified = true;
+                        if (!emailVerified)
+                        {
+                            var emailOk = u.TryGetProperty("email", out var emOk) && !string.IsNullOrWhiteSpace(emOk.GetString());
+                            if (!emailOk) return ("", "", "", "google_no_email");
+                        }
+                        return (u.TryGetProperty("email", out var e) ? e.GetString() ?? "" : "",
                                 u.TryGetProperty("given_name", out var gn) ? gn.GetString() ?? "" : "",
                                 u.TryGetProperty("family_name", out var fn) ? fn.GetString() ?? "" : "", "");
                         }
@@ -127,9 +151,11 @@ public static class SocialAuthEndpoints
                         if (ur.IsSuccessStatusCode)
                         {
                             var u = await ur.Content.ReadFromJsonAsync<JsonElement>();
-                            var mail = u.TryGetProperty("mail", out var me) ? me.GetString()
-                                ?? (u.TryGetProperty("userPrincipalName", out var upn) ? upn.GetString() : "") : "";
-                            return (mail ?? "",
+                        var mail = u.TryGetProperty("mail", out var me) ? me.GetString()
+                            ?? (u.TryGetProperty("userPrincipalName", out var upn2) ? upn2.GetString() : "") : "";
+                        if (!string.IsNullOrWhiteSpace(mail) && !mail.EndsWith("@issgreppi.it", StringComparison.OrdinalIgnoreCase))
+                            return ("", "", "", "ms_domain_rejected");
+                        return (mail ?? "",
                                 u.TryGetProperty("givenName", out var gn) ? gn.GetString() ?? "" : "",
                                 u.TryGetProperty("surname", out var sn) ? sn.GetString() ?? "" : "", "");
                         }
@@ -157,7 +183,8 @@ public static class SocialAuthEndpoints
         {
             new(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email, user.Email),
-            new("role", user.Ruolo.ToString())
+            new("role", user.Ruolo.ToString()),
+            new("auth_version", user.AuthVersion.ToString())
         };
         var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
             issuer: issuer, audience: audience, claims: claims,

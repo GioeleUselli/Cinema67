@@ -199,6 +199,8 @@
     } catch (e) { console.error(e); }
     setLoading(false);
   }
+
+  async function openTicket() {
     if (loading) return;
     if (!escalationEligible) {
       if (typeof showToast === 'function') showToast('Proviamo ancora qualche step prima di aprire ticket.', 'info');

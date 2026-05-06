@@ -23,6 +23,10 @@ async function loadProfilo() {
   try {
     profiloData = await API.getProfilo();
     fillProfiloForm();
+    var user = Auth.getUser();
+    if (user && user.localCredentialsEnabled === false) {
+      document.getElementById('set-password-section').classList.remove('hidden');
+    }
   } catch (error) {
     handleApiError(error);
   }
@@ -351,7 +355,17 @@ document.getElementById('email-form')?.addEventListener('submit', async function
   msg.classList.remove('hidden');
   btn.disabled = false;
 });
-}
+
+document.getElementById('btn-set-password')?.addEventListener('click', async function(){
+  this.disabled = true;
+  this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Invio...';
+  try {
+    var res = await apiFetch('/auth/set-password/request', { method: 'POST' });
+    showToast('Link inviato alla tua email per impostare la password');
+  } catch(e) { handleApiError(e); }
+  this.disabled = false;
+  this.innerHTML = '<i class="fa-solid fa-key mr-2"></i>Imposta password locale';
+});
 
 function getMovimentoLabel(tipo) {
   switch (tipo) {

@@ -28,6 +28,18 @@
       </div>
     </section>
 
+    <section class="cine-admin-slab mb-4 p-4">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 items-end">
+        <input id="filter-search" type="text" class="ghost-input w-full px-3 py-2" placeholder="Cerca nome, cognome o email...">
+        <select id="filter-role" class="ghost-input w-full px-3 py-2"><option value="">Tutti i ruoli</option><option value="User">User</option><option value="PowerUser">PowerUser</option><option value="Admin">Admin</option></select>
+        <div class="flex gap-2">
+          <button id="btn-prev" class="btn-outline-brand px-3 py-2 text-xs">&lt;</button>
+          <span id="page-indicator" class="text-sm text-brand-on-surface-variant self-center">Pag 1 di 1</span>
+          <button id="btn-next" class="btn-outline-brand px-3 py-2 text-xs">&gt;</button>
+        </div>
+      </div>
+    </section>
+
     <section class="cine-admin-slab overflow-x-auto">
       <table class="min-w-full divide-y divide-brand-outline-variant/10">
         <thead class="bg-brand-surface-container">
@@ -79,6 +91,6 @@
   <script src="/js/auth.js?v=99"></script>
   <script src="/js/template-loader.js?v=99"></script>
   <script src="/js/admin-shell.js?v=99"></script>
-  <script src="/js/pages/admin-utenti.js?v=99"></script>
+  <script src="/js/pages/admin-utenti.js?v=2"></script>
 </body>
 </html>

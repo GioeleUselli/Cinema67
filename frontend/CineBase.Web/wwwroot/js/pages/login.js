@@ -10,12 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
   var redirect = params.get('redirect');
 
   if (errorMsg) {
-    var errorDiv = document.getElementById('error-alert');
-    var errorSpan = document.getElementById('error-message');
-    if (errorDiv && errorSpan) {
-      errorSpan.textContent = 'Errore social login: ' + errorMsg + (detailMsg ? ' (' + decodeURIComponent(detailMsg) + ')' : '');
-      errorDiv.classList.remove('hidden');
-    }
+    setTimeout(function(){
+      var ed = document.getElementById('error-alert');
+      var em = document.getElementById('error-message');
+      if (ed && em) {
+        em.textContent = 'Errore social login: ' + errorMsg + (detailMsg ? ' (' + decodeURIComponent(detailMsg) + ')' : '');
+        ed.classList.remove('hidden');
+      }
+    }, 100);
   }
 
   if (accessToken && refreshToken) {
@@ -105,9 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await Auth.login(email, password, document.getElementById('remember-me')?.checked);
       
+      var user = Auth.getUser();
+      if (user && user.ruolo === 'User' && (user.cinemaPreferitoId == null || user.cinemaPreferitoId === 0)) {
+        window.location.href = '/scegli-cinema.html';
+        return;
+      }
+
       if (redirect) {
-        const decodedRedirect = decodeURIComponent(redirect);
-        window.location.href = decodedRedirect;
+        window.location.href = sanitizeRedirect(decodeURIComponent(redirect));
       } else {
         window.location.href = '/index.html';
       }

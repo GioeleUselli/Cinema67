@@ -155,7 +155,8 @@ public class AuthService : IAuthService
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim("role", user.Ruolo.ToString()),
-            new Claim("nome", user.Nome)
+            new Claim("nome", user.Nome),
+            new Claim("auth_version", user.AuthVersion.ToString())
         };
 
         var token = new JwtSecurityToken(
@@ -202,7 +203,15 @@ public class AuthService : IAuthService
         if (user is null || !BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
             return false;
 
+        if (!user.LocalCredentialsEnabled)
+            throw new InvalidOperationException("Account senza password locale. Usa il recupero password per impostarne una.");
+
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.AuthVersion++;
+
+        _context.RefreshTokens.RemoveRange(
+            _context.RefreshTokens.Where(rt => rt.UserId == userId));
+
         await _context.SaveChangesAsync();
         return true;
     }
@@ -213,13 +222,17 @@ public class AuthService : IAuthService
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == normalized);
         if (user is null) return string.Empty;
 
-        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+        var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
             .Replace("/", "_").Replace("+", "-").TrimEnd('=');
+
+        var tokenHash = Convert.ToBase64String(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(rawToken)));
 
         _context.PasswordResetTokens.Add(new PasswordResetToken
         {
             UserId = user.Id,
-            Token = token,
+            Token = tokenHash,
             ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
         });
 
@@ -231,7 +244,7 @@ public class AuthService : IAuthService
             try
             {
                 var frontendBase = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
-                var resetUrl = $"{frontendBase}/reset-password.html?token={token}";
+                var resetUrl = $"{frontendBase}/reset-password.html?token={rawToken}";
                 var sender = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? user.Email;
                 var fromName = Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? "Cinema67";
 
@@ -287,14 +300,18 @@ public class AuthService : IAuthService
         }
 
         await _context.SaveChangesAsync();
-        return hasSmtp ? "" : token;
+        return hasSmtp ? "" : rawToken;
     }
 
-    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    public async Task<bool> ResetPasswordAsync(string rawToken, string newPassword)
     {
+        var tokenHash = Convert.ToBase64String(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(rawToken)));
+
         var now = DateTime.UtcNow;
         var resetToken = await _context.PasswordResetTokens
-            .FirstOrDefaultAsync(t => t.Token == token && !t.Used && t.ExpiresAtUtc > now);
+            .FirstOrDefaultAsync(t => t.Token == tokenHash && !t.Used && t.ExpiresAtUtc > now);
 
         if (resetToken is null) return false;
 
@@ -302,6 +319,8 @@ public class AuthService : IAuthService
         if (user is null) return false;
 
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.LocalCredentialsEnabled = true;
+        user.AuthVersion++;
         resetToken.Used = true;
 
         _context.RefreshTokens.RemoveRange(
@@ -352,7 +371,9 @@ public class AuthService : IAuthService
             Cognome = user.Cognome,
             Telefono = user.Telefono,
             Ruolo = user.Ruolo.ToString(),
-            DataRegistrazione = user.DataRegistrazione
+            DataRegistrazione = user.DataRegistrazione,
+            CinemaPreferitoId = user.CinemaPreferitoId,
+            LocalCredentialsEnabled = user.LocalCredentialsEnabled
         };
     }
 }

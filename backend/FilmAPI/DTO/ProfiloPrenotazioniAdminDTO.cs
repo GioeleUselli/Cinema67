@@ -50,6 +50,8 @@ public class UserAdminDTO
     public string Cognome { get; set; } = string.Empty;
     public string? Telefono { get; set; }
     public string Ruolo { get; set; } = string.Empty;
+    public int? CinemaPreferitoId { get; set; }
+    public decimal CreditoResiduo { get; set; }
     public DateTime DataRegistrazione { get; set; }
 }
 

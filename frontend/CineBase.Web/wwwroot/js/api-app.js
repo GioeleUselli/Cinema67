@@ -577,7 +577,14 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   forgotPassword: function (data) { return apiFetch('/auth/forgot-password', { method: 'POST', body: JSON.stringify(data) }); },
   resetPassword: function (data) { return apiFetch('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) }); },
 
-  getUsersAdmin: function () { return apiFetch('/admin/utenti'); },
+  getUsersAdmin: function (params) {
+    var q = new URLSearchParams();
+    if (params && params.search) q.set('search', params.search);
+    if (params && params.role) q.set('role', params.role);
+    if (params && params.page) q.set('page', String(params.page));
+    if (params && params.pageSize) q.set('pageSize', String(params.pageSize));
+    return apiFetch('/admin/utenti' + (q.toString() ? '?' + q.toString() : ''));
+  },
   createUserAdmin: function (data) { return apiFetch('/admin/utenti', { method: 'POST', body: JSON.stringify(data) }); },
   updateUserRole: function (id, data) { return apiFetch('/admin/utenti/' + id + '/ruolo', { method: 'PUT', body: JSON.stringify(data) }); },
   updateUserCinema: function (id, data) { return apiFetch('/admin/utenti/' + id + '/cinema', { method: 'PUT', body: JSON.stringify(data) }); }

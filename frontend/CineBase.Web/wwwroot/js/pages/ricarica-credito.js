@@ -21,7 +21,7 @@ function renderUsers(users) {
   if (count) count.textContent = users.length;
   if (!users.length) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessun utente</td></tr>'; return; }
   tbody.innerHTML = users.map(function (u) {
-    var saldo = typeof u.creditoResiduo === 'number' ? u.creditoResiduo : 0;
+    var saldo = typeof u.creditoResiduo === 'number' ? Number(u.creditoResiduo) : 0;
     return '<tr class="row-hover ' + (selectedUserId === u.id ? 'bg-brand-surface-container' : '') + '"><td class="px-6 py-4 text-sm font-semibold">' + escapeHtml(u.nome + ' ' + u.cognome) + '</td><td class="px-6 py-4 text-sm text-brand-on-surface-variant">' + escapeHtml(u.email) + '</td><td class="px-6 py-4 text-sm font-bold text-brand-gold">&euro;' + Number(saldo).toFixed(2) + '</td><td class="px-6 py-4"><button onclick="selectUser(' + u.id + ',\'' + escapeHtml(u.email).replace(/'/g, '\\\'') + '\',\'' + escapeHtml(u.nome + ' ' + u.cognome).replace(/'/g, '\\\'') + '\',' + Number(saldo).toFixed(2) + ')" class="btn-outline-brand text-xs px-3 py-1"><i class="fa-solid fa-hand-pointer mr-1"></i>Ricarica</button></td></tr>';
   }).join('');
 }

@@ -49,12 +49,12 @@
   --brand-error-container: #ffe3de;
 
   /* Sidebar */
-  --brand-sidebar-from: #091427;
-  --brand-sidebar-to: #132a45;
-  --brand-sidebar-text: #cfdef2;
-  --brand-sidebar-hover: rgba(255, 255, 255, 0.1);
-  --brand-sidebar-active-bg: rgba(255, 255, 255, 0.12);
-  --brand-sidebar-active-text: #ff8a5c;
+  --brand-sidebar-from: #ffffff;
+  --brand-sidebar-to: #f1f6fb;
+  --brand-sidebar-text: #0d1b2a;
+  --brand-sidebar-hover: rgba(0, 0, 0, 0.06);
+  --brand-sidebar-active-bg: rgba(255, 107, 53, 0.12);
+  --brand-sidebar-active-text: #c9471f;
 
   /* Shadows */
   --brand-shadow: 0 14px 34px rgba(16, 30, 52, 0.12);

@@ -41,6 +41,12 @@ public class User
     [Column(TypeName = "decimal(10,2)")]
     public decimal CreditoResiduo { get; set; }
 
+    [Required]
+    public bool LocalCredentialsEnabled { get; set; } = true;
+
+    [Required]
+    public int AuthVersion { get; set; }
+
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<Prenotazione> Prenotazioni { get; set; } = new List<Prenotazione>();
     public ICollection<Ordine> Ordini { get; set; } = new List<Ordine>();
