@@ -153,6 +153,15 @@ public static class AuthEndpoints
             var token = await service.ForgotPasswordAsync(user.Email);
             return Results.Ok(new { message = string.IsNullOrEmpty(token) ? "Controlla la tua email per il link." : "Token (dev): " + token });
         }).RequireAuthorization("Authenticated");
+
+        group.MapGet("/security/me", async (HttpContext context, IAuthService service) =>
+        {
+            var userId = GetUserId(context);
+            if (userId == 0) return Results.Unauthorized();
+            var u = await service.GetUserByIdAsync(userId);
+            if (u is null) return Results.NotFound();
+            return Results.Ok(new { localCredentials = u.LocalCredentialsEnabled, email = u.Email, role = u.Ruolo });
+        }).RequireAuthorization("Authenticated");
     }
 
     private static int GetUserId(HttpContext context)

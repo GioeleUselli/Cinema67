@@ -1,11 +1,26 @@
 # Stato Progetto
 
-Data aggiornamento: 2026-04-25
+Data aggiornamento: 2026-05-06
 
 ## Branch di lavoro
-- `dev_iteration_4` (iterazione 4 - cinema multisala e ticketing)
+- `main` (iterazione 5 — sicurezza account, social login, hardening)
 
-## Stato Iterazione 4
+## Stato Iterazione 5
+
+| Fase | Stato | Data | Note |
+| --- | --- | --- | --- |
+| FASE 1 - Modello dati credenziali e security | **Completata** | 2026-05-06 | `User.LocalCredentialsEnabled`, `User.AuthVersion`, migration `AddSecurityFieldsToUser` |
+| FASE 2 - Infrastruttura email e token | **Completata** | 2026-05-06 | `PasswordResetToken`, token hash SHA-256, email template premium |
+| FASE 3 - Backend cambio/recupero password | **Completata** | 2026-05-06 | `change-password`, `forgot-password`, `reset-password`, revoca sessioni |
+| FASE 4 - Backend social login Google/Microsoft | **Completata** | 2026-05-06 | Google OAuth (email_verified), Microsoft OAuth (@issgreppi.it), exchange code pattern, blocco ruoli elevati |
+| FASE 5 - Backend admin utenti | **Completata** | 2026-05-06 | Creazione account, promozione con blocco social-only, paginazione/ricerca, revoca sessioni |
+| FASE 6 - Frontend login, recupero, profilo | **Completata** | 2026-05-06 | Social buttons, forgot/reset/social-login-complete pages, cambio password/email, set-password per social-only, redirect validation |
+| FASE 7 - Frontend admin utenti | **Completata** | 2026-05-06 | Pagina `admin-utenti.html` con ricerca/paginazione/filtro, creazione account, cambio ruolo |
+| FASE 8 - Test automatici | **Non eseguiti** | - | Test backend manualmente verificati; suite automatica da aggiornare |
+| FASE 9 - Smoke test runtime | **Completata** | 2026-05-06 | Verifica manuale Google/Microsoft login, password flow, admin CRUD |
+| FASE 10 - Documentazione | **Completata** | 2026-05-06 | `status.md`, `changelog.md`, `.env.example` aggiornati |
+
+## Stato Iterazione 4 (completata)
 
 | Fase | Stato | Data | Note |
 | --- | --- | --- | --- |
