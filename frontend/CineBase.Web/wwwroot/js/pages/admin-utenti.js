@@ -32,10 +32,10 @@ async function loadAll() {
   } catch (e) { console.error(e); tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-error">Errore caricamento</td></tr>'; }
 }
 
-document.getElementById('filter-search').addEventListener('input', function () {
+document.getElementById('filter-search')?.addEventListener('input', function () {
   searchTerm = this.value; currentPage = 1; loadAll();
 });
-document.getElementById('filter-role').addEventListener('change', function () {
+document.getElementById('filter-role')?.addEventListener('change', function () {
   roleFilter = this.value; currentPage = 1; loadAll();
 });
 document.getElementById('btn-prev')?.addEventListener('click', function () { if (currentPage > 1) { currentPage--; loadAll(); } });
