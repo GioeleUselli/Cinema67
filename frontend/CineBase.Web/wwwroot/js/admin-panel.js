@@ -144,7 +144,7 @@
               <i class="fa-solid fa-sun theme-toggle-icon-sun hidden"></i>
               <span class="theme-toggle-label">Cambia tema</span>
             </button>
-            <a href="/profilo.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-sidebar-text hover:text-brand-gold transition-colors">
+            <a href="/profilo.html" class="flex items-center gap-3 px-4 py-3 rounded-xl sidebar-text hover:text-brand-gold transition-colors">
               <i class="fa-solid fa-user-gear"></i>
               Profilo
             </a>
