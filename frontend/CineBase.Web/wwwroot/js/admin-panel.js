@@ -113,7 +113,7 @@
       <div id="admin-shell-root" class="bg-brand-surface">
       <div id="admin-sidebar-backdrop" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
       <div class="flex w-full min-h-screen">
-        <aside id="admin-sidebar" class="admin-sidebar w-64 flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20">
+        <aside id="admin-sidebar" class="admin-sidebar w-64 flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20" style="overflow-y:auto;overflow-x:hidden">
           <div class="p-6">
             <a href="/index.html" class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-full border border-brand-gold/40 sidebar-logo-bg flex items-center justify-center text-brand-gold">
@@ -123,7 +123,7 @@
             </a>
           </div>
           <p class="px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
-          <nav class="admin-sidebar-rail flex-1 px-4 space-y-1">
+          <nav class="admin-sidebar-rail flex-1 px-4 space-y-1 overflow-y-auto" style="max-height:calc(100vh - 280px)">
             <a data-admin-link href="/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
             <a data-admin-link href="/films.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-film"></i>Film</a>
             <a data-admin-link href="/registi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-user"></i>Registi</a>
@@ -227,11 +227,12 @@
     }
   }
 
-  window.Cinema67ThemeOrigToggle = window.Cinema67Theme && window.Cinema67Theme.toggle ? window.Cinema67Theme.toggle : null;
-  if (window.Cinema67Theme) {
+  var originalToggle = window.Cinema67Theme ? window.Cinema67Theme.toggle : null;
+  if (window.Cinema67Theme && originalToggle) {
+    var themeObj = window.Cinema67Theme;
     window.Cinema67Theme.toggle = function() {
-      if (window.Cinema67ThemeOrigToggle) window.Cinema67ThemeOrigToggle();
-      applySidebarTheme();
+      originalToggle.call(themeObj);
+      setTimeout(applySidebarTheme, 50);
     };
   }
 })();
