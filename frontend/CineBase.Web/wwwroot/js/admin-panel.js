@@ -139,7 +139,7 @@
             <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
-            <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
+            <button onclick="toggleAdminTheme()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
               <i class="fa-solid fa-moon theme-toggle-icon-moon"></i>
               <i class="fa-solid fa-sun theme-toggle-icon-sun hidden"></i>
               <span class="theme-toggle-label">Cambia tema</span>
@@ -215,16 +215,16 @@
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   });
 
-  function applySidebarTheme() {
-    var sb = document.getElementById('admin-sidebar');
-    if (!sb) return;
-    var isDark = document.documentElement.classList.contains('dark');
-    sb.style.background = isDark ? 'linear-gradient(180deg, #06101d, #0f2238)' : 'linear-gradient(180deg, #ffffff, #f1f6fb)';
-    sb.style.color = isDark ? '#94a3b8' : '#0d1b2a';
-    var links = sb.querySelectorAll('a');
-    for (var i = 0; i < links.length; i++) {
-      links[i].style.color = isDark ? '#94a3b8' : '#0d1b2a';
+  window.toggleAdminTheme = function() {
+    if (window.Cinema67Theme && window.Cinema67Theme.toggle) {
+      window.Cinema67Theme.toggle();
+    } else {
+      var isDark = document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', !isDark);
+      localStorage.setItem('cb_color_theme', isDark ? 'light' : 'dark');
     }
+    setTimeout(applySidebarTheme, 60);
+  };
     var moon = sb.querySelector('.theme-toggle-icon-moon');
     var sun = sb.querySelector('.theme-toggle-icon-sun');
     if (moon) moon.style.display = isDark ? 'none' : '';
