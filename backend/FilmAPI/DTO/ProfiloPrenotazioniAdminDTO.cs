@@ -59,3 +59,32 @@ public class UpdateRuoloDTO
     [RegularExpression("^(User|PowerUser|Admin)$")]
     public string NuovoRuolo { get; set; } = string.Empty;
 }
+
+public class CreateUserDTO
+{
+    [Required][EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required][MinLength(8)]
+    public string Password { get; set; } = string.Empty;
+
+    [Required][MaxLength(100)]
+    public string Nome { get; set; } = string.Empty;
+
+    [Required][MaxLength(100)]
+    public string Cognome { get; set; } = string.Empty;
+
+    [MaxLength(20)]
+    public string? Telefono { get; set; }
+
+    [Required]
+    [RegularExpression("^(User|PowerUser|Admin)$")]
+    public string Ruolo { get; set; } = "User";
+
+    public int? CinemaId { get; set; }
+}
+
+public class UpdateUserCinemaDTO
+{
+    public int? CinemaId { get; set; }
+}

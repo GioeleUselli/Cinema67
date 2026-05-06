@@ -13,7 +13,7 @@ public static class AdminUtentiEndpoints
 
         group.MapGet("", async (IUserAdminService service) =>
             await service.GetAllUsersAsync())
-            .RequireAuthorization("AdminOnly");
+            .RequireAuthorization("PowerUserOrAdmin");
 
         group.MapPut("/{id}/ruolo", async (int id, UpdateRuoloDTO dto, HttpContext context, IUserAdminService service) =>
         {
@@ -29,6 +29,27 @@ public static class AdminUtentiEndpoints
             {
                 return Results.BadRequest(ex.Message);
             }
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapPost("", async (CreateUserDTO dto, IUserAdminService service) =>
+        {
+            try
+            {
+                var result = await service.CreateUserAsync(dto);
+                return Results.Created($"/admin/utenti/{result.Id}", result);
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return Results.Conflict(new { message = ex.Message }); }
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapPut("/{id}/cinema", async (int id, UpdateUserCinemaDTO dto, IUserAdminService service) =>
+        {
+            try
+            {
+                var result = await service.UpdateUserCinemaAsync(id, dto.CinemaId);
+                return result is null ? Results.NotFound() : Results.Ok(result);
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
         }).RequireAuthorization("AdminOnly");
     }
 

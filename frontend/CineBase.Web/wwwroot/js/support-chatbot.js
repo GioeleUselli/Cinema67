@@ -187,7 +187,18 @@
     }
   }
 
-  async function openTicket() {
+  async function resetConversation() {
+    if (!isAuthenticated() || loading) return;
+    setLoading(true);
+    try {
+      await apiFetch('/support/conversation', { method: 'DELETE' });
+      conversation = null;
+      userTurns = 0;
+      setEscalationEligibility(false);
+      await loadConversation();
+    } catch (e) { console.error(e); }
+    setLoading(false);
+  }
     if (loading) return;
     if (!escalationEligible) {
       if (typeof showToast === 'function') showToast('Proviamo ancora qualche step prima di aprire ticket.', 'info');
@@ -297,6 +308,9 @@
           </button>
         </footer>
         <div class="support-chat-actions">
+          <button id="support-chat-reset" class="support-chat-ticket-btn" type="button" style="margin-bottom:0.3rem">
+            <i class="fa-solid fa-arrows-rotate"></i> Nuova conversazione
+          </button>
           <button id="support-chat-ticket" class="support-chat-ticket-btn hidden" type="button">
             <i class="fa-solid fa-life-ring"></i> Non ho risolto, apri ticket
           </button>
@@ -348,6 +362,7 @@
     const suggest = document.getElementById('support-chat-suggest');
     const ticketCancel = document.getElementById('support-ticket-cancel');
     const ticketSubmit = document.getElementById('support-ticket-submit');
+    const chatReset = document.getElementById('support-chat-reset');
 
     toggle?.addEventListener('click', () => {
       panel?.classList.toggle('hidden');
@@ -363,6 +378,7 @@
     ticket?.addEventListener('click', openTicket);
     ticketCancel?.addEventListener('click', closeTicketModal);
     ticketSubmit?.addEventListener('click', submitTicket);
+    chatReset?.addEventListener('click', resetConversation);
 
     suggest?.querySelectorAll('.support-chat-chip').forEach((btn) => {
       btn.addEventListener('click', () => sendMessage(btn.textContent || ''));

@@ -10,7 +10,8 @@
     '/ricarica-credito.html',
     '/validazione-biglietti.html',
     '/support-tickets.html',
-    '/promozioni.html'
+    '/promozioni.html',
+    '/admin-utenti.html'
   ]);
 
   const PAGE_TITLES = {
@@ -24,7 +25,8 @@
     '/ricarica-credito.html': 'Ricarica Credito',
     '/validazione-biglietti.html': 'Validazione Biglietti',
     '/support-tickets.html': 'Support Tickets',
-    '/promozioni.html': 'Promozioni'
+    '/promozioni.html': 'Promozioni',
+    '/admin-utenti.html': 'Gestione Utenti'
   };
 
   function getUser() {
@@ -134,6 +136,7 @@
             <a data-admin-link href="/validazione-biglietti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-qrcode"></i>Validazione</a>
             <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-headset"></i>Support Tickets</a>
             <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
+            <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">

@@ -79,7 +79,7 @@ public class AuthService : IAuthService
         }
 
         var accessToken = GenerateAccessToken(user);
-        var refreshToken = await GenerateRefreshTokenAsync(user.Id, dto.DeviceId);
+        var refreshToken = await GenerateRefreshTokenAsync(user.Id, dto.DeviceId, dto.RememberMe ? 30 : _refreshTokenExpiryDays);
         await _context.SaveChangesAsync();
 
         return new AuthResponseDTO
@@ -169,8 +169,9 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private async Task<RefreshToken> GenerateRefreshTokenAsync(int userId, string? deviceId)
+    private async Task<RefreshToken> GenerateRefreshTokenAsync(int userId, string? deviceId, int? expiryDays = null)
     {
+        var days = expiryDays ?? _refreshTokenExpiryDays;
         var normalizedDeviceId = NormalizeDeviceId(deviceId);
 
         var activeTokensForDevice = await _context.RefreshTokens
@@ -187,12 +188,146 @@ public class AuthService : IAuthService
             Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
             UserId = userId,
             DeviceId = normalizedDeviceId,
-            ExpiresAt = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays),
+            ExpiresAt = DateTime.UtcNow.AddDays(days),
             CreatedAt = DateTime.UtcNow
         };
 
         _context.RefreshTokens.Add(refreshToken);
         return refreshToken;
+    }
+
+    public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user is null || !BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
+            return false;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<string> ForgotPasswordAsync(string email)
+    {
+        var normalized = NormalizeEmail(email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == normalized);
+        if (user is null) return string.Empty;
+
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+            .Replace("/", "_").Replace("+", "-").TrimEnd('=');
+
+        _context.PasswordResetTokens.Add(new PasswordResetToken
+        {
+            UserId = user.Id,
+            Token = token,
+            ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+        });
+
+        var hasSmtp = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SMTP_USER"))
+            && !(Environment.GetEnvironmentVariable("SMTP_USER") ?? "").StartsWith("<");
+
+        if (hasSmtp)
+        {
+            try
+            {
+                var frontendBase = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+                var resetUrl = $"{frontendBase}/reset-password.html?token={token}";
+                var sender = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? user.Email;
+                var fromName = Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? "Cinema67";
+
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+                await client.ConnectAsync(
+                    Environment.GetEnvironmentVariable("SMTP_HOST") ?? "smtp.gmail.com",
+                    int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587"),
+                    MailKit.Security.SecureSocketOptions.StartTls);
+
+                await client.AuthenticateAsync(
+                    Environment.GetEnvironmentVariable("SMTP_USER"),
+                    Environment.GetEnvironmentVariable("SMTP_PASSWORD"));
+
+                var message = new MimeKit.MimeMessage();
+                message.From.Add(new MimeKit.MailboxAddress(fromName, sender));
+                message.To.Add(MimeKit.MailboxAddress.Parse(user.Email));
+                message.Subject = "Cinema67 - Reset Password";
+
+                var body = new MimeKit.BodyBuilder
+                {
+                    TextBody = $"Clicca qui per resettare la password: {resetUrl}\nIl link scade tra 1 ora.",
+                    HtmlBody = $@"<html><body style=""margin:0;padding:0;font-family:Arial,sans-serif;background:#0f172a"">
+<table width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#0f172a;padding:40px 0"">
+<tr><td align=""center"">
+<table width=""540"" cellpadding=""0"" cellspacing=""0"" style=""background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:16px;overflow:hidden;border:1px solid #334155"">
+<tr><td style=""padding:32px 40px 20px;text-align:center"">
+<div style=""font-size:28px;font-weight:900;color:#f59e0b;font-family:Georgia,serif;letter-spacing:2px"">CINEMA67</div>
+</td></tr>
+<tr><td style=""padding:0 40px""><div style=""height:1px;background:#334155""></div></td></tr>
+<tr><td style=""padding:24px 40px"">
+<h2 style=""color:#f1f5f9;margin:0 0 12px"">Reset Password</h2>
+<p style=""color:#94a3b8;font-size:14px;line-height:1.6;margin:0 0 20px"">Hai richiesto il reset della password. Clicca il pulsante per impostarne una nuova. Il link scade tra <strong>1 ora</strong>.</p>
+<a href=""{resetUrl}"" style=""display:inline-block;background:#f59e0b;color:#0f172a;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px"">RESET PASSWORD</a>
+</td></tr>
+<tr><td style=""padding:0 40px 24px"">
+<p style=""color:#64748b;font-size:12px;margin:16px 0 0"">Se non funziona, copia questo link: <a href=""{resetUrl}"" style=""color:#f59e0b"">{resetUrl}</a></p>
+<p style=""color:#475569;font-size:11px;margin:8px 0 0"">Se non hai richiesto il reset, ignora questa email.</p>
+</td></tr>
+<tr><td style=""padding:16px 40px;background:rgba(0,0,0,0.2);text-align:center"">
+<p style=""color:#475569;font-size:11px;margin:0"">© 2026 Cinema67 — biglietti.cinema67@gmail.com</p>
+</td></tr>
+</table></td></tr></table></body></html>"
+                };
+                message.Body = body.ToMessageBody();
+
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception)
+            {
+                // email send failed, token still available via API response
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return hasSmtp ? "" : token;
+    }
+
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    {
+        var now = DateTime.UtcNow;
+        var resetToken = await _context.PasswordResetTokens
+            .FirstOrDefaultAsync(t => t.Token == token && !t.Used && t.ExpiresAtUtc > now);
+
+        if (resetToken is null) return false;
+
+        var user = await _context.Users.FindAsync(resetToken.UserId);
+        if (user is null) return false;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        resetToken.Used = true;
+
+        _context.RefreshTokens.RemoveRange(
+            _context.RefreshTokens.Where(rt => rt.UserId == user.Id));
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> ChangeEmailAsync(int userId, string currentPassword, string newEmail)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user is null || !BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
+            return false;
+
+        var normalizedNew = NormalizeEmail(newEmail);
+        if (string.IsNullOrWhiteSpace(normalizedNew))
+            throw new ArgumentException("Email non valida.");
+
+        var conflict = await _context.Users.AnyAsync(u => u.Email == normalizedNew && u.Id != userId);
+        if (conflict)
+            throw new InvalidOperationException("Email già in uso da un altro account.");
+
+        user.Email = normalizedNew;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     private static string NormalizeDeviceId(string? deviceId)

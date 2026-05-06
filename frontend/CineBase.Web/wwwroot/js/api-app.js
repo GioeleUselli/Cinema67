@@ -28,7 +28,8 @@ function isAdminAreaPath(pathname) {
     '/sale.html',
     '/ricarica-credito.html',
     '/validazione-biglietti.html',
-    '/support-tickets.html'
+    '/support-tickets.html',
+    '/admin-utenti.html'
   ]);
   return adminPaths.has((pathname || '').toLowerCase());
 }
@@ -569,5 +570,15 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   getPromotion: function (id) { return apiFetch('/admin/promotions/' + id); },
   createPromotion: function (data) { return apiFetch('/admin/promotions', { method: 'POST', body: JSON.stringify(data) }); },
   updatePromotion: function (id, data) { return apiFetch('/admin/promotions/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
-  deletePromotion: function (id) { return apiFetch('/admin/promotions/' + id, { method: 'DELETE' }); }
+  deletePromotion: function (id) { return apiFetch('/admin/promotions/' + id, { method: 'DELETE' }); },
+
+  changePassword: function (data) { return apiFetch('/auth/change-password', { method: 'POST', body: JSON.stringify(data) }); },
+  changeEmail: function (data) { return apiFetch('/auth/change-email', { method: 'POST', body: JSON.stringify(data) }); },
+  forgotPassword: function (data) { return apiFetch('/auth/forgot-password', { method: 'POST', body: JSON.stringify(data) }); },
+  resetPassword: function (data) { return apiFetch('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) }); },
+
+  getUsersAdmin: function () { return apiFetch('/admin/utenti'); },
+  createUserAdmin: function (data) { return apiFetch('/admin/utenti', { method: 'POST', body: JSON.stringify(data) }); },
+  updateUserRole: function (id, data) { return apiFetch('/admin/utenti/' + id + '/ruolo', { method: 'PUT', body: JSON.stringify(data) }); },
+  updateUserCinema: function (id, data) { return apiFetch('/admin/utenti/' + id + '/cinema', { method: 'PUT', body: JSON.stringify(data) }); }
 };

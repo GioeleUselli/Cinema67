@@ -30,6 +30,7 @@ public class FilmDbContext : DbContext
     public DbSet<SupportTicket> SupportTickets { get; set; }
     public DbSet<SupportTicketAudit> SupportTicketAudits { get; set; }
     public DbSet<Promotion> Promotions { get; set; }
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -358,6 +359,18 @@ public class FilmDbContext : DbContext
             entity.HasIndex(e => e.Active);
             entity.HasIndex(e => e.Priority);
             entity.HasIndex(e => e.StartDate);
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasIndex(e => e.Token).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.ExpiresAtUtc);
+
+            entity.HasOne(t => t.User)
+                  .WithMany()
+                  .HasForeignKey(t => t.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

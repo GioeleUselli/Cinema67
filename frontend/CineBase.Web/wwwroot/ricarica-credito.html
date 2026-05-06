@@ -11,8 +11,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
-  <script src="/js/theme.js?v=3"></script>
-  <script src="/js/route-guard.js?v=3"></script>
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans">
@@ -27,21 +27,31 @@
 
     <!-- User Search -->
     <div class="cine-admin-slab mb-6 p-4">
-      <div class="flex flex-col sm:flex-row gap-3 items-end">
-        <div class="flex-1">
-          <label for="user-search-input" class="block text-sm font-medium text-brand-on-surface mb-1">Cerca Utente per Email</label>
-          <input id="user-search-input" type="email" placeholder="es. mario@email.com" class="ghost-input w-full px-4 py-2" title="Cerca utente per email">
-        </div>
-        <button id="btn-search-user" onclick="searchUser()" class="btn-gold px-4 py-2 rounded-lg text-sm font-medium">
-          <i class="fa-solid fa-search mr-2"></i>Cerca
-        </button>
+      <div class="relative">
+        <input id="user-search-input" type="text" placeholder="Cerca utente per nome, cognome o email..." class="ghost-input w-full px-4 py-2 pl-10">
+        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant"></i>
       </div>
     </div>
 
-    <!-- Search Results -->
-    <div id="search-results-area" class="hidden">
-      <h2 class="text-lg font-semibold text-brand-on-surface mb-4">Risultati Ricerca</h2>
-      <div id="search-results" class="space-y-3 mb-6"></div>
+    <!-- All Users List -->
+    <div class="cine-admin-slab overflow-x-auto mb-6">
+      <div class="px-6 py-4 border-b border-brand-outline-variant/10 flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-brand-on-surface">Utenti</h2>
+        <span id="users-count" class="cine-admin-chip">0</span>
+      </div>
+      <table class="min-w-full divide-y divide-brand-outline-variant/10">
+        <thead class="bg-brand-surface-container">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Nome</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Saldo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="all-users-list" class="divide-y divide-brand-outline-variant/10">
+          <tr><td colspan="4" class="px-6 py-4 text-center text-brand-on-surface-variant">Caricamento...</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Selected User Panel -->
@@ -63,16 +73,10 @@
       <div class="cine-admin-slab p-6 mb-6">
         <h3 class="text-md font-semibold text-brand-on-surface mb-4">Nuova Ricarica</h3>
         <form id="ricarica-form" class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
             <div>
               <label for="ricarica-importo" class="block text-sm font-medium text-brand-on-surface mb-1">Importo (&euro;)</label>
               <input id="ricarica-importo" name="importo" type="number" step="0.01" min="0.01" required class="ghost-input w-full px-4 py-2" placeholder="10.00" title="Importo ricarica">
-            </div>
-            <div>
-              <label for="ricarica-cinema" class="block text-sm font-medium text-brand-on-surface mb-1">Cinema operativo (opzionale)</label>
-              <select id="ricarica-cinema" class="ghost-input w-full px-4 py-2" title="Cinema operativo">
-                <option value="">Nessuno</option>
-              </select>
             </div>
           </div>
           <div>
@@ -114,14 +118,14 @@
   <div id="footer-container"></div>
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
-  <script src="/js/utils.js?v=3"></script>
-  <script src="/js/api-app.js?v=1"></script>
-  <script src="/js/auth.js?v=3"></script>
-  <script src="/js/template-loader.js?v=3"></script>
-  <script src="/js/admin-shell.js?v=3"></script>
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=99"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/admin-shell.js?v=99"></script>
   <script src="/js/form-handlers.js"></script>
-  <script src="/js/navbar.js?v=3"></script>
-  <script src="/js/pages/ricarica-credito.js"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script src="/js/pages/ricarica-credito.js?v=99"></script>
 </body>
 
 </html>

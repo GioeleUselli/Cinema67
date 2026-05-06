@@ -23,6 +23,8 @@
     <PackageReference Include="QuestPDF" Version="2026.2.4" />
     <PackageReference Include="Stripe.net" Version="48.2.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="9.0.0" />
   </ItemGroup>
 
 </Project>

@@ -14,8 +14,8 @@
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
-  <script src="/js/theme.js?v=3"></script>
-  <script src="/js/route-guard.js?v=3"></script>
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans">
@@ -95,6 +95,38 @@
       </div>
     </div>
 
+    <!-- Cambio Password e Email -->
+    <div class="mt-8 cine-admin-slab p-5 sm:p-6">
+      <h2 class="text-xl font-bold text-brand-on-surface mb-1"><i class="fa-solid fa-shield-halved text-brand-gold mr-2"></i>Sicurezza Account</h2>
+      <p class="text-sm text-brand-on-surface-variant mb-6">Modifica password, email o recupera l'accesso.</p>
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-[0.15em] text-brand-gold mb-3">Cambio Password</h3>
+          <form id="password-form" class="space-y-4">
+            <div><label class="block text-sm mb-1">Password attuale</label><input type="password" id="current-password" class="ghost-input w-full px-4 py-2" required></div>
+            <div><label class="block text-sm mb-1">Nuova password (min 8 caratteri)</label><input type="password" id="new-password" class="ghost-input w-full px-4 py-2" minlength="8" required></div>
+            <button type="submit" class="btn-gold px-6 py-2"><i class="fa-solid fa-check mr-2"></i>Aggiorna Password</button>
+            <span id="password-msg" class="hidden text-sm"></span>
+          </form>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-[0.15em] text-brand-gold mb-3">Cambio Email</h3>
+          <form id="email-form" class="space-y-4">
+            <div><label class="block text-sm mb-1">Password attuale</label><input type="password" id="email-current-password" class="ghost-input w-full px-4 py-2" required></div>
+            <div><label class="block text-sm mb-1">Nuova email</label><input type="email" id="new-email" class="ghost-input w-full px-4 py-2" required></div>
+            <button type="submit" class="btn-gold px-6 py-2"><i class="fa-solid fa-check mr-2"></i>Aggiorna Email</button>
+            <span id="email-msg" class="hidden text-sm"></span>
+          </form>
+        </div>
+      </div>
+      <div class="mt-6 pt-4 border-t border-brand-outline-variant/20">
+        <p class="text-sm text-brand-on-surface-variant">
+          <i class="fa-solid fa-circle-info mr-1 text-brand-gold"></i>
+          Hai dimenticato la password? <a href="/forgot-password.html" class="text-brand-gold hover:underline font-medium">Recupera accesso</a> — riceverai un link via email.
+        </p>
+      </div>
+    </div>
+
     <!-- Ordini -->
     <div class="mt-8 cine-admin-slab cine-reveal cine-reveal-delay-1 p-6">
       <div class="flex items-center justify-between mb-6">
@@ -131,11 +163,11 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
-  <script src="/js/utils.js?v=3"></script>
-  <script src="/js/api-app.js?v=1"></script>
-  <script src="/js/auth.js?v=3"></script>
-  <script src="/js/template-loader.js?v=3"></script>
-  <script src="/js/navbar.js?v=3"></script>
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=99"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
   <script src="/js/pages/profilo.js"></script>
 </body>
 

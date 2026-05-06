@@ -13,6 +13,8 @@ public class LoginRequestDTO
 
     [MaxLength(128)]
     public string? DeviceId { get; set; }
+
+    public bool RememberMe { get; set; }
 }
 
 public class RegisterRequestDTO
@@ -65,4 +67,38 @@ public class RefreshTokenRequestDTO
 
     [MaxLength(128)]
     public string? DeviceId { get; set; }
+}
+
+public class ChangePasswordDTO
+{
+    [Required]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required]
+    [MinLength(8)]
+    public string NewPassword { get; set; } = string.Empty;
+}
+
+public class ForgotPasswordDTO
+{
+    [Required][EmailAddress]
+    public string Email { get; set; } = string.Empty;
+}
+
+public class ResetPasswordDTO
+{
+    [Required]
+    public string Token { get; set; } = string.Empty;
+
+    [Required][MinLength(8)]
+    public string NewPassword { get; set; } = string.Empty;
+}
+
+public class ChangeEmailDTO
+{
+    [Required]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required][EmailAddress]
+    public string NewEmail { get; set; } = string.Empty;
 }

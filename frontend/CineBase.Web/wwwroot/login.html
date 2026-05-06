@@ -13,9 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="/css/styles.css" rel="stylesheet">
-  <script src="/js/theme.js?v=3"></script>
-  <script src="/js/route-guard.js?v=3"></script>
+  <link href="/css/styles.css?v=99" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans min-h-screen flex flex-col">
@@ -82,17 +82,32 @@
               <i class="fa-solid fa-spinner fa-spin mr-2"></i>Accesso in corso...
             </span>
           </button>
+          <div class="flex items-center justify-between mt-2">
+            <label class="flex items-center gap-2 cursor-pointer text-xs text-brand-on-surface-variant">
+              <input type="checkbox" id="remember-me" class="w-4 h-4 rounded border-brand-outline text-brand-gold focus:ring-brand-gold">
+              Ricordami
+            </label>
+            <a href="/forgot-password.html" class="text-xs text-brand-on-surface-variant hover:text-brand-gold">Password dimenticata?</a>
+          </div>
         </form>
 
         <!-- Divider -->
         <div class="flex items-center gap-4 my-6">
           <div class="flex-1 cine-divider"></div>
-          <span class="text-brand-on-surface-variant text-sm">oppure</span>
+          <span class="text-brand-on-surface-variant text-sm">oppure accedi con</span>
           <div class="flex-1 cine-divider"></div>
         </div>
 
-        <!-- Register Link -->
-        <div class="text-center">
+        <div class="space-y-3">
+          <a href="http://localhost:5000/auth/login/google" class="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-brand-outline-variant/30 hover:bg-brand-surface-container transition-colors text-sm">
+            <i class="fa-brands fa-google text-red-400"></i> Continua con Google
+          </a>
+          <a href="http://localhost:5000/auth/login/microsoft" class="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-brand-outline-variant/30 hover:bg-brand-surface-container transition-colors text-sm">
+            <i class="fa-brands fa-microsoft text-blue-400"></i> Continua con Microsoft
+          </a>
+        </div>
+
+        <div class="mt-6 text-center">
           <p class="text-brand-on-surface-variant text-sm">
             Non hai un account?
             <a href="/registrazione.html" class="text-brand-gold hover:text-brand-gold-light font-medium ml-1">
@@ -116,11 +131,11 @@
 
   <div id="footer-container"></div>
 
-  <script src="/js/api-app.js?v=1"></script>
-  <script src="/js/auth.js?v=3"></script>
-  <script src="/js/template-loader.js?v=3"></script>
-  <script src="/js/navbar.js?v=3"></script>
-  <script src="/js/pages/login.js"></script>
+  <script src="/js/api-app.js?v=99"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script src="/js/pages/login.js?v=2"></script>
 </body>
 
 </html>

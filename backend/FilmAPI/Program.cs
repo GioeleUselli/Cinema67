@@ -97,25 +97,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) && c.Value == "Admin")));
-    options.AddPolicy("PowerUserOrAdmin", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) && (c.Value == "PowerUser" || c.Value == "Admin"))));
-    options.AddPolicy("Authenticated", policy =>
-        policy.RequireAuthenticatedUser());
-});
-
-builder.Services.AddOpenApiDocument(config =>
-{
-    config.DocumentName = "FilmAPI";
-    config.Title = "FilmAPI v1";
-    config.Version = "v1";
-});
-
 var rawJwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")?.Trim();
 var jwtSecret = !string.IsNullOrWhiteSpace(rawJwtSecret) && Encoding.UTF8.GetByteCount(rawJwtSecret) >= 32
     ? rawJwtSecret
@@ -158,6 +139,28 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) && c.Value == "Admin")));
+    options.AddPolicy("PowerUserOrAdmin", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) && (c.Value == "PowerUser" || c.Value == "Admin"))));
+    options.AddPolicy("Authenticated", policy =>
+        policy.RequireAuthenticatedUser());
+});
+
+builder.Services.AddOpenApiDocument(config =>
+{
+    config.DocumentName = "FilmAPI";
+    config.Title = "FilmAPI v1";
+    config.Version = "v1";
+});
+
+var googleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+var googleClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
 
 var app = builder.Build();
 
@@ -242,6 +245,7 @@ app.MapPagamentoEndpoints();
 app.MapValidazioneBigliettiEndpoints();
 app.MapSupportEndpoints();
 app.MapPromotionEndpoints();
+app.MapSocialAuthEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {

@@ -10,6 +10,7 @@ public interface ISupportService
     Task<SupportConversationDTO> GetOrCreateConversationAsync(int userId);
     Task<SupportChatResponseDTO> SendUserMessageAsync(int userId, SupportChatMessageRequestDTO dto);
     Task<SupportTicketDetailDTO> EscalateToTicketAsync(int userId, SupportEscalateRequestDTO dto);
+    Task ResetConversationAsync(int userId);
     Task<List<SupportTicketListItemDTO>> GetAdminTicketsAsync(string? status, string? priority, string? search, int page, int pageSize);
     Task<SupportTicketDetailDTO?> GetAdminTicketByIdAsync(int ticketId);
     Task<SupportTicketDetailDTO?> AdminUpdateTicketAsync(int ticketId, int adminUserId, SupportAdminUpdateTicketRequestDTO dto);
@@ -161,6 +162,18 @@ public class SupportService : ISupportService
         await _db.SaveChangesAsync();
 
         return (await GetAdminTicketByIdAsync(ticket.Id))!;
+    }
+
+    public async Task ResetConversationAsync(int userId)
+    {
+        var conversations = await _db.SupportConversations
+            .Where(c => c.UserId == userId).ToListAsync();
+
+        if (conversations.Any())
+        {
+            _db.SupportConversations.RemoveRange(conversations);
+            await _db.SaveChangesAsync();
+        }
     }
 
     public async Task<List<SupportTicketListItemDTO>> GetAdminTicketsAsync(string? status, string? priority, string? search, int page, int pageSize)

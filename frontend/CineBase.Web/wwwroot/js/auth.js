@@ -99,12 +99,14 @@ const Auth = {
     }
   },
 
-  async login(email, password) {
+  async login(email, password, rememberMe) {
     try {
+      var body = { email: email, password: password, deviceId: this.getOrCreateDeviceId() };
+      if (rememberMe) body.rememberMe = true;
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, deviceId: this.getOrCreateDeviceId() })
+        body: JSON.stringify(body)
       });
 
       if (!response.ok) {

@@ -304,12 +304,53 @@ function getStatoBadge(stato) {
     case 'Failed':
       return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-500"><i class="fa-solid fa-xmark text-[10px]"></i>Fallito</span>';
     case 'Cancelled':
-      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-on-surface-variant/15 text-brand-on-surface-variant"><i class="fa-solid fa-ban text-[10px]"></i>Annullato</span>';
-    case 'Expired':
-      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-on-surface-variant/15 text-brand-on-surface-variant"><i class="fa-solid fa-hourglass-end text-[10px]"></i>Scaduto</span>';
+      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-500"><i class="fa-solid fa-xmark text-[10px]"></i>Cancellato</span>';
     default:
-      return `<span class="text-xs">${stato}</span>`;
+      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-surface-container-high text-brand-on-surface-variant">' + stato + '</span>';
   }
+}
+
+document.getElementById('password-form')?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var msg = document.getElementById('password-msg');
+  var btn = this.querySelector('button');
+  btn.disabled = true;
+  try {
+    var res = await API.changePassword({
+      currentPassword: document.getElementById('current-password').value,
+      newPassword: document.getElementById('new-password').value
+    });
+    msg.className = 'text-sm text-emerald-500 block';
+    msg.textContent = res.message || 'Password aggiornata';
+    this.reset();
+  } catch (err) {
+    msg.className = 'text-sm text-brand-error block';
+    msg.textContent = err.message || 'Errore';
+  }
+  msg.classList.remove('hidden');
+  btn.disabled = false;
+});
+
+document.getElementById('email-form')?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var msg = document.getElementById('email-msg');
+  var btn = this.querySelector('button');
+  btn.disabled = true;
+  try {
+    var res = await API.changeEmail({
+      currentPassword: document.getElementById('email-current-password').value,
+      newEmail: document.getElementById('new-email').value
+    });
+    msg.className = 'text-sm text-emerald-500 block';
+    msg.textContent = res.message || 'Email aggiornata';
+    this.reset();
+  } catch (err) {
+    msg.className = 'text-sm text-brand-error block';
+    msg.textContent = err.message || 'Errore';
+  }
+  msg.classList.remove('hidden');
+  btn.disabled = false;
+});
 }
 
 function getMovimentoLabel(tipo) {

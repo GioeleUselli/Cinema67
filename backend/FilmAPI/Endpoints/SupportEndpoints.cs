@@ -52,6 +52,14 @@ public static class SupportEndpoints
             }
         });
 
+        userGroup.MapDelete("/conversation", async (ClaimsPrincipal user, ISupportService service) =>
+        {
+            var userId = GetUserId(user);
+            if (userId == 0) return Results.Unauthorized();
+            await service.ResetConversationAsync(userId);
+            return Results.Ok(new { message = "Conversazione resettata." });
+        });
+
         var adminGroup = app.MapGroup("/admin/support").RequireAuthorization("PowerUserOrAdmin");
 
         adminGroup.MapGet("/tickets", async (

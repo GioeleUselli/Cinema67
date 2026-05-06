@@ -1,6 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (!window.Auth) return;
 
+  var params = new URLSearchParams(window.location.search);
+  var accessToken = params.get('accessToken');
+  var refreshToken = params.get('refreshToken');
+  var errorMsg = params.get('error');
+  var detailMsg = params.get('detail');
+  var expired = params.get('expired');
+  var redirect = params.get('redirect');
+
+  if (errorMsg) {
+    var errorDiv = document.getElementById('error-alert');
+    var errorSpan = document.getElementById('error-message');
+    if (errorDiv && errorSpan) {
+      errorSpan.textContent = 'Errore social login: ' + errorMsg + (detailMsg ? ' (' + decodeURIComponent(detailMsg) + ')' : '');
+      errorDiv.classList.remove('hidden');
+    }
+  }
+
+  if (accessToken && refreshToken) {
+    Auth.saveTokens(accessToken, refreshToken);
+    Auth.saveUser({ nome: params.get('name') || '', email: params.get('email') || '' });
+    window.location.href = '/index.html';
+    return;
+  }
+
   const form = document.getElementById('login-form');
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
@@ -11,10 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorMessage = document.getElementById('error-message');
   const expiredAlert = document.getElementById('expired-alert');
   const togglePasswordBtn = document.getElementById('toggle-password');
-
-  const params = new URLSearchParams(window.location.search);
-  const expired = params.get('expired');
-  const redirect = params.get('redirect');
 
   if (expired === 'true' && expiredAlert) {
     expiredAlert.classList.remove('hidden');
@@ -83,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setLoading(true);
 
     try {
-      await Auth.login(email, password);
+      await Auth.login(email, password, document.getElementById('remember-me')?.checked);
       
       if (redirect) {
         const decodedRedirect = decodeURIComponent(redirect);
