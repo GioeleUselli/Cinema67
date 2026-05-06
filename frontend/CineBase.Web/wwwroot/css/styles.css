@@ -468,12 +468,13 @@ body {
 
 .sidebar-glass a:hover {
   background: var(--brand-sidebar-hover);
-  color: #ffffff;
+  color: var(--brand-sidebar-active-text);
 }
 
 .sidebar-glass a.active {
   background: var(--brand-sidebar-active-bg);
   color: var(--brand-sidebar-active-text);
+  font-weight: 600;
 }
 
 /* ========================================================================
