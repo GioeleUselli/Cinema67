@@ -18,17 +18,14 @@
   --brand-gold-dark: #a8862e;
   --brand-gold-light: #f5e6c8;
 
-  /* Secondary red */
-  --brand-red: #b91c1c;
-  --brand-red-dark: #7f1d1d;
-  --brand-red-light: #fecaca;
-
-  /* Legacy aliases mapped to gold/red */
+  /* Secondary navy */
   --brand-indigo: #1e293b;
   --brand-indigo-light: #475569;
-  --brand-cyan: #c9a84c;
-  --brand-cyan-light: #e5c97c;
-  --brand-emerald: #a8862e;
+
+  /* Tertiary cyan */
+  --brand-cyan: #0891b2;
+  --brand-cyan-light: #22d3ee;
+  --brand-emerald: #10b981;
 
   /* Clean surfaces */
   --brand-surface: #f8fafc;
@@ -47,8 +44,8 @@
   --brand-outline: #94a3b8;
   --brand-outline-variant: #cbd5e1;
 
-  /* Semantic */
-  --brand-error: #b91c1c;
+  /* Semantic red */
+  --brand-error: #dc2626;
   --brand-error-container: #fecaca;
 
   /* Sidebar */
@@ -66,6 +63,49 @@
   /* Overlay */
   --brand-overlay-from: rgba(15, 23, 42, 0.72);
   --brand-overlay-to: rgba(15, 23, 42, 0.38);
+}
+
+.dark {
+  --brand-gold: #d4af37;
+  --brand-gold-dark: #e5c97c;
+  --brand-gold-light: #3d2e0a;
+
+  --brand-indigo: #94a3b8;
+  --brand-indigo-light: #64748b;
+
+  --brand-cyan: #22d3ee;
+  --brand-cyan-light: #67e8f9;
+  --brand-emerald: #34d399;
+
+  --brand-surface: #0f172a;
+  --brand-surface-dim: #0f172a;
+  --brand-surface-container: #1e293b;
+  --brand-surface-container-high: #283850;
+  --brand-surface-container-highest: #334155;
+  --brand-surface-container-low: #0c1322;
+  --brand-surface-container-lowest: #172030;
+
+  --brand-on-surface: #f1f5f9;
+  --brand-on-surface-variant: #94a3b8;
+
+  --brand-outline: #475569;
+  --brand-outline-variant: #334155;
+
+  --brand-error: #ef4444;
+  --brand-error-container: #450a0a;
+
+  --brand-sidebar-from: #0f172a;
+  --brand-sidebar-to: #1e293b;
+  --brand-sidebar-text: #94a3b8;
+  --brand-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --brand-sidebar-active-bg: rgba(212, 175, 55, 0.15);
+  --brand-sidebar-active-text: #e5c97c;
+
+  --brand-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  --brand-shadow-sm: 0 8px 18px rgba(0, 0, 0, 0.35);
+
+  --brand-overlay-from: rgba(0, 0, 0, 0.85);
+  --brand-overlay-to: rgba(0, 0, 0, 0.60);
 }
 
 .dark {
