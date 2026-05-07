@@ -13,109 +13,114 @@
    ======================================================================== */
 
 :root {
-  /* Primary (Sunset Coral) */
-  --brand-gold: #ff6b35;
-  --brand-gold-dark: #c9471f;
-  --brand-gold-light: #ffd9cc;
+  /* Gold primary */
+  --brand-gold: #c9a84c;
+  --brand-gold-dark: #a8862e;
+  --brand-gold-light: #f5e6c8;
 
-  /* Secondary (Ocean Night) */
-  --brand-indigo: #0f1f33;
-  --brand-indigo-light: #355277;
+  /* Red secondary */
+  --brand-red: #b91c1c;
+  --brand-red-dark: #7f1d1d;
+  --brand-red-light: #fecaca;
 
-  /* Tertiary (Lagoon) */
-  --brand-cyan: #007f86;
-  --brand-cyan-light: #1fc9cf;
-  --brand-emerald: #1ea971;
+  /* Tertiary (warm tones) */
+  --brand-amber: #b45309;
+  --brand-amber-light: #f59e0b;
+  --brand-bronze: #92400e;
+
+  /* Legacy aliases */
+  --brand-indigo: #b91c1c;
+  --brand-indigo-light: #c9471f;
+  --brand-cyan: #c9a84c;
+  --brand-cyan-light: #e5c97c;
+  --brand-emerald: #a8862e;
 
   /* Surfaces */
-  --brand-surface: #f1f6fb;
-  --brand-surface-dim: #d8e2ef;
-  --brand-surface-container: #e8f0f8;
-  --brand-surface-container-high: #dce8f4;
-  --brand-surface-container-highest: #d3e2f1;
-  --brand-surface-container-low: #f8fbff;
+  --brand-surface: #fdfaf3;
+  --brand-surface-dim: #f5eedd;
+  --brand-surface-container: #faf5e8;
+  --brand-surface-container-high: #f5eedd;
+  --brand-surface-container-highest: #efe6d0;
+  --brand-surface-container-low: #fffdf8;
   --brand-surface-container-lowest: #ffffff;
 
   /* Text */
-  --brand-on-surface: #0d1b2a;
-  --brand-on-surface-variant: #42556e;
+  --brand-on-surface: #1a1a1a;
+  --brand-on-surface-variant: #5c4a2e;
 
   /* Borders */
-  --brand-outline: #6f86a2;
-  --brand-outline-variant: #b9cadc;
+  --brand-outline: #a89870;
+  --brand-outline-variant: #d4c9a8;
 
   /* Semantic */
-  --brand-error: #b42318;
-  --brand-error-container: #ffe3de;
+  --brand-error: #b91c1c;
+  --brand-error-container: #fecaca;
 
   /* Sidebar */
   --brand-sidebar-from: #ffffff;
-  --brand-sidebar-to: #f1f6fb;
-  --brand-sidebar-text: #0d1b2a;
+  --brand-sidebar-to: #fdfaf3;
+  --brand-sidebar-text: #1a1a1a;
   --brand-sidebar-hover: rgba(0, 0, 0, 0.06);
-  --brand-sidebar-active-bg: rgba(255, 107, 53, 0.12);
-  --brand-sidebar-active-text: #c9471f;
+  --brand-sidebar-active-bg: rgba(201, 168, 76, 0.15);
+  --brand-sidebar-active-text: #a8862e;
 
   /* Shadows */
-  --brand-shadow: 0 14px 34px rgba(16, 30, 52, 0.12);
-  --brand-shadow-sm: 0 6px 16px rgba(16, 30, 52, 0.09);
+  --brand-shadow: 0 14px 34px rgba(26, 26, 26, 0.08);
+  --brand-shadow-sm: 0 6px 16px rgba(26, 26, 26, 0.06);
 
   /* Overlay */
-  --brand-overlay-from: rgba(7, 20, 38, 0.72);
-  --brand-overlay-to: rgba(7, 20, 38, 0.38);
+  --brand-overlay-from: rgba(26, 26, 26, 0.72);
+  --brand-overlay-to: rgba(26, 26, 26, 0.38);
 }
 
 .dark {
-  /* Primary */
-  --brand-gold: #ff7f50;
-  --brand-gold-dark: #ffb093;
-  --brand-gold-light: #6a2412;
+  --brand-gold: #d4af37;
+  --brand-gold-dark: #e5c97c;
+  --brand-gold-light: #3d2e0a;
 
-  /* Secondary */
-  --brand-indigo: #b6cee8;
-  --brand-indigo-light: #8ca8c9;
+  --brand-red: #ef4444;
+  --brand-red-dark: #fca5a5;
+  --brand-red-light: #450a0a;
 
-  /* Tertiary */
-  --brand-cyan: #31c6cc;
-  --brand-cyan-light: #79edf0;
-  --brand-emerald: #43d692;
+  --brand-amber: #f59e0b;
+  --brand-amber-light: #d97706;
+  --brand-bronze: #b45309;
 
-  /* Surfaces */
-  --brand-surface: #071321;
-  --brand-surface-dim: #071321;
-  --brand-surface-container: #0d1d30;
-  --brand-surface-container-high: #11253d;
-  --brand-surface-container-highest: #183252;
-  --brand-surface-container-low: #0a1728;
-  --brand-surface-container-lowest: #102038;
+  --brand-indigo: #ef4444;
+  --brand-indigo-light: #c9471f;
+  --brand-cyan: #d4af37;
+  --brand-cyan-light: #e5c97c;
+  --brand-emerald: #a8862e;
 
-  /* Text */
-  --brand-on-surface: #e7f0fb;
-  --brand-on-surface-variant: #9fb2c8;
+  --brand-surface: #0d0a04;
+  --brand-surface-dim: #0d0a04;
+  --brand-surface-container: #1a1510;
+  --brand-surface-container-high: #2a2218;
+  --brand-surface-container-highest: #3a3020;
+  --brand-surface-container-low: #0f0c06;
+  --brand-surface-container-lowest: #141008;
 
-  /* Borders */
-  --brand-outline: #67809d;
-  --brand-outline-variant: rgba(196, 217, 241, 0.2);
+  --brand-on-surface: #fdfaf3;
+  --brand-on-surface-variant: #c4b48e;
 
-  /* Semantic */
-  --brand-error: #ffb3a4;
-  --brand-error-container: #6d1a0a;
+  --brand-outline: #8a7a58;
+  --brand-outline-variant: #5c4e38;
 
-  /* Sidebar */
-  --brand-sidebar-from: #06101d;
-  --brand-sidebar-to: #0f2238;
-  --brand-sidebar-text: #c8d9ee;
+  --brand-error: #ef4444;
+  --brand-error-container: #450a0a;
+
+  --brand-sidebar-from: #0d0a04;
+  --brand-sidebar-to: #1a1510;
+  --brand-sidebar-text: #c4b48e;
   --brand-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --brand-sidebar-active-bg: rgba(255, 255, 255, 0.1);
-  --brand-sidebar-active-text: #ff9a74;
+  --brand-sidebar-active-bg: rgba(212, 175, 55, 0.15);
+  --brand-sidebar-active-text: #e5c97c;
 
-  /* Shadows */
-  --brand-shadow: 0 18px 40px rgba(1, 8, 16, 0.5);
-  --brand-shadow-sm: 0 8px 18px rgba(1, 8, 16, 0.35);
+  --brand-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  --brand-shadow-sm: 0 8px 18px rgba(0, 0, 0, 0.35);
 
-  /* Overlay */
-  --brand-overlay-from: rgba(4, 15, 30, 0.78);
-  --brand-overlay-to: rgba(4, 15, 30, 0.44);
+  --brand-overlay-from: rgba(10, 8, 4, 0.85);
+  --brand-overlay-to: rgba(10, 8, 4, 0.60);
 }
 
 /* ========================================================================
@@ -125,13 +130,13 @@
 body {
   font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
   background-color: var(--brand-surface);
-  background-image: radial-gradient(circle at 10% 10%, rgba(31, 201, 207, 0.12), transparent 34%), radial-gradient(circle at 90% 0%, rgba(255, 107, 53, 0.12), transparent 28%), linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+  background-image: radial-gradient(circle at 10% 10%, rgba(201, 168, 76, 0.08), transparent 34%), radial-gradient(circle at 90% 0%, rgba(185, 28, 28, 0.06), transparent 28%), linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
   color: var(--brand-on-surface);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dark body {
-  background-image: radial-gradient(circle at 12% 8%, rgba(67, 214, 146, 0.12), transparent 30%), radial-gradient(circle at 90% 6%, rgba(255, 127, 80, 0.14), transparent 26%), linear-gradient(180deg, rgba(6, 16, 29, 0.75), rgba(6, 16, 29, 0.9));
+  background-image: radial-gradient(circle at 12% 8%, rgba(212, 175, 55, 0.1), transparent 30%), radial-gradient(circle at 90% 6%, rgba(239, 68, 68, 0.1), transparent 26%), linear-gradient(180deg, rgba(10, 8, 4, 0.85), rgba(10, 8, 4, 0.9));
 }
 
 .font-serif {
