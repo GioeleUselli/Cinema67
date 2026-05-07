@@ -10,20 +10,29 @@
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="/css/styles.css?v=1778149125">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=99"></script>
 </head>
 
-<body class="bg-brand-surface text-brand-on-surface font-sans">
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
   <div id="navbar-container"></div>
 
   <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
-    <section class="cine-grid-shell cine-reveal mb-8 p-5 sm:p-6">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+
+    <!-- ──────────────────────────────────────────────
+         HEADER — Premium Card with gradient blobs
+         ────────────────────────────────────────────── -->
+    <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden cine-reveal mb-8">
+      <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -left-20 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+      <div class="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-brand-red/3 blur-3xl pointer-events-none"></div>
+      <div class="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p class="cine-kicker">Catalogo admin</p>
           <h1 class="cine-headline text-brand-on-surface">Gestione Film</h1>
@@ -40,42 +49,61 @@
       </div>
     </section>
 
+    <!-- ──────────────────────────────────────────────
+         STAT CARDS — Premium + accent bar
+         ────────────────────────────────────────────── -->
     <section class="cine-reveal cine-reveal-delay-1 mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Film Totali</div>
-        <div class="cine-admin-stat-value">
-          <p class="text-3xl font-bold text-brand-on-surface" id="total-films">0</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-gold text-white"><i class="fa-solid fa-film"></i></span>
+      <article class="cine-premium-card cine-stat-accent overflow-hidden">
+        <div class="px-4 py-3 flex items-center gap-2 border-b border-brand-outline-variant/20">
+          <i class="fa-solid fa-clapperboard text-brand-gold text-[0.6rem]"></i>
+          <span class="text-[0.62rem] uppercase tracking-[0.2em] font-semibold text-brand-on-surface-variant">Film Totali</span>
+        </div>
+        <div class="p-4 flex items-center justify-between">
+          <p class="text-3xl font-bold text-brand-on-surface font-serif" id="total-films">0</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold"><i class="fa-solid fa-film"></i></span>
         </div>
       </article>
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Nuove Uscite</div>
-        <div class="cine-admin-stat-value">
-          <p class="text-3xl font-bold text-brand-on-surface" id="new-releases">0</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-cyan text-white"><i class="fa-solid fa-calendar"></i></span>
+      <article class="cine-premium-card cine-stat-accent overflow-hidden">
+        <div class="px-4 py-3 flex items-center gap-2 border-b border-brand-outline-variant/20">
+          <i class="fa-solid fa-sparkles text-brand-cyan text-[0.6rem]"></i>
+          <span class="text-[0.62rem] uppercase tracking-[0.2em] font-semibold text-brand-on-surface-variant">Nuove Uscite</span>
+        </div>
+        <div class="p-4 flex items-center justify-between">
+          <p class="text-3xl font-bold text-brand-on-surface font-serif" id="new-releases">0</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-cyan/10 text-brand-cyan"><i class="fa-solid fa-calendar"></i></span>
         </div>
       </article>
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Valutazione Media</div>
-        <div class="cine-admin-stat-value">
-          <p class="text-3xl font-bold text-brand-on-surface">-</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-emerald text-white"><i class="fa-solid fa-star"></i></span>
+      <article class="cine-premium-card cine-stat-accent overflow-hidden">
+        <div class="px-4 py-3 flex items-center gap-2 border-b border-brand-outline-variant/20">
+          <i class="fa-solid fa-ranking-star text-brand-emerald text-[0.6rem]"></i>
+          <span class="text-[0.62rem] uppercase tracking-[0.2em] font-semibold text-brand-on-surface-variant">Valutazione Media</span>
+        </div>
+        <div class="p-4 flex items-center justify-between">
+          <p class="text-3xl font-bold text-brand-on-surface font-serif">-</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-emerald/10 text-brand-emerald"><i class="fa-solid fa-star"></i></span>
         </div>
       </article>
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Generi</div>
-        <div class="cine-admin-stat-value">
-          <p class="text-3xl font-bold text-brand-on-surface">-</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-indigo-light text-white"><i class="fa-solid fa-tags"></i></span>
+      <article class="cine-premium-card cine-stat-accent overflow-hidden">
+        <div class="px-4 py-3 flex items-center gap-2 border-b border-brand-outline-variant/20">
+          <i class="fa-solid fa-layer-group text-brand-indigo-light text-[0.6rem]"></i>
+          <span class="text-[0.62rem] uppercase tracking-[0.2em] font-semibold text-brand-on-surface-variant">Generi</span>
+        </div>
+        <div class="p-4 flex items-center justify-between">
+          <p class="text-3xl font-bold text-brand-on-surface font-serif">-</p>
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-indigo-light/10 text-brand-indigo-light"><i class="fa-solid fa-tags"></i></span>
         </div>
       </article>
     </section>
 
-    <section class="cine-admin-slab cine-reveal cine-reveal-delay-2 mb-6 p-4">
+    <!-- ──────────────────────────────────────────────
+         SEARCH & FILTER — Premium card
+         ────────────────────────────────────────────── -->
+    <section class="cine-premium-card cine-reveal cine-reveal-delay-2 mb-6 p-4 relative overflow-hidden">
+      <div class="absolute -top-16 right-0 w-32 h-32 rounded-full bg-brand-red/4 blur-3xl pointer-events-none"></div>
       <div class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_240px]">
         <div class="relative">
           <input type="text" id="search-input" title="Cerca film" placeholder="Cerca film..." class="ghost-input w-full px-4 py-2.5 pl-10">
-          <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant"></i>
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant"></i>
         </div>
         <select id="categoria-filter" title="Filtra per categoria" class="ghost-input px-4 py-2.5">
           <option value="all">Tutte le Categorie</option>
@@ -83,7 +111,11 @@
       </div>
     </section>
 
-    <section class="cine-admin-slab overflow-x-auto">
+    <!-- ──────────────────────────────────────────────
+         TABLE — Premium card
+         ────────────────────────────────────────────── -->
+    <section class="cine-premium-card overflow-x-auto relative">
+      <div class="absolute -bottom-24 -left-24 w-56 h-56 rounded-full bg-brand-gold/4 blur-3xl pointer-events-none"></div>
       <table class="min-w-full divide-y divide-brand-outline-variant/10">
         <thead class="bg-brand-surface-container">
           <tr>
@@ -276,4 +308,3 @@
 </body>
 
 </html>
-

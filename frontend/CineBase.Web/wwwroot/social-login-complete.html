@@ -3,14 +3,18 @@
 <head>
   <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cinema67 - Accesso in corso...</title>
+  <title>Cinema67 — Accesso in corso...</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="/css/styles.css?v=1778149125" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
 </head>
-<body class="bg-brand-surface text-brand-on-surface font-sans min-h-screen flex items-center justify-center">
-  <div class="text-center">
-    <i class="fa-solid fa-spinner fa-spin text-4xl text-brand-gold mb-4"></i>
-    <p class="text-brand-on-surface-variant">Completando l'accesso...</p>
+<body class="bg-brand-surface text-brand-on-surface font-sans min-h-screen flex items-center justify-center cine-velvet">
+  <div class="text-center cine-curtain-in">
+    <div class="relative mb-6">
+      <div class="absolute inset-0 w-20 h-20 rounded-full bg-brand-gold/10 blur-2xl mx-auto"></div>
+      <i class="fa-solid fa-spinner fa-spin text-4xl text-brand-gold relative z-10"></i>
+    </div>
+    <p class="text-brand-on-surface-variant text-sm">Completando l'accesso...</p>
     <p id="err" class="hidden text-brand-error text-sm mt-2"></p>
   </div>
   <script>

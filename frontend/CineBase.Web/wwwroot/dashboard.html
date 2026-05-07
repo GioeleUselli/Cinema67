@@ -4,152 +4,166 @@
 <head>
   <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cinema67 - Dashboard</title>
+  <title>Cinema67 — Centrale di Controllo</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="/css/styles.css?v=1778149125">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
   <script src="/js/theme.js"></script>
   <script src="/js/route-guard.js"></script>
 </head>
 
-<body class="bg-brand-surface text-brand-on-surface font-sans">
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
   <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
-    <section class="cine-grid-shell cine-reveal mb-8 p-5 sm:p-6">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p class="cine-kicker">Control Room</p>
-          <h2 class="cine-headline text-brand-on-surface">Dashboard operativa Cinema67</h2>
-          <p class="mt-2 max-w-2xl text-sm text-brand-on-surface-variant">Vista ridisegnata in stile control panel: blocchi modulari, dati live e accesso rapido ai flussi admin.</p>
+
+    <!-- ═══ HEADER — Command Center ═══ -->
+    <section class="cine-curtain-in mb-8">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-brand-gold/5 blur-2xl pointer-events-none"></div>
+        <div class="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="cine-kicker flex items-center gap-2">
+              <span class="cine-pulse-dot"></span> Centro di Controllo
+            </p>
+            <h2 class="cine-headline text-brand-on-surface mt-1">Dashboard Operativa</h2>
+            <p class="mt-2 text-sm text-brand-on-surface-variant max-w-2xl">Monitoraggio in tempo reale dell'intera piattaforma Cinema67. Film, spettacoli, cinema, biglietti.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <a href="/proiezioni.html" class="btn-gold text-sm whitespace-nowrap">
+              <i class="fa-solid fa-plus mr-1.5"></i> Nuovo Show
+            </a>
+            <a href="/films.html" class="btn-outline-brand text-xs tracking-[0.15em]">Gestisci Film</a>
+          </div>
         </div>
-        <a href="/proiezioni.html" class="btn-gold whitespace-nowrap inline-block">
-          <span class="hidden sm:inline">Gestisci Show</span>
-          <span class="sm:hidden">Show</span>
-        </a>
       </div>
     </section>
 
-    <section class="cine-reveal cine-reveal-delay-1 mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Film</div>
-        <div class="cine-admin-stat-value">
-          <p id="stat-movies" class="text-3xl font-bold text-brand-on-surface">-</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-gold text-white"><i class="fa-solid fa-film"></i></span>
+    <!-- ═══ KPI — Statistiche ═══ -->
+    <section class="cine-curtain-in cine-curtain-delay-1 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <article class="cine-premium-card cine-stat-accent p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Film Totali</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-film text-brand-red"></i></span>
         </div>
+        <p id="stat-movies" class="text-4xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">Nel catalogo</p>
       </article>
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Registi</div>
-        <div class="cine-admin-stat-value">
-          <p id="stat-directors" class="text-3xl font-bold text-brand-on-surface">-</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-cyan text-white"><i class="fa-solid fa-user"></i></span>
+      <article class="cine-premium-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Registi</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-user text-brand-gold"></i></span>
         </div>
+        <p id="stat-directors" class="text-4xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">Registrati</p>
       </article>
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Cinema</div>
-        <div class="cine-admin-stat-value">
-          <p id="stat-cinemas" class="text-3xl font-bold text-brand-on-surface">-</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-emerald text-white"><i class="fa-solid fa-building"></i></span>
+      <article class="cine-premium-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Cinema</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-building text-brand-red"></i></span>
         </div>
+        <p id="stat-cinemas" class="text-4xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">Sul territorio</p>
       </article>
-      <article class="cine-admin-stat">
-        <div class="cine-admin-stat-top">Show</div>
-        <div class="cine-admin-stat-value">
-          <p id="stat-screenings" class="text-3xl font-bold text-brand-on-surface">-</p>
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-indigo-light text-white"><i class="fa-solid fa-clock"></i></span>
+      <article class="cine-premium-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Show Attivi</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-clock text-brand-gold"></i></span>
         </div>
+        <p id="stat-screenings" class="text-4xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">In programmazione</p>
       </article>
     </section>
 
-    <section class="cine-reveal cine-reveal-delay-2 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <a href="/sale.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
-        <div class="flex items-center gap-3">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-cyan text-white"><i class="fa-solid fa-chair"></i></span>
-          <div>
-            <p class="text-sm font-semibold text-brand-on-surface">Gestione Sale</p>
-            <p class="text-xs text-brand-on-surface-variant">Layout sale e mappa posti</p>
-          </div>
-        </div>
+    <!-- ═══ QUICK ACTIONS ═══ -->
+    <section class="cine-curtain-in cine-curtain-delay-2 mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <a href="/films.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-red/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-film text-brand-red text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Film</span>
       </a>
-      <a href="/ricarica-credito.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
-        <div class="flex items-center gap-3">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-gold text-white"><i class="fa-solid fa-coins"></i></span>
-          <div>
-            <p class="text-sm font-semibold text-brand-on-surface">Ricarica Credito</p>
-            <p class="text-xs text-brand-on-surface-variant">Operazioni sul wallet utenti</p>
-          </div>
-        </div>
+      <a href="/registi.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-gold/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-user-tie text-brand-gold text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Registi</span>
       </a>
-      <a href="/validazione-biglietti.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
-        <div class="flex items-center gap-3">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-emerald text-white"><i class="fa-solid fa-qrcode"></i></span>
-          <div>
-            <p class="text-sm font-semibold text-brand-on-surface">Validazione Biglietti</p>
-            <p class="text-xs text-brand-on-surface-variant">Controllo accessi in tempo reale</p>
-          </div>
-        </div>
+      <a href="/cinemas.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-red/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brand-red text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Cinema</span>
       </a>
-      <a href="/support-tickets.html" class="cine-admin-slab p-4 transition-all hover:ring-2 hover:ring-brand-gold/30">
-        <div class="flex items-center gap-3">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-indigo-light text-white"><i class="fa-solid fa-headset"></i></span>
-          <div>
-            <div class="flex items-center gap-2">
-              <p class="text-sm font-semibold text-brand-on-surface">Support Tickets</p>
-              <span id="support-open-count" class="chip-status chip-warning">-</span>
-            </div>
-            <p class="text-xs text-brand-on-surface-variant">Ticket aperti/in lavorazione</p>
-          </div>
-        </div>
+      <a href="/sale.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-gold/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-chair text-brand-gold text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Sale</span>
+      </a>
+      <a href="/proiezioni.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-red/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-calendar-days text-brand-red text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Proiezioni</span>
+      </a>
+      <a href="/ricarica-credito.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-gold/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-coins text-brand-gold text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Credito</span>
+      </a>
+      <a href="/validazione-biglietti.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-red/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-qrcode text-brand-red text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Biglietti</span>
+      </a>
+      <a href="/support-tickets.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-gold/30 transition-all">
+        <span class="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-headset text-brand-gold text-lg"></i></span>
+        <span class="text-xs font-semibold text-brand-on-surface">Support</span>
       </a>
     </section>
 
-    <section class="mb-8 cine-admin-slab overflow-x-auto">
-      <header class="cine-admin-slab-header">
-        <h2 class="text-lg font-semibold text-brand-on-surface">Show in Programma</h2>
-        <span class="cine-admin-chip">Live feed</span>
-      </header>
+    <!-- ═══ UPCOMING SHOWS TABLE ═══ -->
+    <section class="cine-curtain-in cine-curtain-delay-3 mb-8 cine-premium-card overflow-x-auto">
+      <div class="cine-admin-slab-header">
+        <h2 class="text-lg font-semibold text-brand-on-surface flex items-center gap-2">
+          <i class="fa-solid fa-clapperboard text-brand-gold"></i> Show in Programma
+        </h2>
+        <span class="cine-admin-chip">Live</span>
+      </div>
       <table class="min-w-full divide-y divide-brand-outline-variant/10">
-        <thead class="bg-brand-surface-container">
+        <thead class="bg-brand-surface-container/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium label-caps">ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Film</th>
-            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Cinema</th>
-            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Data</th>
-            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Ora</th>
-            <th class="px-6 py-3 text-left text-xs font-medium label-caps">Status</th>
+            <th class="px-6 py-3.5 text-left label-caps">ID</th>
+            <th class="px-6 py-3.5 text-left label-caps">Film</th>
+            <th class="px-6 py-3.5 text-left label-caps">Cinema</th>
+            <th class="px-6 py-3.5 text-left label-caps">Data</th>
+            <th class="px-6 py-3.5 text-left label-caps">Ora</th>
+            <th class="px-6 py-3.5 text-left label-caps">Stato</th>
           </tr>
         </thead>
         <tbody id="upcoming-screenings" class="divide-y divide-brand-outline-variant/10">
-          <tr>
-            <td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Caricamento...</td>
-          </tr>
+          <tr><td colspan="6" class="px-6 py-8 text-center text-brand-on-surface-variant"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Caricamento...</td></tr>
         </tbody>
       </table>
     </section>
 
+    <!-- ═══ BOTTOM PANELS ═══ -->
     <section class="grid grid-cols-1 gap-6 lg:grid-cols-2" id="dashboard-registi">
-      <article class="cine-admin-slab overflow-hidden">
-        <header class="cine-admin-slab-header">
-          <h2 class="text-lg font-semibold text-brand-on-surface">Registi in Evidenza</h2>
-          <span class="cine-admin-chip">Insights</span>
-        </header>
-        <div class="p-6" id="dashboard-registi-content">
-          <p class="text-sm text-brand-on-surface-variant">Caricamento in corso...</p>
+      <div class="cine-premium-card">
+        <div class="cine-admin-slab-header">
+          <h2 class="text-lg font-semibold text-brand-on-surface flex items-center gap-2">
+            <i class="fa-solid fa-star text-brand-gold"></i> Registi in Evidenza
+          </h2>
+          <span class="cine-admin-chip">Top 5</span>
         </div>
-      </article>
-      <article class="cine-admin-slab overflow-hidden">
-        <header class="cine-admin-slab-header">
-          <h2 class="text-lg font-semibold text-brand-on-surface">Analisi Cinema</h2>
+        <div class="p-6 space-y-3" id="dashboard-registi-content">
+          <p class="text-sm text-brand-on-surface-variant">Caricamento...</p>
+        </div>
+      </div>
+      <div class="cine-premium-card">
+        <div class="cine-admin-slab-header">
+          <h2 class="text-lg font-semibold text-brand-on-surface flex items-center gap-2">
+            <i class="fa-solid fa-chart-simple text-brand-red"></i> Analisi Cinema
+          </h2>
           <span class="cine-admin-chip">Trend</span>
-        </header>
-        <div class="p-6" id="dashboard-analytics-content">
-          <p class="text-sm text-brand-on-surface-variant">Caricamento in corso...</p>
         </div>
-      </article>
+        <div class="p-6" id="dashboard-analytics-content">
+          <p class="text-sm text-brand-on-surface-variant">Caricamento...</p>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -217,35 +231,28 @@
         tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessuno show in programma</td></tr>';
         return;
       }
-
       var now = new Date();
-
       tbody.innerHTML = shows.slice(0, 5).map(function (s) {
         var showDate = null;
         if (s.startAtUtc) showDate = new Date(s.startAtUtc);
         var isPast = showDate && showDate < now;
         var statusClass = isPast ? 'chip-past' : 'chip-active';
         var statusText = isPast ? 'Passato' : 'In programma';
-
         var formattedDate = showDate ? formatDate(s.startAtUtc) : '-';
         var formattedTime = showDate ? formatTime(s.startAtUtc) : '-';
         var filmTitle = escapeHtml(s.filmTitolo || getDashboardFilmTitle(s.filmId));
         var cinemaNome = escapeHtml(s.cinemaNome || getDashboardCinemaName(s.cinemaId));
-
-        return '<tr class="row-hover"><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + s.id + '</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-on-surface">' + filmTitle + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface">' + cinemaNome + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + formattedDate + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + formattedTime + '</td><td class="px-6 py-4 whitespace-nowrap"><span class="chip-status ' + statusClass + '">' + statusText + '</span></td></tr>';
+        return '<tr class="row-hover"><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant font-mono">#' + s.id + '</td><td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-brand-on-surface">' + filmTitle + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface">' + cinemaNome + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + formattedDate + '</td><td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + formattedTime + '</td><td class="px-6 py-4 whitespace-nowrap"><span class="chip-status ' + statusClass + '">' + statusText + '</span></td></tr>';
       }).join('');
     }
 
     function renderTopRegisti(registi) {
-      var host = document.querySelector('#dashboard-registi .cine-admin-slab-content') || document.getElementById('dashboard-registi-content');
+      var host = document.getElementById('dashboard-registi-content');
       if (!host) return;
       var top = registi.slice(0, 5);
-      if (!top.length) {
-        host.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessun regista nel catalogo.</p>';
-        return;
-      }
-      host.innerHTML = top.map(function (r) {
-        return '<p class="text-sm text-brand-on-surface"><i class="fa-solid fa-user mr-2 text-brand-gold"></i>' + escapeHtml(r.nome + ' ' + r.cognome) + ' <span class="text-brand-on-surface-variant">· ' + escapeHtml(r.nazionalita || '-') + '</span></p>';
+      if (!top.length) { host.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessun regista nel catalogo.</p>'; return; }
+      host.innerHTML = top.map(function (r, i) {
+        return '<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-brand-surface-container/50 transition-colors"><span class="w-6 h-6 rounded-full bg-brand-gold/20 flex items-center justify-center text-xs font-bold text-brand-gold">' + (i + 1) + '</span><div><p class="text-sm font-medium text-brand-on-surface">' + escapeHtml(r.nome + ' ' + r.cognome) + '</p><p class="text-xs text-brand-on-surface-variant">' + escapeHtml(r.nazionalita || '—') + '</p></div></div>';
       }).join('');
     }
 
@@ -253,22 +260,16 @@
       var host = document.getElementById('dashboard-analytics-content');
       if (!host) return;
       var cinemaShowCount = {};
-      shows.forEach(function (s) {
-        var cid = s.cinemaId;
-        cinemaShowCount[cid] = (cinemaShowCount[cid] || 0) + 1;
-      });
+      shows.forEach(function (s) { var cid = s.cinemaId; cinemaShowCount[cid] = (cinemaShowCount[cid] || 0) + 1; });
       var data = cinemas.map(function (c) { return { nome: c.nome, count: cinemaShowCount[c.id] || 0 }; }).sort(function (a, b) { return b.count - a.count; }).slice(0, 5);
-      if (!data.length) {
-        host.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessuna programmazione disponibile.</p>';
-        return;
-      }
+      if (!data.length) { host.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessuna programmazione disponibile.</p>'; return; }
+      var max = data[0].count || 1;
       host.innerHTML = data.map(function (d) {
-        return '<div class="flex justify-between items-center mb-2"><span class="text-sm text-brand-on-surface">' + escapeHtml(d.nome) + '</span><span class="text-sm font-semibold text-brand-gold">' + d.count + ' show</span></div>';
+        var pct = Math.round((d.count / max) * 100);
+        return '<div class="mb-3"><div class="flex justify-between text-sm mb-1"><span class="text-brand-on-surface font-medium">' + escapeHtml(d.nome) + '</span><span class="text-brand-gold font-bold">' + d.count + '</span></div><div class="h-2 rounded-full bg-brand-surface-container overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-brand-red to-brand-gold transition-all duration-700" style="width:' + pct + '%"></div></div></div>';
       }).join('');
     }
   </script>
 </body>
 
 </html>
-
-

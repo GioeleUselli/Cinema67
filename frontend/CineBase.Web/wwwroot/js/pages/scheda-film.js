@@ -19,7 +19,7 @@ const CinemaManager = {
   async syncCinemaPreferito() {
     const auth = getAuthSafe();
     if (!auth || !auth.isLoggedIn()) {
-      return this.getLocalCinemaId();
+      return null;
     }
 
     try {

@@ -4,86 +4,154 @@
 <head>
   <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cinema67 - La Tua Rete Cinematografica</title>
+  <title>Cinema67 — L'Arte del Cinema</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="/css/styles.css?v=1778149125">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=99"></script>
 </head>
 
-<body class="bg-brand-surface text-brand-on-surface font-sans">
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
   <div id="navbar-container"></div>
 
   <main>
-    <section class="cine-hero-frame cine-reveal relative overflow-hidden border-b border-brand-outline-variant/25">
-      <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920')] bg-cover bg-center"></div>
-      <div class="hero-overlay absolute inset-0"></div>
-      <div class="relative z-10 mx-auto flex min-h-[72vh] w-full max-w-[1280px] flex-col items-center justify-center px-4 pt-8 pb-16">
-        <img src="/assets/logo.png" alt="Cinema67" class="w-48 h-48 md:w-64 md:h-64 object-contain mb-8 drop-shadow-2xl">
-        <div class="max-w-2xl space-y-5 text-center">
-          <h1 class="hero-section-text text-5xl font-bold leading-tight md:text-7xl">
-            Cinema67
-          </h1>
-          <p class="hero-section-text text-lg md:text-xl opacity-80">
-            Il cinema che ti porta dove vuoi.
-          </p>
-          <div class="flex flex-wrap gap-3 pt-4">
-            <a href="/programmazione.html" class="btn-gold">
-              <i class="fa-solid fa-calendar-days"></i> Scopri la programmazione
+    <!-- ════════════════════════════════════════════
+         HERO IMMERSIVO — Full screen cinematic
+         ════════════════════════════════════════════ -->
+    <section class="cine-hero-immersive cine-curtain-in">
+      <div class="relative z-10 mx-auto w-full max-w-[1280px] px-4 py-24">
+        <div class="flex flex-col items-center text-center">
+          <div class="cine-curtain-in cine-curtain-delay-1 mb-10">
+            <img src="/assets/logo.png" alt="Cinema67" class="w-40 h-40 md:w-56 md:h-56 object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.5)]" style="mix-blend-mode: lighten; filter: brightness(1.2) contrast(1.1);">
+          </div>
+
+          <div class="cine-curtain-in cine-curtain-delay-2 space-y-5 max-w-4xl">
+            <p class="text-xs md:text-sm uppercase tracking-[0.35em] font-bold text-brand-gold">Esperienza Cinematografica Premium</p>
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white leading-none tracking-tight">
+              Cinema67
+            </h1>
+            <p class="text-base md:text-lg text-white/60 max-w-xl mx-auto leading-relaxed">
+              Dove la magia del grande schermo prende vita. Scopri la programmazione, scegli il tuo posto, vivi l'emozione.
+            </p>
+          </div>
+
+          <div class="cine-curtain-in cine-curtain-delay-3 flex flex-wrap items-center justify-center gap-4 pt-12">
+            <a href="/programmazione.html" class="btn-gold-lg text-sm">
+              <i class="fa-solid fa-clapperboard mr-2"></i>
+              Scopri i Film
             </a>
-            <a href="/login.html?v=99" id="hero-login-btn" class="btn-outline-brand-light">
-              <i class="fa-solid fa-right-to-bracket"></i> Accedi ora
+            <a href="/login.html?v=99" id="hero-login-btn" class="btn-outline-brand-light text-sm tracking-[0.15em] py-3 px-8">
+              <i class="fa-solid fa-ticket mr-2"></i> Accedi
             </a>
-            <a href="/profilo.html" id="hero-profile-btn" class="btn-outline-brand-light hidden">
-              <i class="fa-solid fa-user"></i> Il mio profilo
+            <a href="/profilo.html" id="hero-profile-btn" class="btn-outline-brand-light text-sm tracking-[0.15em] py-3 px-8 hidden">
+              <i class="fa-solid fa-user mr-2"></i> Il Mio Profilo
             </a>
+          </div>
+
+          <div class="mt-20 animate-bounce">
+            <i class="fa-solid fa-chevron-down text-brand-gold text-2xl opacity-60"></i>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="promo-section" class="py-10">
+    <!-- ════════════════════════════════════════════
+         PROMOZIONI — Horizontal reel cards
+         ════════════════════════════════════════════ -->
+    <section id="promo-section" class="py-12 cine-spotlight">
       <div class="mx-auto w-full max-w-[1280px] px-4">
-        <div class="mb-6"><p class="cine-kicker">Offerte e Promozioni</p><h2 class="cine-headline text-brand-on-surface">Scopri le nostre promo</h2></div>
-        <div id="promo-banners" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="cine-skeleton cine-skeleton-text col-span-full text-center py-6">Caricamento promozioni...</div>
-        </div>
-      </div>
-    </section>
-
-    <section id="featured" class="cine-reveal cine-reveal-delay-1 py-16">
-      <div class="mx-auto w-full max-w-[1280px] px-4">
-        <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div class="flex items-end justify-between mb-8">
           <div>
-            <p class="cine-section-kicker">Selezione Cinema67</p>
-            <h2 class="cine-section-title">In evidenza questa settimana</h2>
+            <p class="cine-section-kicker">Offerte Esclusive</p>
+            <h2 class="cine-section-title">Promozioni Cinema67</h2>
           </div>
-          <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Vedi tutti i film</a>
+          <div class="hidden sm:flex items-center gap-2">
+            <button id="promo-prev" class="programmazione-carousel-arrow" aria-label="Precedente"><i class="fa-solid fa-chevron-left"></i></button>
+            <button id="promo-next" class="programmazione-carousel-arrow" aria-label="Successiva"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div id="promo-banners" class="cine-reel">
+          <div class="cine-skeleton cine-skeleton-text w-80 h-48 rounded-xl flex items-center justify-center text-brand-on-surface-variant">Caricamento promozioni...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         IN EVIDENZA — Featured films grid
+         ════════════════════════════════════════════ -->
+    <section id="featured" class="py-16">
+      <div class="mx-auto w-full max-w-[1280px] px-4">
+        <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <div>
+            <p class="cine-section-kicker">Selezione della Settimana</p>
+            <h2 class="cine-section-title">In Primo Piano</h2>
+          </div>
+          <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">TUTTI I FILM <i class="fa-solid fa-arrow-right ml-1"></i></a>
         </div>
 
-        <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <article class="cine-info-card md:col-span-2">
-            <h3 class="text-lg font-semibold text-brand-on-surface">Panoramica live del catalogo</h3>
-            <p class="mt-2 text-sm text-brand-on-surface-variant">I contenuti si aggiornano direttamente dai servizi API del progetto: la nuova interfaccia mantiene tutte le funzionalita` esistenti.</p>
-          </article>
-          <article class="cine-info-card">
-            <p class="text-xs uppercase tracking-[0.2em] text-brand-gold">Stato piattaforma</p>
-            <p class="mt-2 text-sm text-brand-on-surface-variant">Frontend e backend collegati con autenticazione JWT e ruoli.</p>
-          </article>
+        <!-- Quick stats bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8" id="home-stats">
         </div>
 
-        <div id="featured-grid" class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-4">
-          <div class="lg:col-span-3 py-12 text-center text-brand-on-surface-variant">
-            <i class="fa-solid fa-film mb-4 text-4xl"></i>
+        <div id="featured-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div class="col-span-full py-16 text-center text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-4xl mb-4"></i>
             <p>Caricamento film in evidenza...</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         CINEMA NETWORK — Static showcase
+         ════════════════════════════════════════════ -->
+    <section class="py-16 cine-velvet border-y border-brand-outline-variant/15">
+      <div class="mx-auto w-full max-w-[1280px] px-4">
+        <div class="text-center mb-10">
+          <p class="cine-section-kicker">La Nostra Rete</p>
+          <h2 class="cine-section-title">I Cinema Cinema67</h2>
+          <p class="mt-3 text-brand-on-surface-variant max-w-xl mx-auto">Sale d'autore in tutta Italia. Scegli il tuo cinema preferito e vivi un'esperienza senza paragoni.</p>
+        </div>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="cine-premium-card p-6 text-center">
+            <span class="w-14 h-14 rounded-2xl bg-brand-red/10 flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-city text-brand-red text-2xl"></i></span>
+            <h3 class="font-serif text-lg font-bold text-brand-on-surface mb-1">Multisala Cityplex</h3>
+            <p class="text-xs text-brand-on-surface-variant">8 sale · 4K Dolby Atmos · Milano</p>
+          </div>
+          <div class="cine-premium-card p-6 text-center">
+            <span class="w-14 h-14 rounded-2xl bg-brand-gold/10 flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-theater-masks text-brand-gold text-2xl"></i></span>
+            <h3 class="font-serif text-lg font-bold text-brand-on-surface mb-1">Cinema d'Essai</h3>
+            <p class="text-xs text-brand-on-surface-variant">3 sale · Proiezioni d'autore · Roma</p>
+          </div>
+          <div class="cine-premium-card p-6 text-center">
+            <span class="w-14 h-14 rounded-2xl bg-brand-red/10 flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-landmark text-brand-red text-2xl"></i></span>
+            <h3 class="font-serif text-lg font-bold text-brand-on-surface mb-1">Arena Estiva</h3>
+            <p class="text-xs text-brand-on-surface-variant">All'aperto · 500 posti · Napoli</p>
+          </div>
+        </div>
+        <div class="text-center mt-8">
+          <a href="/my-cinemas.html" class="btn-outline-brand text-xs tracking-[0.2em]">Tutti i cinema <i class="fa-solid fa-arrow-right ml-1"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         CTA FINALE — Join the experience
+         ════════════════════════════════════════════ -->
+    <section class="py-20 cine-spotlight text-center">
+      <div class="mx-auto w-full max-w-[640px] px-4 space-y-6">
+        <p class="cine-marquee-sub">Unisciti a Noi</p>
+        <h2 class="text-4xl md:text-5xl font-serif font-bold text-brand-on-surface">Pronto per il grande schermo?</h2>
+        <p class="text-brand-on-surface-variant">Registrati per prenotare biglietti, accumulare credito e accedere a offerte esclusive.</p>
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-4">
+          <a href="/registrazione.html" class="btn-gold-lg"><i class="fa-solid fa-user-plus mr-2"></i> Crea Account</a>
+          <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Esplora Programmazione</a>
         </div>
       </div>
     </section>
@@ -91,7 +159,6 @@
 
   <div id="footer-container"></div>
 
-  <!-- Toast Container -->
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
   <script src="/js/utils.js?v=99"></script>
@@ -100,8 +167,33 @@
   <script src="/js/template-loader.js?v=99"></script>
   <script src="/js/navbar.js?v=99"></script>
   <script src="/js/pages/home.js"></script>
+  <script>
+    (async function() {
+      try {
+        var container = document.getElementById('home-stats');
+        var [films, cinemas, shows] = await Promise.all([
+          API.getFilms({ pageSize: 1000 }),
+          API.getCinemas(),
+          API.getShows()
+        ]);
+        var f = Array.isArray(films?.items) ? films.items : Array.isArray(films) ? films : [];
+        var c = Array.isArray(cinemas?.items) ? cinemas.items : Array.isArray(cinemas) ? cinemas : [];
+        var s = Array.isArray(shows?.items) ? shows.items : Array.isArray(shows) ? shows : [];
+        var oggi = new Date().toISOString().split('T')[0];
+        var oggiShows = s.filter(function(x){ return x.startAtUtc && x.startAtUtc.startsWith(oggi); });
+        var items = [
+          { icon: 'fa-film', color: 'text-brand-gold', bg: 'bg-brand-gold/10', val: f.length, label: 'Film in catalogo', accent: true },
+          { icon: 'fa-location-dot', color: 'text-brand-red', bg: 'bg-brand-red/10', val: c.length, label: 'Cinema', accent: false },
+          { icon: 'fa-clock', color: 'text-brand-gold', bg: 'bg-brand-gold/10', val: oggiShows.length, label: 'Spettacoli oggi', accent: false },
+          { icon: 'fa-ticket', color: 'text-brand-red', bg: 'bg-brand-red/10', val: s.length, label: 'Show totali', accent: false }
+        ];
+        container.innerHTML = items.map(function(d){
+          var cls = d.accent ? 'cine-premium-card cine-stat-accent p-4 text-center' : 'cine-premium-card p-4 text-center';
+          return '<div class="'+cls+'"><i class="fa-solid '+d.icon+' '+d.color+' text-xl mb-1"></i><p class="text-2xl font-bold text-brand-on-surface font-serif">'+d.val+'</p><p class="text-xs text-brand-on-surface-variant">'+d.label+'</p></div>';
+        }).join('');
+      } catch(e) {}
+    })();
+  </script>
 </body>
 
 </html>
-
-

@@ -4,9 +4,16 @@ tailwind.config = {
     extend: {
       colors: {
         brand: {
+          red: "var(--brand-red)",
+          "red-dark": "var(--brand-red-dark)",
+          "red-light": "var(--brand-red-light)",
           gold: "var(--brand-gold)",
           "gold-dark": "var(--brand-gold-dark)",
           "gold-light": "var(--brand-gold-light)",
+          coral: "var(--brand-coral)",
+          "coral-light": "var(--brand-coral-light)",
+          burgundy: "var(--brand-burgundy)",
+          "burgundy-light": "var(--brand-burgundy-light)",
           indigo: "var(--brand-indigo)",
           "indigo-light": "var(--brand-indigo-light)",
           cyan: "var(--brand-cyan)",

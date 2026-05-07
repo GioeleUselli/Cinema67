@@ -10,15 +10,15 @@
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="/css/styles.css?v=1778149125">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=99"></script>
 </head>
 
-<body class="bg-brand-surface text-brand-on-surface font-sans">
+<body class="cine-velvet bg-brand-surface text-brand-on-surface font-sans">
   <div id="navbar-container"></div>
 
   <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
@@ -40,53 +40,57 @@
 
     <!-- Film Detail Content -->
     <div id="film-content" class="hidden">
-      <section class="cine-grid-shell p-6 mb-6">
-        <div class="flex flex-col md:flex-row gap-6">
-          <!-- Cover Image -->
-          <div class="w-full md:w-64 flex-shrink-0">
-            <img id="film-cover" src="" alt=""
-              class="w-full aspect-[2/3] object-cover rounded-xl shadow-lg">
-          </div>
-
-          <!-- Film Metadata -->
-          <div class="flex-1 min-w-0">
-            <h1 id="film-title" class="text-2xl md:text-3xl font-bold text-brand-on-surface mb-2"></h1>
-
-            <!-- Meta Info -->
-            <div class="flex flex-wrap gap-3 mb-4 text-sm text-brand-on-surface-variant">
-              <span id="film-duration" class="flex items-center gap-1">
-                <i class="fa-regular fa-clock"></i><span></span>
-              </span>
-              <span id="film-release" class="flex items-center gap-1 hidden">
-                <i class="fa-regular fa-calendar"></i><span></span>
-              </span>
+      <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden cine-curtain-in mb-6">
+        <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl bg-brand-red/5"></div>
+        <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full blur-3xl bg-brand-gold/5"></div>
+        <div class="relative z-10">
+          <div class="flex flex-col md:flex-row gap-6">
+            <!-- Cover Image -->
+            <div class="w-full md:w-64 flex-shrink-0">
+              <img id="film-cover" src="" alt=""
+                class="w-full aspect-[2/3] object-cover rounded-xl shadow-lg">
             </div>
 
-            <!-- Categories -->
-            <div id="film-categories" class="flex flex-wrap gap-2 mb-4"></div>
+            <!-- Film Metadata -->
+            <div class="flex-1 min-w-0">
+              <h1 id="film-title" class="cine-headline text-brand-on-surface mb-2"></h1>
 
-            <!-- Director -->
-            <div id="film-director" class="mb-4 hidden">
-              <p class="text-sm text-brand-on-surface-variant">Regia</p>
-              <p class="font-medium text-brand-on-surface"></p>
+              <!-- Meta Info -->
+              <div class="flex flex-wrap gap-3 mb-4 text-sm text-brand-on-surface-variant">
+                <span id="film-duration" class="flex items-center gap-1">
+                  <i class="fa-regular fa-clock"></i><span></span>
+                </span>
+                <span id="film-release" class="flex items-center gap-1 hidden">
+                  <i class="fa-regular fa-calendar"></i><span></span>
+                </span>
+              </div>
+
+              <!-- Categories -->
+              <div id="film-categories" class="flex flex-wrap gap-2 mb-4"></div>
+
+              <!-- Director -->
+              <div id="film-director" class="mb-4 hidden">
+                <p class="text-sm text-brand-on-surface-variant">Regia</p>
+                <p class="font-medium text-brand-on-surface"></p>
+              </div>
+
+              <!-- Cast -->
+              <div id="film-cast" class="mb-4 hidden">
+                <p class="text-sm text-brand-on-surface-variant mb-1">Cast</p>
+                <p class="text-sm text-brand-on-surface"></p>
+              </div>
+
+              <!-- Description -->
+              <div id="film-description" class="hidden">
+                <p class="text-sm text-brand-on-surface-variant mb-1">Trama</p>
+                <p class="text-brand-on-surface text-sm leading-relaxed line-clamp-4"></p>
+              </div>
+
+              <!-- CTA -->
+              <button id="go-to-shows-btn" class="btn-gold mt-4">
+                <i class="fa-solid fa-ticket mr-1"></i>Vai agli show
+              </button>
             </div>
-
-            <!-- Cast -->
-            <div id="film-cast" class="mb-4 hidden">
-              <p class="text-sm text-brand-on-surface-variant mb-1">Cast</p>
-              <p class="text-sm text-brand-on-surface"></p>
-            </div>
-
-            <!-- Description -->
-            <div id="film-description" class="hidden">
-              <p class="text-sm text-brand-on-surface-variant mb-1">Trama</p>
-              <p class="text-brand-on-surface text-sm leading-relaxed line-clamp-4"></p>
-            </div>
-
-            <!-- CTA -->
-            <button id="go-to-shows-btn" class="btn-gold mt-4">
-              <i class="fa-solid fa-ticket mr-1"></i>Vai agli show
-            </button>
           </div>
         </div>
       </section>
@@ -171,8 +175,12 @@
   <script src="/js/template-loader.js?v=99"></script>
   <script src="/js/navbar.js?v=99"></script>
   <script src="/js/date-rail.js"></script>
-  <script src="/js/pages/scheda-film.js"></script>
+  <script src="/js/pages/scheda-film.js?v=2"></script>
+  <script>
+    if (typeof Auth === 'undefined' || !Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) {
+      localStorage.removeItem('cb_selected_cinema');
+    }
+  </script>
 </body>
 
 </html>
-

@@ -6,20 +6,26 @@
   <title>Cinema67 - Scegli il tuo Cinema</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="/js/tailwind-config.js?v=99"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="/css/styles.css?v=1778149125" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=99"></script>
 </head>
-<body class="bg-brand-surface text-brand-on-surface font-sans min-h-screen flex flex-col">
+<body class="cine-velvet bg-brand-surface text-brand-on-surface font-sans min-h-screen flex flex-col">
   <div id="navbar-container"></div>
   <div class="flex-1 px-4 py-20">
-    <div class="mx-auto max-w-2xl text-center mb-10">
-      <p class="cine-kicker">Benvenuto in Cinema67</p>
-      <h1 class="cine-headline text-brand-on-surface mt-2">Scegli il tuo cinema preferito</h1>
-      <p class="mt-3 text-sm text-brand-on-surface-variant">Questo cinema verrà usato come predefinito per programmazione e suggerimenti. Puoi cambiarlo in qualsiasi momento dal profilo.</p>
-      <a href="/index.html" class="inline-block mt-4 text-xs text-brand-on-surface-variant hover:text-brand-gold">Salta, lo sceglierò dopo</a>
+    <div class="mx-auto max-w-2xl text-center mb-10 cine-curtain-in">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl bg-brand-red/5"></div>
+        <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full blur-3xl bg-brand-gold/5"></div>
+        <div class="relative z-10">
+          <p class="cine-kicker">Benvenuto in Cinema67</p>
+          <h1 class="cine-headline text-brand-on-surface mt-2">Scegli il tuo cinema preferito</h1>
+          <p class="mt-3 text-sm text-brand-on-surface-variant">Questo cinema verrà usato come predefinito per programmazione e suggerimenti. Puoi cambiarlo in qualsiasi momento dal profilo.</p>
+          <a href="/index.html" class="inline-block mt-4 text-xs text-brand-on-surface-variant hover:text-brand-gold">Salta, lo sceglierò dopo</a>
+        </div>
+      </div>
     </div>
     <div id="cinema-list" class="mx-auto max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-4">
       <p class="col-span-full text-center text-brand-on-surface-variant">Caricamento cinema...</p>

@@ -10,18 +10,24 @@
 
   <script src="/js/tailwind-config.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="/css/styles.css?v=1778149125">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=99"></script>
 </head>
 
-<body class="bg-brand-surface text-brand-on-surface font-sans">
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
   <div id="navbar-container"></div>
 
-  <main class="acquista-page mx-auto w-full max-w-[1280px] px-3 py-4 sm:px-4 lg:px-5 lg:py-5">
+  <main class="acquista-page mx-auto w-full max-w-[1280px] px-3 py-4 sm:px-4 lg:px-5 lg:py-5 relative">
+    <!-- Decorative gradient blobs -->
+    <div class="absolute top-0 right-0 -z-10 w-96 h-96 bg-brand-red/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 -z-10 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+
     <!-- Loading State -->
     <div id="loading-state" class="text-center py-16">
       <i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-brand-gold"></i>
@@ -39,17 +45,18 @@
     </div>
 
     <!-- Main Content -->
-    <div id="main-content" class="hidden cine-reveal">
-      <div class="acquista-layout flex flex-col lg:flex-row gap-4 lg:gap-5">
-        <!-- Seat Map Section -->
-        <div class="flex-1 min-w-0">
-          <div class="cine-admin-slab cine-reveal cine-reveal-delay-1 p-3 lg:p-4 mb-4 h-full">
-            <h1 class="text-lg lg:text-xl font-bold text-brand-on-surface mb-2.5">
-              <i class="fa-solid fa-couch text-brand-gold mr-2"></i>Seleziona Posti
-            </h1>
+    <div id="main-content" class="hidden">
+      <!-- HEADER — Premium Card with gradient blobs -->
+      <section class="cine-curtain-in mb-5">
+        <div class="cine-premium-card p-5 sm:p-6 relative overflow-hidden">
+          <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-brand-gold/5 blur-2xl pointer-events-none"></div>
+          <div class="relative">
+            <p class="cine-kicker">Selezione Posti</p>
+            <h1 class="cine-headline text-brand-on-surface mt-1"><i class="fa-solid fa-couch text-brand-gold mr-2"></i>Acquista Biglietti</h1>
 
             <!-- Show Info -->
-             <div id="show-info" class="mb-3 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container p-3">
+            <div id="show-info" class="mt-4 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container p-3">
               <h2 id="show-film-title" class="text-sm lg:text-base font-bold text-brand-on-surface"></h2>
               <div class="flex flex-wrap gap-2 mt-1.5 text-[11px] lg:text-xs text-brand-on-surface-variant">
                 <span id="show-cinema"><i class="fa-solid fa-location-dot mr-1"></i></span>
@@ -60,6 +67,18 @@
                 <span id="show-prezzo" class="text-brand-gold font-semibold"></span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="acquista-layout flex flex-col lg:flex-row gap-4 lg:gap-5">
+        <!-- Seat Map Section -->
+        <div class="flex-1 min-w-0">
+          <div class="cine-premium-card cine-curtain-in cine-curtain-delay-1 p-3 lg:p-4 mb-4 h-full relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-brand-red/3 blur-3xl pointer-events-none"></div>
+            <h2 class="relative text-lg lg:text-xl font-bold text-brand-on-surface mb-2.5">
+              <i class="fa-solid fa-couch text-brand-gold mr-2"></i>Seleziona Posti
+            </h2>
 
             <!-- Legend -->
             <div class="flex flex-wrap gap-x-3 gap-y-1.5 mb-2.5 text-[10px] lg:text-[11px]">
@@ -108,8 +127,9 @@
         <!-- Sidebar: Summary & Actions -->
         <div class="acquista-sidebar lg:w-[20rem] xl:w-[21rem] 2xl:w-[22rem] flex-shrink-0">
           <!-- Countdown -->
-          <div id="countdown-card" class="hidden cine-admin-slab cine-reveal cine-reveal-delay-2 p-4 mb-4 border-l-4 border-amber-500">
-            <div class="flex items-center gap-2">
+          <div id="countdown-card" class="hidden cine-premium-card cine-curtain-in cine-curtain-delay-2 p-4 mb-4 border-l-4 border-amber-500 relative overflow-hidden">
+            <div class="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-amber-500/5 blur-3xl pointer-events-none"></div>
+            <div class="relative flex items-center gap-2">
               <i class="fa-solid fa-clock text-amber-500"></i>
               <span class="text-sm font-semibold text-brand-on-surface">Tempo rimanente</span>
             </div>
@@ -118,8 +138,9 @@
           </div>
 
           <!-- Selected Seats -->
-          <div class="cine-admin-slab cine-reveal cine-reveal-delay-3 p-4 lg:p-4 mb-4">
-            <h3 class="text-sm lg:text-base font-bold text-brand-on-surface mb-2.5">
+          <div class="cine-premium-card cine-curtain-in cine-curtain-delay-3 p-4 lg:p-4 mb-4 relative overflow-hidden">
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+            <h3 class="relative text-sm lg:text-base font-bold text-brand-on-surface mb-2.5">
               <i class="fa-solid fa-ticket text-brand-gold mr-2"></i>Riepilogo
             </h3>
             <div id="selected-seats-list" class="space-y-1.5 mb-4 max-h-52 overflow-y-auto pr-1">
@@ -171,4 +192,3 @@
 </body>
 
 </html>
-

@@ -1,4 +1,5 @@
-<footer class="border-t border-brand-outline-variant/20 bg-brand-surface-container-lowest pt-16 pb-10">
+<footer class="relative border-t border-transparent bg-brand-surface-container-lowest pt-16 pb-10">
+  <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-red via-brand-gold to-brand-red"></div>
   <div class="mx-auto w-full max-w-[1280px] px-4">
     <div class="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 mb-12">
       <div class="space-y-4">
@@ -10,8 +11,8 @@
           Esperienza cinema premium per utenti e strumenti operativi avanzati per il team admin.
         </p>
       </div>
-      
-      <div>
+
+      <div class="cine-premium-card p-4">
         <h4 class="mb-5 text-xs uppercase tracking-[0.2em] text-brand-gold">Navigazione</h4>
         <ul class="space-y-3 text-brand-on-surface-variant">
           <li><a href="/index.html" class="hover:text-brand-gold transition-colors">Home</a></li>
@@ -25,8 +26,8 @@
           <li><a href="/dashboard.html" id="footer-admin-link" class="hidden hover:text-brand-gold transition-colors admin-only">Area Admin</a></li>
         </ul>
       </div>
-      
-      <div>
+
+      <div class="cine-premium-card p-4">
         <h4 class="mb-5 text-xs uppercase tracking-[0.2em] text-brand-gold">Supporto</h4>
         <ul class="space-y-3 text-brand-on-surface-variant">
           <li><a href="#" class="hover:text-brand-gold transition-colors">Centro Assistenza</a></li>
@@ -34,8 +35,8 @@
           <li><a href="#" class="hover:text-brand-gold transition-colors">Privacy</a></li>
         </ul>
       </div>
-      
-      <div>
+
+      <div class="cine-premium-card p-4">
         <h4 class="mb-5 text-xs uppercase tracking-[0.2em] text-brand-gold">Seguici</h4>
         <div class="flex gap-4 mb-6">
           <a href="#" class="w-10 h-10 rounded-full bg-brand-surface-container-highest flex items-center justify-center hover:bg-brand-gold transition-colors">
@@ -50,10 +51,10 @@
         </div>
       </div>
     </div>
-    
+
     <div class="flex flex-col items-center justify-between gap-4 border-t border-brand-outline-variant/20 pt-8 text-sm text-brand-on-surface-variant md:flex-row">
       <p>Interfaccia Cinema67 su stack ASP.NET Core + Tailwind CSS.</p>
-      <p>© 2026 Cinema67. Tutti i diritti riservati.</p>
+      <p>&copy; 2026 Cinema67. Tutti i diritti riservati.</p>
     </div>
   </div>
 </footer>
@@ -105,4 +106,3 @@
   window.updateFooterAuthUI = updateFooterAuthUI;
 })();
 </script>
-
