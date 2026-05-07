@@ -4,6 +4,8 @@ let currentFeaturedIndex = 0;
 let featuredEntries = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
+  setupScrollReveal();
+
   const params = new URLSearchParams(window.location.search);
   if (params.get("forbidden") === "true") {
     showToast("Non hai i permessi per accedere all'area admin", "warning");
@@ -284,3 +286,23 @@ function renderCompactCard(film, score, originalIndex) {
 window.handlePrenotaFilm = function(filmId) {
   window.location.href = `/programmazione.html`;
 };
+
+function setupScrollReveal() {
+  var sections = document.querySelectorAll('#promo-section, #featured .cine-section-kicker, #featured .cine-section-title, #featured .cine-info-card, #featured-grid');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(function(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+}
