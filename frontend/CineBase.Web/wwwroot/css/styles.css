@@ -13,44 +13,39 @@
    ======================================================================== */
 
 :root {
-  /* Gold primary */
+  /* Primary gold */
   --brand-gold: #c9a84c;
   --brand-gold-dark: #a8862e;
   --brand-gold-light: #f5e6c8;
 
-  /* Red secondary */
+  /* Secondary red */
   --brand-red: #b91c1c;
   --brand-red-dark: #7f1d1d;
   --brand-red-light: #fecaca;
 
-  /* Tertiary (warm tones) */
-  --brand-amber: #b45309;
-  --brand-amber-light: #f59e0b;
-  --brand-bronze: #92400e;
-
-  /* Legacy aliases */
-  --brand-indigo: #b91c1c;
-  --brand-indigo-light: #c9471f;
+  /* Legacy aliases mapped to gold/red */
+  --brand-indigo: #1e293b;
+  --brand-indigo-light: #475569;
   --brand-cyan: #c9a84c;
   --brand-cyan-light: #e5c97c;
   --brand-emerald: #a8862e;
 
-  /* Surfaces */
-  --brand-surface: #fdfaf3;
-  --brand-surface-dim: #f5eedd;
-  --brand-surface-container: #faf5e8;
-  --brand-surface-container-high: #f5eedd;
-  --brand-surface-container-highest: #efe6d0;
-  --brand-surface-container-low: #fffdf8;
+  /* Clean surfaces */
+  --brand-surface: #f8fafc;
+  --brand-surface-dim: #e2e8f0;
+  --brand-surface-container: #f1f5f9;
+  --brand-surface-container-high: #e8eef5;
+  --brand-surface-container-highest: #dde5ef;
+  --brand-surface-container-low: #ffffff;
   --brand-surface-container-lowest: #ffffff;
 
   /* Text */
-  --brand-on-surface: #1a1a1a;
-  --brand-on-surface-variant: #5c4a2e;
+  --brand-on-surface: #0f172a;
+  --brand-on-surface-variant: #475569;
 
   /* Borders */
-  --brand-outline: #a89870;
-  --brand-outline-variant: #d4c9a8;
+  --brand-outline: #94a3b8;
+  --brand-outline-variant: #cbd5e1;
 
   /* Semantic */
   --brand-error: #b91c1c;
@@ -58,19 +53,19 @@
 
   /* Sidebar */
   --brand-sidebar-from: #ffffff;
-  --brand-sidebar-to: #fdfaf3;
-  --brand-sidebar-text: #1a1a1a;
-  --brand-sidebar-hover: rgba(0, 0, 0, 0.06);
+  --brand-sidebar-to: #f1f5f9;
+  --brand-sidebar-text: #0f172a;
+  --brand-sidebar-hover: rgba(0, 0, 0, 0.05);
   --brand-sidebar-active-bg: rgba(201, 168, 76, 0.15);
   --brand-sidebar-active-text: #a8862e;
 
   /* Shadows */
-  --brand-shadow: 0 14px 34px rgba(26, 26, 26, 0.08);
-  --brand-shadow-sm: 0 6px 16px rgba(26, 26, 26, 0.06);
+  --brand-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  --brand-shadow-sm: 0 6px 16px rgba(15, 23, 42, 0.05);
 
   /* Overlay */
-  --brand-overlay-from: rgba(26, 26, 26, 0.72);
-  --brand-overlay-to: rgba(26, 26, 26, 0.38);
+  --brand-overlay-from: rgba(15, 23, 42, 0.72);
+  --brand-overlay-to: rgba(15, 23, 42, 0.38);
 }
 
 .dark {
@@ -82,45 +77,41 @@
   --brand-red-dark: #fca5a5;
   --brand-red-light: #450a0a;
 
-  --brand-amber: #f59e0b;
-  --brand-amber-light: #d97706;
-  --brand-bronze: #b45309;
-
-  --brand-indigo: #ef4444;
-  --brand-indigo-light: #c9471f;
+  --brand-indigo: #94a3b8;
+  --brand-indigo-light: #64748b;
   --brand-cyan: #d4af37;
   --brand-cyan-light: #e5c97c;
   --brand-emerald: #a8862e;
 
-  --brand-surface: #0d0a04;
-  --brand-surface-dim: #0d0a04;
-  --brand-surface-container: #1a1510;
-  --brand-surface-container-high: #2a2218;
-  --brand-surface-container-highest: #3a3020;
-  --brand-surface-container-low: #0f0c06;
-  --brand-surface-container-lowest: #141008;
+  --brand-surface: #0f172a;
+  --brand-surface-dim: #0f172a;
+  --brand-surface-container: #1e293b;
+  --brand-surface-container-high: #283850;
+  --brand-surface-container-highest: #334155;
+  --brand-surface-container-low: #0c1322;
+  --brand-surface-container-lowest: #172030;
 
-  --brand-on-surface: #fdfaf3;
-  --brand-on-surface-variant: #c4b48e;
+  --brand-on-surface: #f1f5f9;
+  --brand-on-surface-variant: #94a3b8;
 
-  --brand-outline: #8a7a58;
-  --brand-outline-variant: #5c4e38;
+  --brand-outline: #64748b;
+  --brand-outline-variant: #334155;
 
   --brand-error: #ef4444;
   --brand-error-container: #450a0a;
 
-  --brand-sidebar-from: #0d0a04;
-  --brand-sidebar-to: #1a1510;
-  --brand-sidebar-text: #c4b48e;
-  --brand-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --brand-sidebar-from: #0f172a;
+  --brand-sidebar-to: #1e293b;
+  --brand-sidebar-text: #94a3b8;
+  --brand-sidebar-hover: rgba(255, 255, 255, 0.05);
   --brand-sidebar-active-bg: rgba(212, 175, 55, 0.15);
   --brand-sidebar-active-text: #e5c97c;
 
   --brand-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
   --brand-shadow-sm: 0 8px 18px rgba(0, 0, 0, 0.35);
 
-  --brand-overlay-from: rgba(10, 8, 4, 0.85);
-  --brand-overlay-to: rgba(10, 8, 4, 0.60);
+  --brand-overlay-from: rgba(0, 0, 0, 0.85);
+  --brand-overlay-to: rgba(0, 0, 0, 0.60);
 }
 
 /* ========================================================================
