@@ -5,5 +5,7 @@ public enum MovimentoCreditoTipo
     TopUp = 0,
     DebitOrder = 1,
     Refund = 2,
-    Adjustment = 3
+    Adjustment = 3,
+    GiftCardPurchase = 4,
+    GiftCardRiscatto = 5
 }

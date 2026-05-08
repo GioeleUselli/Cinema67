@@ -111,11 +111,16 @@ async function loadCinemaPreferito() {
 
 async function loadCredito() {
   const container = document.getElementById('credito-content');
+  const badge = document.getElementById('credito-badge');
   try {
     creditoData = await API.getCreditoMe();
 
     const saldo = creditoData.saldoAttuale || 0;
     const movimenti = creditoData.movimenti || [];
+
+    if (badge) badge.textContent = formatCurrency(saldo);
+
+    if (!container) return;
 
     let html = `
       <div class="flex items-center justify-between mb-4">
@@ -158,8 +163,10 @@ async function loadCredito() {
     }
 
     container.innerHTML = html;
-  } catch {
-    container.innerHTML = `<p class="text-sm text-brand-on-surface-variant">Errore caricamento credito</p>`;
+  } catch (e) {
+    console.error('loadCredito error:', e);
+    if (container) container.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Errore caricamento credito</p>';
+    if (badge) badge.textContent = '—';
   }
 }
 

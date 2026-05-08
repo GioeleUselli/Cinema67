@@ -91,6 +91,17 @@ public class GiftCardService : IGiftCardService
 
         user.CreditoResiduo -= totale;
 
+        _db.MovimentiCredito.Add(new MovimentoCredito
+        {
+            UserId = userId,
+            Tipo = MovimentoCreditoTipo.GiftCardPurchase,
+            Importo = -totale,
+            SaldoPre = user.CreditoResiduo + totale,
+            SaldoPost = user.CreditoResiduo,
+            CreatedAtUtc = DateTime.UtcNow,
+            Note = $"Acquisto {dto.Quantita} gift card da €{dto.Importo:F2}"
+        });
+
         var cards = new List<GiftCardDTO>();
         for (int i = 0; i < dto.Quantita; i++)
         {
@@ -201,7 +212,19 @@ public class GiftCardService : IGiftCardService
             ?? throw new InvalidOperationException("Utente non trovato.");
 
         var importo = giftCard.SaldoResiduo;
+        var saldoPre = user.CreditoResiduo;
         user.CreditoResiduo += importo;
+
+        _db.MovimentiCredito.Add(new MovimentoCredito
+        {
+            UserId = userId,
+            Tipo = MovimentoCreditoTipo.GiftCardRiscatto,
+            Importo = importo,
+            SaldoPre = saldoPre,
+            SaldoPost = user.CreditoResiduo,
+            CreatedAtUtc = DateTime.UtcNow,
+            Note = $"Riscatto gift card {giftCard.Codice}"
+        });
         giftCard.SaldoResiduo = 0;
         giftCard.Stato = GiftCardStato.Riscattata;
         giftCard.RiscattataDaUserId = userId;
@@ -378,7 +401,20 @@ public class GiftCardService : IGiftCardService
 
         var user = await _db.Users.FindAsync(userId);
         if (creditoUsato > 0 && user != null)
+        {
+            var saldoPre = user.CreditoResiduo;
             user.CreditoResiduo -= creditoUsato;
+            _db.MovimentiCredito.Add(new MovimentoCredito
+            {
+                UserId = userId,
+                Tipo = MovimentoCreditoTipo.GiftCardPurchase,
+                Importo = -creditoUsato,
+                SaldoPre = saldoPre,
+                SaldoPost = user.CreditoResiduo,
+                CreatedAtUtc = DateTime.UtcNow,
+                Note = "Acquisto gift card (carrello) - parte credito"
+            });
+        }
 
         var cards = new List<GiftCardDTO>();
         foreach (var item in items)
@@ -456,7 +492,20 @@ public class GiftCardService : IGiftCardService
         _db.GiftCards.Remove(pending);
         var user = await _db.Users.FindAsync(userId);
         if (creditoUsato > 0 && user != null)
+        {
+            var saldoPre = user.CreditoResiduo;
             user.CreditoResiduo -= creditoUsato;
+            _db.MovimentiCredito.Add(new MovimentoCredito
+            {
+                UserId = userId,
+                Tipo = MovimentoCreditoTipo.GiftCardPurchase,
+                Importo = -creditoUsato,
+                SaldoPre = saldoPre,
+                SaldoPost = user.CreditoResiduo,
+                CreatedAtUtc = DateTime.UtcNow,
+                Note = "Acquisto gift card - parte credito"
+            });
+        }
 
         var cards = new List<GiftCardDTO>();
         for (int i = 0; i < qta; i++)

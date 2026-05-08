@@ -17,7 +17,15 @@
       </div>
       <a href="/my-cinemas.html" class="btn-ghost text-xs uppercase tracking-[0.18em]">Cinema</a>
       <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Programmazione</a>
-      <a href="/giftcard.html" class="btn-ghost text-xs uppercase tracking-[0.18em]"><i class="fa-solid fa-gift mr-1"></i>Gift Card</a>
+      <div class="relative">
+        <button id="giftcard-dropdown-btn" class="btn-ghost text-xs uppercase tracking-[0.18em]">
+          <i class="fa-solid fa-gift mr-1"></i>Gift Card <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+        </button>
+        <div id="giftcard-dropdown" class="hidden absolute top-full left-0 mt-1 w-48 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container py-2 shadow-lg z-50">
+          <a href="/giftcard.html" class="block px-4 py-2 text-sm text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-cart-shopping mr-2"></i>Acquista</a>
+          <a href="/riscatta-giftcard.html" class="block px-4 py-2 text-sm text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-ticket mr-2"></i>Riscatta</a>
+        </div>
+      </div>
     </div>
 
     <div class="flex items-center gap-3">
@@ -154,9 +162,21 @@
   if (logoutBtn) logoutBtn.addEventListener('click', doLogout);
   if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', doLogout);
 
+  var giftBtn = document.getElementById('giftcard-dropdown-btn');
+  var giftMenu = document.getElementById('giftcard-dropdown');
+  if (giftBtn && giftMenu) {
+    giftBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      giftMenu.classList.toggle('hidden');
+    });
+  }
+
   document.addEventListener('click', function (e) {
     if (userMenuToggle && userMenu && !userMenuToggle.contains(e.target) && !userMenu.contains(e.target)) {
       userMenu.classList.add('hidden');
+    }
+    if (giftBtn && giftMenu && !giftBtn.contains(e.target) && !giftMenu.contains(e.target)) {
+      giftMenu.classList.add('hidden');
     }
   });
 

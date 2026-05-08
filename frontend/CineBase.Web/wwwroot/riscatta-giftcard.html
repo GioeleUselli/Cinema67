@@ -44,14 +44,23 @@
         <form id="riscatta-form" class="space-y-5">
           <div>
             <label for="codice" class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-2">Codice Gift Card</label>
-            <div class="relative">
-              <i class="fa-solid fa-gift absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-on-surface-variant/50"></i>
-              <input type="text" id="codice" name="codice" class="ghost-input w-full pl-10 pr-4 py-3 rounded-xl font-mono text-lg tracking-wider uppercase" placeholder="C67-XXXX-XXXX" required autocomplete="off">
+            <div class="flex gap-2">
+              <div class="relative flex-1">
+                <i class="fa-solid fa-gift absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-on-surface-variant/50"></i>
+                <input type="text" id="codice" name="codice" class="ghost-input w-full pl-10 pr-4 py-3 rounded-xl font-mono text-lg tracking-wider uppercase" placeholder="C67-XXXX-XXXX" required autocomplete="off" maxlength="14">
+              </div>
             </div>
             <p class="text-xs text-brand-on-surface-variant mt-1">Formato: C67-XXXX-XXXX</p>
           </div>
 
-          <button type="submit" id="submit-btn" class="btn-gold w-full py-3.5 text-base font-bold rounded-xl">
+          <div id="preview-box" class="hidden p-4 rounded-xl bg-brand-surface-container/50 border border-brand-outline-variant/20 text-center">
+            <p class="text-xs text-brand-on-surface-variant mb-1">Valore gift card</p>
+            <p id="preview-value" class="text-2xl font-bold text-brand-on-surface font-serif">—</p>
+            <p id="preview-expiry" class="text-xs text-brand-on-surface-variant mt-1"></p>
+            <p id="preview-status" class="text-xs font-semibold mt-2"></p>
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn-gold w-full py-3.5 text-base font-bold rounded-xl" disabled>
             <span id="btn-text"><i class="fa-solid fa-check mr-2"></i>Riscatta</span>
             <span id="btn-loader" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Riscatto in corso...</span>
           </button>
@@ -81,40 +90,83 @@
     document.addEventListener('components:loaded', function() {
       setTimeout(function() {
         if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
-      }, 150);
+      }, 200);
     });
-    document.getElementById('riscatta-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var btn = document.getElementById('submit-btn');
-      var bt = document.getElementById('btn-text');
-      var bl = document.getElementById('btn-loader');
-      var err = document.getElementById('error-alert');
-      var em = document.getElementById('error-message');
-      var sb = document.getElementById('success-box');
 
-      bt.classList.add('hidden');
-      bl.classList.remove('hidden');
-      btn.disabled = true;
-      err.classList.add('hidden');
-      sb.classList.add('hidden');
+    document.addEventListener('DOMContentLoaded', function() {
+      var codiceInput = document.getElementById('codice');
 
-      var codice = document.getElementById('codice').value.trim().toUpperCase();
+      // Auto-verify when user types a complete-looking code
+      codiceInput.addEventListener('input', async function() {
+        var codice = this.value.trim().toUpperCase();
+        var preview = document.getElementById('preview-box');
+        var submitBtn = document.getElementById('submit-btn');
+        if (codice.length < 12) {
+          preview.classList.add('hidden');
+          submitBtn.disabled = true;
+          return;
+        }
+        try {
+          var data = await API.getGiftCardByCodice(codice);
+          preview.classList.remove('hidden');
+          document.getElementById('preview-value').textContent = '€' + data.valoreIniziale.toFixed(2).replace('.', ',');
+          document.getElementById('preview-expiry').textContent = 'Valido fino al ' + new Date(data.dataScadenza).toLocaleDateString('it-IT');
+          var statusEl = document.getElementById('preview-status');
+          if (data.stato === 'Attiva') {
+            statusEl.textContent = 'Pronta per essere riscattata';
+            statusEl.className = 'text-xs font-semibold mt-2 text-emerald-500';
+            submitBtn.disabled = false;
+          } else {
+            statusEl.textContent = 'Non valida (' + data.stato + ')';
+            statusEl.className = 'text-xs font-semibold mt-2 text-brand-error';
+            submitBtn.disabled = true;
+          }
+        } catch(e) {
+          preview.classList.add('hidden');
+          submitBtn.disabled = true;
+        }
+      });
 
-      try {
-        var result = await API.riscattaGiftCard({ codice: codice });
-        sb.classList.remove('hidden');
-        document.getElementById('success-amount').textContent = '€' + result.creditoAccreditato.toFixed(2).replace('.', ',') + ' accreditati';
-        document.getElementById('success-balance').textContent = 'Nuovo saldo: €' + result.nuovoSaldo.toFixed(2).replace('.', ',');
-        document.getElementById('codice').value = '';
-        showToast('Gift card riscattata! €' + result.creditoAccreditato.toFixed(2) + ' aggiunti al tuo credito', 'success');
-      } catch(e) {
-        em.textContent = e.message || 'Codice non valido o già riscattato';
-        err.classList.remove('hidden');
-      } finally {
-        bt.classList.remove('hidden');
-        bl.classList.add('hidden');
-        btn.disabled = false;
-      }
+      document.getElementById('riscatta-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('submit-btn');
+        var bt = document.getElementById('btn-text');
+        var bl = document.getElementById('btn-loader');
+        var err = document.getElementById('error-alert');
+        var em = document.getElementById('error-message');
+        var sb = document.getElementById('success-box');
+        var preview = document.getElementById('preview-box');
+        var codice = document.getElementById('codice').value.trim().toUpperCase();
+
+        if (!codice) { showToast('Inserisci un codice', 'warning'); return; }
+        if (preview.classList.contains('hidden')) {
+          showToast('Attendi la verifica automatica del codice...', 'warning');
+          return;
+        }
+
+        bt.classList.add('hidden');
+        bl.classList.remove('hidden');
+        btn.disabled = true;
+        err.classList.add('hidden');
+        sb.classList.add('hidden');
+
+        try {
+          var result = await API.riscattaGiftCard({ codice: codice });
+          sb.classList.remove('hidden');
+          document.getElementById('success-amount').textContent = '€' + result.creditoAccreditato.toFixed(2).replace('.', ',') + ' accreditati';
+          document.getElementById('success-balance').textContent = 'Nuovo saldo: €' + result.nuovoSaldo.toFixed(2).replace('.', ',');
+          document.getElementById('codice').value = '';
+          preview.classList.add('hidden');
+          showToast('Gift card riscattata! €' + result.creditoAccreditato.toFixed(2) + ' aggiunti al tuo credito', 'success');
+        } catch(e) {
+          em.textContent = e.message || 'Codice non valido o già riscattato';
+          err.classList.remove('hidden');
+        } finally {
+          bt.classList.remove('hidden');
+          bl.classList.add('hidden');
+          btn.disabled = false;
+        }
+      });
     });
   </script>
 </body>
