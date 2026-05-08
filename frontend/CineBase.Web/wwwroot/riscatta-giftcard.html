@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Riscatta Gift Card</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen flex flex-col">
+  <div id="navbar-container"></div>
+
+  <div class="flex-1 flex items-center justify-center px-4 py-12">
+    <div class="cine-curtain-in w-full max-w-[520px]">
+      <div class="cine-premium-card p-8 relative overflow-hidden">
+        <div class="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+        <div class="relative text-center mb-8">
+          <span class="w-16 h-16 rounded-2xl bg-brand-red/10 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-gift text-3xl text-brand-red"></i></span>
+          <p class="cine-kicker">Hai un codice?</p>
+          <h1 class="font-serif text-3xl font-bold text-brand-on-surface mt-1">Riscatta Gift Card</h1>
+          <p class="text-sm text-brand-on-surface-variant mt-2">Inserisci il codice della tua gift card per aggiungere il credito al tuo account.</p>
+        </div>
+
+        <div id="error-alert" class="hidden bg-brand-error-container border border-brand-error/30 text-brand-error px-4 py-3 rounded-xl mb-5 text-sm">
+          <i class="fa-solid fa-circle-exclamation mr-2"></i><span id="error-message"></span>
+        </div>
+
+        <div id="success-box" class="hidden bg-brand-gold/10 border border-brand-gold/30 rounded-xl p-5 mb-5">
+          <p class="text-sm font-bold text-brand-gold mb-2"><i class="fa-solid fa-check-circle mr-2"></i>Riscatto completato!</p>
+          <p id="success-amount" class="text-xl font-bold text-brand-on-surface font-serif mb-1"></p>
+          <p id="success-balance" class="text-sm text-brand-on-surface-variant"></p>
+        </div>
+
+        <form id="riscatta-form" class="space-y-5">
+          <div>
+            <label for="codice" class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-2">Codice Gift Card</label>
+            <div class="relative">
+              <i class="fa-solid fa-gift absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-on-surface-variant/50"></i>
+              <input type="text" id="codice" name="codice" class="ghost-input w-full pl-10 pr-4 py-3 rounded-xl font-mono text-lg tracking-wider uppercase" placeholder="C67-XXXX-XXXX" required autocomplete="off">
+            </div>
+            <p class="text-xs text-brand-on-surface-variant mt-1">Formato: C67-XXXX-XXXX</p>
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn-gold w-full py-3.5 text-base font-bold rounded-xl">
+            <span id="btn-text"><i class="fa-solid fa-check mr-2"></i>Riscatta</span>
+            <span id="btn-loader" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Riscatto in corso...</span>
+          </button>
+        </form>
+
+        <div class="mt-6 text-center">
+          <a href="/giftcard.html" class="text-brand-gold hover:text-brand-red text-sm font-medium transition-colors">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Acquista una gift card
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=2"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script>
+    if (typeof Auth === 'undefined' || !Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) {
+      window.location.href = '/login.html?v=99&redirect=' + encodeURIComponent('/riscatta-giftcard.html');
+    }
+
+    document.addEventListener('components:loaded', function() {
+      setTimeout(function() {
+        if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
+      }, 150);
+    });
+    document.getElementById('riscatta-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submit-btn');
+      var bt = document.getElementById('btn-text');
+      var bl = document.getElementById('btn-loader');
+      var err = document.getElementById('error-alert');
+      var em = document.getElementById('error-message');
+      var sb = document.getElementById('success-box');
+
+      bt.classList.add('hidden');
+      bl.classList.remove('hidden');
+      btn.disabled = true;
+      err.classList.add('hidden');
+      sb.classList.add('hidden');
+
+      var codice = document.getElementById('codice').value.trim().toUpperCase();
+
+      try {
+        var result = await API.riscattaGiftCard({ codice: codice });
+        sb.classList.remove('hidden');
+        document.getElementById('success-amount').textContent = '€' + result.creditoAccreditato.toFixed(2).replace('.', ',') + ' accreditati';
+        document.getElementById('success-balance').textContent = 'Nuovo saldo: €' + result.nuovoSaldo.toFixed(2).replace('.', ',');
+        document.getElementById('codice').value = '';
+        showToast('Gift card riscattata! €' + result.creditoAccreditato.toFixed(2) + ' aggiunti al tuo credito', 'success');
+      } catch(e) {
+        em.textContent = e.message || 'Codice non valido o già riscattato';
+        err.classList.remove('hidden');
+      } finally {
+        bt.classList.remove('hidden');
+        bl.classList.add('hidden');
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>

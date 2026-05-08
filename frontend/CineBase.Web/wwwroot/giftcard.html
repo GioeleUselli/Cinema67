@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Gift Card</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+  <style>
+    @media print {
+      @page { margin: 15mm; size: auto; }
+      body { background: white !important; }
+      body * { visibility: hidden; }
+      .giftcard-print, .giftcard-print * { visibility: visible; }
+      .giftcard-print {
+        position: static; display: flex; flex-wrap: wrap; gap: 16px;
+        justify-content: center; padding: 0; margin: 0;
+      }
+      .giftcard-print .card-print-item {
+        width: 80mm; padding: 8mm; border: 2px dashed #b8860b; border-radius: 8px;
+        background: white; page-break-inside: avoid; text-align: center; box-sizing: border-box;
+      }
+      .giftcard-print .card-print-item .ticket-logo {
+        font-family: 'DM Serif Display', serif; font-size: 14pt; color: #b8860b;
+        letter-spacing: 3px; margin: 0 0 2px; font-weight: bold;
+      }
+      .giftcard-print .card-print-item .ticket-label {
+        font-size: 7pt; text-transform: uppercase; letter-spacing: 5px; color: #666; margin: 0 0 10px;
+      }
+      .giftcard-print .card-print-item .ticket-code {
+        font-size: 13pt; font-family: 'Courier New', monospace; font-weight: bold;
+        color: #1a1a1a; letter-spacing: 2px; margin: 8px 0;
+        background: #f5f0e8; padding: 6px 10px; border-radius: 6px;
+        border: 1px dashed #d4af37; display: inline-block; word-break: break-all;
+      }
+      .giftcard-print .card-print-item .ticket-value {
+        font-family: 'DM Serif Display', serif; font-size: 22pt; color: #1a1a1a;
+        margin: 6px 0 2px; font-weight: bold;
+      }
+      .giftcard-print .card-print-item .ticket-expiry { font-size: 8pt; color: #666; margin: 0 0 10px; }
+      .giftcard-print .card-print-item .ticket-divider { border-top: 1px dashed #b8860b; margin: 8px 0; opacity: 0.5; }
+      .giftcard-print .card-print-item .ticket-footer { font-size: 7pt; color: #999; margin: 0; }
+      .no-print { display: none !important; }
+    }
+    .cart-badge { animation: cartPop 0.3s ease; }
+    @keyframes cartPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  </style>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+  <div id="navbar-container" class="no-print"></div>
+
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+
+    <section class="mb-8 no-print">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+        <div class="relative">
+          <p class="cine-kicker">Regala Emozioni</p>
+          <h1 class="cine-headline text-brand-on-surface mt-1">Gift Card Cinema67</h1>
+          <p class="mt-2 text-sm text-brand-on-surface-variant max-w-xl">Scegli uno o più valori, scrivi un messaggio e regala cinema. Paghi tutto insieme.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 no-print">
+
+      <!-- LEFT — Value + Details -->
+      <div class="space-y-6">
+        <!-- Value selection -->
+        <div class="cine-premium-card p-6">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-euro-sign text-brand-gold text-xs"></i></span> Scegli un valore
+          </h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+            <button data-value="25" class="value-btn cine-premium-card p-4 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+              <p class="text-2xl font-bold text-brand-on-surface font-serif">€25</p>
+              <p class="text-xs text-brand-on-surface-variant mt-1">Piccolo gesto</p>
+            </button>
+            <button data-value="50" class="value-btn cine-premium-card p-4 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+              <p class="text-2xl font-bold text-brand-on-surface font-serif">€50</p>
+              <p class="text-xs text-brand-on-surface-variant mt-1">Più scelto</p>
+            </button>
+            <button data-value="100" class="value-btn cine-premium-card p-4 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+              <p class="text-2xl font-bold text-brand-on-surface font-serif">€100</p>
+              <p class="text-xs text-brand-on-surface-variant mt-1">Premium</p>
+            </button>
+            <button data-value="custom" class="value-btn cine-premium-card p-4 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+              <p class="text-2xl font-bold text-brand-on-surface font-serif">Altro</p>
+              <p class="text-xs text-brand-on-surface-variant mt-1">Importo libero</p>
+            </button>
+          </div>
+          <div id="custom-value-row" class="hidden">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-2">Importo (€5 - €500)</label>
+            <input type="number" id="custom-value" class="ghost-input w-full max-w-[200px] px-4 py-2.5 rounded-xl text-lg font-bold" min="5" max="500" step="5" value="50">
+          </div>
+          <div class="flex items-center gap-3 mt-4">
+            <div class="flex items-center gap-2">
+              <button id="qty-minus" class="w-9 h-9 rounded-lg border border-brand-outline-variant/30 flex items-center justify-center hover:border-brand-gold transition-colors"><i class="fa-solid fa-minus text-xs"></i></button>
+              <span id="qty-display" class="w-10 text-center text-lg font-bold text-brand-on-surface font-mono">1</span>
+              <button id="qty-plus" class="w-9 h-9 rounded-lg border border-brand-outline-variant/30 flex items-center justify-center hover:border-brand-gold transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
+            </div>
+            <button id="add-to-cart-btn" class="btn-gold text-sm px-5 py-2.5 whitespace-nowrap" disabled>
+              <i class="fa-solid fa-cart-plus mr-1.5"></i> Aggiungi
+            </button>
+          </div>
+
+          <label class="flex items-center gap-2 cursor-pointer text-sm text-brand-on-surface-variant mt-4 pt-3 border-t border-brand-outline-variant/20">
+            <input type="checkbox" id="is-gift" class="w-4 h-4 rounded border-brand-outline text-brand-red focus:ring-brand-red">
+            <i class="fa-solid fa-gift text-brand-gold"></i> È un regalo — aggiungi email, messaggio e data di invio
+          </label>
+
+          <div id="gift-details" class="hidden mt-4 p-4 rounded-xl bg-brand-surface-container/50 border border-brand-outline-variant/20 space-y-3">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-brand-gold"><i class="fa-solid fa-gift mr-1"></i> Dettagli regalo</p>
+            <input type="email" id="item-email" class="ghost-input w-full px-4 py-2 rounded-lg text-sm" placeholder="Email del destinatario">
+            <textarea id="item-messaggio" rows="2" class="ghost-input w-full px-4 py-2 rounded-lg resize-none text-sm" placeholder="Messaggio personalizzato..." maxlength="500"></textarea>
+            <input type="datetime-local" id="item-data-invio" class="ghost-input w-full px-4 py-2 rounded-lg text-sm" placeholder="Invio programmato (opzionale)">
+            <button id="confirm-add-btn" class="btn-gold text-xs px-4 py-2 w-full">
+              <i class="fa-solid fa-check mr-1"></i> Aggiungi al carrello
+            </button>
+          </div>
+        </div>
+
+        <!-- Dettagli regalo: ora per ogni card nel modale qui sopra -->
+      </div>
+
+      <!-- RIGHT — Cart panel (hidden when empty) -->
+      <div class="space-y-6">
+        <div id="cart-panel" class="hidden cine-premium-card p-6 sticky top-24">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center justify-between">
+            <span><i class="fa-solid fa-cart-shopping mr-2"></i>Carrello</span>
+            <span id="cart-count" class="text-xs bg-brand-red/10 text-brand-red px-2 py-0.5 rounded-full">0</span>
+          </h2>
+
+          <div id="cart-items" class="space-y-2 mb-4 max-h-[300px] overflow-y-auto"></div>
+
+          <div class="cine-divider mb-4"></div>
+
+          <div class="flex justify-between text-lg mb-2">
+            <span class="font-bold text-brand-on-surface">Totale</span>
+            <span class="font-bold text-brand-on-surface font-serif" id="cart-total">—</span>
+          </div>
+
+          <div class="mb-4 p-3 rounded-xl bg-brand-surface-container/50">
+            <div class="flex justify-between text-sm">
+              <span class="text-brand-on-surface-variant">Il tuo credito</span>
+              <span class="text-brand-on-surface font-bold" id="balance-display">€0,00</span>
+            </div>
+          </div>
+
+          <button id="buy-cart-credito" class="btn-gold-lg w-full text-sm mb-2">
+            <i class="fa-solid fa-wallet mr-2"></i> Paga con Credito
+          </button>
+          <button id="buy-cart-carta" class="btn-outline-brand w-full text-sm mb-2">
+            <i class="fa-solid fa-credit-card mr-2"></i> Paga con Carta
+          </button>
+          <button id="buy-cart-misto" class="btn-gold w-full text-sm mb-2">
+            <i class="fa-solid fa-circle-half-stroke mr-2"></i> Misto (Credito + Carta)
+          </button>
+          <p class="text-xs text-center text-brand-on-surface-variant">Puoi aggiungere più gift card di valori diversi.</p>
+        </div>
+
+        <!-- Empty cart state -->
+        <div id="empty-cart" class="cine-premium-card p-6 text-center sticky top-24">
+          <i class="fa-solid fa-cart-shopping text-3xl text-brand-on-surface-variant/30 mb-3"></i>
+          <p class="text-sm text-brand-on-surface-variant">Il carrello è vuoto</p>
+          <p class="text-xs text-brand-on-surface-variant mt-1">Scegli un valore e clicca Aggiungi</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation -->
+    <div id="result-section" class="hidden mt-8">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden border-brand-gold/40">
+        <div class="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-brand-gold/8 blur-3xl pointer-events-none"></div>
+        <div class="relative text-center mb-6">
+          <span class="w-16 h-16 rounded-2xl bg-brand-gold/10 flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-check-circle text-3xl text-brand-gold"></i></span>
+          <h2 class="font-serif text-2xl font-bold text-brand-on-surface">Acquisto completato!</h2>
+          <p class="text-sm text-brand-on-surface-variant mt-1">Le gift card sono state create e inviate via email.</p>
+          <p class="text-sm text-brand-gold font-bold mt-2">Nuovo saldo: <span id="result-balance">€0,00</span></p>
+        </div>
+        <div id="result-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
+        <div class="flex flex-wrap justify-center gap-3 no-print">
+          <button onclick="window.print()" class="btn-outline-brand text-xs"><i class="fa-solid fa-print mr-1.5"></i> Stampa</button>
+          <a href="/riscatta-giftcard.html" class="btn-outline-brand text-xs"><i class="fa-solid fa-ticket mr-1.5"></i> Riscatta</a>
+          <button onclick="document.getElementById('result-section').classList.add('hidden'); window.scrollTo({top:0,behavior:'smooth'});" class="btn-gold text-xs"><i class="fa-solid fa-plus mr-1.5"></i> Nuovo acquisto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Gift Cards -->
+    <section class="mt-8 no-print">
+      <div class="cine-premium-card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-5 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-list-check text-brand-red text-xs"></i></span> Le Mie Gift Card
+        </h2>
+        <div id="my-giftcards-list">
+          <div class="text-center py-10 text-brand-on-surface-variant"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i><p class="text-sm">Caricamento...</p></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-container" class="no-print"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 no-print"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=3"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script>
+    if (typeof Auth === 'undefined' || !Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) {
+      window.location.href = '/login.html?v=99&redirect=' + encodeURIComponent('/giftcard.html');
+    }
+
+    var cart = [];
+    var balance = 0;
+    var pendingValue = 0;
+    var pendingQty = 1;
+
+    document.addEventListener('components:loaded', function() {
+      setTimeout(function() { if (typeof window.updateAuthUI === 'function') window.updateAuthUI(); }, 200);
+    });
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      if (typeof Auth === 'undefined' || !Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) return;
+      setTimeout(function() { if (typeof window.updateAuthUI === 'function') window.updateAuthUI(); }, 350);
+
+      var params = new URLSearchParams(window.location.search);
+      var stripeSession = params.get('stripe_session');
+      if (stripeSession) {
+        window.history.replaceState({}, '', '/giftcard.html');
+        try {
+          var confirmResult = await API.confermaStripeGiftCard({ sessionId: stripeSession });
+          showResult(confirmResult);
+          showToast('Pagamento completato! Gift card create.', 'success');
+        } catch(e) {
+          showToast('Errore conferma pagamento: ' + (e.message || 'Riprova'), 'error');
+        }
+      }
+
+      await loadBalance();
+      await loadMyGiftCards();
+      initUI();
+      renderCart();
+    });
+
+    function initUI() {
+      document.querySelectorAll('.value-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.value-btn').forEach(function(b) { b.classList.remove('ring-2', 'ring-brand-gold'); });
+          this.classList.add('ring-2', 'ring-brand-gold');
+          var v = this.dataset.value;
+          if (v === 'custom') {
+            document.getElementById('custom-value-row').classList.remove('hidden');
+            pendingValue = parseInt(document.getElementById('custom-value').value) || 0;
+          } else {
+            document.getElementById('custom-value-row').classList.add('hidden');
+            pendingValue = parseInt(v);
+          }
+          updateAddButton();
+        });
+      });
+
+      document.getElementById('custom-value').addEventListener('input', function() {
+        pendingValue = Math.min(500, Math.max(5, parseInt(this.value) || 0));
+        updateAddButton();
+      });
+
+      document.getElementById('qty-minus').addEventListener('click', function() { if (pendingQty > 1) { pendingQty--; updateAddButton(); } });
+      document.getElementById('qty-plus').addEventListener('click', function() { if (pendingQty < 10) { pendingQty++; updateAddButton(); } });
+
+      document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+        if (pendingValue <= 0) return;
+        if (document.getElementById('is-gift').checked) {
+          document.getElementById('gift-details').classList.remove('hidden');
+          document.getElementById('item-email').focus();
+        } else {
+          addToCart();
+          document.getElementById('gift-details').classList.add('hidden');
+        }
+      });
+
+      document.getElementById('confirm-add-btn').addEventListener('click', function() {
+        addToCart();
+        document.getElementById('gift-details').classList.add('hidden');
+      });
+
+      document.getElementById('buy-cart-credito').addEventListener('click', function() { checkoutCart('credito'); });
+      document.getElementById('buy-cart-carta').addEventListener('click', function() { checkoutCart('carta'); });
+      document.getElementById('buy-cart-misto').addEventListener('click', function() { checkoutCart('misto'); });
+    }
+
+    function updateAddButton() {
+      document.getElementById('qty-display').textContent = pendingQty;
+      var btn = document.getElementById('add-to-cart-btn');
+      btn.disabled = pendingValue <= 0;
+      btn.style.opacity = pendingValue <= 0 ? '0.5' : '1';
+    }
+
+    function addToCart() {
+      if (pendingValue <= 0) return;
+      var isGift = document.getElementById('is-gift').checked;
+      var itemEmail = isGift ? (document.getElementById('item-email').value.trim() || null) : null;
+      var itemMsg = isGift ? (document.getElementById('item-messaggio').value.trim() || null) : null;
+      var itemData = isGift ? (document.getElementById('item-data-invio').value || null) : null;
+      cart.push({
+        importo: pendingValue,
+        quantita: pendingQty,
+        destinatarioEmail: itemEmail,
+        messaggio: itemMsg,
+        dataInvioProgrammato: itemData ? new Date(itemData).toISOString() : null
+      });
+      pendingValue = 0;
+      pendingQty = 1;
+      document.getElementById('item-email').value = '';
+      document.getElementById('item-messaggio').value = '';
+      document.getElementById('item-data-invio').value = '';
+      document.getElementById('is-gift').checked = false;
+      document.getElementById('gift-details').classList.add('hidden');
+      document.querySelectorAll('.value-btn').forEach(function(b) { b.classList.remove('ring-2', 'ring-brand-gold'); });
+      document.getElementById('custom-value-row').classList.add('hidden');
+      updateAddButton();
+      renderCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+    function renderCart() {
+      var panel = document.getElementById('cart-panel');
+      var empty = document.getElementById('empty-cart');
+      var itemsEl = document.getElementById('cart-items');
+      var countEl = document.getElementById('cart-count');
+      var totalEl = document.getElementById('cart-total');
+
+      if (cart.length === 0) {
+        panel.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      panel.classList.remove('hidden');
+      empty.classList.add('hidden');
+
+      var total = 0;
+      itemsEl.innerHTML = cart.map(function(item, i) {
+        var subtotal = item.importo * item.quantita;
+        total += subtotal;
+        var dettagli = [];
+        if (item.destinatarioEmail) dettagli.push('<i class="fa-solid fa-envelope mr-1"></i>' + item.destinatarioEmail);
+        if (item.messaggio) dettagli.push('<i class="fa-solid fa-message mr-1"></i>"' + item.messaggio.substring(0, 40) + (item.messaggio.length > 40 ? '...' : '') + '"');
+        if (item.dataInvioProgrammato) dettagli.push('<i class="fa-solid fa-clock mr-1"></i>' + new Date(item.dataInvioProgrammato).toLocaleString('it-IT'));
+        return '<div class="flex items-start justify-between p-3 rounded-xl bg-brand-surface-container/50 cart-badge">' +
+          '<div><p class="text-sm font-bold text-brand-on-surface">€' + item.importo.toFixed(2).replace('.', ',') + ' ×' + item.quantita + ' = €' + subtotal.toFixed(2).replace('.', ',') + '</p>' +
+          (dettagli.length > 0 ? '<p class="text-xs text-brand-on-surface-variant mt-1">' + dettagli.join(' · ') + '</p>' : '') +
+          '</div>' +
+          '<button onclick="removeFromCart(' + i + ')" class="text-brand-on-surface-variant hover:text-brand-red p-1 flex-shrink-0"><i class="fa-solid fa-trash-can text-sm"></i></button>' +
+          '</div>';
+      }).join('');
+
+      countEl.textContent = cart.reduce(function(s, i) { return s + i.quantita; }, 0);
+      totalEl.textContent = '€' + total.toFixed(2).replace('.', ',');
+
+      var btns = ['buy-cart-credito', 'buy-cart-carta', 'buy-cart-misto'];
+      btns.forEach(function(id) {
+        var btn = document.getElementById(id);
+        if (btn) btn.disabled = total <= 0;
+      });
+    }
+
+    async function loadBalance() {
+      try {
+        var data = await API.getCreditoMe();
+        balance = data.saldoAttuale || 0;
+        document.getElementById('balance-display').textContent = '€' + balance.toFixed(2).replace('.', ',');
+      } catch(e) { document.getElementById('balance-display').textContent = '€0,00'; }
+    }
+
+    async function checkoutCart(metodo) {
+      if (cart.length === 0) { showToast('Carrello vuoto', 'warning'); return; }
+      var total = cart.reduce(function(s, i) { return s + i.importo * i.quantita; }, 0);
+
+      if (metodo === 'credito' && total > balance) {
+        showToast('Credito insufficiente', 'error'); return;
+      }
+
+      if (metodo === 'carta' || metodo === 'misto') {
+        var pc = metodo === 'misto' ? Math.min(balance, total) : 0;
+        var pk = total - pc;
+        var msg = 'Riepilogo:\nTotale: €' + total.toFixed(2).replace('.', ',') + '\n';
+        if (pc > 0) msg += 'Credito: €' + pc.toFixed(2).replace('.', ',') + '\n';
+        msg += 'Carta: €' + pk.toFixed(2).replace('.', ',') + '\n\nProcedere?';
+        if (!confirm(msg)) return;
+      }
+
+      var dto = {
+        items: cart,
+        metodoPagamento: metodo
+      };
+
+      try {
+        var result = await API.acquistaCarrelloGiftCard(dto);
+        if (result.checkoutUrl) { window.location.href = result.checkoutUrl; return; }
+        cart = [];
+        renderCart();
+        showResult(result);
+        await loadBalance();
+        await loadMyGiftCards();
+        showToast('Gift card acquistate!', 'success');
+      } catch(e) {
+        showToast(e.message || 'Errore acquisto', 'error');
+      }
+    }
+
+    function showResult(result) {
+      document.getElementById('result-section').classList.remove('hidden');
+      document.getElementById('result-balance').textContent = '€' + (result.nuovoSaldoCredito || 0).toFixed(2).replace('.', ',');
+      var cardsHtml = '<div class="giftcard-print">' + (result.giftCards || []).map(function(gc) {
+        var scadenza = new Date(gc.dataScadenza).toLocaleDateString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric'});
+        return '<div class="card-print-item"><p class="ticket-logo">CINEMA67</p><p class="ticket-label">GIFT CARD</p><p class="ticket-code">' + gc.codice + '</p><p class="ticket-value">€' + gc.valoreIniziale.toFixed(2).replace('.', ',') + '</p><p class="ticket-expiry">Valido fino al: ' + scadenza + '</p><div class="ticket-divider"></div><p class="ticket-footer">Regala questo codice. Si riscatta su Cinema67</p></div>';
+      }).join('') + '</div>';
+      document.getElementById('result-cards').innerHTML = cardsHtml;
+      document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function loadMyGiftCards() {
+      var container = document.getElementById('my-giftcards-list');
+      try {
+        var data = await API.getMieGiftCard();
+        if (!data || !data.length) {
+          container.innerHTML = '<div class="text-center py-8"><i class="fa-solid fa-gift text-3xl text-brand-on-surface-variant/30 mb-3"></i><p class="text-sm text-brand-on-surface-variant">Nessuna gift card</p></div>';
+          return;
+        }
+        container.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">' + data.map(function(gc) {
+          var statoColor = gc.stato === 'Attiva' ? 'text-emerald-500' : gc.stato === 'Riscattata' ? 'text-brand-gold' : 'text-brand-on-surface-variant';
+          var statoBg = gc.stato === 'Attiva' ? 'bg-emerald-500/10' : gc.stato === 'Riscattata' ? 'bg-brand-gold/10' : 'bg-brand-surface-container';
+          var scadenza = new Date(gc.dataScadenza).toLocaleDateString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric'});
+          return '<div class="cine-premium-card p-4"><div class="flex justify-between items-start mb-2"><p class="font-mono text-sm font-bold text-brand-on-surface">' + gc.codice + '</p><span class="text-xs font-semibold px-2 py-0.5 rounded-full ' + statoBg + ' ' + statoColor + '">' + gc.stato + '</span></div><p class="text-lg font-bold text-brand-on-surface font-serif">€' + gc.valoreIniziale.toFixed(2).replace('.', ',') + '</p><p class="text-xs text-brand-on-surface-variant">Residuo: €' + gc.saldoResiduo.toFixed(2).replace('.', ',') + ' · Scade ' + scadenza + '</p></div>';
+        }).join('') + '</div>';
+      } catch(e) { container.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore nel caricamento.</p>'; }
+    }
+  </script>
+</body>
+
+</html>

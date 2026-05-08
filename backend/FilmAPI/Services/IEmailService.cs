@@ -12,4 +12,5 @@ public class EmailSendResult
 public interface IEmailService
 {
     Task<EmailSendResult> SendOrderTicketsAsync(OrdineTicketDocumentDTO orderDocument, byte[] pdfBytes, string fileName, CancellationToken cancellationToken = default);
+    Task<EmailSendResult> SendHtmlEmailAsync(string toEmail, string subject, string htmlBody, CancellationToken cancellationToken = default);
 }

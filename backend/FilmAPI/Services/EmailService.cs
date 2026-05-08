@@ -30,6 +30,43 @@ public class EmailService : IEmailService
         _fromName = ReadSetting("SMTP_FROM_NAME") ?? "Cinema67";
     }
 
+    public async Task<EmailSendResult> SendHtmlEmailAsync(string toEmail, string subject, string htmlBody, CancellationToken cancellationToken = default)
+    {
+        if (!HasCompleteConfiguration())
+        {
+            return new EmailSendResult { Success = false, ErrorMessage = "Configurazione SMTP incompleta." };
+        }
+
+        if (string.IsNullOrWhiteSpace(toEmail))
+        {
+            return new EmailSendResult { Success = false, ErrorMessage = "Email destinatario non disponibile." };
+        }
+
+        try
+        {
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(_fromName, _fromEmail));
+            message.To.Add(MailboxAddress.Parse(toEmail));
+            message.Subject = subject;
+
+            var bodyBuilder = new BodyBuilder { HtmlBody = htmlBody };
+            message.Body = bodyBuilder.ToMessageBody();
+
+            using var client = new SmtpClient();
+            await client.ConnectAsync(_smtpHost!, _smtpPort, SecureSocketOptions.StartTls, cancellationToken);
+            await client.AuthenticateAsync(_smtpUser!, _smtpPassword!, cancellationToken);
+            await client.SendAsync(message, cancellationToken);
+            await client.DisconnectAsync(true, cancellationToken);
+
+            return new EmailSendResult { Success = true, SentAtUtc = DateTime.UtcNow };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Invio email fallito a {Email}", toEmail);
+            return new EmailSendResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
     public async Task<EmailSendResult> SendOrderTicketsAsync(OrdineTicketDocumentDTO orderDocument, byte[] pdfBytes, string fileName, CancellationToken cancellationToken = default)
     {
         if (!HasCompleteConfiguration())

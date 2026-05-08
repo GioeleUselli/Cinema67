@@ -587,5 +587,16 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   },
   createUserAdmin: function (data) { return apiFetch('/admin/utenti', { method: 'POST', body: JSON.stringify(data) }); },
   updateUserRole: function (id, data) { return apiFetch('/admin/utenti/' + id + '/ruolo', { method: 'PUT', body: JSON.stringify(data) }); },
-  updateUserCinema: function (id, data) { return apiFetch('/admin/utenti/' + id + '/cinema', { method: 'PUT', body: JSON.stringify(data) }); }
+  updateUserCinema: function (id, data) { return apiFetch('/admin/utenti/' + id + '/cinema', { method: 'PUT', body: JSON.stringify(data) }); },
+
+  // ── Gift Card ──
+  getMieGiftCard: function () { return apiFetch('/giftcard/mie'); },
+  getGiftCardByCodice: function (codice) { return apiFetch('/giftcard/' + encodeURIComponent(codice)); },
+  acquistaGiftCard: function (data) { return apiFetch('/giftcard/acquista', { method: 'POST', body: JSON.stringify(data) }); },
+  acquistaCarrelloGiftCard: function (data) { return apiFetch('/giftcard/acquista-carrello', { method: 'POST', body: JSON.stringify(data) }); },
+  riscattaGiftCard: function (data) { return apiFetch('/giftcard/riscatta', { method: 'POST', body: JSON.stringify(data) }); },
+  confermaStripeGiftCard: function (data) { return apiFetch('/giftcard/conferma-stripe', { method: 'POST', body: JSON.stringify(data) }); },
+  confermaCarrelloGiftCard: function (data) { return apiFetch('/giftcard/conferma-carrello', { method: 'POST', body: JSON.stringify(data) }); },
+  getAllGiftCard: function () { return apiFetch('/admin/giftcard/'); },
+  disattivaGiftCard: function (id) { return apiFetch('/admin/giftcard/' + id + '/disattiva', { method: 'POST' }); }
 };

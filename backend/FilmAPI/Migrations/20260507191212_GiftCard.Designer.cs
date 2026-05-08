@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507191212_GiftCard")]
+    partial class GiftCard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,25 +245,11 @@ namespace FilmAPI.Migrations
                     b.Property<DateTime>("DataAcquisto")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("DataInvioProgrammato")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<DateTime?>("DataRiscatto")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("DataScadenza")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<string>("DestinatarioEmail")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime?>("InviataIl")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Messaggio")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Note")
                         .HasMaxLength(500)

@@ -80,6 +80,7 @@ builder.Services.AddScoped<IStripePaymentGateway, StripePaymentGateway>();
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 builder.Services.AddScoped<ISupportService, SupportService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();
 
@@ -263,6 +264,7 @@ app.MapPagamentoEndpoints();
 app.MapValidazioneBigliettiEndpoints();
 app.MapSupportEndpoints();
 app.MapPromotionEndpoints();
+app.MapGiftCardEndpoints();
 app.MapSocialAuthEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new

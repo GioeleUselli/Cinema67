@@ -38,7 +38,7 @@ async function loadLayoutComponents() {
   if (!navbarContainer && !footerContainer) return;
 
   var pathname = (window.location.pathname || '').toLowerCase();
-  var landingPaths = ['/', '/index.html', '/programmazione.html', '/scheda-film.html', '/my-cinemas.html', '/login.html', '/registrazione.html', '/profilo.html', '/acquista.html', '/pagamento.html', '/esito-acquisto.html', '/forgot-password.html', '/reset-password.html'];
+  var landingPaths = ['/', '/index.html', '/programmazione.html', '/scheda-film.html', '/my-cinemas.html', '/login.html', '/registrazione.html', '/profilo.html', '/acquista.html', '/pagamento.html', '/esito-acquisto.html', '/forgot-password.html', '/reset-password.html', '/giftcard.html', '/riscatta-giftcard.html'];
   var adminShellPaths = ['/films.html', '/registi.html', '/cinemas.html', '/proiezioni.html', '/categorie.html', '/sale.html', '/ricarica-credito.html', '/validazione-biglietti.html', '/support-tickets.html', '/promozioni.html', '/admin-utenti.html'];
 
   if (adminShellPaths.indexOf(pathname) !== -1) {

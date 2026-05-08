@@ -30,6 +30,7 @@ public class FilmDbContext : DbContext
     public DbSet<SupportTicket> SupportTickets { get; set; }
     public DbSet<SupportTicketAudit> SupportTicketAudits { get; set; }
     public DbSet<Promotion> Promotions { get; set; }
+    public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -359,6 +360,29 @@ public class FilmDbContext : DbContext
             entity.HasIndex(e => e.Active);
             entity.HasIndex(e => e.Priority);
             entity.HasIndex(e => e.StartDate);
+        });
+
+        modelBuilder.Entity<GiftCard>(entity =>
+        {
+            entity.HasIndex(e => e.Codice).IsUnique();
+            entity.HasIndex(e => e.Stato);
+            entity.HasIndex(e => e.AcquirenteUserId);
+            entity.HasIndex(e => e.RiscattataDaUserId);
+
+            entity.HasOne(g => g.AcquirenteUser)
+                  .WithMany()
+                  .HasForeignKey(g => g.AcquirenteUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(g => g.RiscattataDaUser)
+                  .WithMany()
+                  .HasForeignKey(g => g.RiscattataDaUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(g => g.Ordine)
+                  .WithMany()
+                  .HasForeignKey(g => g.OrdineId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
