@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508135411_Membership")]
+    partial class Membership
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,9 +308,6 @@ namespace FilmAPI.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("AttivataIl")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("CardNumber")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -318,12 +318,6 @@ namespace FilmAPI.Migrations
 
                     b.Property<DateTime>("DataIscrizione")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("DataScadenzaAbbonamento")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsAttiva")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<decimal>("PuntiDisponibili")
                         .HasColumnType("decimal(10,2)");

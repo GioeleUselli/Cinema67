@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Membership</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+  <nav class="sticky top-0 z-50 border-b border-brand-outline-variant/20 bg-brand-surface/90 backdrop-blur-xl">
+  <div class="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between px-4">
+    <div class="flex items-center gap-3">
+      <a href="/index.html" class="text-brand-gold hover:text-brand-gold-light text-xl" title="Home"><i class="fa-solid fa-house"></i></a>
+      <button onclick="Cinema67Theme.toggle()" class="theme-toggle-btn" title="Cambia tema">
+        <i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i>
+        <i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i>
+      </button>
+    </div>
+    <div class="flex items-center gap-3">
+      <div id="navbar-cinema-display" class="hidden items-center gap-2 rounded-full border border-brand-outline-variant/30 bg-brand-surface-container px-3 py-1.5">
+        <i class="fa-solid fa-location-dot text-brand-gold text-sm"></i>
+        <span id="navbar-selected-cinema" class="max-w-40 truncate text-xs uppercase tracking-widest text-brand-on-surface"></span>
+      </div>
+      <a href="/my-cinemas.html" class="btn-ghost text-xs uppercase tracking-[0.18em]">Cinema</a>
+      <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Programmazione</a>
+      <a href="/membership.html" class="btn-ghost text-xs uppercase tracking-[0.18em]"><i class="fa-solid fa-crown mr-1"></i>Membership</a>
+      <div class="relative">
+        <button id="giftcard-dropdown-btn" class="btn-ghost text-xs uppercase tracking-[0.18em]"><i class="fa-solid fa-gift mr-1"></i>Gift Card <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i></button>
+        <div id="giftcard-dropdown" class="hidden absolute top-full left-0 mt-1 w-48 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container py-2 shadow-lg z-50">
+          <a href="/giftcard.html" class="block px-4 py-2 text-sm text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-cart-shopping mr-2"></i>Acquista</a>
+          <a href="/riscatta-giftcard.html" class="block px-4 py-2 text-sm text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-ticket mr-2"></i>Riscatta</a>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/dashboard.html" id="admin-area-btn" class="hidden btn-gold text-xs tracking-[0.2em] admin-only">Area Admin</a>
+      <a href="/login.html?v=99" id="login-btn" class="btn-outline-brand text-xs">Login</a>
+      <a href="/registrazione.html" id="register-btn" class="btn-gold text-xs">Registrati</a>
+      <div id="user-dropdown" class="relative hidden">
+        <button id="user-menu-toggle" class="flex items-center gap-2 rounded-full border border-brand-outline-variant/30 bg-brand-surface-container px-3 py-2 text-sm text-brand-on-surface hover:text-brand-gold">
+          <span id="user-name" class="font-semibold"></span><i class="fa-solid fa-chevron-down text-xs"></i>
+        </button>
+        <div id="user-menu" class="absolute right-0 mt-2 hidden w-52 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container py-2 shadow-lg">
+          <a href="/profilo.html" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-user mr-2"></i>Profilo</a>
+          <a href="/membership.html" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-crown mr-2"></i>Membership</a>
+          <a href="/profilo.html#prenotazioni" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-ticket mr-2"></i>Prenotazioni</a>
+          <a href="/giftcard.html" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-gift mr-2"></i>Gift Card</a>
+          <hr class="my-2 border-brand-outline-variant/20">
+          <button id="logout-btn" class="nav-menu-danger w-full px-4 py-2 text-left"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button>
+        </div>
+      </div>
+    </div>
+    <button id="mobile-menu-toggle" class="p-2 text-brand-on-surface md:hidden"><i class="fa-solid fa-bars text-2xl"></i></button>
+  </div>
+  <div id="mobile-menu" class="hidden border-t border-brand-outline-variant/20 bg-brand-surface-container md:hidden">
+    <div class="space-y-4 px-4 py-4">
+      <div id="mobile-navbar-cinema-display" class="hidden items-center gap-2 rounded-xl border border-brand-outline-variant/30 bg-brand-surface-container-high px-3 py-2">
+        <i class="fa-solid fa-location-dot text-brand-gold"></i><div><p class="text-[10px] uppercase tracking-widest text-brand-on-surface-variant">Cinema</p><span id="mobile-navbar-selected-cinema" class="text-sm font-medium text-brand-on-surface"></span></div>
+      </div>
+      <div class="space-y-2">
+        <a href="/programmazione.html" class="block rounded-xl py-2 text-center btn-outline-brand">Programmazione</a>
+        <a href="/my-cinemas.html" class="block rounded-xl py-2 text-center btn-outline-brand">I nostri cinema</a>
+        <a href="/dashboard.html" id="mobile-admin-area-btn" class="hidden block rounded-xl py-2 text-center btn-gold admin-only">Area Admin</a>
+      </div>
+      <div class="border-t border-brand-outline-variant/20 pt-3">
+        <div id="mobile-auth-links" class="space-y-2">
+          <a href="/login.html?v=99" class="block rounded-xl py-2 text-center btn-outline-brand">Login</a>
+          <a href="/registrazione.html" class="block rounded-xl py-2 text-center btn-gold">Registrati</a>
+        </div>
+        <div id="mobile-user-menu" class="hidden space-y-1">
+          <p id="mobile-user-name" class="py-1 font-semibold text-brand-gold"></p>
+          <a href="/profilo.html" class="block py-2 text-brand-on-surface hover:text-brand-gold">Profilo</a>
+          <a href="/profilo.html#prenotazioni" class="block py-2 text-brand-on-surface hover:text-brand-gold">Prenotazioni</a>
+          <button id="mobile-logout-btn" class="nav-menu-danger mt-2 w-full rounded-xl py-3 text-left">Logout</button>
+        </div>
+      </div>
+      <div class="border-t border-brand-outline-variant/20 pt-3">
+        <button onclick="Cinema67Theme.toggle()" class="flex w-full items-center gap-3 py-2 text-brand-on-surface hover:text-brand-gold"><i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i><i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i><span>Tema</span></button>
+      </div>
+    </div>
+  </div>
+</nav>
+<script>
+(function(){var a=document.getElementById('login-btn'),b=document.getElementById('register-btn'),c=document.getElementById('user-dropdown'),d=document.getElementById('user-name'),e=document.getElementById('user-menu-toggle'),f=document.getElementById('user-menu'),g=document.getElementById('logout-btn'),h=document.getElementById('mobile-auth-links'),i=document.getElementById('mobile-user-menu'),j=document.getElementById('mobile-user-name'),k=document.getElementById('mobile-logout-btn');
+function l(){var t=!1,n='Account',o=!1;try{if(typeof Auth!=='undefined'&&Auth&&typeof Auth.getAccessToken==='function'){var p=Auth.getAccessToken();if(p&&typeof Auth.isLoggedIn==='function'&&Auth.isLoggedIn()){t=!0;try{var u=Auth.getUser();n=(u&&(u.nome||u.email))||'Account'}catch(e){}try{var r=String((Auth.getUserRole?Auth.getUserRole():'')||'').toLowerCase();o=r==='admin'||r==='poweruser'}catch(e){}}}}catch(e){}
+function q(el,s){if(el){if(s)el.classList.remove('hidden');else el.classList.add('hidden')}}
+q(a,!t);q(b,!t);q(h,!t);q(c,t);if(d)d.textContent=n;q(i,t);if(j)j.textContent=n;
+document.querySelectorAll('.admin-only').forEach(function(el){q(el,o)});
+var hl=document.getElementById('hero-login-btn'),hp=document.getElementById('hero-profile-btn');q(hl,!t);q(hp,t)}
+l();window.updateAuthUI=l;
+if(e)e.addEventListener('click',function(){if(f)f.classList.toggle('hidden')});
+function m(){if(window.Auth&&window.Auth.logout)window.Auth.logout().finally(function(){window.location.href='/index.html'});else window.location.href='/index.html'}
+if(g)g.addEventListener('click',m);if(k)k.addEventListener('click',m);
+var gc=document.getElementById('giftcard-dropdown-btn'),gm=document.getElementById('giftcard-dropdown');
+if(gc&&gm){gc.addEventListener('click',function(ev){ev.stopPropagation();gm.classList.toggle('hidden')})}
+document.addEventListener('click',function(ev){if(e&&f&&!e.contains(ev.target)&&!f.contains(ev.target))f.classList.add('hidden');if(gc&&gm&&!gc.contains(ev.target)&&!gm.contains(ev.target))gm.classList.add('hidden')});
+function ucn(nn){var d1=document.getElementById('navbar-cinema-display'),d2=document.getElementById('navbar-selected-cinema'),m1=document.getElementById('mobile-navbar-cinema-display'),m2=document.getElementById('mobile-navbar-selected-cinema');if(nn){if(d1){d1.classList.remove('hidden');d1.classList.add('flex')}if(d2)d2.textContent=nn;if(m1){m1.classList.remove('hidden');m1.classList.add('flex')}if(m2)m2.textContent=nn}else{if(d1){d1.classList.add('hidden');d1.classList.remove('flex')}if(m1){m1.classList.add('hidden');m1.classList.remove('flex')}}}
+window.updateNavbarCinema=ucn;
+if(typeof window.initializeNavbar==='function'){var orig=window.initializeNavbar;window.initializeNavbar=function(){orig()}}
+document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.cinemaName:null)});})();
+</script>
+
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+
+    <section class="mb-8">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+        <div class="relative">
+          <p class="cine-kicker">Programma Fedeltà</p>
+          <h1 class="cine-headline text-brand-on-surface mt-1">Cinema67 Membership</h1>
+          <p class="mt-2 text-sm text-brand-on-surface-variant max-w-xl">Guadagna punti con ogni acquisto, scala i tier e riscatta premi esclusivi. €9,99/anno.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
+      <div>
+        <div id="card-container" class="cine-premium-card p-6 relative overflow-hidden">
+          <div class="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>
+          <div id="card-loading" class="text-center py-12 text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i><p class="text-sm">Caricamento tessera...</p>
+          </div>
+        </div>
+        <div class="cine-premium-card p-6 mt-6">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-clock-rotate-left text-brand-gold text-xs"></i></span> Storico Punti
+          </h2>
+          <div id="punti-storico"><div class="text-center py-8 text-brand-on-surface-variant"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><p class="text-sm">Caricamento...</p></div></div>
+        </div>
+      </div>
+      <div class="space-y-6">
+        <div id="tier-info" class="cine-premium-card p-5 text-center">
+          <div class="text-center py-4 text-brand-on-surface-variant"><p class="text-sm">Caricamento...</p></div>
+        </div>
+        <div class="cine-premium-card p-6">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-gift text-brand-red text-xs"></i></span> Catalogo Premi
+          </h2>
+          <div id="premi-list" class="space-y-3"><div class="text-center py-8 text-brand-on-surface-variant"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><p class="text-sm">Caricamento...</p></div></div>
+        </div>
+        <div class="cine-premium-card p-6">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-check-double text-brand-gold text-xs"></i></span> I Miei Riscatti
+          </h2>
+          <div id="riscatti-list"><div class="text-center py-8 text-brand-on-surface-variant"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><p class="text-sm">Caricamento...</p></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=3"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script>
+    if (typeof Auth === 'undefined' || !Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) {
+      window.location.href = '/login.html?v=99&redirect=' + encodeURIComponent('/membership.html');
+    }
+
+    document.addEventListener('components:loaded', function() {
+      setTimeout(function() {
+        if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
+      }, 300);
+    });
+
+    var cardData = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      setTimeout(function() {
+        if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
+      }, 500);
+      await loadCard();
+    });
+
+    var cardData = null;
+    var tierColors = { Base: '#a89888', Silver: '#a8a8a8', Gold: '#d4af37', Platinum: '#b91c1c' };
+    var tierIcons = { Base: 'fa-film', Silver: 'fa-star', Gold: 'fa-crown', Platinum: 'fa-gem' };
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      var params = new URLSearchParams(window.location.search);
+      var stripeMembership = params.get('stripe_membership');
+      if (stripeMembership) {
+        window.history.replaceState({}, '', '/membership.html');
+        try {
+          await API.confermaStripeMembership({ sessionId: stripeMembership });
+          showToast('Abbonamento attivato! Benvenuto in Cinema67 Membership', 'success');
+        } catch(e) {
+          showToast('Errore attivazione: ' + (e.message || 'riprova'), 'error');
+        }
+      }
+      await loadCard();
+    });
+
+    async function loadCard() {
+      var container = document.getElementById('card-container');
+      try {
+        cardData = await API.getMembershipCard();
+
+        if (!cardData.isAttiva) {
+          container.innerHTML =
+            '<div class="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>' +
+            '<div class="relative text-center py-8">' +
+              '<span class="w-16 h-16 rounded-2xl bg-brand-gold/10 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-crown text-3xl text-brand-gold"></i></span>' +
+              '<h3 class="font-serif text-xl font-bold text-brand-on-surface mb-2">Abbonamento non attivo</h3>' +
+              '<p class="text-sm text-brand-on-surface-variant mb-4">Attiva Cinema67 Membership per accumulare punti, scalare i tier e riscattare premi esclusivi.</p>' +
+              '<p class="text-lg font-bold text-brand-gold font-serif mb-1">€9,99<span class="text-sm font-normal text-brand-on-surface-variant">/anno</span></p>' +
+              '<p class="text-xs text-brand-on-surface-variant mb-4">Scalato dal tuo credito. Rinnovo annuale.</p>' +
+              '<div class="grid grid-cols-3 gap-3 mb-6 text-xs text-brand-on-surface-variant">' +
+                '<div><i class="fa-solid fa-star text-brand-gold block mb-1 text-lg"></i>Punti su ogni acquisto</div>' +
+                '<div><i class="fa-solid fa-arrow-trend-up text-brand-gold block mb-1 text-lg"></i>4 Tier esclusivi</div>' +
+                '<div><i class="fa-solid fa-gift text-brand-gold block mb-1 text-lg"></i>Premi e sconti</div>' +
+              '</div>' +
+              '<button onclick="vaiAlCheckout()" class="btn-gold-lg text-sm"><i class="fa-solid fa-crown mr-2"></i> Attiva Membership</button>' +
+            '</div>';
+          document.getElementById('tier-info').innerHTML = '<div class="text-center py-6"><p class="text-sm text-brand-on-surface-variant">Attiva l\'abbonamento per vedere i dettagli</p></div>';
+          document.getElementById('punti-storico').innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Storico disponibile dopo l\'attivazione</p>';
+          document.getElementById('premi-list').innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Catalogo disponibile dopo l\'attivazione</p>';
+          document.getElementById('riscatti-list').innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Riscatti disponibili dopo l\'attivazione</p>';
+          return;
+        }
+
+        var tier = cardData.tier;
+        var tierColor = tierColors[tier] || '#a89888';
+        container.innerHTML =
+          '<div class="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>' +
+          '<div class="relative">' +
+            '<div class="flex items-center justify-between mb-6">' +
+              '<div><p class="text-[10px] uppercase tracking-[0.25em] text-brand-gold font-bold">Cinema67 Membership</p><p class="font-serif text-2xl font-bold text-brand-on-surface mt-1">' + cardData.nome + '</p><p class="text-xs text-brand-on-surface-variant">' + cardData.email + '</p></div>' +
+              '<div class="text-right"><span class="text-xs font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full" style="background:' + tierColor + '20;color:' + tierColor + '"><i class="fa-solid ' + tierIcons[tier] + ' mr-1"></i>' + tier + '</span><p class="text-xs text-brand-on-surface-variant mt-1">' + cardData.cardNumber + '</p></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-3 gap-3 mb-4 text-center">' +
+              '<div class="bg-brand-surface-container/50 rounded-xl p-3"><p class="text-2xl font-bold text-brand-on-surface font-serif">' + cardData.puntiDisponibili + '</p><p class="text-xs text-brand-on-surface-variant">Disponibili</p></div>' +
+              '<div class="bg-brand-surface-container/50 rounded-xl p-3"><p class="text-2xl font-bold text-brand-on-surface font-serif">' + cardData.puntiTotali + '</p><p class="text-xs text-brand-on-surface-variant">Totali</p></div>' +
+              '<div class="bg-brand-surface-container/50 rounded-xl p-3"><p class="text-2xl font-bold text-brand-on-surface font-serif">' + cardData.puntiDisponibili + '</p><p class="text-xs text-brand-on-surface-variant">~€' + (cardData.puntiDisponibili * 0.05).toFixed(0) + '</p></div>' +
+            '</div>' +
+            (cardData.prossimoTier !== 'Massimo' ?
+              '<div class="bg-brand-surface-container/50 rounded-xl p-3"><div class="flex justify-between text-xs mb-1"><span class="text-brand-on-surface-variant">Progresso verso ' + cardData.prossimoTier + '</span><span class="text-brand-gold font-bold">' + cardData.percentualeProgresso + '%</span></div><div class="h-2 rounded-full bg-brand-surface-container overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-brand-red to-brand-gold transition-all" style="width:' + cardData.percentualeProgresso + '%"></div></div><p class="text-xs text-brand-on-surface-variant mt-1">Ancora ' + cardData.puntiPerProssimoTier + ' punti</p></div>' :
+              '<div class="bg-brand-gold/10 rounded-xl p-3 text-center"><p class="text-sm text-brand-gold font-bold"><i class="fa-solid fa-gem mr-1"></i> Tier massimo!</p></div>') +
+            '<p class="text-xs text-brand-on-surface-variant mt-3">Tessera n° ' + cardData.cardNumber + ' · Dal ' + new Date(cardData.dataIscrizione).toLocaleDateString('it-IT') + '</p>' +
+            (cardData.dataScadenzaAbbonamento ? '<p class="text-xs text-brand-on-surface-variant">Scade il ' + new Date(cardData.dataScadenzaAbbonamento).toLocaleDateString('it-IT') + '</p>' : '') +
+          '</div>';
+
+        document.getElementById('tier-info').innerHTML =
+          '<p class="text-[10px] uppercase tracking-[0.25em] text-brand-gold font-bold mb-2">Il Tuo Tier</p>' +
+          '<p class="text-3xl font-bold font-serif" style="color:' + tierColor + '">' + tier + '</p>' +
+          '<p class="text-xs text-brand-on-surface-variant mt-1">Moltiplicatore: ' + (tier === 'Platinum' ? '2×' : tier === 'Gold' ? '1.5×' : tier === 'Silver' ? '1.2×' : '1×') + '</p>' +
+          '<div class="grid grid-cols-4 gap-1 mt-4 text-[10px]">' +
+            ['Base','Silver','Gold','Platinum'].map(function(t) {
+              return '<div class="p-2 rounded-lg ' + (tier === t ? 'bg-brand-gold/10 text-brand-gold font-bold' : 'text-brand-on-surface-variant') + '">' + t + '</div>';
+            }).join('') +
+          '</div>';
+
+        await loadPuntiStorico();
+        await loadPremi();
+        await loadRiscatti();
+      } catch(e) {
+        container.innerHTML = '<div class="text-center py-8"><p class="text-sm text-brand-error">Errore caricamento</p></div>';
+      }
+    }
+
+    async function loadPuntiStorico() {
+      var c = document.getElementById('punti-storico');
+      try {
+        var data = await API.getPuntiStorico();
+        if (!data || !data.length) { c.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Nessun movimento</p>'; return; }
+        c.innerHTML = data.map(function(m) {
+          var pos = m.punti > 0, col = pos ? 'text-emerald-500' : 'text-brand-red', sign = pos ? '+' : '';
+          return '<div class="flex items-center justify-between py-2 border-b border-brand-outline-variant/10 last:border-0"><div><p class="text-sm text-brand-on-surface">' + m.tipo + '</p><p class="text-xs text-brand-on-surface-variant">' + (m.note || '') + '</p></div><div class="text-right"><p class="text-sm font-bold ' + col + '">' + sign + m.punti + '</p><p class="text-xs text-brand-on-surface-variant">' + new Date(m.createdAtUtc).toLocaleDateString('it-IT') + '</p></div></div>';
+        }).join('');
+      } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
+    }
+
+    async function loadPremi() {
+      var c = document.getElementById('premi-list');
+      try {
+        var data = await API.getPremiMembership();
+        if (!data || !data.length) { c.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Nessun premio disponibile</p>'; return; }
+        c.innerHTML = data.map(function(p) {
+          var dis = !cardData || !cardData.isAttiva || cardData.puntiDisponibili < p.costoPunti || p.quantitaDisponibile === 0;
+          return '<div class="flex items-center justify-between p-4 rounded-xl bg-brand-surface-container/50"><div><p class="text-sm font-bold text-brand-on-surface">' + p.nome + '</p><p class="text-xs text-brand-on-surface-variant">' + (p.descrizione || '') + '</p><p class="text-xs text-brand-gold font-bold mt-1">' + p.costoPunti + ' punti</p></div><button onclick="riscattaPremio(' + p.id + ')" class="btn-gold text-xs px-4 py-2 whitespace-nowrap" ' + (dis ? 'disabled style="opacity:0.5"' : '') + '><i class="fa-solid fa-gift mr-1"></i> Riscatta</button></div>';
+        }).join('');
+      } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
+    }
+
+    async function loadRiscatti() {
+      var c = document.getElementById('riscatti-list');
+      try {
+        var data = await API.getMieiRiscatti();
+        if (!data || !data.length) { c.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Nessun premio riscattato</p>'; return; }
+        c.innerHTML = data.map(function(r) {
+          return '<div class="flex items-center justify-between py-2 border-b border-brand-outline-variant/10 last:border-0"><div><p class="text-sm text-brand-on-surface font-medium">' + r.premioNome + '</p><p class="text-xs text-brand-on-surface-variant">' + r.codice + ' · ' + r.stato + '</p></div><p class="text-xs text-brand-on-surface-variant">' + new Date(r.dataRiscatto).toLocaleDateString('it-IT') + '</p></div>';
+        }).join('');
+      } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
+    }
+
+    window.vaiAlCheckout = function() {
+      document.getElementById('card-container').innerHTML =
+        '<div class="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>' +
+        '<div class="relative text-center py-8">' +
+          '<span class="w-16 h-16 rounded-2xl bg-brand-gold/10 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-crown text-3xl text-brand-gold"></i></span>' +
+          '<h3 class="font-serif text-xl font-bold text-brand-on-surface mb-4">Riepilogo Abbonamento</h3>' +
+          '<div class="bg-brand-surface-container/50 rounded-xl p-4 mb-4 text-left space-y-2 text-sm">' +
+            '<div class="flex justify-between"><span class="text-brand-on-surface-variant">Cinema67 Membership</span><span class="text-brand-on-surface font-bold">12 mesi</span></div>' +
+            '<div class="flex justify-between"><span class="text-brand-on-surface-variant">Punti su ogni acquisto</span><span class="text-brand-gold font-bold">1-2×</span></div>' +
+            '<div class="flex justify-between"><span class="text-brand-on-surface-variant">Premi e sconti esclusivi</span><span class="text-brand-gold font-bold"><i class="fa-solid fa-check"></i></span></div>' +
+            '<div class="cine-divider"></div>' +
+            '<div class="flex justify-between text-lg"><span class="font-bold text-brand-on-surface">Totale</span><span class="font-bold text-brand-on-surface font-serif">€9,99</span></div>' +
+            '<div class="flex justify-between text-xs"><span class="text-brand-on-surface-variant">Il tuo credito</span><span id="checkout-balance" class="text-brand-on-surface">—</span></div>' +
+          '</div>' +
+          '<div class="space-y-2">' +
+            '<button onclick="pagaMembership(\'credito\')" class="btn-gold-lg w-full text-sm"><i class="fa-solid fa-wallet mr-2"></i> Paga con Credito</button>' +
+            '<button onclick="pagaMembership(\'carta\')" class="btn-outline-brand w-full text-sm"><i class="fa-solid fa-credit-card mr-2"></i> Paga con Carta</button>' +
+            '<button onclick="pagaMembership(\'misto\')" class="btn-gold w-full text-sm"><i class="fa-solid fa-circle-half-stroke mr-2"></i> Misto (Credito + Carta)</button>' +
+          '</div>' +
+          '<button onclick="loadCard()" class="mt-3 text-xs text-brand-on-surface-variant hover:text-brand-gold"><i class="fa-solid fa-arrow-left mr-1"></i> Indietro</button>' +
+        '</div>';
+      API.getCreditoMe().then(function(d) {
+        document.getElementById('checkout-balance').textContent = '€' + (d.saldoAttuale || 0).toFixed(2).replace('.', ',');
+      }).catch(function(){});
+    };
+
+    window.pagaMembership = async function(metodo) {
+      try {
+        if (metodo === 'credito') {
+          var result = await API.attivaMembership();
+          showToast('Abbonamento attivato!', 'success');
+          await loadCard();
+        } else {
+          var result = await API.stripeMembershipCheckout();
+          if (result.checkoutUrl) {
+            window.location.href = result.checkoutUrl;
+          } else {
+            showToast('Abbonamento attivato!', 'success');
+            await loadCard();
+          }
+        }
+      } catch(e) {
+        showToast(e.message || 'Errore', 'error');
+      }
+    };
+
+    window.attivaAbbonamento = async function() {
+      vaiAlCheckout();
+    };
+
+    window.riscattaPremio = async function(id) {
+      try {
+        var result = await API.riscattaPremio(id);
+        showToast('Premio riscattato! Codice: ' + result.codice, 'success');
+        await loadCard();
+      } catch(e) {
+        showToast(e.message || 'Errore', 'error');
+      }
+    };
+  </script>
+</body>
+</html>

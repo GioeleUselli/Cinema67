@@ -31,6 +31,10 @@ public class FilmDbContext : DbContext
     public DbSet<SupportTicketAudit> SupportTicketAudits { get; set; }
     public DbSet<Promotion> Promotions { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
+    public DbSet<MembershipCard> MembershipCards { get; set; }
+    public DbSet<PuntiMovimento> PuntiMovimenti { get; set; }
+    public DbSet<Premio> Premi { get; set; }
+    public DbSet<PremioRiscatto> PremiRiscatti { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -382,6 +386,54 @@ public class FilmDbContext : DbContext
             entity.HasOne(g => g.Ordine)
                   .WithMany()
                   .HasForeignKey(g => g.OrdineId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<MembershipCard>(entity =>
+        {
+            entity.HasIndex(e => e.CardNumber).IsUnique();
+            entity.HasIndex(e => e.UserId).IsUnique();
+
+            entity.HasOne(m => m.User)
+                  .WithMany()
+                  .HasForeignKey(m => m.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PuntiMovimento>(entity =>
+        {
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.CreatedAtUtc);
+
+            entity.HasOne(p => p.User)
+                  .WithMany()
+                  .HasForeignKey(p => p.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.MembershipCard)
+                  .WithMany()
+                  .HasForeignKey(p => p.MembershipCardId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Premio>(entity =>
+        {
+            entity.HasIndex(e => e.Attivo);
+        });
+
+        modelBuilder.Entity<PremioRiscatto>(entity =>
+        {
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.Codice).IsUnique();
+
+            entity.HasOne(r => r.User)
+                  .WithMany()
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.Premio)
+                  .WithMany()
+                  .HasForeignKey(r => r.PremioId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
 

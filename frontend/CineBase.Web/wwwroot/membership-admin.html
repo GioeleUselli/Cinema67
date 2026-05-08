@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Membership Admin</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js"></script>
+  <script src="/js/route-guard.js?v=2"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+
+    <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden mb-8">
+      <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+      <div class="relative">
+        <p class="cine-kicker">Admin</p>
+        <h1 class="cine-headline text-brand-on-surface mt-1">Gestione Membership</h1>
+        <p class="mt-2 text-sm text-brand-on-surface-variant">Visualizza e gestisci gli abbonamenti membership degli utenti.</p>
+      </div>
+    </section>
+
+    <div class="cine-premium-card overflow-x-auto">
+      <table class="min-w-full divide-y divide-brand-outline-variant/10">
+        <thead class="bg-brand-surface-container/50">
+          <tr>
+            <th class="px-6 py-3.5 text-left label-caps">Utente</th>
+            <th class="px-6 py-3.5 text-left label-caps">Email</th>
+            <th class="px-6 py-3.5 text-left label-caps">Tessera</th>
+            <th class="px-6 py-3.5 text-left label-caps">Tier</th>
+            <th class="px-6 py-3.5 text-left label-caps">Punti</th>
+            <th class="px-6 py-3.5 text-left label-caps">Stato</th>
+            <th class="px-6 py-3.5 text-left label-caps">Scadenza</th>
+            <th class="px-6 py-3.5 text-left label-caps">Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="cards-table" class="divide-y divide-brand-outline-variant/10">
+          <tr><td colspan="8" class="px-6 py-8 text-center text-brand-on-surface-variant"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Caricamento...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=3"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/admin-panel.js?v=2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadCards);
+
+    async function loadCards() {
+      var tbody = document.getElementById('cards-table');
+      try {
+        var data = await API.getAllMembershipCards();
+        if (!data || !data.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-brand-on-surface-variant">Nessuna tessera membership</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(function(c) {
+          var scadenza = c.dataScadenzaAbbonamento ? new Date(c.dataScadenzaAbbonamento).toLocaleDateString('it-IT') : '—';
+          return '<tr class="row-hover">' +
+            '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-on-surface">' + c.nome + '</td>' +
+            '<td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant">' + c.email + '</td>' +
+            '<td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface-variant font-mono">' + c.cardNumber + '</td>' +
+            '<td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-brand-gold">' + c.tier + '</td>' +
+            '<td class="px-6 py-4 whitespace-nowrap text-sm text-brand-on-surface">' + c.puntiTotali + '</td>' +
+            '<td class="px-6 py-4 whitespace-nowrap"><span class="text-xs font-semibold px-2 py-0.5 rounded-full ' + (c.isAttiva ? 'bg-emerald-500/10 text-emerald-500' : 'bg-brand-on-surface-variant/10 text-brand-on-surface-variant') + '">' + (c.isAttiva ? 'Attivo' : 'Disattivo') + '</span></td>' +
+            '<td class="px-6 py-4 whitespace-nowrap text-xs text-brand-on-surface-variant">' + scadenza + '</td>' +
+            '<td class="px-6 py-4 whitespace-nowrap"><button onclick="toggleMembership(' + c.userId + ')" class="text-sm ' + (c.isAttiva ? 'text-brand-red hover:text-red-700' : 'text-emerald-500 hover:text-emerald-700') + ' font-medium">' + (c.isAttiva ? 'Disattiva' : 'Attiva') + '</button></td>' +
+            '</tr>';
+        }).join('');
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-brand-error">Errore nel caricamento</td></tr>';
+      }
+    }
+
+    window.toggleMembership = async function(userId) {
+      try {
+        await API.toggleMembership(userId);
+        showToast('Stato aggiornato', 'success');
+        await loadCards();
+      } catch(e) {
+        showToast(e.message || 'Errore', 'error');
+      }
+    };
+  </script>
+</body>
+</html>

@@ -11,7 +11,8 @@
     '/validazione-biglietti.html',
     '/support-tickets.html',
     '/promozioni.html',
-    '/admin-utenti.html'
+    '/admin-utenti.html',
+    '/membership-admin.html'
   ]);
 
   const PAGE_TITLES = {
@@ -26,7 +27,8 @@
     '/validazione-biglietti.html': 'Validazione Biglietti',
     '/support-tickets.html': 'Support Tickets',
     '/promozioni.html': 'Promozioni',
-    '/admin-utenti.html': 'Gestione Utenti'
+    '/admin-utenti.html': 'Gestione Utenti',
+    '/membership-admin.html': 'Membership'
   };
 
   function getUser() {
@@ -135,6 +137,7 @@
             <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-headset"></i>Support Tickets</a>
             <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
             <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
+            <a data-admin-link href="/membership-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-crown"></i>Membership</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="toggleAdminTheme()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
@@ -217,11 +220,11 @@
     var sb = document.getElementById('admin-sidebar');
     if (!sb) return;
     var isDark = document.documentElement.classList.contains('dark');
-    sb.style.background = isDark ? 'linear-gradient(180deg, #06101d, #0f2238)' : 'linear-gradient(180deg, #ffffff, #f1f6fb)';
-    sb.style.color = isDark ? '#94a3b8' : '#0d1b2a';
+    sb.style.background = isDark ? 'linear-gradient(180deg, #14100c, #1c1713)' : 'linear-gradient(180deg, #fdfaf6, #fbf4eb)';
+    sb.style.color = isDark ? '#a89888' : '#1c1108';
     var links = sb.querySelectorAll('a');
     for (var i = 0; i < links.length; i++) {
-      links[i].style.color = isDark ? '#94a3b8' : '#0d1b2a';
+      links[i].style.color = isDark ? '#a89888' : '#1c1108';
     }
     var moon = sb.querySelector('.theme-toggle-icon-moon');
     var sun = sb.querySelector('.theme-toggle-icon-sun');

@@ -29,12 +29,19 @@ public class GiftCardService : IGiftCardService
     private readonly FilmDbContext _db;
     private readonly IEmailService _emailService;
     private readonly IStripePaymentGateway _stripeGateway;
+    private readonly IMembershipService _membershipService;
 
-    public GiftCardService(FilmDbContext db, IEmailService emailService, IStripePaymentGateway stripeGateway)
+    public GiftCardService(FilmDbContext db, IEmailService emailService, IStripePaymentGateway stripeGateway, IMembershipService membershipService)
     {
         _db = db;
         _emailService = emailService;
         _stripeGateway = stripeGateway;
+        _membershipService = membershipService;
+    }
+
+    private async Task AccumulaPuntiAsync(int userId, decimal totale)
+    {
+        try { await _membershipService.AccumulaPuntiAcquistoAsync(userId, totale); } catch { }
     }
 
     public string GeneraCodice()
@@ -116,6 +123,7 @@ public class GiftCardService : IGiftCardService
         }
 
         await _db.SaveChangesAsync();
+        await AccumulaPuntiAsync(userId, totale);
 
         return new GiftCardAcquistoResultDTO
         {

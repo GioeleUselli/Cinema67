@@ -598,5 +598,17 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   confermaStripeGiftCard: function (data) { return apiFetch('/giftcard/conferma-stripe', { method: 'POST', body: JSON.stringify(data) }); },
   confermaCarrelloGiftCard: function (data) { return apiFetch('/giftcard/conferma-carrello', { method: 'POST', body: JSON.stringify(data) }); },
   getAllGiftCard: function () { return apiFetch('/admin/giftcard/'); },
-  disattivaGiftCard: function (id) { return apiFetch('/admin/giftcard/' + id + '/disattiva', { method: 'POST' }); }
+  disattivaGiftCard: function (id) { return apiFetch('/admin/giftcard/' + id + '/disattiva', { method: 'POST' }); },
+
+  // ── Membership ──
+  getMembershipCard: function () { return apiFetch('/membership/card'); },
+  getPuntiStorico: function () { return apiFetch('/membership/punti'); },
+  getPremiMembership: function () { return apiFetch('/membership/premi'); },
+  riscattaPremio: function (premioId) { return apiFetch('/membership/premi/' + premioId + '/riscatta', { method: 'POST' }); },
+  getMieiRiscatti: function () { return apiFetch('/membership/riscatti'); },
+  attivaMembership: function () { return apiFetch('/membership/attiva', { method: 'POST' }); },
+  stripeMembershipCheckout: function () { return apiFetch('/membership/stripe-checkout', { method: 'POST' }); },
+  confermaStripeMembership: function (data) { return apiFetch('/membership/conferma-stripe', { method: 'POST', body: JSON.stringify(data) }); },
+  getAllMembershipCards: function () { return apiFetch('/admin/membership/cards'); },
+  toggleMembership: function (userId) { return apiFetch('/admin/membership/' + userId + '/toggle', { method: 'POST' }); }
 };
