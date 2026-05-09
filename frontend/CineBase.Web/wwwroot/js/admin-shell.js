@@ -12,7 +12,8 @@
     '/support-tickets.html',
     '/promozioni.html',
     '/admin-utenti.html',
-    '/membership-admin.html'
+    '/membership-admin.html',
+    '/newsletter-admin.html'
   ]);
 
   const PAGE_TITLES = {

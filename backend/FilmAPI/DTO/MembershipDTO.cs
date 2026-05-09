@@ -15,8 +15,22 @@ public class MembershipCardDTO
     public int PercentualeProgresso { get; set; }
     public bool IsAttiva { get; set; }
     public DateTime? DataScadenzaAbbonamento { get; set; }
+    public DateTime? DataNascita { get; set; }
+    public string? Via { get; set; }
+    public string? Citta { get; set; }
+    public string? Cap { get; set; }
+    public string? Provincia { get; set; }
     public DateTime DataIscrizione { get; set; }
     public string? QrCodeData { get; set; }
+}
+
+public class MembershipUpdateDTO
+{
+    public DateTime? DataNascita { get; set; }
+    public string? Via { get; set; }
+    public string? Citta { get; set; }
+    public string? Cap { get; set; }
+    public string? Provincia { get; set; }
 }
 
 public class PuntiMovimentoDTO
@@ -60,4 +74,10 @@ public class PremioRiscattoDTO
 public class RiscattaPremioRequestDTO
 {
     public int PremioId { get; set; }
+}
+
+public class ProcessaFestivitaDTO
+{
+    public string NomeFesta { get; set; } = string.Empty;
+    public int PercentualeSconto { get; set; } = 15;
 }

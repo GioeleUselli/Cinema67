@@ -1,4 +1,5 @@
 using FilmAPI.DTO;
+using FilmAPI.Model;
 using FilmAPI.Services;
 using System.Security.Claims;
 
@@ -65,6 +66,14 @@ public static class MembershipEndpoints
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
+        authGroup.MapPut("/profile", async (MembershipUpdateDTO dto, ClaimsPrincipal user, IMembershipService service) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            var result = await service.UpdateProfileAsync(userId, dto);
+            return Results.Ok(result);
+        });
+
         var adminGroup = app.MapGroup("/admin/membership").RequireAuthorization("PowerUserOrAdmin");
 
         adminGroup.MapGet("/cards", async (IMembershipService service) =>
@@ -76,6 +85,48 @@ public static class MembershipEndpoints
         adminGroup.MapPost("/{userId:int}/toggle", async (int userId, IMembershipService service) =>
         {
             var result = await service.ToggleAttivazioneAsync(userId);
+            return Results.Ok(result);
+        });
+
+        adminGroup.MapPost("/processa-compleanni", async (IMembershipService service) =>
+        {
+            await service.ProcessaCompleanniAsync();
+            return Results.Ok(new { message = "Email compleanno processate." });
+        });
+
+        adminGroup.MapPost("/processa-festivita-auto", async (IMembershipService service) =>
+        {
+            await service.ProcessaFestivitaAutomaticheAsync();
+            return Results.Ok(new { message = "Festività automatiche processate." });
+        });
+
+        adminGroup.MapGet("/campaigns", async (IMembershipService service) =>
+        {
+            var result = await service.GetCampaignsAsync();
+            return Results.Ok(result);
+        });
+
+        adminGroup.MapPut("/campaigns/{id:int}", async (int id, CampaignConfig dto, IMembershipService service) =>
+        {
+            var result = await service.UpdateCampaignAsync(id, dto);
+            return Results.Ok(result);
+        });
+
+        adminGroup.MapPost("/campaigns", async (CampaignConfig dto, IMembershipService service) =>
+        {
+            var result = await service.AddCampaignAsync(dto);
+            return Results.Created($"/admin/membership/campaigns/{result.Id}", result);
+        });
+
+        adminGroup.MapDelete("/campaigns/{id:int}", async (int id, IMembershipService service) =>
+        {
+            await service.DeleteCampaignAsync(id);
+            return Results.Ok();
+        });
+
+        adminGroup.MapGet("/compleanni-oggi", async (IMembershipService service) =>
+        {
+            var result = await service.GetCompleanniOggiAsync();
             return Results.Ok(result);
         });
 

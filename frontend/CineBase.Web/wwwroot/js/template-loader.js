@@ -39,7 +39,7 @@ async function loadLayoutComponents() {
 
   var pathname = (window.location.pathname || '').toLowerCase();
   var landingPaths = ['/', '/index.html', '/programmazione.html', '/scheda-film.html', '/my-cinemas.html', '/login.html', '/registrazione.html', '/profilo.html', '/membership.html', '/acquista.html', '/pagamento.html', '/esito-acquisto.html', '/forgot-password.html', '/reset-password.html', '/giftcard.html', '/riscatta-giftcard.html'];
-  var adminShellPaths = ['/films.html', '/registi.html', '/cinemas.html', '/proiezioni.html', '/categorie.html', '/sale.html', '/ricarica-credito.html', '/validazione-biglietti.html', '/support-tickets.html', '/promozioni.html', '/admin-utenti.html', '/membership-admin.html'];
+  var adminShellPaths = ['/films.html', '/registi.html', '/cinemas.html', '/proiezioni.html', '/categorie.html', '/sale.html', '/ricarica-credito.html', '/validazione-biglietti.html', '/support-tickets.html', '/promozioni.html', '/admin-utenti.html', '/membership-admin.html', '/newsletter-admin.html', '/campaigns-admin.html'];
 
   if (adminShellPaths.indexOf(pathname) !== -1) {
     document.dispatchEvent(new Event('components:loaded'));
@@ -62,6 +62,14 @@ async function loadLayoutComponents() {
     chatbotScript.src = '/js/support-chatbot.js';
     chatbotScript.setAttribute('data-support-chatbot', 'true');
     document.body.appendChild(chatbotScript);
+  }
+
+  // Newsletter popup — only for non-authenticated users
+  if (!document.querySelector('script[data-newsletter="true"]')) {
+    var newsletterScript = document.createElement('script');
+    newsletterScript.src = '/js/newsletter-popup.js';
+    newsletterScript.setAttribute('data-newsletter', 'true');
+    document.body.appendChild(newsletterScript);
   }
 }
 

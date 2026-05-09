@@ -14,7 +14,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=1778149126" rel="stylesheet">
   <script src="/js/theme.js"></script>
-  <script src="/js/route-guard.js?v=2"></script>
+  <script src="/js/route-guard.js?v=3"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
@@ -22,10 +22,16 @@
 
     <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden mb-8">
       <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
-      <div class="relative">
-        <p class="cine-kicker">Admin</p>
-        <h1 class="cine-headline text-brand-on-surface mt-1">Gestione Membership</h1>
-        <p class="mt-2 text-sm text-brand-on-surface-variant">Visualizza e gestisci gli abbonamenti membership degli utenti.</p>
+      <div class="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p class="cine-kicker">Admin</p>
+          <h1 class="cine-headline text-brand-on-surface mt-1">Gestione Membership</h1>
+          <p class="mt-2 text-sm text-brand-on-surface-variant">Visualizza e gestisci gli abbonamenti membership degli utenti.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="processaCompleanni()" class="btn-outline-brand text-xs"><i class="fa-solid fa-cake-candles mr-1"></i> Invia Compleanni</button>
+          <button onclick="processaFestivita()" class="btn-outline-brand text-xs"><i class="fa-solid fa-gift mr-1"></i> Invia Festività</button>
+        </div>
       </div>
     </section>
 
@@ -53,9 +59,9 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
   <script src="/js/utils.js?v=99"></script>
-  <script src="/js/api-app.js?v=3"></script>
+  <script src="/js/api-app.js?v=4"></script>
   <script src="/js/auth.js?v=99"></script>
-  <script src="/js/admin-panel.js?v=2"></script>
+  <script src="/js/admin-panel.js?v=3"></script>
   <script>
     document.addEventListener('DOMContentLoaded', loadCards);
 
@@ -93,6 +99,19 @@
       } catch(e) {
         showToast(e.message || 'Errore', 'error');
       }
+    };
+
+    window.processaCompleanni = async function() {
+      if (!confirm('Inviare email di compleanno a tutti i membri che compiono gli anni oggi?')) return;
+      try { await API.processaCompleanni(); showToast('Email compleanno inviate!', 'success'); } catch(e) { showToast('Errore', 'error'); }
+    };
+
+    window.processaFestivita = async function() {
+      var nome = prompt('Nome della festività? (es. Natale, Pasqua, Ferragosto)');
+      if (!nome) return;
+      var sconto = prompt('Percentuale di sconto? (es. 20)', '15');
+      if (!sconto) return;
+      try { await API.processaFestivita({ nomeFesta: nome, percentualeSconto: parseInt(sconto) }); showToast('Email ' + nome + ' inviate!', 'success'); } catch(e) { showToast('Errore', 'error'); }
     };
   </script>
 </body>

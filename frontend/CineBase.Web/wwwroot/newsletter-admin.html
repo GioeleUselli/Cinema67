@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Newsletter Admin</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js"></script>
+  <script src="/js/route-guard.js?v=3"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+
+    <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden mb-8">
+      <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+      <div class="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p class="cine-kicker">Admin</p>
+          <h1 class="cine-headline text-brand-on-surface mt-1">Newsletter</h1>
+          <p class="mt-2 text-sm text-brand-on-surface-variant">Gestisci iscritti e invia newsletter.</p>
+        </div>
+        <button onclick="toggleCompose()" class="btn-gold text-sm whitespace-nowrap"><i class="fa-solid fa-paper-plane mr-2"></i> Componi Email</button>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
+
+      <!-- LEFT — Subscribers table -->
+      <div class="cine-premium-card overflow-x-auto">
+        <div class="p-4 border-b border-brand-outline-variant/10 flex items-center justify-between">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold">Iscritti</h2>
+          <span id="sub-count" class="text-xs text-brand-on-surface-variant">—</span>
+        </div>
+        <table class="min-w-full divide-y divide-brand-outline-variant/10">
+          <thead class="bg-brand-surface-container/50">
+            <tr>
+              <th class="px-4 py-3 text-left label-caps"><input type="checkbox" id="select-all" class="w-4 h-4 rounded"></th>
+              <th class="px-4 py-3 text-left label-caps">Email</th>
+              <th class="px-4 py-3 text-left label-caps">Codice Sconto</th>
+              <th class="px-4 py-3 text-left label-caps">Usato</th>
+              <th class="px-4 py-3 text-left label-caps">Iscritto il</th>
+              <th class="px-4 py-3 text-left label-caps">Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="subs-table" class="divide-y divide-brand-outline-variant/10">
+            <tr><td colspan="6" class="px-4 py-8 text-center text-brand-on-surface-variant"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Caricamento...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RIGHT — Compose + Add -->
+      <div class="space-y-6">
+        <!-- Add subscriber -->
+        <div class="cine-premium-card p-5">
+          <h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-3">Aggiungi Iscritto</h3>
+          <form id="add-form" class="flex gap-2">
+            <input type="email" id="add-email" class="ghost-input flex-1 px-4 py-2.5 rounded-xl text-sm" placeholder="email@esempio.com" required>
+            <button type="submit" class="btn-gold text-sm px-4 py-2.5 whitespace-nowrap">Aggiungi</button>
+          </form>
+        </div>
+
+        <!-- Compose email -->
+        <div id="compose-box" class="hidden cine-premium-card p-5">
+          <h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-3 flex items-center justify-between">
+            <span>Componi Newsletter</span>
+            <button onclick="toggleCompose()" class="text-brand-on-surface-variant hover:text-brand-red"><i class="fa-solid fa-xmark"></i></button>
+          </h3>
+          <p class="text-xs text-brand-on-surface-variant mb-3" id="compose-info"></p>
+          <form id="send-form" class="space-y-3">
+            <input type="text" id="send-oggetto" class="ghost-input w-full px-4 py-2.5 rounded-xl text-sm" placeholder="Oggetto email" required>
+            <textarea id="send-contenuto" rows="5" class="ghost-input w-full px-4 py-2.5 rounded-xl text-sm resize-none" placeholder="Scrivi il testo della newsletter... La grafica viene applicata automaticamente." required></textarea>
+            <div class="flex items-center gap-3">
+              <div class="flex-1">
+                <label class="text-xs text-brand-on-surface-variant mb-1 block">Programma invio <span class="font-normal">(opzionale — lascia vuoto per invio immediato)</span></label>
+                <input type="datetime-local" id="send-schedule" class="ghost-input w-full px-4 py-2.5 rounded-xl text-sm">
+              </div>
+            </div>
+            <p class="text-xs text-brand-on-surface-variant">La grafica Cinema67 (header rosso, footer, logo) viene applicata automaticamente.</p>
+            <button type="submit" class="btn-gold w-full text-sm py-2.5"><i class="fa-solid fa-paper-plane mr-2"></i> Invia Newsletter</button>
+          </form>
+          <div id="send-result" class="hidden mt-3 text-sm text-center font-bold"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=4"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/admin-panel.js?v=3"></script>
+  <script>
+    var subscribers = [];
+
+    document.addEventListener('DOMContentLoaded', loadSubscribers);
+
+    document.getElementById('add-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var email = document.getElementById('add-email').value.trim();
+      try {
+        await API.adminAddSubscriber({ email: email });
+        showToast('Iscritto aggiunto', 'success');
+        document.getElementById('add-email').value = '';
+        await loadSubscribers();
+      } catch(e) { showToast(e.message || 'Errore', 'error'); }
+    });
+
+    document.getElementById('select-all').addEventListener('change', function() {
+      document.querySelectorAll('.sub-check').forEach(function(cb) { cb.checked = this.checked; }.bind(this));
+      updateComposeInfo();
+    });
+
+    document.getElementById('send-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var selected = getSelectedIds();
+      var oggetto = document.getElementById('send-oggetto').value.trim();
+      var contenuto = document.getElementById('send-contenuto').value.trim();
+      var scheduleVal = document.getElementById('send-schedule').value;
+      if (!oggetto || !contenuto) { showToast('Compila oggetto e contenuto', 'warning'); return; }
+      try {
+        var dto = { oggetto: oggetto, contenuto: contenuto, subscriberIds: selected.length > 0 ? selected : null };
+        if (scheduleVal) dto.scheduledAt = new Date(scheduleVal).toISOString();
+        var result = await API.inviaNewsletter(dto);
+        var resEl = document.getElementById('send-result');
+        resEl.classList.remove('hidden');
+        resEl.className = 'mt-3 text-sm text-center font-bold p-3 rounded-xl bg-brand-gold/10 text-brand-gold';
+        resEl.textContent = result.scheduled ? result.message : ('Inviate a ' + result.inviati + ' iscritti!');
+        document.getElementById('send-oggetto').value = '';
+        document.getElementById('send-contenuto').value = '';
+        document.getElementById('send-schedule').value = '';
+      } catch(e) { showToast(e.message || 'Errore invio', 'error'); }
+    });
+
+    async function loadSubscribers() {
+      var tbody = document.getElementById('subs-table');
+      try {
+        subscribers = await API.getNewsletterSubscribers();
+        document.getElementById('sub-count').textContent = subscribers.length + ' iscritti';
+        if (!subscribers.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-brand-on-surface-variant">Nessun iscritto</td></tr>';
+          return;
+        }
+        tbody.innerHTML = subscribers.map(function(s) {
+          return '<tr class="row-hover">' +
+            '<td class="px-4 py-3"><input type="checkbox" class="sub-check w-4 h-4 rounded" value="' + s.id + '" onchange="updateComposeInfo()"></td>' +
+            '<td class="px-4 py-3 text-sm text-brand-on-surface">' + s.email + '</td>' +
+            '<td class="px-4 py-3 text-xs text-brand-on-surface-variant font-mono">' + s.codiceSconto + '</td>' +
+            '<td class="px-4 py-3 text-xs">' + (s.scontoUsato ? '<span class="text-brand-on-surface-variant">Usato</span>' : '<span class="text-emerald-500">Disponibile</span>') + '</td>' +
+            '<td class="px-4 py-3 text-xs text-brand-on-surface-variant">' + new Date(s.iscrittoIl).toLocaleDateString('it-IT') + '</td>' +
+            '<td class="px-4 py-3"><button onclick="removeSub(' + s.id + ')" class="text-brand-red hover:text-red-700 text-xs">Rimuovi</button></td>' +
+            '</tr>';
+        }).join('');
+      } catch(e) { tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-brand-error">Errore</td></tr>'; }
+    }
+
+    function getSelectedIds() {
+      var ids = [];
+      document.querySelectorAll('.sub-check:checked').forEach(function(cb) { ids.push(parseInt(cb.value)); });
+      return ids;
+    }
+
+    function updateComposeInfo() {
+      var sel = getSelectedIds();
+      var info = document.getElementById('compose-info');
+      info.textContent = sel.length > 0 ? 'Invio a ' + sel.length + ' iscritti selezionati' : 'Nessuno selezionato: invierà a TUTTI';
+    }
+
+    window.toggleCompose = function() {
+      var box = document.getElementById('compose-box');
+      box.classList.toggle('hidden');
+      updateComposeInfo();
+    };
+
+    window.removeSub = async function(id) {
+      if (!confirm('Rimuovere questo iscritto?')) return;
+      try {
+        await API.removeNewsletterSubscriber(id);
+        showToast('Rimosso', 'success');
+        await loadSubscribers();
+      } catch(e) { showToast('Errore', 'error'); }
+    };
+  </script>
+</body>
+</html>

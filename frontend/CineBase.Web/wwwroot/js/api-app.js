@@ -29,7 +29,10 @@ function isAdminAreaPath(pathname) {
     '/ricarica-credito.html',
     '/validazione-biglietti.html',
     '/support-tickets.html',
-    '/admin-utenti.html'
+    '/admin-utenti.html',
+    '/membership-admin.html',
+    '/newsletter-admin.html',
+    '/campaigns-admin.html'
   ]);
   return adminPaths.has((pathname || '').toLowerCase());
 }
@@ -609,6 +612,21 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   attivaMembership: function () { return apiFetch('/membership/attiva', { method: 'POST' }); },
   stripeMembershipCheckout: function () { return apiFetch('/membership/stripe-checkout', { method: 'POST' }); },
   confermaStripeMembership: function (data) { return apiFetch('/membership/conferma-stripe', { method: 'POST', body: JSON.stringify(data) }); },
+  updateMembershipProfile: function (data) { return apiFetch('/membership/profile', { method: 'PUT', body: JSON.stringify(data) }); },
+  processaCompleanni: function () { return apiFetch('/admin/membership/processa-compleanni', { method: 'POST' }); },
+  processaFestivita: function (data) { return apiFetch('/admin/membership/processa-festivita', { method: 'POST', body: JSON.stringify(data) }); },
+  getCampaigns: function () { return apiFetch('/admin/membership/campaigns'); },
+  updateCampaign: function (id, data) { return apiFetch('/admin/membership/campaigns/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
+  getCompleanniOggi: function () { return apiFetch('/admin/membership/compleanni-oggi'); },
+  addCampaign: function (data) { return apiFetch('/admin/membership/campaigns', { method: 'POST', body: JSON.stringify(data) }); },
+  processaFestivitaAuto: function () { return apiFetch('/admin/membership/processa-festivita-auto', { method: 'POST' }); },
+  deleteCampaign: function (id) { return apiFetch('/admin/membership/campaigns/' + id, { method: 'DELETE' }); },
   getAllMembershipCards: function () { return apiFetch('/admin/membership/cards'); },
-  toggleMembership: function (userId) { return apiFetch('/admin/membership/' + userId + '/toggle', { method: 'POST' }); }
+  toggleMembership: function (userId) { return apiFetch('/admin/membership/' + userId + '/toggle', { method: 'POST' }); },
+
+  // ── Newsletter ──
+  getNewsletterSubscribers: function () { return apiFetch('/admin/newsletter/subscribers'); },
+  adminAddSubscriber: function (data) { return apiFetch('/admin/newsletter/subscribe', { method: 'POST', body: JSON.stringify(data) }); },
+  removeNewsletterSubscriber: function (id) { return apiFetch('/admin/newsletter/subscribers/' + id, { method: 'DELETE' }); },
+  inviaNewsletter: function (data) { return apiFetch('/admin/newsletter/send', { method: 'POST', body: JSON.stringify(data) }); }
 };

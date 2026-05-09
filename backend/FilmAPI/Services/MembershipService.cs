@@ -13,6 +13,15 @@ public interface IMembershipService
     Task<MembershipCardDTO> ConfermaStripeMembershipAsync(int userId, string sessionId);
     Task<List<MembershipCardDTO>> GetAllCardsAsync();
     Task<MembershipCardDTO> ToggleAttivazioneAsync(int userId);
+    Task<MembershipCardDTO> UpdateProfileAsync(int userId, MembershipUpdateDTO dto);
+    Task ProcessaCompleanniAsync();
+    Task ProcessaFestivitaAsync(string nomeFesta, int percentualeSconto);
+    Task ProcessaFestivitaAutomaticheAsync();
+    Task<List<CampaignConfig>> GetCampaignsAsync();
+    Task<CampaignConfig> UpdateCampaignAsync(int id, CampaignConfig dto);
+    Task<CampaignConfig> AddCampaignAsync(CampaignConfig dto);
+    Task DeleteCampaignAsync(int id);
+    Task<List<MembershipCardDTO>> GetCompleanniOggiAsync();
     Task<List<PuntiMovimentoDTO>> GetPuntiStoricoAsync(int userId);
     Task<List<PremioDTO>> GetPremiDisponibiliAsync(int userId);
     Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId);
@@ -26,11 +35,13 @@ public class MembershipService : IMembershipService
 {
     private readonly FilmDbContext _db;
     private readonly IStripePaymentGateway _stripeGateway;
+    private readonly IEmailService _emailService;
 
-    public MembershipService(FilmDbContext db, IStripePaymentGateway stripeGateway)
+    public MembershipService(FilmDbContext db, IStripePaymentGateway stripeGateway, IEmailService emailService)
     {
         _db = db;
         _stripeGateway = stripeGateway;
+        _emailService = emailService;
     }
 
     public string GeneraCardNumber()
@@ -261,6 +272,11 @@ public class MembershipService : IMembershipService
             PercentualeProgresso = progresso,
             IsAttiva = card.IsAttiva,
             DataScadenzaAbbonamento = card.DataScadenzaAbbonamento,
+            DataNascita = card.DataNascita,
+            Via = card.Via,
+            Citta = card.Citta,
+            Cap = card.Cap,
+            Provincia = card.Provincia,
             DataIscrizione = card.DataIscrizione,
             QrCodeData = card.CardNumber
         };
@@ -487,5 +503,197 @@ public class MembershipService : IMembershipService
 
         await _db.SaveChangesAsync();
         return await GetOrCreateCardAsync(userId);
+    }
+
+    public async Task<MembershipCardDTO> UpdateProfileAsync(int userId, MembershipUpdateDTO dto)
+    {
+        var card = await _db.MembershipCards.FirstOrDefaultAsync(c => c.UserId == userId)
+            ?? throw new ArgumentException("Tessera non trovata.");
+
+        card.DataNascita = dto.DataNascita;
+        card.Via = dto.Via;
+        card.Citta = dto.Citta;
+        card.Cap = dto.Cap;
+        card.Provincia = dto.Provincia;
+
+        await _db.SaveChangesAsync();
+        return await GetOrCreateCardAsync(userId);
+    }
+
+    public async Task ProcessaCompleanniAsync()
+    {
+        var oggi = DateTime.UtcNow.Date;
+        var cards = await _db.MembershipCards
+            .Include(c => c.User)
+            .Where(c => c.IsAttiva && c.DataNascita.HasValue
+                && c.DataNascita.Value.Month == oggi.Month
+                && c.DataNascita.Value.Day == oggi.Day)
+            .ToListAsync();
+
+        foreach (var card in cards)
+        {
+            var email = card.User?.Email;
+            if (string.IsNullOrEmpty(email)) continue;
+
+            var codice = $"BUONCOM-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+            var html = $@"
+<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
+  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:32px 24px;text-align:center;'>
+    <h1 style='color:#d4af37;margin:0;font-size:26px;'>🎂 CINEMA67</h1>
+    <p style='color:#f0e8e0;margin:8px 0 0;font-size:14px;'>Buon Compleanno!</p>
+  </div>
+  <div style='padding:28px 24px;text-align:center;'>
+    <p style='font-size:16px;margin:0 0 16px;'>Ciao {card.User!.Nome},<br>Cinema67 ti augura un felice compleanno!</p>
+    <p style='font-size:14px;margin:0 0 16px;color:#a89888;'>Per festeggiare, ti regaliamo il <strong style='color:#d4af37;'>20% di sconto</strong> sul tuo prossimo acquisto.</p>
+    <div style='background:#1c1713;border-radius:8px;padding:16px;margin:16px 0;border:1px dashed #d4af37;'>
+      <p style='font-size:12px;color:#a89888;margin:0 0 6px;'>CODICE SCONTO</p>
+      <p style='font-size:22px;font-weight:bold;color:#d4af37;margin:0;letter-spacing:3px;font-family:monospace;'>{codice}</p>
+    </div>
+    <p style='font-size:13px;color:#a89888;'>Valido per 7 giorni. Usalo al checkout.</p>
+  </div>
+</div>";
+            try
+            {
+                await _emailService.SendHtmlEmailAsync(email, "🎂 Buon Compleanno da Cinema67!", html);
+            }
+            catch { }
+        }
+    }
+
+    public async Task<List<CampaignConfig>> GetCampaignsAsync()
+    {
+        var configs = await _db.CampaignConfigs.ToListAsync();
+        if (!configs.Any())
+        {
+            configs = new List<CampaignConfig>
+            {
+                new() { Tipo = "compleanno", Nome = "Compleanno", Attiva = true, PercentualeSconto = 20, CreatedAtUtc = DateTime.UtcNow },
+                new() { Tipo = "festivita", Nome = "Natale", Attiva = false, PercentualeSconto = 15, Mese = 12, Giorno = 25, GiorniPrima = 3, MessaggioPersonalizzato = "Auguri di Buon Natale da Cinema67!", CreatedAtUtc = DateTime.UtcNow },
+                new() { Tipo = "festivita", Nome = "Pasqua", Attiva = false, PercentualeSconto = 10, Mese = 4, Giorno = 20, GiorniPrima = 3, CreatedAtUtc = DateTime.UtcNow },
+                new() { Tipo = "festivita", Nome = "Capodanno", Attiva = false, PercentualeSconto = 15, Mese = 1, Giorno = 1, GiorniPrima = 3, CreatedAtUtc = DateTime.UtcNow },
+                new() { Tipo = "festivita", Nome = "Ferragosto", Attiva = false, PercentualeSconto = 10, Mese = 8, Giorno = 15, GiorniPrima = 3, CreatedAtUtc = DateTime.UtcNow },
+                new() { Tipo = "festivita", Nome = "Halloween", Attiva = false, PercentualeSconto = 10, Mese = 10, Giorno = 31, GiorniPrima = 2, CreatedAtUtc = DateTime.UtcNow },
+                new() { Tipo = "festivita", Nome = "San Valentino", Attiva = false, PercentualeSconto = 15, Mese = 2, Giorno = 14, GiorniPrima = 3, CreatedAtUtc = DateTime.UtcNow }
+            };
+            _db.CampaignConfigs.AddRange(configs);
+            await _db.SaveChangesAsync();
+        }
+        else
+        {
+            // Update existing campaigns missing date fields
+            var defaults = new Dictionary<string, (int mese, int giorno)>
+            {
+                ["Natale"] = (12, 25),
+                ["Pasqua"] = (4, 20),
+                ["Capodanno"] = (1, 1),
+                ["Ferragosto"] = (8, 15),
+                ["Halloween"] = (10, 31),
+                ["San Valentino"] = (2, 14)
+            };
+            foreach (var c in configs.Where(c => c.Tipo == "festivita" && !c.Mese.HasValue))
+            {
+                if (defaults.TryGetValue(c.Nome, out var d))
+                {
+                    c.Mese = d.mese;
+                    c.Giorno = d.giorno;
+                    c.GiorniPrima = 3;
+                }
+            }
+            await _db.SaveChangesAsync();
+        }
+        return configs.OrderBy(c => c.Tipo).ThenBy(c => c.Nome).ToList();
+    }
+
+    public async Task<CampaignConfig> UpdateCampaignAsync(int id, CampaignConfig dto)
+    {
+        var config = await _db.CampaignConfigs.FindAsync(id)
+            ?? throw new ArgumentException("Campagna non trovata.");
+
+        config.Nome = dto.Nome;
+        config.Attiva = dto.Attiva;
+        config.PercentualeSconto = dto.PercentualeSconto;
+        config.MessaggioPersonalizzato = dto.MessaggioPersonalizzato;
+
+        await _db.SaveChangesAsync();
+        return config;
+    }
+
+    public async Task<CampaignConfig> AddCampaignAsync(CampaignConfig dto)
+    {
+        var config = new CampaignConfig
+        {
+            Tipo = dto.Tipo,
+            Nome = dto.Nome,
+            Attiva = dto.Attiva,
+            PercentualeSconto = dto.PercentualeSconto,
+            MessaggioPersonalizzato = dto.MessaggioPersonalizzato,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+        _db.CampaignConfigs.Add(config);
+        await _db.SaveChangesAsync();
+        return config;
+    }
+
+    public async Task DeleteCampaignAsync(int id)
+    {
+        var config = await _db.CampaignConfigs.FindAsync(id);
+        if (config != null)
+        {
+            _db.CampaignConfigs.Remove(config);
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    public async Task<List<MembershipCardDTO>> GetCompleanniOggiAsync()
+    {
+        var oggi = DateTime.UtcNow.Date;
+        return await _db.MembershipCards
+            .Include(c => c.User)
+            .Where(c => c.IsAttiva && c.DataNascita.HasValue
+                && c.DataNascita.Value.Month == oggi.Month
+                && c.DataNascita.Value.Day == oggi.Day)
+            .Select(c => new MembershipCardDTO
+            {
+                UserId = c.UserId,
+                CardNumber = c.CardNumber,
+                Nome = c.User!.Nome + " " + c.User.Cognome,
+                Email = c.User.Email,
+                Tier = c.Tier.ToString(),
+                DataNascita = c.DataNascita
+            })
+            .ToListAsync();
+    }
+
+    public async Task ProcessaFestivitaAsync(string nomeFesta, int percentualeSconto)
+    {
+        var cards = await _db.MembershipCards.Include(c => c.User).Where(c => c.IsAttiva).ToListAsync();
+        foreach (var card in cards)
+        {
+            var email = card.User?.Email;
+            if (string.IsNullOrEmpty(email)) continue;
+            var codice = $"{nomeFesta.ToUpper().Replace(" ", "")}-{Guid.NewGuid().ToString()[..6].ToUpper()}";
+            try { await _emailService.SendHtmlEmailAsync(email, $"Auguri di {nomeFesta}!", $"<h1>Cinema67</h1><p>Ciao {card.User!.Nome}, auguri di {nomeFesta}! Sconto del {percentualeSconto}%: <strong>{codice}</strong></p>"); } catch { }
+        }
+    }
+
+    public async Task ProcessaFestivitaAutomaticheAsync()
+    {
+        var oggi = DateTime.UtcNow.Date;
+        var configs = await _db.CampaignConfigs
+            .Where(c => c.Attiva && c.Tipo == "festivita" && c.Mese.HasValue && c.Giorno.HasValue)
+            .ToListAsync();
+
+        foreach (var config in configs)
+        {
+            var dataFesta = new DateTime(oggi.Year, config.Mese!.Value, config.Giorno!.Value);
+            var giorniMancanti = (dataFesta - oggi).Days;
+
+            if (giorniMancanti == config.GiorniPrima)
+            {
+                await ProcessaFestivitaAsync(config.Nome, config.PercentualeSconto);
+                config.UltimaEsecuzione = DateTime.UtcNow;
+            }
+        }
+        await _db.SaveChangesAsync();
     }
 }

@@ -35,6 +35,9 @@ public class FilmDbContext : DbContext
     public DbSet<PuntiMovimento> PuntiMovimenti { get; set; }
     public DbSet<Premio> Premi { get; set; }
     public DbSet<PremioRiscatto> PremiRiscatti { get; set; }
+    public DbSet<NewsletterSubscriber> NewsletterSubscribers { get; set; }
+    public DbSet<NewsletterScheduled> NewsletterScheduleds { get; set; }
+    public DbSet<CampaignConfig> CampaignConfigs { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -435,6 +438,12 @@ public class FilmDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(r => r.PremioId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<NewsletterSubscriber>(entity =>
+        {
+            entity.HasIndex(e => e.Email).IsUnique();
+            entity.HasIndex(e => e.CodiceSconto).IsUnique();
         });
 
         modelBuilder.Entity<PasswordResetToken>(entity =>

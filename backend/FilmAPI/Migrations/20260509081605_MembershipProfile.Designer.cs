@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509081605_MembershipProfile")]
+    partial class MembershipProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,54 +95,6 @@ namespace FilmAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Biglietti");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.CampaignConfig", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Attiva")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("GiorniPrima")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Giorno")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Mese")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MessaggioPersonalizzato")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<int>("PercentualeSconto")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Tipo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<DateTime?>("UltimaEsecuzione")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CampaignConfigs");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Categoria", b =>

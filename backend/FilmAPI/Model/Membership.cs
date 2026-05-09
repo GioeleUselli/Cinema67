@@ -49,6 +49,20 @@ public class MembershipCard
     public DateTime CreatedAtUtc { get; set; }
 
     public DateTime? AttivataIl { get; set; }
+
+    public DateTime? DataNascita { get; set; }
+
+    [MaxLength(200)]
+    public string? Via { get; set; }
+
+    [MaxLength(100)]
+    public string? Citta { get; set; }
+
+    [MaxLength(10)]
+    public string? Cap { get; set; }
+
+    [MaxLength(5)]
+    public string? Provincia { get; set; }
 }
 
 public class PuntiMovimento

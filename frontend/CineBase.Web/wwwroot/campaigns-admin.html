@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Campagne Automatiche</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js"></script>
+  <script src="/js/route-guard.js?v=3"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+
+    <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden mb-8">
+      <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+      <div class="relative">
+        <p class="cine-kicker">Marketing Automation</p>
+        <h1 class="cine-headline text-brand-on-surface mt-1">Campagne Automatiche</h1>
+        <p class="mt-2 text-sm text-brand-on-surface-variant">Gestisci campagne compleanno e festività. Ogni giorno il sistema invia automaticamente le email.</p>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- LEFT — Campaign list -->
+      <div class="cine-premium-card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-bullhorn text-brand-gold text-xs"></i></span> Campagne Configurate
+        </h2>
+        <div id="campaigns-list" class="space-y-3">
+          <p class="text-sm text-brand-on-surface-variant text-center py-4">Caricamento...</p>
+        </div>
+        <button onclick="eseguiOra()" class="btn-gold w-full mt-4 text-sm"><i class="fa-solid fa-play mr-2"></i> Esegui Campagne Attive Ora</button>
+
+        <div class="mt-6 pt-4 border-t border-brand-outline-variant/10">
+          <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-brand-gold mb-3">Aggiungi Festività</h3>
+          <form id="add-festivity-form" class="space-y-2">
+            <div class="flex gap-2">
+              <input type="text" id="new-festa-nome" class="ghost-input flex-1 px-3 py-2 rounded-lg text-sm" placeholder="Nome (es. Ferragosto)" required>
+              <input type="number" id="new-festa-sconto" class="ghost-input w-20 px-3 py-2 rounded-lg text-sm" placeholder="Sconto %" value="15" required>
+            </div>
+            <div class="flex gap-2">
+              <input type="number" id="new-festa-mese" class="ghost-input flex-1 px-3 py-2 rounded-lg text-sm" placeholder="Mese (1-12)" min="1" max="12" required>
+              <input type="number" id="new-festa-giorno" class="ghost-input flex-1 px-3 py-2 rounded-lg text-sm" placeholder="Giorno (1-31)" min="1" max="31" required>
+              <input type="number" id="new-festa-ggprima" class="ghost-input flex-1 px-3 py-2 rounded-lg text-sm" placeholder="Giorni prima" value="3" min="1" max="30" required>
+            </div>
+            <button type="submit" class="btn-gold w-full text-sm py-2"><i class="fa-solid fa-plus mr-1"></i> Aggiungi Festività</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- RIGHT — Compleanni oggi -->
+      <div class="cine-premium-card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-cake-candles text-brand-red text-xs"></i></span> Compleanni Oggi
+        </h2>
+        <div id="compleanni-oggi" class="space-y-2 max-h-[400px] overflow-y-auto">
+          <p class="text-sm text-brand-on-surface-variant text-center py-4">Caricamento...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=4"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/admin-panel.js?v=3"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      await Promise.all([loadCampaigns(), loadCompleanniOggi()]);
+    });
+
+    async function loadCampaigns() {
+      var c = document.getElementById('campaigns-list');
+      try {
+        var data = await API.getCampaigns();
+        c.innerHTML = data.map(function(camp) {
+          return '<div class="p-4 rounded-xl bg-brand-surface-container/50 space-y-3">' +
+            '<div class="flex items-center justify-between">' +
+              '<div><p class="text-sm font-bold text-brand-on-surface">' + (camp.tipo === 'compleanno' ? '🎂 ' : '🎄 ') + (camp.nome || camp.tipo) + '</p><p class="text-xs text-brand-on-surface-variant">Ultima esecuzione: ' + (camp.ultimaEsecuzione ? new Date(camp.ultimaEsecuzione).toLocaleString('it-IT') : 'Mai') + '</p></div>' +
+              '<div class="flex items-center gap-2">' +
+                '<label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ' + (camp.attiva ? 'checked' : '') + ' onchange="toggleCampaign(' + camp.id + ', this.checked)"><div class="w-10 h-6 rounded-full border-2 border-brand-outline-variant/30 bg-brand-surface-container-high peer-checked:bg-brand-gold peer-checked:border-brand-gold after:content-[\'\'] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border after:border-brand-outline-variant/30 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4 peer-checked:after:border-brand-gold"></div></label>' +
+                '<button onclick="deleteCampaign(' + camp.id + ')" class="text-brand-red hover:text-red-700 text-xs p-1" title="Elimina"><i class="fa-solid fa-trash-can"></i></button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex items-center gap-2"><span class="text-xs text-brand-on-surface-variant">Sconto:</span><input type="number" value="' + camp.percentualeSconto + '" class="ghost-input w-16 px-2 py-1 rounded-lg text-xs text-center" onchange="updateCampaign(' + camp.id + ', \'percentuale\', this.value)"><span class="text-xs">%</span></div>' +
+            '<div><input type="text" value="' + (camp.messaggioPersonalizzato || '') + '" placeholder="Messaggio personalizzato..." class="ghost-input w-full px-3 py-1.5 rounded-lg text-xs" onchange="updateCampaign(' + camp.id + ', \'messaggio\', this.value)"></div>' +
+            (camp.tipo === 'festivita' ?
+              '<div class="grid grid-cols-3 gap-2"><div><span class="text-xs text-brand-on-surface-variant">Mese</span><input type="number" value="' + (camp.mese || '') + '" min="1" max="12" class="ghost-input w-full px-2 py-1 rounded-lg text-xs text-center" onchange="updateCampaign(' + camp.id + ', \'mese\', this.value)"></div><div><span class="text-xs text-brand-on-surface-variant">Giorno</span><input type="number" value="' + (camp.giorno || '') + '" min="1" max="31" class="ghost-input w-full px-2 py-1 rounded-lg text-xs text-center" onchange="updateCampaign(' + camp.id + ', \'giorno\', this.value)"></div><div><span class="text-xs text-brand-on-surface-variant">Giorni prima</span><input type="number" value="' + (camp.giorniPrima || 3) + '" min="1" max="30" class="ghost-input w-full px-2 py-1 rounded-lg text-xs text-center" onchange="updateCampaign(' + camp.id + ', \'giorniPrima\', this.value)"></div></div>' : '') +
+            '</div>';
+        }).join('');
+      } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
+    }
+
+    async function loadCompleanniOggi() {
+      var c = document.getElementById('compleanni-oggi');
+      try {
+        var data = await API.getCompleanniOggi();
+        if (!data || !data.length) {
+          c.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Nessun compleanno oggi 🎂</p>';
+          return;
+        }
+        c.innerHTML = '<p class="text-xs text-brand-on-surface-variant mb-2">' + data.length + ' membri compiono gli anni oggi:</p>' +
+          data.map(function(m) {
+            return '<div class="flex items-center justify-between p-2 rounded-lg bg-brand-surface-container/30"><span class="text-sm text-brand-on-surface">' + m.nome + '</span><span class="text-xs text-brand-on-surface-variant">' + m.email + '</span></div>';
+          }).join('');
+      } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
+    }
+
+    window.toggleCampaign = async function(id, checked) {
+      await API.updateCampaign(id, { attiva: checked });
+      showToast(checked ? 'Campagna attivata' : 'Campagna disattivata', 'success');
+    };
+
+    window.updateCampaign = async function(id, field, value) {
+      var dto = {};
+      if (field === 'percentuale') dto.percentualeSconto = parseInt(value) || 0;
+      else if (field === 'messaggio') dto.messaggioPersonalizzato = value;
+      else if (field === 'mese') dto.mese = parseInt(value) || null;
+      else if (field === 'giorno') dto.giorno = parseInt(value) || null;
+      else if (field === 'giorniPrima') dto.giorniPrima = parseInt(value) || 3;
+      await API.updateCampaign(id, dto);
+      showToast('Aggiornato', 'success');
+    };
+
+    document.getElementById('add-festivity-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var nome = document.getElementById('new-festa-nome').value.trim();
+      var sconto = parseInt(document.getElementById('new-festa-sconto').value) || 15;
+      var mese = parseInt(document.getElementById('new-festa-mese').value);
+      var giorno = parseInt(document.getElementById('new-festa-giorno').value);
+      var ggprima = parseInt(document.getElementById('new-festa-ggprima').value) || 3;
+      if (!nome || !mese || !giorno) return;
+      try {
+        await API.addCampaign({ tipo: 'festivita', nome: nome, percentualeSconto: sconto, attiva: false, mese: mese, giorno: giorno, giorniPrima: ggprima });
+        showToast('Festività aggiunta!', 'success');
+        document.getElementById('new-festa-nome').value = '';
+        document.getElementById('new-festa-sconto').value = '15';
+        document.getElementById('new-festa-mese').value = '';
+        document.getElementById('new-festa-giorno').value = '';
+        document.getElementById('new-festa-ggprima').value = '3';
+        await loadCampaigns();
+      } catch(e) { showToast('Errore', 'error'); }
+    });
+
+    window.eseguiOra = async function() {
+      if (!confirm('Eseguire subito tutte le campagne attive (compleanni oggi + festività in scadenza)?')) return;
+      try {
+        await API.processaCompleanni();
+        await API.processaFestivitaAuto();
+        showToast('Campagne eseguite!', 'success');
+        await loadCampaigns();
+      } catch(e) { showToast('Errore', 'error'); }
+    };
+
+    window.deleteCampaign = async function(id) {
+      if (!confirm('Eliminare questa campagna?')) return;
+      try { await API.deleteCampaign(id); showToast('Eliminata', 'success'); await loadCampaigns(); } catch(e) { showToast('Errore', 'error'); }
+    };
+  </script>
+</body>
+</html>

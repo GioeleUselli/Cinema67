@@ -226,6 +226,20 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
                 '<div><i class="fa-solid fa-gift text-brand-gold block mb-1 text-lg"></i>Premi e sconti</div>' +
               '</div>' +
               '<button onclick="vaiAlCheckout()" class="btn-gold-lg text-sm"><i class="fa-solid fa-crown mr-2"></i> Attiva Membership</button>' +
+              '<label class="flex items-center justify-center gap-2 mt-3 text-xs text-brand-on-surface-variant cursor-pointer">' +
+                '<input type="checkbox" id="nl-check" class="w-4 h-4 rounded border-brand-outline text-brand-red">' +
+                '<i class="fa-solid fa-envelope text-brand-gold"></i> Iscrivimi anche alla newsletter (-15% sul primo acquisto)' +
+              '</label>' +
+              '<div class="mt-4 p-4 rounded-xl bg-brand-surface-container/30 text-left space-y-3" id="anagrafica-fields">' +
+                '<p class="text-xs font-bold uppercase tracking-[0.15em] text-brand-gold">Dati personali</p>' +
+                '<input type="date" id="reg-data-nascita" class="ghost-input w-full px-4 py-2.5 rounded-xl text-sm" placeholder="Data di nascita">' +
+                '<input type="text" id="reg-via" class="ghost-input w-full px-4 py-2.5 rounded-xl text-sm" placeholder="Via e numero civico">' +
+                '<div class="grid grid-cols-3 gap-2">' +
+                  '<input type="text" id="reg-citta" class="ghost-input px-4 py-2.5 rounded-xl text-sm" placeholder="Città">' +
+                  '<input type="text" id="reg-cap" class="ghost-input px-4 py-2.5 rounded-xl text-sm" placeholder="CAP">' +
+                  '<input type="text" id="reg-provincia" class="ghost-input px-4 py-2.5 rounded-xl text-sm" placeholder="Prov." maxlength="2">' +
+                '</div>' +
+              '</div>' +
             '</div>';
           document.getElementById('tier-info').innerHTML = '<div class="text-center py-6"><p class="text-sm text-brand-on-surface-variant">Attiva l\'abbonamento per vedere i dettagli</p></div>';
           document.getElementById('punti-storico').innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Storico disponibile dopo l\'attivazione</p>';
@@ -252,6 +266,8 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
               '<div class="bg-brand-surface-container/50 rounded-xl p-3"><div class="flex justify-between text-xs mb-1"><span class="text-brand-on-surface-variant">Progresso verso ' + cardData.prossimoTier + '</span><span class="text-brand-gold font-bold">' + cardData.percentualeProgresso + '%</span></div><div class="h-2 rounded-full bg-brand-surface-container overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-brand-red to-brand-gold transition-all" style="width:' + cardData.percentualeProgresso + '%"></div></div><p class="text-xs text-brand-on-surface-variant mt-1">Ancora ' + cardData.puntiPerProssimoTier + ' punti</p></div>' :
               '<div class="bg-brand-gold/10 rounded-xl p-3 text-center"><p class="text-sm text-brand-gold font-bold"><i class="fa-solid fa-gem mr-1"></i> Tier massimo!</p></div>') +
             '<p class="text-xs text-brand-on-surface-variant mt-3">Tessera n° ' + cardData.cardNumber + ' · Dal ' + new Date(cardData.dataIscrizione).toLocaleDateString('it-IT') + '</p>' +
+            (cardData.dataNascita ? '<p class="text-xs text-brand-on-surface-variant">🎂 ' + new Date(cardData.dataNascita).toLocaleDateString('it-IT') + '</p>' : '') +
+            (cardData.citta ? '<p class="text-xs text-brand-on-surface-variant">📍 ' + cardData.citta + (cardData.provincia ? ' (' + cardData.provincia + ')' : '') + '</p>' : '') +
             (cardData.dataScadenzaAbbonamento ? '<p class="text-xs text-brand-on-surface-variant">Scade il ' + new Date(cardData.dataScadenzaAbbonamento).toLocaleDateString('it-IT') + '</p>' : '') +
           '</div>';
 
@@ -336,6 +352,25 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
 
     window.pagaMembership = async function(metodo) {
       try {
+        if (document.getElementById('nl-check') && document.getElementById('nl-check').checked) {
+          var user = Auth.getUser();
+          if (user && user.email) {
+            try { await fetch('http://localhost:5000/newsletter/iscriviti', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({email: user.email}) }); } catch(e) {}
+          }
+        }
+        // Save profile data
+        var dataNascita = document.getElementById('reg-data-nascita')?.value || null;
+        if (dataNascita || document.getElementById('reg-via')?.value) {
+          try {
+            await API.updateMembershipProfile({
+              dataNascita: dataNascita ? new Date(dataNascita).toISOString() : null,
+              via: document.getElementById('reg-via')?.value || null,
+              citta: document.getElementById('reg-citta')?.value || null,
+              cap: document.getElementById('reg-cap')?.value || null,
+              provincia: document.getElementById('reg-provincia')?.value?.toUpperCase() || null
+            });
+          } catch(e) {}
+        }
         if (metodo === 'credito') {
           var result = await API.attivaMembership();
           showToast('Abbonamento attivato!', 'success');

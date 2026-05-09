@@ -19,6 +19,7 @@ var RouteGuard = (function () {
     '/promozioni.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/admin-utenti.html': { roles: ['admin'], authRequired: true },
     '/membership-admin.html': { roles: ['poweruser', 'admin'], authRequired: true },
+    '/newsletter-admin.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/profilo.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
     '/acquista.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
     '/pagamento.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
