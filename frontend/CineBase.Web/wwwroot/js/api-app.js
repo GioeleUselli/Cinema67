@@ -397,13 +397,13 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   }),
 
   // Checkout - Crea ordine pendente
-  createOrdine: (holdToken, idempotencyKey) => {
+  createOrdine: (holdToken, idempotencyKey, discountCode) => {
     const headers = {};
     if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
     return apiFetch('/checkout/orders', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ holdToken, idempotencyKey: idempotencyKey || undefined })
+      body: JSON.stringify({ holdToken, idempotencyKey: idempotencyKey || undefined, discountCode: discountCode || undefined })
     });
   },
 
@@ -574,6 +574,7 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   createPromotion: function (data) { return apiFetch('/admin/promotions', { method: 'POST', body: JSON.stringify(data) }); },
   updatePromotion: function (id, data) { return apiFetch('/admin/promotions/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
   deletePromotion: function (id) { return apiFetch('/admin/promotions/' + id, { method: 'DELETE' }); },
+  claimPromotion: function (id) { return apiFetch('/promotions/' + id + '/claim', { method: 'POST' }); },
 
   changePassword: function (data) { return apiFetch('/auth/change-password', { method: 'POST', body: JSON.stringify(data) }); },
   changeEmail: function (data) { return apiFetch('/auth/change-email', { method: 'POST', body: JSON.stringify(data) }); },
@@ -621,6 +622,13 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   addCampaign: function (data) { return apiFetch('/admin/membership/campaigns', { method: 'POST', body: JSON.stringify(data) }); },
   processaFestivitaAuto: function () { return apiFetch('/admin/membership/processa-festivita-auto', { method: 'POST' }); },
   deleteCampaign: function (id) { return apiFetch('/admin/membership/campaigns/' + id, { method: 'DELETE' }); },
+
+  // ── Party Booking ──
+  createPartyBooking: function (data) { return apiFetch('/party/prenota', { method: 'POST', body: JSON.stringify(data) }); },
+  getMyPartyBookings: function () { return apiFetch('/party/mie'); },
+  confirmPartyBooking: function (id) { return apiFetch('/party/conferma/' + id, { method: 'POST' }); },
+  getAllPartyBookings: function () { return apiFetch('/admin/party/'); },
+  updatePartyStatus: function (id, status) { return apiFetch('/admin/party/' + id + '/status', { method: 'POST', body: JSON.stringify({ status: status }) }); },
   getAllMembershipCards: function () { return apiFetch('/admin/membership/cards'); },
   toggleMembership: function (userId) { return apiFetch('/admin/membership/' + userId + '/toggle', { method: 'POST' }); },
 

@@ -49,6 +49,7 @@ public class CreateOrdineRequestDTO
 {
     public string HoldToken { get; set; } = string.Empty;
     public string? IdempotencyKey { get; set; }
+    public string? DiscountCode { get; set; }
 }
 
 public class OrdineSummaryDTO
@@ -75,5 +76,8 @@ public class OrdineSummaryDTO
     public DateTime? TicketEmailSentAtUtc { get; set; }
     public string? TicketEmailLastError { get; set; }
     public string? LastPaymentError { get; set; }
+    public int? ScontoPercent { get; set; }
+    public string? DiscountCode { get; set; }
+    public decimal TotaleScontato { get; set; }
     public List<OrdineTicketSummaryDTO> Biglietti { get; set; } = new();
 }

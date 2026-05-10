@@ -93,6 +93,11 @@ public class Ordine
     [Column(TypeName = "decimal(10,2)")]
     public decimal CreditoRiservato { get; set; }
 
+    public int? ScontoPercent { get; set; }
+
+    [MaxLength(30)]
+    public string? DiscountCode { get; set; }
+
     public ICollection<Biglietto> Biglietti { get; set; } = new List<Biglietto>();
 
     [Timestamp]

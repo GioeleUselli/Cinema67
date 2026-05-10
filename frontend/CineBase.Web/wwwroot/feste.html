@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Feste ed Eventi</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=2"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+  <div id="navbar-container"></div>
+
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+
+    <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden mb-8">
+      <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+      <div class="relative">
+        <p class="cine-kicker">Eventi e Feste</p>
+        <h1 class="cine-headline text-brand-on-surface mt-1">Organizza la tua Festa</h1>
+        <p class="mt-2 text-sm text-brand-on-surface-variant max-w-xl">Compleanni, eventi aziendali, feste private. Scegli tra cinema, sala giochi o entrambi.</p>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- LEFT — Booking form -->
+      <div class="space-y-6">
+        <div class="cine-premium-card p-6">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4">Prenota Festa</h2>
+          <form id="booking-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Nome festa</label>
+              <input type="text" id="nome-festa" class="ghost-input w-full px-4 py-2.5 rounded-xl" placeholder="Compleanno di Marco" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Cinema</label>
+              <select id="cinema-select" class="ghost-input w-full px-4 py-2.5 rounded-xl" required><option value="">Caricamento cinema...</option></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Tipo evento</label>
+              <div class="grid grid-cols-3 gap-2" id="tipo-buttons">
+                <button type="button" data-tipo="MovieParty" class="tipo-btn cine-premium-card p-3 text-center hover:border-brand-gold/40 transition-all cursor-pointer ring-2 ring-brand-gold">
+                  <i class="fa-solid fa-film text-xl text-brand-gold mb-1 block"></i>
+                  <span class="text-xs font-bold text-brand-on-surface">Cinema</span>
+                  <span class="text-[10px] text-brand-on-surface-variant">Film + festa</span>
+                </button>
+                <button type="button" data-tipo="GameRoom" class="tipo-btn cine-premium-card p-3 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+                  <i class="fa-solid fa-gamepad text-xl text-brand-gold mb-1 block"></i>
+                  <span class="text-xs font-bold text-brand-on-surface">Sala Giochi</span>
+                  <span class="text-[10px] text-brand-on-surface-variant">Arcade</span>
+                </button>
+                <button type="button" data-tipo="Both" class="tipo-btn cine-premium-card p-3 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+                  <i class="fa-solid fa-layer-group text-xl text-brand-gold mb-1 block"></i>
+                  <span class="text-xs font-bold text-brand-on-surface">Entrambi</span>
+                  <span class="text-[10px] text-brand-on-surface-variant">Film + giochi</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Pacchetto</label>
+              <div class="grid grid-cols-3 gap-2" id="pkg-buttons">
+                <button type="button" data-pkg="Basic" class="pkg-btn cine-premium-card p-3 text-center hover:border-brand-gold/40 transition-all cursor-pointer ring-2 ring-brand-gold">
+                  <span class="text-xs font-bold text-brand-on-surface">Basic</span>
+                  <span class="text-[10px] text-brand-on-surface-variant">Pop corn + bibite</span>
+                </button>
+                <button type="button" data-pkg="Premium" class="pkg-btn cine-premium-card p-3 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+                  <span class="text-xs font-bold text-brand-on-surface">Premium</span>
+                  <span class="text-[10px] text-brand-on-surface-variant">Torta + gadget</span>
+                </button>
+                <button type="button" data-pkg="Vip" class="pkg-btn cine-premium-card p-3 text-center hover:border-brand-gold/40 transition-all cursor-pointer">
+                  <span class="text-xs font-bold text-brand-on-surface">VIP</span>
+                  <span class="text-[10px] text-brand-on-surface-variant">Sala privata + catering</span>
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Data evento</label>
+                <input type="date" id="data-evento" class="ghost-input w-full px-4 py-2.5 rounded-xl" required>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Numero ospiti</label>
+                <input type="number" id="num-ospiti" class="ghost-input w-full px-4 py-2.5 rounded-xl" min="1" max="50" value="10" required>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Ora inizio</label>
+                <input type="time" id="ora-inizio" class="ghost-input w-full px-4 py-2.5 rounded-xl" required>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Ora fine</label>
+                <input type="time" id="ora-fine" class="ghost-input w-full px-4 py-2.5 rounded-xl" required>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-1.5">Richieste speciali</label>
+              <textarea id="richieste" rows="2" class="ghost-input w-full px-4 py-2.5 rounded-xl resize-none" placeholder="Allergie, preferenze, decorazioni..."></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- RIGHT — Summary -->
+      <div class="space-y-6">
+        <div class="cine-premium-card p-6 sticky top-24">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4">Riepilogo</h2>
+          <div id="prezzo-stima" class="text-center py-4">
+            <p class="text-sm text-brand-on-surface-variant">Seleziona tipo e pacchetto</p>
+            <p class="text-3xl font-bold text-brand-gold font-serif mt-2" id="prezzo-display">—</p>
+            <p class="text-xs text-brand-on-surface-variant mt-1" id="prezzo-dettaglio"></p>
+          </div>
+          <button id="btn-prenota-credito" class="btn-gold-lg w-full text-sm mt-4"><i class="fa-solid fa-wallet mr-2"></i> Prenota con Credito</button>
+          <button id="btn-prenota-carta" class="btn-outline-brand w-full text-sm mt-2"><i class="fa-solid fa-credit-card mr-2"></i> Prenota con Carta</button>
+          <button id="btn-prenota-misto" class="btn-gold w-full text-sm mt-2"><i class="fa-solid fa-circle-half-stroke mr-2"></i> Misto</button>
+          <p class="text-xs text-center text-brand-on-surface-variant mt-3">Max 2 feste contemporanee per cinema.</p>
+        </div>
+
+        <!-- My bookings -->
+        <div class="cine-premium-card p-6">
+          <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4">Le Mie Prenotazioni</h2>
+          <div id="mie-prenotazioni" class="space-y-2">
+            <p class="text-sm text-brand-on-surface-variant text-center py-4">Caricamento...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=4"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script>
+    if (typeof Auth === 'undefined' || !Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) {
+      window.location.href = '/login.html?v=99&redirect=' + encodeURIComponent('/feste.html');
+    }
+
+    var selectedTipo = 'MovieParty';
+    var selectedPkg = 'Basic';
+    var prezziBase = { MovieParty: 15, GameRoom: 12, Both: 22 };
+    var moltiplicatori = { Basic: 1, Premium: 1.5, Vip: 2.5 };
+
+    document.addEventListener('components:loaded', function() {
+      setTimeout(function() { if (typeof window.updateAuthUI === 'function') window.updateAuthUI(); }, 250);
+    });
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      var params = new URLSearchParams(window.location.search);
+      var stripeBooking = params.get('stripe_booking');
+      if (stripeBooking) {
+        window.history.replaceState({}, '', '/feste.html');
+        try {
+          await API.confirmPartyBooking(parseInt(stripeBooking));
+          showToast('Festa confermata!', 'success');
+        } catch(e) { showToast('Errore conferma: ' + (e.message || 'riprova'), 'error'); }
+      }
+
+      await loadCinemas();
+      await loadMyBookings();
+      updatePrezzo();
+
+      document.querySelectorAll('.tipo-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tipo-btn').forEach(function(b) { b.classList.remove('ring-2', 'ring-brand-gold'); });
+          this.classList.add('ring-2', 'ring-brand-gold');
+          selectedTipo = this.dataset.tipo;
+          updatePrezzo();
+        });
+      });
+
+      document.querySelectorAll('.pkg-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.pkg-btn').forEach(function(b) { b.classList.remove('ring-2', 'ring-brand-gold'); });
+          this.classList.add('ring-2', 'ring-brand-gold');
+          selectedPkg = this.dataset.pkg;
+          updatePrezzo();
+        });
+      });
+
+      document.getElementById('num-ospiti').addEventListener('input', updatePrezzo);
+
+      document.getElementById('btn-prenota-credito').addEventListener('click', function() { prenota('credito'); });
+      document.getElementById('btn-prenota-carta').addEventListener('click', function() { prenota('carta'); });
+      document.getElementById('btn-prenota-misto').addEventListener('click', function() { prenota('misto'); });
+    });
+
+    function updatePrezzo() {
+      var ospiti = parseInt(document.getElementById('num-ospiti').value) || 10;
+      var prezzo = prezziBase[selectedTipo] * ospiti * moltiplicatori[selectedPkg];
+      document.getElementById('prezzo-display').textContent = '€' + prezzo.toFixed(2).replace('.', ',');
+      document.getElementById('prezzo-dettaglio').textContent = selectedTipo + ' × ' + selectedPkg + ' × ' + ospiti + ' ospiti';
+    }
+
+    async function loadCinemas() {
+      try {
+        var cinemas = await API.getCinemas();
+        var data = Array.isArray(cinemas?.items) ? cinemas.items : Array.isArray(cinemas) ? cinemas : [];
+        var sel = document.getElementById('cinema-select');
+        sel.innerHTML = data.map(function(c) { return '<option value="' + c.id + '">' + c.nome + ' - ' + c.citta + '</option>'; }).join('');
+      } catch(e) { document.getElementById('cinema-select').innerHTML = '<option>Errore</option>'; }
+    }
+
+    async function prenota(metodo) {
+      var cinemaId = parseInt(document.getElementById('cinema-select').value);
+      var nome = document.getElementById('nome-festa').value.trim();
+      var dataEvento = document.getElementById('data-evento').value;
+      var oraInizio = document.getElementById('ora-inizio').value;
+      var oraFine = document.getElementById('ora-fine').value;
+      var ospiti = parseInt(document.getElementById('num-ospiti').value);
+      var richieste = document.getElementById('richieste').value.trim();
+
+      if (!cinemaId || !nome || !dataEvento || !oraInizio || !oraFine || !ospiti) {
+        showToast('Compila tutti i campi', 'warning'); return;
+      }
+
+      try {
+        var result = await API.createPartyBooking({
+          cinemaId: cinemaId, nomeFesta: nome, tipo: selectedTipo, pacchetto: selectedPkg,
+          numeroOspiti: ospiti, dataEvento: new Date(dataEvento).toISOString(),
+          oraInizio: new Date(dataEvento + 'T' + oraInizio).toISOString(),
+          oraFine: new Date(dataEvento + 'T' + oraFine).toISOString(),
+          richiesteSpeciali: richieste || null, metodoPagamento: metodo
+        });
+
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+          return;
+        }
+
+        showToast('Festa prenotata e pagata! Totale: €' + result.totale.toFixed(2), 'success');
+        document.getElementById('nome-festa').value = '';
+        document.getElementById('richieste').value = '';
+        await loadMyBookings();
+      } catch(e) { showToast(e.message || 'Errore prenotazione', 'error'); }
+    }
+
+    async function loadMyBookings() {
+      var c = document.getElementById('mie-prenotazioni');
+      try {
+        var data = await API.getMyPartyBookings();
+        if (!data || !data.length) { c.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Nessuna prenotazione</p>'; return; }
+        c.innerHTML = data.map(function(b) {
+          var statoColor = b.stato === 'Confirmed' ? 'text-emerald-500' : b.stato === 'Pending' ? 'text-amber-500' : 'text-brand-on-surface-variant';
+          return '<div class="p-3 rounded-xl bg-brand-surface-container/50"><div class="flex justify-between"><p class="text-sm font-bold text-brand-on-surface">' + b.nomeFesta + '</p><span class="text-xs font-semibold ' + statoColor + '">' + b.stato + '</span></div><p class="text-xs text-brand-on-surface-variant">' + b.cinemaNome + ' · ' + new Date(b.dataEvento).toLocaleString('it-IT') + ' · ' + b.numeroOspiti + ' ospiti · €' + b.totale.toFixed(2) + '</p></div>';
+        }).join('');
+      } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
+    }
+  </script>
+</body>
+</html>

@@ -155,10 +155,14 @@
     });
 
     window.eseguiOra = async function() {
-      if (!confirm('Eseguire subito tutte le campagne attive (compleanni oggi + festività in scadenza)?')) return;
+      if (!confirm('Eseguire subito tutte le campagne attive (compleanni + festività)?')) return;
       try {
         await API.processaCompleanni();
-        await API.processaFestivitaAuto();
+        var data = await API.getCampaigns();
+        var attive = data.filter(function(c) { return c.attiva && c.tipo === 'festivita'; });
+        for (var i = 0; i < attive.length; i++) {
+          await API.processaFestivita({ nomeFesta: attive[i].nome, percentualeSconto: attive[i].percentualeSconto });
+        }
         showToast('Campagne eseguite!', 'success');
         await loadCampaigns();
       } catch(e) { showToast('Errore', 'error'); }

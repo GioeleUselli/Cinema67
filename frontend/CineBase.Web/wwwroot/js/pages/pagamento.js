@@ -99,13 +99,16 @@ function renderOrderSummary() {
     </div>
   `;
 
-  document.getElementById('order-total').textContent = formatCurrency(ordine.totaleLordo);
+  document.getElementById('order-total').textContent = formatCurrency(ordine.totaleScontato || ordine.totaleLordo);
+  if (ordine.scontoPercent) {
+    document.getElementById('order-total').insertAdjacentHTML('beforebegin', '<div class="flex justify-between text-sm text-emerald-500"><span>Sconto ' + ordine.scontoPercent + '%</span><span></span></div><div class="flex justify-between text-sm text-brand-on-surface-variant line-through"><span>Prezzo pieno</span><span>' + formatCurrency(ordine.totaleLordo) + '</span></div>');
+  }
   updatePayButtonText();
 }
 
 function setupPaymentOptions() {
   const saldo = creditoData?.saldoAttuale || 0;
-  const totale = ordine?.totaleLordo || 0;
+  const totale = ordine?.totaleScontato || ordine?.totaleLordo || 0;
 
   const optionCredito = document.getElementById('option-credito');
   const optionMisto = document.getElementById('option-misto');
@@ -141,7 +144,7 @@ function onPaymentMethodChange(method) {
   const stripeInfoSection = document.getElementById('stripe-info-section');
   const sliderSection = document.getElementById('credit-slider-section');
   const saldo = creditoData?.saldoAttuale || 0;
-  const totale = ordine?.totaleLordo || 0;
+  const totale = ordine?.totaleScontato || ordine?.totaleLordo || 0;
 
   sliderSection.classList.add('hidden');
   stripeInfoSection.classList.add('hidden');
@@ -168,7 +171,7 @@ function onPaymentMethodChange(method) {
 function updateSplitDisplay() {
   const slider = document.getElementById('credit-slider');
   const creditAmount = parseFloat(slider.value);
-  const totale = ordine?.totaleLordo || 0;
+  const totale = ordine?.totaleScontato || ordine?.totaleLordo || 0;
   const cardAmount = totale - creditAmount;
 
   document.getElementById('credit-amount-label').textContent = `Credito: ${formatCurrency(creditAmount)}`;
@@ -179,7 +182,7 @@ function updateSplitDisplay() {
 
 function updatePayButtonText() {
   const method = document.querySelector('input[name="payment-method"]:checked')?.value || 'carta';
-  const totale = ordine?.totaleLordo || 0;
+  const totale = ordine?.totaleScontato || ordine?.totaleLordo || 0;
   let amount = totale;
 
   if (method === 'credito') {

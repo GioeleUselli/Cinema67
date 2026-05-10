@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510080515_PartyBooking")]
+    partial class PartyBooking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -692,15 +695,6 @@ namespace FilmAPI.Migrations
                     b.Property<int>("NumeroOspiti")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("OraFine")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("OraInizio")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("OrdineId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Pacchetto")
                         .HasColumnType("int");
 
@@ -725,8 +719,6 @@ namespace FilmAPI.Migrations
                     b.HasIndex("CinemaId");
 
                     b.HasIndex("FilmId");
-
-                    b.HasIndex("OrdineId");
 
                     b.HasIndex("UserId");
 
@@ -1747,10 +1739,6 @@ namespace FilmAPI.Migrations
                         .WithMany()
                         .HasForeignKey("FilmId");
 
-                    b.HasOne("FilmAPI.Model.Ordine", "Ordine")
-                        .WithMany()
-                        .HasForeignKey("OrdineId");
-
                     b.HasOne("FilmAPI.Model.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -1760,8 +1748,6 @@ namespace FilmAPI.Migrations
                     b.Navigation("Cinema");
 
                     b.Navigation("Film");
-
-                    b.Navigation("Ordine");
 
                     b.Navigation("User");
                 });

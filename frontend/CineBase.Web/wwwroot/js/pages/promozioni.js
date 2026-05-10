@@ -19,6 +19,9 @@ function openModal(editData) {
     form.querySelector('[name="imagePath"]').value = editData.imagePath || '';
     form.querySelector('[name="priority"]').value = editData.priority != null ? editData.priority : 0;
     form.querySelector('[name="active"]').value = editData.active ? 'true' : 'false';
+    form.querySelector('[name="discountPercent"]').value = editData.discountPercent || '';
+    form.querySelector('[name="discountCode"]').value = editData.discountCode || '';
+    form.querySelector('[name="maxUsage"]').value = editData.maxUsage || '';
     if (editData.startDate) form.querySelector('[name="startDate"]').value = editData.startDate.substring(0, 16);
     if (editData.endDate) form.querySelector('[name="endDate"]').value = editData.endDate.substring(0, 16);
   }
@@ -64,6 +67,9 @@ function getFormData() {
     imagePath: f.querySelector('[name="imagePath"]').value || null,
     priority: parseInt(f.querySelector('[name="priority"]').value) || 0,
     active: f.querySelector('[name="active"]').value === 'true',
+    discountPercent: f.querySelector('[name="discountPercent"]').value ? parseInt(f.querySelector('[name="discountPercent"]').value) : null,
+    discountCode: f.querySelector('[name="discountCode"]').value || null,
+    maxUsage: f.querySelector('[name="maxUsage"]').value ? parseInt(f.querySelector('[name="maxUsage"]').value) : null,
     startDate: f.querySelector('[name="startDate"]').value || null,
     endDate: f.querySelector('[name="endDate"]').value || null
   };

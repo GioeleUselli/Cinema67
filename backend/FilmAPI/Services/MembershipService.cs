@@ -14,9 +14,9 @@ public interface IMembershipService
     Task<List<MembershipCardDTO>> GetAllCardsAsync();
     Task<MembershipCardDTO> ToggleAttivazioneAsync(int userId);
     Task<MembershipCardDTO> UpdateProfileAsync(int userId, MembershipUpdateDTO dto);
-    Task ProcessaCompleanniAsync();
+    Task ProcessaCompleanniAsync(bool soloOggi = true);
     Task ProcessaFestivitaAsync(string nomeFesta, int percentualeSconto);
-    Task ProcessaFestivitaAutomaticheAsync();
+    Task ProcessaFestivitaAutomaticheAsync(bool forzato = false);
     Task<List<CampaignConfig>> GetCampaignsAsync();
     Task<CampaignConfig> UpdateCampaignAsync(int id, CampaignConfig dto);
     Task<CampaignConfig> AddCampaignAsync(CampaignConfig dto);
@@ -520,15 +520,17 @@ public class MembershipService : IMembershipService
         return await GetOrCreateCardAsync(userId);
     }
 
-    public async Task ProcessaCompleanniAsync()
+    public async Task ProcessaCompleanniAsync(bool soloOggi = true)
     {
         var oggi = DateTime.UtcNow.Date;
-        var cards = await _db.MembershipCards
+        var query = _db.MembershipCards
             .Include(c => c.User)
-            .Where(c => c.IsAttiva && c.DataNascita.HasValue
-                && c.DataNascita.Value.Month == oggi.Month
-                && c.DataNascita.Value.Day == oggi.Day)
-            .ToListAsync();
+            .Where(c => c.IsAttiva && c.DataNascita.HasValue);
+
+        if (soloOggi)
+            query = query.Where(c => c.DataNascita!.Value.Month == oggi.Month && c.DataNascita!.Value.Day == oggi.Day);
+
+        var cards = await query.ToListAsync();
 
         foreach (var card in cards)
         {
@@ -667,16 +669,19 @@ public class MembershipService : IMembershipService
     public async Task ProcessaFestivitaAsync(string nomeFesta, int percentualeSconto)
     {
         var cards = await _db.MembershipCards.Include(c => c.User).Where(c => c.IsAttiva).ToListAsync();
+        if (!cards.Any()) return;
+
         foreach (var card in cards)
         {
             var email = card.User?.Email;
             if (string.IsNullOrEmpty(email)) continue;
             var codice = $"{nomeFesta.ToUpper().Replace(" ", "")}-{Guid.NewGuid().ToString()[..6].ToUpper()}";
-            try { await _emailService.SendHtmlEmailAsync(email, $"Auguri di {nomeFesta}!", $"<h1>Cinema67</h1><p>Ciao {card.User!.Nome}, auguri di {nomeFesta}! Sconto del {percentualeSconto}%: <strong>{codice}</strong></p>"); } catch { }
+            var html = $"<h1 style='color:#d4af37'>Cinema67</h1><p>Ciao {card.User!.Nome}, auguri di {nomeFesta}! Sconto del {percentualeSconto}%: <strong>{codice}</strong></p>";
+            try { await _emailService.SendHtmlEmailAsync(email, $"Auguri di {nomeFesta}!", html); } catch { }
         }
     }
 
-    public async Task ProcessaFestivitaAutomaticheAsync()
+    public async Task ProcessaFestivitaAutomaticheAsync(bool forzato = false)
     {
         var oggi = DateTime.UtcNow.Date;
         var configs = await _db.CampaignConfigs
@@ -688,7 +693,7 @@ public class MembershipService : IMembershipService
             var dataFesta = new DateTime(oggi.Year, config.Mese!.Value, config.Giorno!.Value);
             var giorniMancanti = (dataFesta - oggi).Days;
 
-            if (giorniMancanti == config.GiorniPrima)
+            if (forzato || giorniMancanti == config.GiorniPrima)
             {
                 await ProcessaFestivitaAsync(config.Nome, config.PercentualeSconto);
                 config.UltimaEsecuzione = DateTime.UtcNow;

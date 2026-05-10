@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Feste Admin</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=1778149126" rel="stylesheet">
+  <script src="/js/theme.js"></script>
+  <script src="/js/route-guard.js?v=3"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+    <section class="cine-premium-card p-6 sm:p-8 relative overflow-hidden mb-8">
+      <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+      <div class="relative">
+        <p class="cine-kicker">Admin</p>
+        <h1 class="cine-headline text-brand-on-surface mt-1">Prenotazioni Feste</h1>
+      </div>
+    </section>
+    <div class="cine-premium-card overflow-x-auto">
+      <table class="min-w-full divide-y divide-brand-outline-variant/10">
+        <thead class="bg-brand-surface-container/50">
+          <tr>
+            <th class="px-4 py-3 text-left label-caps">Festa</th>
+            <th class="px-4 py-3 text-left label-caps">Utente</th>
+            <th class="px-4 py-3 text-left label-caps">Cinema</th>
+            <th class="px-4 py-3 text-left label-caps">Data/Ora</th>
+            <th class="px-4 py-3 text-left label-caps">Tipo</th>
+            <th class="px-4 py-3 text-left label-caps">Ospiti</th>
+            <th class="px-4 py-3 text-left label-caps">Totale</th>
+            <th class="px-4 py-3 text-left label-caps">Stato</th>
+            <th class="px-4 py-3 text-left label-caps">Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="table-body" class="divide-y divide-brand-outline-variant/10">
+          <tr><td colspan="9" class="px-4 py-8 text-center">Caricamento...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=4"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/admin-panel.js?v=3"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadAll);
+    async function loadAll() {
+      var tbody = document.getElementById('table-body');
+      try {
+        var data = await API.getAllPartyBookings();
+        if (!data.length) { tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center">Nessuna prenotazione</td></tr>'; return; }
+        tbody.innerHTML = data.map(function(b) {
+          var sc = b.stato === 'Confirmed' ? 'bg-emerald-500/10 text-emerald-500' : b.stato === 'Pending' ? 'bg-amber-500/10 text-amber-500' : 'bg-brand-on-surface-variant/10 text-brand-on-surface-variant';
+          return '<tr class="row-hover"><td class="px-4 py-3 text-sm font-bold text-brand-on-surface">' + b.nomeFesta + '</td><td class="px-4 py-3 text-sm">' + b.userNome + '</td><td class="px-4 py-3 text-sm">' + b.cinemaNome + '</td><td class="px-4 py-3 text-xs">' + new Date(b.dataEvento).toLocaleDateString() + ' ' + new Date(b.oraInizio).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + '-' + new Date(b.oraFine).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + '</td><td class="px-4 py-3 text-sm">' + b.tipo + ' ' + b.pacchetto + '</td><td class="px-4 py-3 text-sm">' + b.numeroOspiti + '</td><td class="px-4 py-3 text-sm font-bold">€' + b.totale.toFixed(2) + '</td><td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full font-semibold ' + sc + '">' + b.stato + '</span></td><td class="px-4 py-3"><select onchange="updateStatus(' + b.id + ', this.value)" class="ghost-input text-xs px-2 py-1"><option value="">Azione</option><option value="Confirmed">Conferma</option><option value="Completed">Completata</option><option value="Cancelled">Cancella</option></select></td></tr>';
+        }).join('');
+      } catch(e) { tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-brand-error">Errore</td></tr>'; }
+    }
+    window.updateStatus = async function(id, status) {
+      if (!status) return;
+      try { await API.updatePartyStatus(id, status); showToast('Aggiornato', 'success'); await loadAll(); } catch(e) { showToast('Errore', 'error'); }
+    };
+  </script>
+</body>
+</html>

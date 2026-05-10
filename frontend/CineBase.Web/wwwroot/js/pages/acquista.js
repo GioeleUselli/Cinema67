@@ -13,6 +13,8 @@ let countdownInterval = null;
 let keepAliveInterval = null;
 let pollInterval = null;
 let zoomIndex = DEFAULT_ZOOM_INDEX;
+let appliedDiscount = 0;
+let discountCodeApplied = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!Auth?.isLoggedIn?.()) {
@@ -444,6 +446,9 @@ function updateSummary() {
   const totalEl = document.getElementById('summary-total');
   const btnContinue = document.getElementById('btn-continue');
   const countdownCard = document.getElementById('countdown-card');
+  const discountRow = document.getElementById('discount-row');
+  const discountPct = document.getElementById('discount-percent');
+  const discountAmt = document.getElementById('discount-amount');
 
   const selected = getSelectedSeats();
   countEl.textContent = selected.length;
@@ -451,7 +456,17 @@ function updateSummary() {
   const priceBase = seatMap?.prezzoBase || 0;
   const supplement = seatMap?.supplementoSala || 0;
   const unitPrice = priceBase + supplement;
-  const total = selected.length * unitPrice;
+  var total = selected.length * unitPrice;
+
+  if (appliedDiscount > 0) {
+    var discountVal = total * (appliedDiscount / 100);
+    discountRow.classList.remove('hidden');
+    discountPct.textContent = appliedDiscount + '%';
+    discountAmt.textContent = '-' + formatCurrency(discountVal);
+    total = total - discountVal;
+  } else {
+    discountRow.classList.add('hidden');
+  }
   totalEl.textContent = formatCurrency(total);
 
   if (selected.length > 0) {
@@ -568,6 +583,37 @@ function stopPolling() {
 function setupActions() {
   const btnContinue = document.getElementById('btn-continue');
   const btnBack = document.getElementById('btn-back');
+  const btnDiscount = document.getElementById('btn-apply-discount');
+  const discountInput = document.getElementById('discount-code-input');
+  const discountMsg = document.getElementById('discount-message');
+
+  if (btnDiscount) {
+    btnDiscount.addEventListener('click', async function() {
+      var code = discountInput.value.trim().toUpperCase();
+      if (!code) return;
+      discountMsg.classList.add('hidden');
+      try {
+        var promos = await API.getPromotionsActive();
+        var promo = promos.find(function(p) { return p.discountCode === code && p.discountPercent; });
+        if (promo) {
+          appliedDiscount = promo.discountPercent;
+          discountCodeApplied = code;
+          discountMsg.classList.remove('hidden');
+          discountMsg.className = 'text-xs mt-1 text-emerald-500';
+          discountMsg.textContent = 'Codice applicato: -' + appliedDiscount + '%';
+          updateSummary();
+        } else {
+          discountMsg.classList.remove('hidden');
+          discountMsg.className = 'text-xs mt-1 text-brand-error';
+          discountMsg.textContent = 'Codice non valido';
+        }
+      } catch(e) {
+        discountMsg.classList.remove('hidden');
+        discountMsg.className = 'text-xs mt-1 text-brand-error';
+        discountMsg.textContent = 'Errore verifica codice';
+      }
+    });
+  }
 
   btnContinue.addEventListener('click', async () => {
     if (selectedSeatIds.size === 0 || !holdToken) {
@@ -580,7 +626,7 @@ function setupActions() {
 
     try {
       const idempotencyKey = `order-${holdToken}-${Date.now()}`;
-      const ordine = await API.createOrdine(holdToken, idempotencyKey);
+      const ordine = await API.createOrdine(holdToken, idempotencyKey, discountCodeApplied || undefined);
 
       stopPolling();
       stopKeepAlive();

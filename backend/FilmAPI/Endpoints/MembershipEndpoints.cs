@@ -90,8 +90,14 @@ public static class MembershipEndpoints
 
         adminGroup.MapPost("/processa-compleanni", async (IMembershipService service) =>
         {
-            await service.ProcessaCompleanniAsync();
+            await service.ProcessaCompleanniAsync(soloOggi: false);
             return Results.Ok(new { message = "Email compleanno processate." });
+        });
+
+        adminGroup.MapPost("/processa-festivita", async (ProcessaFestivitaDTO dto, IMembershipService service) =>
+        {
+            await service.ProcessaFestivitaAsync(dto.NomeFesta, dto.PercentualeSconto);
+            return Results.Ok(new { message = $"Email {dto.NomeFesta} inviate a tutti i membri attivi." });
         });
 
         adminGroup.MapPost("/processa-festivita-auto", async (IMembershipService service) =>

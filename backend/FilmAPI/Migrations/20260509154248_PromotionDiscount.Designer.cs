@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509154248_PromotionDiscount")]
+    partial class PromotionDiscount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -571,10 +574,6 @@ namespace FilmAPI.Migrations
                     b.Property<decimal>("CreditoRiservato")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("DiscountCode")
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)");
-
                     b.Property<int>("FilmId")
                         .HasColumnType("int");
 
@@ -609,9 +608,6 @@ namespace FilmAPI.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("SalaId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ScontoPercent")
                         .HasColumnType("int");
 
                     b.Property<int>("ShowId")
@@ -660,77 +656,6 @@ namespace FilmAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Ordini");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.PartyBooking", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CinemaId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ConfermatoIl")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("DataEvento")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("FilmId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NomeFesta")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<int>("NumeroOspiti")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("OraFine")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("OraInizio")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("OrdineId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Pacchetto")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RichiesteSpeciali")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<int>("Stato")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Totale")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CinemaId");
-
-                    b.HasIndex("FilmId");
-
-                    b.HasIndex("OrdineId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PartyBookings");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PasswordResetToken", b =>
@@ -1731,37 +1656,6 @@ namespace FilmAPI.Migrations
                     b.Navigation("Sala");
 
                     b.Navigation("Show");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.PartyBooking", b =>
-                {
-                    b.HasOne("FilmAPI.Model.Cinema", "Cinema")
-                        .WithMany()
-                        .HasForeignKey("CinemaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FilmAPI.Model.Film", "Film")
-                        .WithMany()
-                        .HasForeignKey("FilmId");
-
-                    b.HasOne("FilmAPI.Model.Ordine", "Ordine")
-                        .WithMany()
-                        .HasForeignKey("OrdineId");
-
-                    b.HasOne("FilmAPI.Model.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cinema");
-
-                    b.Navigation("Film");
-
-                    b.Navigation("Ordine");
 
                     b.Navigation("User");
                 });

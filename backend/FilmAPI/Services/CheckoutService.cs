@@ -70,6 +70,42 @@ public class CheckoutService : ICheckoutService
         var numeroBiglietti = statiHold.Count;
         var totaleLordo = prezzoPerPosto * numeroBiglietti;
 
+        // Discount code validation
+        int? scontoPercent = null;
+        string? discountCode = null;
+        if (!string.IsNullOrWhiteSpace(dto.DiscountCode))
+        {
+            var code = dto.DiscountCode.Trim().ToUpper();
+            var promo = await _db.Promotions
+                .FirstOrDefaultAsync(p => p.DiscountCode == code && p.Active
+                    && (p.StartDate == null || p.StartDate <= DateTime.UtcNow)
+                    && (p.EndDate == null || p.EndDate >= DateTime.UtcNow));
+            if (promo == null)
+            {
+                var newsletterSub = await _db.NewsletterSubscribers
+                    .FirstOrDefaultAsync(s => s.CodiceSconto == code && !s.ScontoUsato);
+                if (newsletterSub != null)
+                {
+                    scontoPercent = 15; // Default newsletter discount
+                    discountCode = code;
+                    newsletterSub.ScontoUsato = true;
+                }
+            }
+            else
+            {
+                if (promo.DiscountPercent.HasValue)
+                {
+                    if (promo.MaxUsage.HasValue && promo.UsageCount >= promo.MaxUsage.Value)
+                        throw new InvalidOperationException("Codice sconto esaurito.");
+                    scontoPercent = promo.DiscountPercent.Value;
+                    discountCode = code;
+                    promo.UsageCount++;
+                }
+            }
+            if (scontoPercent == null)
+                throw new ArgumentException("Codice sconto non valido o già usato.");
+        }
+
         var codiceOrdine = $"ORD-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..8]}";
 
         var ordine = new Ordine
@@ -84,7 +120,9 @@ public class CheckoutService : ICheckoutService
             NumeroBiglietti = numeroBiglietti,
             TotaleLordo = totaleLordo,
             ImportoCredito = 0,
-            ImportoCarta = totaleLordo,
+            ImportoCarta = scontoPercent.HasValue ? totaleLordo * (1 - scontoPercent.Value / 100m) : totaleLordo,
+            ScontoPercent = scontoPercent,
+            DiscountCode = discountCode,
             IdempotencyKey = dto.IdempotencyKey,
             Stato = OrdineState.Pending,
             CreatedAtUtc = now,
@@ -207,6 +245,9 @@ public class CheckoutService : ICheckoutService
             TicketEmailSentAtUtc = ordine.TicketEmailSentAtUtc,
             TicketEmailLastError = ordine.TicketEmailLastError,
             LastPaymentError = ordine.LastPaymentError,
+            ScontoPercent = ordine.ScontoPercent,
+            DiscountCode = ordine.DiscountCode,
+            TotaleScontato = ordine.ScontoPercent.HasValue ? ordine.TotaleLordo * (1 - ordine.ScontoPercent.Value / 100m) : ordine.TotaleLordo,
             Biglietti = ordine.Biglietti
                 .OrderBy(b => b.SalaPosto?.Settore)
                 .ThenBy(b => b.SalaPosto?.Fila)

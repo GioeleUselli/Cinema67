@@ -28,6 +28,15 @@ public class Promotion
     [Column(TypeName = "decimal(10,2)")]
     public decimal? Price { get; set; }
 
+    public int? DiscountPercent { get; set; }
+
+    [MaxLength(30)]
+    public string? DiscountCode { get; set; }
+
+    public int? MaxUsage { get; set; }
+
+    public int UsageCount { get; set; }
+
     [Required]
     public bool Active { get; set; }
 

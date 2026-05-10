@@ -13,6 +13,7 @@ public interface IPromotionService
     Task<PromotionDTO> CreateAsync(PromotionCreateDTO dto);
     Task<PromotionDTO?> UpdateAsync(int id, PromotionUpdateDTO dto);
     Task<bool> DeleteAsync(int id);
+    Task<PromotionDTO> ClaimPromotionAsync(int id);
 }
 
 public class PromotionService : IPromotionService
@@ -59,6 +60,9 @@ public class PromotionService : IPromotionService
             LinkUrl = string.IsNullOrWhiteSpace(dto.LinkUrl) ? null : dto.LinkUrl.Trim(),
             Type = type,
             Price = dto.Price,
+            DiscountPercent = dto.DiscountPercent,
+            DiscountCode = string.IsNullOrWhiteSpace(dto.DiscountCode) ? null : dto.DiscountCode.Trim().ToUpper(),
+            MaxUsage = dto.MaxUsage,
             Active = dto.Active,
             Priority = dto.Priority,
             StartDate = dto.StartDate,
@@ -82,6 +86,9 @@ public class PromotionService : IPromotionService
         if (dto.LinkUrl != null) p.LinkUrl = dto.LinkUrl.Trim();
         if (dto.Type != null && Enum.TryParse<PromotionType>(dto.Type, true, out var type)) p.Type = type;
         if (dto.Price.HasValue) p.Price = dto.Price;
+        if (dto.DiscountPercent.HasValue) p.DiscountPercent = dto.DiscountPercent;
+        if (dto.DiscountCode != null) p.DiscountCode = dto.DiscountCode.Trim().ToUpper();
+        if (dto.MaxUsage.HasValue) p.MaxUsage = dto.MaxUsage;
         if (dto.Active.HasValue) p.Active = dto.Active.Value;
         if (dto.Priority.HasValue) p.Priority = dto.Priority.Value;
         if (dto.StartDate != null) p.StartDate = dto.StartDate;
@@ -105,8 +112,32 @@ public class PromotionService : IPromotionService
     {
         Id = p.Id, Title = p.Title, Description = p.Description,
         ImagePath = p.ImagePath, LinkUrl = p.LinkUrl, Type = p.Type.ToString(),
-        Price = p.Price, Active = p.Active, Priority = p.Priority,
+        Price = p.Price, DiscountPercent = p.DiscountPercent,
+        DiscountCode = p.DiscountCode, MaxUsage = p.MaxUsage,
+        UsageCount = p.UsageCount, Active = p.Active, Priority = p.Priority,
         StartDate = p.StartDate, EndDate = p.EndDate,
         CreatedAtUtc = p.CreatedAtUtc, UpdatedAtUtc = p.UpdatedAtUtc
     };
+
+    public async Task<PromotionDTO> ClaimPromotionAsync(int id)
+    {
+        var p = await _db.Promotions.FindAsync(id)
+            ?? throw new ArgumentException("Promozione non trovata.");
+
+        if (!p.Active)
+            throw new InvalidOperationException("Promozione non attiva.");
+
+        if (p.StartDate.HasValue && p.StartDate > DateTime.UtcNow)
+            throw new InvalidOperationException("Promozione non ancora iniziata.");
+
+        if (p.EndDate.HasValue && p.EndDate < DateTime.UtcNow)
+            throw new InvalidOperationException("Promozione scaduta.");
+
+        if (p.MaxUsage.HasValue && p.UsageCount >= p.MaxUsage.Value)
+            throw new InvalidOperationException("Promozione esaurita.");
+
+        p.UsageCount++;
+        await _db.SaveChangesAsync();
+        return Map(p);
+    }
 }
