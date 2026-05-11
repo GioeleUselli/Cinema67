@@ -40,7 +40,11 @@ public class FilmDbContext : DbContext
     public DbSet<CampaignConfig> CampaignConfigs { get; set; }
     public DbSet<PartyBooking> PartyBookings { get; set; }
     public DbSet<PartyFeedback> PartyFeedbacks { get; set; }
+    public DbSet<ShowCancellation> ShowCancellations { get; set; }
+    public DbSet<OrdineRefund> OrdineRefunds { get; set; }
+    public DbSet<ManualRefundReview> ManualRefundReviews { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+    public DbSet<UserCinemaAssignment> UserCinemaAssignments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -458,6 +462,15 @@ public class FilmDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(t => t.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<UserCinemaAssignment>(entity => {
+            entity.HasIndex(e => new { e.UserId, e.CinemaId }).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.CinemaId);
+            entity.HasOne(a => a.User).WithMany().HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(a => a.Cinema).WithMany().HasForeignKey(a => a.CinemaId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(a => a.CreatedByUser).WithMany().HasForeignKey(a => a.CreatedByUserId).OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

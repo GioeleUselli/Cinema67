@@ -223,8 +223,11 @@ function renderShows(shows) {
           <button onclick="editShow(${show.id})" class="text-brand-gold hover:text-brand-gold-dark mr-3" title="Modifica show">
             <i class="fa-solid fa-pencil"></i>
           </button>
-          <button onclick="deleteShow(${show.id}, '${escapeHtml(filmTitle)}')" class="text-red-600 hover:text-red-900" title="Elimina show">
+          <button onclick="deleteShow(${show.id}, '${escapeHtml(filmTitle)}')" class="text-red-600 hover:text-red-900 mr-3" title="Elimina show">
             <i class="fa-solid fa-trash"></i>
+          </button>
+          <button onclick="openCancelModal(${show.id})" class="text-amber-500 hover:text-amber-700" title="Annulla show">
+            <i class="fa-solid fa-ban"></i>
           </button>
         </td>
       </tr>
@@ -391,3 +394,31 @@ window.goToFirstPage = goToFirstPage;
 window.goToPrevPage = goToPrevPage;
 window.goToNextPage = goToNextPage;
 window.goToLastPage = goToLastPage;
+
+var cancelShowId = null;
+window.openCancelModal = async function(showId) {
+  cancelShowId = showId;
+  document.getElementById('cancel-modal').classList.remove('hidden');
+  document.getElementById('cancel-preview').innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Caricamento anteprima...';
+  try {
+    var preview = await API.previewCancelShow(showId);
+    document.getElementById('cancel-preview').innerHTML =
+      '<div class="space-y-2"><p><strong>Ordini da rimborsare:</strong> ' + preview.ordiniTotali + '</p>' +
+      '<p><strong>Biglietti:</strong> ' + preview.bigliettiTotali + ' (' + preview.bigliettiValidati + ' già validati)</p>' +
+      '<p><strong>Totale da rimborsare:</strong> €' + (preview.totaleDaRimborsare || 0).toFixed(2) + '</p>' +
+      '<p><strong>Con carta:</strong> €' + (preview.totaleCarta || 0).toFixed(2) + ' | <strong>Credito:</strong> €' + (preview.totaleCredito || 0).toFixed(2) + '</p>' +
+      (preview.manualReviewCount > 0 ? '<p class="text-amber-500">⚠ ' + preview.manualReviewCount + ' ordini con biglietti già validati → revisione manuale</p>' : '') +
+      '<p class="text-xs mt-1">' + preview.utentiCoinvolti + ' utenti coinvolti</p></div>';
+  } catch(e) { document.getElementById('cancel-preview').textContent = 'Errore: ' + (e.message || 'impossibile caricare'); }
+};
+window.closeCancelModal = function() { document.getElementById('cancel-modal').classList.add('hidden'); cancelShowId = null; };
+window.confirmCancelShow = async function() {
+  if (!cancelShowId) return;
+  try {
+    var reason = document.getElementById('cancel-reason').value || null;
+    var result = await API.cancelShow(cancelShowId, { reason: reason });
+    showToast('Show annullato! Rimborsi in elaborazione.', 'success');
+    closeCancelModal();
+    await loadShows();
+  } catch(e) { showToast(e.message || 'Errore', 'error'); }
+};

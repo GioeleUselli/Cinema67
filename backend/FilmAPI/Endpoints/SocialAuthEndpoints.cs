@@ -153,8 +153,6 @@ public static class SocialAuthEndpoints
                             var u = await ur.Content.ReadFromJsonAsync<JsonElement>();
                         var mail = u.TryGetProperty("mail", out var me) ? me.GetString()
                             ?? (u.TryGetProperty("userPrincipalName", out var upn2) ? upn2.GetString() : "") : "";
-                        if (!string.IsNullOrWhiteSpace(mail) && !mail.EndsWith("@issgreppi.it", StringComparison.OrdinalIgnoreCase))
-                            return ("", "", "", "ms_domain_rejected");
                         return (mail ?? "",
                                 u.TryGetProperty("givenName", out var gn) ? gn.GetString() ?? "" : "",
                                 u.TryGetProperty("surname", out var sn) ? sn.GetString() ?? "" : "", "");

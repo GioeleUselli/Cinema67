@@ -209,13 +209,39 @@
     </div>
   </div>
 
+  <!-- Cancel Show Modal -->
+  <div id="cancel-modal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-gray-500/75 modal-backdrop"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-xl bg-brand-surface-container-lowest text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+          <div class="px-6 pt-6 pb-4">
+            <h3 class="text-lg font-bold text-brand-on-surface">Annulla Show</h3>
+            <button onclick="closeCancelModal()" class="absolute top-4 right-4 text-brand-on-surface-variant hover:text-brand-on-surface"><i class="fa-solid fa-xmark text-xl"></i></button>
+          </div>
+          <div class="px-6 pb-4">
+            <div id="cancel-preview" class="text-sm text-brand-on-surface-variant mb-4">Caricamento anteprima...</div>
+            <div class="mb-3">
+              <label class="block text-sm mb-1">Motivo (opzionale)</label>
+              <input type="text" id="cancel-reason" class="ghost-input w-full px-3 py-2 rounded-lg text-sm" placeholder="Motivo della cancellazione">
+            </div>
+          </div>
+          <div class="bg-brand-surface-container-low px-6 py-4 flex justify-end gap-3">
+            <button onclick="closeCancelModal()" class="btn-outline-brand px-4 py-2 rounded-lg text-sm">Annulla</button>
+            <button onclick="confirmCancelShow()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Annulla Show e Rimborsa</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/utils.js?v=99"></script>
   <script src="/js/api-app.js?v=4"></script>
   <script src="/js/auth.js?v=99"></script>
   <script src="/js/template-loader.js?v=99"></script>
   <script src="/js/admin-panel.js?v=3"></script>
   <script src="/js/form-handlers.js"></script>
-  <script src="/js/navbar.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>`n
   <script src="/js/pages/proiezioni.js"></script>
   <script>
     function closeShowModal() { document.getElementById('show-modal').classList.add('hidden'); }

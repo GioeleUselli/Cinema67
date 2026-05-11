@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260511101546_ShowCancellation")]
+    partial class ShowCancellation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1706,9 +1709,6 @@ namespace FilmAPI.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("AnonymizedAtUtc")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<int>("AuthVersion")
                         .HasColumnType("int");
 
@@ -1730,16 +1730,6 @@ namespace FilmAPI.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
-
-                    b.Property<bool>("IsDisabled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime?>("LastLoginAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("LastLoginProvider")
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)");
 
                     b.Property<bool>("LocalCredentialsEnabled")
                         .HasColumnType("tinyint(1)");
@@ -1768,62 +1758,6 @@ namespace FilmAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.UserCinemaAssignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CanManageShows")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("CanTopUpCredit")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("CanValidateTickets")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("CinemaId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<DateTime?>("RevokedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CinemaId");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId", "CinemaId")
-                        .IsUnique();
-
-                    b.ToTable("UserCinemaAssignments");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Biglietto", b =>
@@ -2382,32 +2316,6 @@ namespace FilmAPI.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("CinemaPreferito");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.UserCinemaAssignment", b =>
-                {
-                    b.HasOne("FilmAPI.Model.Cinema", "Cinema")
-                        .WithMany()
-                        .HasForeignKey("CinemaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FilmAPI.Model.User", "CreatedByUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("FilmAPI.Model.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Cinema");
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Categoria", b =>

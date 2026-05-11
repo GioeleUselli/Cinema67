@@ -41,6 +41,11 @@ public class User
     [Column(TypeName = "decimal(10,2)")]
     public decimal CreditoResiduo { get; set; }
 
+    public bool IsDisabled { get; set; }
+    public DateTime? AnonymizedAtUtc { get; set; }
+    public DateTime? LastLoginAtUtc { get; set; }
+    [MaxLength(30)] public string? LastLoginProvider { get; set; }
+
     [Required]
     public bool LocalCredentialsEnabled { get; set; } = true;
 

@@ -61,7 +61,16 @@ public interface IStripePaymentGateway
     Task<StripePaymentIntentSnapshot> GetPaymentIntentAsync(string paymentIntentId, CancellationToken cancellationToken = default);
     Task<StripeCheckoutSessionSnapshot> CreateCheckoutSessionAsync(StripeCreateCheckoutSessionRequest request, string? idempotencyKey, CancellationToken cancellationToken = default);
     Task<StripeCheckoutSessionSnapshot> GetCheckoutSessionAsync(string sessionId, CancellationToken cancellationToken = default);
+    Task<StripeRefundSnapshot> CreateRefundAsync(string paymentIntentId, long amount, string? reason = null, CancellationToken cancellationToken = default);
     StripeWebhookEvent ParseWebhookEvent(string payload, string? signatureHeader);
+}
+
+public class StripeRefundSnapshot
+{
+    public string Id { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public long Amount { get; set; }
+    public string Currency { get; set; } = "eur";
 }
 
 public class StripePaymentGateway : IStripePaymentGateway
@@ -243,5 +252,24 @@ public class StripePaymentGateway : IStripePaymentGateway
     private static long ToStripeAmount(decimal amount)
     {
         return checked((long)decimal.Round(amount * 100m, 0, MidpointRounding.AwayFromZero));
+    }
+
+    public async Task<StripeRefundSnapshot> CreateRefundAsync(string paymentIntentId, long amount, string? reason = null, CancellationToken cancellationToken = default)
+    {
+        var options = new RefundCreateOptions
+        {
+            PaymentIntent = paymentIntentId,
+            Amount = amount,
+            Reason = "requested_by_customer"
+        };
+        var service = new RefundService(_stripeClient);
+        var refund = await service.CreateAsync(options, null, cancellationToken);
+        return new StripeRefundSnapshot
+        {
+            Id = refund.Id,
+            Status = refund.Status,
+            Amount = refund.Amount,
+            Currency = refund.Currency
+        };
     }
 }

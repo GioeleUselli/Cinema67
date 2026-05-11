@@ -40,6 +40,9 @@ public class Show
     [Column(TypeName = "decimal(10,2)")]
     public decimal SupplementoSala { get; set; }
 
+    [Required]
+    public ShowState State { get; set; } = ShowState.Scheduled;
+
     public ICollection<ShowPostoStato> PostiStato { get; set; } = new List<ShowPostoStato>();
     public ICollection<Biglietto> Biglietti { get; set; } = new List<Biglietto>();
     public ICollection<Ordine> Ordini { get; set; } = new List<Ordine>();

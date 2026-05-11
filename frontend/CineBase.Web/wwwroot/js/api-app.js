@@ -631,6 +631,10 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   updatePartyStatus: function (id, status) { return apiFetch('/admin/party/' + id + '/status', { method: 'POST', body: JSON.stringify({ status: status }) }); },
   scanPartyQr: function (data) { return apiFetch('/admin/party/scan', { method: 'POST', body: JSON.stringify(data) }); },
   autoCompleteParties: function () { return apiFetch('/admin/party/auto-complete', { method: 'POST' }); },
+
+  // ── Show Cancellation ──
+  previewCancelShow: function (showId) { return apiFetch('/admin/shows/' + showId + '/cancel/preview'); },
+  cancelShow: function (showId, data) { return apiFetch('/admin/shows/' + showId + '/cancel', { method: 'POST', body: JSON.stringify(data) }); },
   submitPartyFeedback: function (data) { return apiFetch('/party/feedback', { method: 'POST', body: JSON.stringify(data) }); },
   getAllMembershipCards: function () { return apiFetch('/admin/membership/cards'); },
   toggleMembership: function (userId) { return apiFetch('/admin/membership/' + userId + '/toggle', { method: 'POST' }); },
