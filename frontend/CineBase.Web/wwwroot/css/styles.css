@@ -353,15 +353,16 @@ body {
   pointer-events: none;
 }
 
-.cine-auth-side {
-  position: relative;
-  background: linear-gradient(165deg, rgba(185, 28, 28, 0.08), rgba(184, 134, 11, 0.04));
-  border-right: 1px solid color-mix(in oklab, var(--brand-outline-variant) 65%, transparent);
+/* Auth left panel — adapts to theme */
+.cine-auth-left-panel {
+  background: linear-gradient(165deg, var(--brand-surface-container-highest), var(--brand-surface-container));
 }
 
-.dark .cine-auth-side {
-  background: linear-gradient(165deg, rgba(230, 57, 70, 0.14), rgba(212, 175, 55, 0.08));
+.dark .cine-auth-left-panel {
+  background: linear-gradient(165deg, #1a0606 0%, #2d0a0a 40%, #1c1108 100%);
 }
+
+.dark .auth-panel-heading { color: #ffffff; }
 
 .cine-form-shell {
   position: relative;
@@ -1972,9 +1973,10 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .support-chat-bubble-user {
-  background: linear-gradient(140deg, rgba(185, 28, 28, 0.14), rgba(185, 28, 28, 0.06));
+  background: linear-gradient(140deg, rgba(185, 28, 28, 0.22), rgba(185, 28, 28, 0.12));
   border: 1px solid color-mix(in oklab, var(--brand-gold) 35%, transparent);
-  color: var(--brand-on-surface);
+  color: #ffffff;
+  font-weight: 500;
 }
 
 .support-chat-bubble-bot {
@@ -2015,10 +2017,15 @@ input[type="range"]::-moz-range-thumb {
   flex: 1;
   border-radius: 0.62rem;
   border: 1px solid var(--brand-outline-variant);
-  background: var(--brand-surface-container-low);
-  color: var(--brand-on-surface);
+  background: var(--brand-surface-container-high) !important;
+  color: var(--brand-on-surface) !important;
   padding: 0.53rem 0.65rem;
   font-size: 0.82rem;
+}
+
+.support-chat-input::placeholder {
+  color: var(--brand-on-surface-variant) !important;
+  opacity: 0.6;
 }
 
 .support-chat-send {
@@ -2466,11 +2473,15 @@ input[type="range"]::-moz-range-thumb {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(160deg, #1a0505 0%, #2d0808 30%, #1c0a0a 60%, #140808 100%);
+  background: linear-gradient(180deg, var(--brand-surface-container-highest) 0%, var(--brand-surface-container) 40%, var(--brand-surface) 100%);
 }
 
 .dark .cine-hero-immersive {
-  background: linear-gradient(160deg, #0d0303 0%, #1a0606 30%, #110505 60%, #0a0303 100%);
+  background: linear-gradient(180deg, #1a0505 0%, #2d0808 35%, #1c0a0a 70%, #18120d 100%);
+}
+
+.dark .cine-hero-immersive {
+  background: linear-gradient(180deg, #0d0303 0%, #1a0606 25%, #110505 50%, #0a0303 75%, var(--brand-surface) 100%);
 }
 
 .cine-hero-immersive::before {
@@ -2478,30 +2489,25 @@ input[type="range"]::-moz-range-thumb {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 30% 20%, rgba(230,57,70,0.10) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 60%, rgba(212,175,55,0.06) 0%, transparent 40%),
-    radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.55) 100%);
+    radial-gradient(ellipse at 30% 20%, rgba(185,28,28,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(184,134,11,0.04) 0%, transparent 40%);
   z-index: 0;
   pointer-events: none;
 }
 
-.cine-hero-immersive::after {
-  content: '';
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 40%;
-  background: linear-gradient(to top, var(--brand-surface) 0%, transparent 100%);
-  z-index: 1;
-  pointer-events: none;
-}
-
-.dark .cine-hero-immersive::after {
-  background: linear-gradient(to top, var(--brand-surface) 0%, transparent 100%);
+.dark .cine-hero-immersive::before {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(230,57,70,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(212,175,55,0.06) 0%, transparent 40%);
 }
 
 /* White text for hero */
 .hero-text-light { color: #ffffff !important; }
 .hero-text-light-muted { color: rgba(255,255,255,0.65) !important; }
+
+/* Hero logo: lighten blend on dark bg, normal on light bg */
+.cine-hero-logo { mix-blend-mode: normal; filter: none; }
+.dark .cine-hero-logo { mix-blend-mode: lighten; filter: brightness(1.2) contrast(1.1); }
 
 /* Film strip perforation */
 .cine-perforation {
