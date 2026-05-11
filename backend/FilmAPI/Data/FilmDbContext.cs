@@ -39,6 +39,7 @@ public class FilmDbContext : DbContext
     public DbSet<NewsletterScheduled> NewsletterScheduleds { get; set; }
     public DbSet<CampaignConfig> CampaignConfigs { get; set; }
     public DbSet<PartyBooking> PartyBookings { get; set; }
+    public DbSet<PartyFeedback> PartyFeedbacks { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

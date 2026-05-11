@@ -21,6 +21,13 @@
         <p class="cine-kicker">Admin</p>
         <h1 class="cine-headline text-brand-on-surface mt-1">Prenotazioni Feste</h1>
       </div>
+      <div class="flex gap-2 mt-3 flex-wrap">
+        <button onclick="scanQr()" class="btn-outline-brand text-xs"><i class="fa-solid fa-qrcode mr-1"></i> Scansiona QR</button>
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-brand-on-surface-variant">
+          <input type="checkbox" id="auto-toggle" class="w-4 h-4 rounded" onchange="toggleAuto(this.checked)">
+          <span>Auto-Completa feste terminate</span>
+        </label>
+      </div>
     </section>
     <div class="cine-premium-card overflow-x-auto">
       <table class="min-w-full divide-y divide-brand-outline-variant/10">
@@ -64,6 +71,25 @@
       if (!status) return;
       try { await API.updatePartyStatus(id, status); showToast('Aggiornato', 'success'); await loadAll(); } catch(e) { showToast('Errore', 'error'); }
     };
+    window.scanQr = async function() {
+      var code = prompt('Inserisci il QR code della festa (puoi scannerizzarlo con la fotocamera dal telefono):');
+      if (!code) return;
+      try { var result = await API.scanPartyQr({ qrData: code }); showToast('Festa completata: ' + result.nomeFesta, 'success'); await loadAll(); } catch(e) { showToast(e.message || 'QR non valido', 'error'); }
+    };
+    window.toggleAuto = function(checked) {
+      if (checked) {
+        autoComplete();
+        localStorage.setItem('cb_auto_complete_party', '1');
+      } else {
+        localStorage.removeItem('cb_auto_complete_party');
+      }
+    };
+    window.autoComplete = async function() {
+      try { await API.autoCompleteParties(); showToast('Feste completate', 'success'); await loadAll(); } catch(e) { showToast('Errore', 'error'); }
+    };
+    if (localStorage.getItem('cb_auto_complete_party') === '1') {
+      document.getElementById('auto-toggle').checked = true;
+    }
   </script>
 </body>
 </html>

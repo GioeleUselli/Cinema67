@@ -113,7 +113,7 @@
 
       <!-- RIGHT — Summary -->
       <div class="space-y-6">
-        <div class="cine-premium-card p-6 sticky top-24">
+        <div class="cine-premium-card p-6">
           <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4">Riepilogo</h2>
           <div id="prezzo-stima" class="text-center py-4">
             <p class="text-sm text-brand-on-surface-variant">Seleziona tipo e pacchetto</p>
@@ -166,8 +166,13 @@
         window.history.replaceState({}, '', '/feste.html');
         try {
           await API.confirmPartyBooking(parseInt(stripeBooking));
-          showToast('Festa confermata!', 'success');
+          showToast('Festa confermata! Riceverai una email con il QR code.', 'success');
         } catch(e) { showToast('Errore conferma: ' + (e.message || 'riprova'), 'error'); }
+      }
+
+      var feedbackId = params.get('feedback');
+      if (feedbackId) {
+        showFeedbackForm(parseInt(feedbackId));
       }
 
       await loadCinemas();
@@ -256,10 +261,45 @@
         if (!data || !data.length) { c.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Nessuna prenotazione</p>'; return; }
         c.innerHTML = data.map(function(b) {
           var statoColor = b.stato === 'Confirmed' ? 'text-emerald-500' : b.stato === 'Pending' ? 'text-amber-500' : 'text-brand-on-surface-variant';
-          return '<div class="p-3 rounded-xl bg-brand-surface-container/50"><div class="flex justify-between"><p class="text-sm font-bold text-brand-on-surface">' + b.nomeFesta + '</p><span class="text-xs font-semibold ' + statoColor + '">' + b.stato + '</span></div><p class="text-xs text-brand-on-surface-variant">' + b.cinemaNome + ' · ' + new Date(b.dataEvento).toLocaleString('it-IT') + ' · ' + b.numeroOspiti + ' ospiti · €' + b.totale.toFixed(2) + '</p></div>';
+          var clickAction = b.stato === 'Confirmed' ? ' onclick="showPartyQr(\'' + (b.qrCodeData || '') + '\', \'' + (b.nomeFesta || '') + '\')" class="cursor-pointer hover:ring-1 hover:ring-brand-gold/30"' : '';
+          return '<div' + clickAction + ' class="p-3 rounded-xl bg-brand-surface-container/50"><div class="flex justify-between"><p class="text-sm font-bold text-brand-on-surface">' + b.nomeFesta + '</p><span class="text-xs font-semibold ' + statoColor + '">' + b.stato + '</span></div><p class="text-xs text-brand-on-surface-variant">' + b.cinemaNome + ' · ' + new Date(b.dataEvento).toLocaleDateString() + ' ' + new Date(b.oraInizio).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + '-' + new Date(b.oraFine).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + ' · ' + b.numeroOspiti + ' ospiti · €' + b.totale.toFixed(2) + '</p>' + (b.stato === 'Confirmed' ? '<p class="text-xs text-brand-gold mt-1"><i class="fa-solid fa-qrcode mr-1"></i>Clicca per vedere il QR code</p>' : '') + '</div>';
         }).join('');
       } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
     }
+    window.showPartyQr = function(qrData, nomeFesta) {
+      if (!qrData) return;
+      var overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/60 z-[80] flex items-center justify-center p-4';
+      overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+      var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(qrData);
+      overlay.innerHTML = '<div class="cine-premium-card p-8 w-full max-w-[400px] text-center relative"><button onclick="this.closest(\'.fixed\').remove()" class="absolute top-3 right-3 text-brand-on-surface-variant hover:text-brand-on-surface p-1"><i class="fa-solid fa-xmark"></i></button><h3 class="font-serif text-xl font-bold text-brand-on-surface mb-4">' + nomeFesta + '</h3><div class="bg-white rounded-xl p-4 inline-block mb-3"><img src="' + qrUrl + '" alt="QR Code" class="w-48 h-48"></div><p class="text-xs text-brand-on-surface-variant">Codice: ' + qrData + '</p><p class="text-xs text-brand-gold mt-2">Mostra questo QR all\'ingresso del cinema</p></div>';
+      document.body.appendChild(overlay);
+    };
+
+    window.showFeedbackForm = function(partyId) {
+      var overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/60 z-[80] flex items-center justify-center p-4';
+      overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+      overlay.innerHTML = '<div class="cine-premium-card p-8 w-full max-w-[440px] relative"><button onclick="this.closest(\'.fixed\').remove()" class="absolute top-3 right-3 text-brand-on-surface-variant hover:text-brand-on-surface p-1"><i class="fa-solid fa-xmark"></i></button><h3 class="font-serif text-xl font-bold text-brand-on-surface mb-4">Feedback Festa</h3><div class="space-y-3"><div><label class="text-xs text-brand-on-surface-variant mb-1 block">Valutazione</label><div class="flex gap-1" id="rating-stars">' + [1,2,3,4,5].map(function(n) { return '<button onclick="setRating(' + n + ')" class="text-2xl text-brand-on-surface-variant/30 hover:text-brand-gold rating-star" data-rating="' + n + '"><i class="fa-solid fa-star"></i></button>'; }).join('') + '</div></div><textarea id="feedback-text" rows="3" class="ghost-input w-full px-4 py-2 rounded-xl text-sm resize-none" placeholder="Raccontaci com\'è andata..."></textarea><button onclick="submitFeedback(' + partyId + ')" class="btn-gold w-full text-sm py-2.5"><i class="fa-solid fa-paper-plane mr-2"></i> Invia Feedback</button></div></div>';
+      document.body.appendChild(overlay);
+    };
+
+    var _rating = 0;
+    window.setRating = function(n) {
+      _rating = n;
+      document.querySelectorAll('.rating-star').forEach(function(s, i) {
+        s.style.color = i < n ? '#d4af37' : '';
+      });
+    };
+
+    window.submitFeedback = async function(partyId) {
+      var text = document.getElementById('feedback-text').value.trim();
+      try {
+        await API.submitPartyFeedback({ partyId: partyId, rating: _rating, comment: text });
+        showToast('Grazie per il feedback!', 'success');
+        document.querySelector('.fixed').remove();
+      } catch(e) { showToast('Errore', 'error'); }
+    };
   </script>
 </body>
 </html>

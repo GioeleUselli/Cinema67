@@ -35,5 +35,14 @@ public class PartyBookingDTO
     public decimal Totale { get; set; }
     public string Stato { get; set; } = string.Empty;
     public DateTime? ConfermatoIl { get; set; }
+    public DateTime? CompletatoIl { get; set; }
+    public string? QrCodeData { get; set; }
     public DateTime CreatedAtUtc { get; set; }
+}
+
+public class PartyFeedbackDTO
+{
+    public int PartyBookingId { get; set; }
+    public int Rating { get; set; }
+    public string? Comment { get; set; }
 }

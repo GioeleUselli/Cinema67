@@ -65,6 +65,11 @@ public class PartyBooking
 
     public DateTime? ConfermatoIl { get; set; }
 
+    [MaxLength(500)]
+    public string? QrCodeData { get; set; }
+
+    public DateTime? CompletatoIl { get; set; }
+
     [Required]
     public DateTime CreatedAtUtc { get; set; }
 }

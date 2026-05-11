@@ -29,7 +29,7 @@
             try { localStorage.setItem('cb_access_token', d.accessToken); } catch(e){}
             try { localStorage.setItem('cb_refresh_token', d.refreshToken); } catch(e){}
             try { localStorage.setItem('cb_user', JSON.stringify({ id: d.userId, nome: d.nome || '', email: d.email || '', ruolo: 'User' })); } catch(e){}
-            window.location.href = '/scegli-cinema.html';
+            window.location.href = '/index.html';
           } else { showError('Risposta non valida.'); }
         })
         .catch(function(e){ showError(e.message || 'Errore di connessione.'); });

@@ -11,19 +11,24 @@ public interface IPartyBookingService
     Task<List<PartyBookingDTO>> GetMyBookingsAsync(int userId);
     Task<List<PartyBookingDTO>> GetAllBookingsAsync();
     Task<PartyBookingDTO> UpdateStatusAsync(int id, PartyStatus status);
+    Task<PartyBookingDTO> ScanQrAsync(string qrData);
+    Task AutoCompleteAsync();
     decimal CalcolaPrezzo(PartyType tipo, PartyPackage pacchetto, int ospiti);
     Task<PartyBookingDTO> ConfermaPagamentoAsync(int userId, int bookingId);
+    Task SubmitFeedbackAsync(int partyBookingId, int rating, string? comment);
 }
 
 public class PartyBookingService : IPartyBookingService
 {
     private readonly FilmDbContext _db;
     private readonly IStripePaymentGateway _stripe;
+    private readonly IEmailService _emailService;
 
-    public PartyBookingService(FilmDbContext db, IStripePaymentGateway stripe)
+    public PartyBookingService(FilmDbContext db, IStripePaymentGateway stripe, IEmailService emailService)
     {
         _db = db;
         _stripe = stripe;
+        _emailService = emailService;
     }
 
     public decimal CalcolaPrezzo(PartyType tipo, PartyPackage pacchetto, int ospiti)
@@ -94,7 +99,9 @@ public class PartyBookingService : IPartyBookingService
             user.CreditoResiduo -= totale;
             booking.Stato = PartyStatus.Confirmed;
             booking.ConfermatoIl = DateTime.UtcNow;
+            booking.QrCodeData = $"FESTA-{booking.Id}-{Guid.NewGuid().ToString("N")[..8]}";
             await _db.SaveChangesAsync();
+            await SendConfirmationEmail(booking);
             return await GetBookingDTO(booking.Id);
         }
 
@@ -120,7 +127,9 @@ public class PartyBookingService : IPartyBookingService
             ?? throw new ArgumentException("Prenotazione non trovata.");
         b.Stato = PartyStatus.Confirmed;
         b.ConfermatoIl = DateTime.UtcNow;
+        b.QrCodeData = $"FESTA-{b.Id}-{Guid.NewGuid().ToString("N")[..8]}";
         await _db.SaveChangesAsync();
+        await SendConfirmationEmail(b);
         return Map(b);
     }
 
@@ -149,12 +158,128 @@ public class PartyBookingService : IPartyBookingService
 
     public async Task<PartyBookingDTO> UpdateStatusAsync(int id, PartyStatus status)
     {
-        var b = await _db.PartyBookings.FindAsync(id)
+        var b = await _db.PartyBookings.Include(x => x.Cinema).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id)
             ?? throw new ArgumentException("Prenotazione non trovata.");
         b.Stato = status;
-        if (status == PartyStatus.Confirmed) b.ConfermatoIl = DateTime.UtcNow;
+        if (status == PartyStatus.Confirmed)
+        {
+            b.ConfermatoIl = DateTime.UtcNow;
+            b.QrCodeData = $"FESTA-{b.Id}-{Guid.NewGuid().ToString("N")[..8]}";
+            await SendConfirmationEmail(b);
+        }
+        if (status == PartyStatus.Cancelled)
+        {
+            await SendCancellationEmail(b);
+        }
+        if (status == PartyStatus.Completed)
+        {
+            b.CompletatoIl = DateTime.UtcNow;
+            await SendCompletedEmail(b);
+        }
         await _db.SaveChangesAsync();
-        return await GetBookingDTO(id);
+        return Map(b);
+    }
+
+    public async Task<PartyBookingDTO> ScanQrAsync(string qrData)
+    {
+        var b = await _db.PartyBookings.Include(x => x.Cinema).Include(x => x.User).FirstOrDefaultAsync(x => x.QrCodeData == qrData)
+            ?? throw new ArgumentException("QR code non valido.");
+        if (b.Stato == PartyStatus.Completed) throw new InvalidOperationException("Festa già completata.");
+        if (b.Stato == PartyStatus.Cancelled) throw new InvalidOperationException("Festa cancellata.");
+        b.Stato = PartyStatus.Completed;
+        b.CompletatoIl = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return Map(b);
+    }
+
+    public async Task AutoCompleteAsync()
+    {
+        var now = DateTime.UtcNow;
+        var daCompletare = await _db.PartyBookings
+            .Where(b => b.Stato == PartyStatus.Confirmed && b.DataEvento.Date.Add(b.OraFine.TimeOfDay) < now)
+            .ToListAsync();
+        foreach (var b in daCompletare)
+        {
+            b.Stato = PartyStatus.Completed;
+            b.CompletatoIl = DateTime.UtcNow;
+        }
+        if (daCompletare.Any()) await _db.SaveChangesAsync();
+    }
+
+    public async Task SubmitFeedbackAsync(int partyBookingId, int rating, string? comment)
+    {
+        var b = await _db.PartyBookings.FindAsync(partyBookingId)
+            ?? throw new ArgumentException("Prenotazione non trovata.");
+        var fb = new PartyFeedback { PartyBookingId = partyBookingId, Rating = Math.Clamp(rating, 1, 5), Comment = comment, CreatedAtUtc = DateTime.UtcNow };
+        _db.PartyFeedbacks.Add(fb);
+        await _db.SaveChangesAsync();
+    }
+
+    private async Task SendConfirmationEmail(PartyBooking b)
+    {
+        var email = b.User?.Email;
+        if (string.IsNullOrEmpty(email)) return;
+        var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={Uri.EscapeDataString(b.QrCodeData!)}";
+        var html = $@"
+<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
+  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
+    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
+    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Festa Confermata!</p>
+  </div>
+  <div style='padding:24px;'>
+    <p style='font-size:14px;margin:0 0 12px;'>Ciao {b.User!.Nome}, la tua festa <strong>{b.NomeFesta}</strong> è stata confermata!</p>
+    <p style='font-size:14px;margin:0 0 16px;'><strong>{b.Cinema?.Nome}</strong> — {b.DataEvento:dd/MM/yyyy} ore {b.OraInizio:HH:mm} - {b.OraFine:HH:mm} · {b.NumeroOspiti} ospiti · {b.Tipo} {b.Pacchetto} · Totale: €{b.Totale:F2}</p>
+    <div style='background:white;border-radius:8px;padding:16px;text-align:center;margin:16px 0;'>
+      <img src='{qrUrl}' alt='QR Code' style='width:180px;height:180px;'>
+    </div>
+    <p style='font-size:12px;color:#a89888;text-align:center;'>Codice: {b.QrCodeData}</p>
+    <p style='font-size:13px;color:#a89888;'>Mostra questo QR code all'ingresso del cinema. Il personale lo scannerizzerà.</p>
+  </div>
+</div>";
+        try { await _emailService.SendHtmlEmailAsync(email, "Festa confermata — " + b.NomeFesta, html); } catch { }
+    }
+
+    private async Task SendCancellationEmail(PartyBooking b)
+    {
+        var email = b.User?.Email;
+        if (string.IsNullOrEmpty(email)) return;
+        var html = $@"
+<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
+  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
+    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
+    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Festa Cancellata</p>
+  </div>
+  <div style='padding:24px;'>
+    <p style='font-size:14px;margin:0 0 12px;'>Ciao {b.User!.Nome}, la tua festa <strong>{b.NomeFesta}</strong> è stata cancellata.</p>
+    <p style='font-size:14px;margin:0 0 16px;'><strong>{b.Cinema?.Nome}</strong> — {b.DataEvento:dd/MM/yyyy} ore {b.OraInizio:HH:mm} · {b.NumeroOspiti} ospiti</p>
+    <p style='font-size:13px;color:#a89888;'>Contattaci per riprogrammare o per un rimborso.</p>
+  </div>
+</div>";
+        try { await _emailService.SendHtmlEmailAsync(email, "Festa cancellata — " + b.NomeFesta, html); } catch { }
+    }
+
+    private async Task SendCompletedEmail(PartyBooking b)
+    {
+        var email = b.User?.Email;
+        if (string.IsNullOrEmpty(email)) return;
+        var feedbackUrl = $"http://localhost:5001/feste.html?feedback={b.Id}";
+        var html = $@"
+<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
+  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
+    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
+    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Grazie per aver festeggiato con noi!</p>
+  </div>
+  <div style='padding:24px;'>
+    <p style='font-size:14px;margin:0 0 12px;'>Ciao {b.User!.Nome}, speriamo che la festa <strong>{b.NomeFesta}</strong> sia stata un successo!</p>
+    <p style='font-size:14px;margin:0 0 16px;'><strong>{b.Cinema?.Nome}</strong> — {b.DataEvento:dd/MM/yyyy} · {b.NumeroOspiti} ospiti · {b.Tipo} {b.Pacchetto}</p>
+    <p style='font-size:14px;margin:0 0 16px;color:#a89888;'>Ci farebbe piacere sapere com'è andata. Lascia un feedback:</p>
+    <div style='text-align:center;margin:16px 0;'>
+      <a href='{feedbackUrl}' style='display:inline-block;background:linear-gradient(135deg,#b8860b,#92600a);color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;'>Lascia un Feedback</a>
+    </div>
+    <p style='font-size:12px;color:#a89888;'>Il tuo parere ci aiuta a migliorare.</p>
+  </div>
+</div>";
+        try { await _emailService.SendHtmlEmailAsync(email, "Com'è andata la festa? — " + b.NomeFesta, html); } catch { }
     }
 
     private async Task<PartyBookingDTO> GetBookingDTO(int id)
@@ -170,6 +295,7 @@ public class PartyBookingService : IPartyBookingService
         NomeFesta = b.NomeFesta, Tipo = b.Tipo.ToString(), Pacchetto = b.Pacchetto.ToString(),
         NumeroOspiti = b.NumeroOspiti, DataEvento = b.DataEvento, OraInizio = b.OraInizio, OraFine = b.OraFine,
         RichiesteSpeciali = b.RichiesteSpeciali,
-        Totale = b.Totale, Stato = b.Stato.ToString(), ConfermatoIl = b.ConfermatoIl, CreatedAtUtc = b.CreatedAtUtc
+        Totale = b.Totale, Stato = b.Stato.ToString(), ConfermatoIl = b.ConfermatoIl, CompletatoIl = b.CompletatoIl,
+        QrCodeData = b.QrCodeData, CreatedAtUtc = b.CreatedAtUtc
     };
 }

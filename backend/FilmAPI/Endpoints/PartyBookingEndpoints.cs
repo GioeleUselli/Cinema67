@@ -37,6 +37,13 @@ public static class PartyBookingEndpoints
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
+        authGroup.MapPost("/feedback", async (PartyFeedbackDTO dto, ClaimsPrincipal user, IPartyBookingService service) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            try { await service.SubmitFeedbackAsync(dto.PartyBookingId, dto.Rating, dto.Comment); return Results.Ok(); }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
         authGroup.MapGet("/mie", async (ClaimsPrincipal user, IPartyBookingService service) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
@@ -66,10 +73,32 @@ public static class PartyBookingEndpoints
             var result = await service.UpdateStatusAsync(id, status);
             return Results.Ok(result);
         });
+
+        adminGroup.MapPost("/scan", async (ScanQrDTO dto, IPartyBookingService service) =>
+        {
+            try
+            {
+                var result = await service.ScanQrAsync(dto.QrData);
+                return Results.Ok(result);
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
+        adminGroup.MapPost("/auto-complete", async (IPartyBookingService service) =>
+        {
+            await service.AutoCompleteAsync();
+            return Results.Ok(new { message = "Feste completate automaticamente." });
+        });
     }
 }
 
 public class UpdateStatusDTO
 {
     public string Status { get; set; } = string.Empty;
+}
+
+public class ScanQrDTO
+{
+    public string QrData { get; set; } = string.Empty;
 }

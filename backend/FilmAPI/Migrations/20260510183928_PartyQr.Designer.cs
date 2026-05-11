@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510183928_PartyQr")]
+    partial class PartyQr
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -738,34 +741,6 @@ namespace FilmAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PartyBookings");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.PartyFeedback", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comment")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("PartyBookingId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PartyBookingId");
-
-                    b.ToTable("PartyFeedbacks");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PasswordResetToken", b =>
@@ -1799,17 +1774,6 @@ namespace FilmAPI.Migrations
                     b.Navigation("Ordine");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FilmAPI.Model.PartyFeedback", b =>
-                {
-                    b.HasOne("FilmAPI.Model.PartyBooking", "PartyBooking")
-                        .WithMany()
-                        .HasForeignKey("PartyBookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PartyBooking");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PasswordResetToken", b =>
