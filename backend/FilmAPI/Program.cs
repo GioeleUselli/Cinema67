@@ -178,6 +178,9 @@ builder.Services.AddAuthorization(options =>
             context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) && (c.Value == "PowerUser" || c.Value == "Admin"))));
     options.AddPolicy("Authenticated", policy =>
         policy.RequireAuthenticatedUser());
+
+    options.AddPolicy("CinemaStaffOrPowerUserOrAdmin", policy =>
+        policy.RequireRole("Admin", "PowerUser", "CinemaStaff"));
 });
 
 builder.Services.AddOpenApiDocument(config =>
