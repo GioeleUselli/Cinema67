@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Analytics</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <main class="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <section class="cine-curtain-in mb-6">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>
+        <div class="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="cine-kicker flex items-center gap-2"><span class="cine-pulse-dot"></span>Business Intelligence</p>
+            <h2 class="cine-headline text-brand-on-surface mt-1">Analytics</h2>
+            <p class="mt-1 text-sm text-brand-on-surface-variant">Analisi vendite, film e performance cinema</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="range-oggi" class="range-btn range-btn-active">Oggi</button>
+            <button id="range-7gg" class="range-btn">7 giorni</button>
+            <button id="range-30gg" class="range-btn">30 giorni</button>
+            <button id="range-custom" class="range-btn">Personalizzato</button>
+          </div>
+        </div>
+        <div id="custom-range" class="hidden mt-4 flex flex-wrap items-center gap-3">
+          <input type="date" id="date-dal" class="ghost-input px-3 py-1.5 rounded-lg text-sm">
+          <span class="text-sm text-brand-on-surface-variant">—</span>
+          <input type="date" id="date-al" class="ghost-input px-3 py-1.5 rounded-lg text-sm">
+          <button id="apply-range" class="btn-gold text-sm">Applica</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI Cards -->
+    <section class="cine-curtain-in cine-curtain-delay-1 mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <article class="cine-premium-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Incasso oggi</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-euro-sign text-brand-gold"></i></span>
+        </div>
+        <p id="kpi-revenue" class="text-3xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">Ricavo totale giornaliero</p>
+      </article>
+      <article class="cine-premium-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Biglietti oggi</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-ticket text-brand-red"></i></span>
+        </div>
+        <p id="kpi-tickets" class="text-3xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">Venduti nelle ultime 24 ore</p>
+      </article>
+      <article class="cine-premium-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Prezzo medio</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-tag text-brand-gold"></i></span>
+        </div>
+        <p id="kpi-avg-price" class="text-3xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">Per biglietto</p>
+      </article>
+      <article class="cine-premium-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-on-surface-variant">Occupazione %</p>
+          <span class="w-10 h-10 rounded-xl bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-chart-pie text-brand-red"></i></span>
+        </div>
+        <p id="kpi-occupancy" class="text-3xl font-bold text-brand-on-surface font-serif">—</p>
+        <p class="text-xs text-brand-on-surface-variant mt-1">Sale riempite oggi</p>
+      </article>
+    </section>
+
+    <!-- Charts Grid -->
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="cine-premium-card p-5">
+        <h3 class="text-sm font-semibold text-brand-on-surface mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-chart-bar text-brand-gold"></i>Incasso Giornaliero
+        </h3>
+        <div class="chart-container"><canvas id="chart-revenue"></canvas></div>
+      </div>
+      <div class="cine-premium-card p-5">
+        <h3 class="text-sm font-semibold text-brand-on-surface mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-film text-brand-red"></i>Top Film
+        </h3>
+        <div class="chart-container"><canvas id="chart-top-films"></canvas></div>
+      </div>
+      <div class="cine-premium-card p-5">
+        <h3 class="text-sm font-semibold text-brand-on-surface mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-clock text-brand-gold"></i>Fasce Orarie Popolari
+        </h3>
+        <div class="chart-container"><canvas id="chart-time-slots"></canvas></div>
+      </div>
+      <div class="cine-premium-card p-5">
+        <h3 class="text-sm font-semibold text-brand-on-surface mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-building text-brand-red"></i>Confronto Cinema
+        </h3>
+        <div class="chart-container"><canvas id="chart-cinema"></canvas></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=99"></script>
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/admin-panel.js?v=99"></script>
+  <script>
+    var charts = {};
+    var currentRange = 'oggi';
+
+    function getDateRange(range) {
+      var now = new Date();
+      var dal, al;
+      switch (range) {
+        case 'oggi':
+          dal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          al = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+          break;
+        case '7gg':
+          dal = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+          al = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+          break;
+        case '30gg':
+          dal = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+          al = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+          break;
+        case 'custom':
+          var dalEl = document.getElementById('date-dal');
+          var alEl = document.getElementById('date-al');
+          dal = dalEl && dalEl.value ? new Date(dalEl.value + 'T00:00:00') : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+          al = alEl && alEl.value ? new Date(alEl.value + 'T23:59:59') : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+          break;
+        default:
+          dal = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+          al = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      }
+      return {
+        dal: dal.toISOString(),
+        al: al.toISOString()
+      };
+    }
+
+    function updateRangeButtons(active) {
+      currentRange = active;
+      document.querySelectorAll('.range-btn').forEach(function (b) { b.classList.remove('range-btn-active'); });
+      var btn = document.getElementById('range-' + active);
+      if (btn) btn.classList.add('range-btn-active');
+      var customDiv = document.getElementById('custom-range');
+      if (customDiv) {
+        customDiv.classList.toggle('hidden', active !== 'custom');
+      }
+    }
+
+    function formatCurrency(val) {
+      var n = Number(val) || 0;
+      return '€' + n.toFixed(2);
+    }
+
+    function destroyChart(key) {
+      if (charts[key]) { charts[key].destroy(); charts[key] = null; }
+    }
+
+    function getChartColors() {
+      var isDark = document.documentElement.classList.contains('dark');
+      return {
+        gold: isDark ? '#d4a843' : '#b08a30',
+        red: isDark ? '#e74c3c' : '#c1272d',
+        blue: isDark ? '#5dade2' : '#2471a3',
+        green: isDark ? '#58d68d' : '#27ae60',
+        text: isDark ? '#a89888' : '#5c4a3a',
+        grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+        bg: isDark ? '#1c1713' : '#fdfaf6'
+      };
+    }
+
+    function createRevenueChart(data) {
+      destroyChart('revenue');
+      var c = getChartColors();
+      var ctx = document.getElementById('chart-revenue').getContext('2d');
+      var days = (data.data || []).map(function (d) { return d.date; });
+      var revenue = (data.data || []).map(function (d) { return d.revenue; });
+      charts.revenue = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: days,
+          datasets: [{
+            label: 'Incasso (€)',
+            data: revenue,
+            backgroundColor: c.gold,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: c.text } } },
+          scales: {
+            x: { ticks: { color: c.text }, grid: { color: c.grid } },
+            y: { ticks: { color: c.text, callback: function (v) { return '€' + v; } }, grid: { color: c.grid } }
+          }
+        }
+      });
+    }
+
+    function createTopFilmsChart(data) {
+      destroyChart('topFilms');
+      var c = getChartColors();
+      var ctx = document.getElementById('chart-top-films').getContext('2d');
+      var labels = (data.data || []).map(function (d) { return d.titolo; });
+      var values = (data.data || []).map(function (d) { return d.tickets; });
+      var colors = [c.gold, c.red, c.blue, c.green, '#8e44ad', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71'];
+      charts.topFilms = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: colors.slice(0, labels.length),
+            borderColor: c.bg,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { color: c.text, boxWidth: 12, padding: 12 } } }
+        }
+      });
+    }
+
+    function createTimeSlotsChart(data) {
+      destroyChart('timeSlots');
+      var c = getChartColors();
+      var ctx = document.getElementById('chart-time-slots').getContext('2d');
+      var hours = (data.data || []).map(function (d) { return d.hour + ':00'; });
+      var tickets = (data.data || []).map(function (d) { return d.tickets; });
+      charts.timeSlots = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: hours,
+          datasets: [{
+            label: 'Biglietti venduti',
+            data: tickets,
+            borderColor: c.red,
+            backgroundColor: c.red.replace(')', ',0.1)').replace('rgb', 'rgba'),
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: c.red
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: c.text } } },
+          scales: {
+            x: { ticks: { color: c.text }, grid: { color: c.grid } },
+            y: { ticks: { color: c.text }, grid: { color: c.grid } }
+          }
+        }
+      });
+    }
+
+    function createCinemaChart(data) {
+      destroyChart('cinema');
+      var c = getChartColors();
+      var ctx = document.getElementById('chart-cinema').getContext('2d');
+      var labels = (data.data || []).map(function (d) { return d.nome; });
+      var revenue = (data.data || []).map(function (d) { return d.revenue; });
+      charts.cinema = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Incasso (€)',
+            data: revenue,
+            backgroundColor: c.red,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: c.text } } },
+          scales: {
+            x: { ticks: { color: c.text, callback: function (v) { return '€' + v; } }, grid: { color: c.grid } },
+            y: { ticks: { color: c.text }, grid: { color: c.grid } }
+          }
+        }
+      });
+    }
+
+    async function loadDashboard() {
+      try {
+        var stats = await API.getAnalyticsDashboard();
+        document.getElementById('kpi-revenue').textContent = formatCurrency(stats.todayRevenue);
+        document.getElementById('kpi-tickets').textContent = stats.todayTickets;
+        document.getElementById('kpi-avg-price').textContent = formatCurrency(stats.avgTicketPrice);
+        document.getElementById('kpi-occupancy').textContent = stats.occupancyPercent + '%';
+      } catch (err) {
+        console.error('Errore dashboard:', err);
+      }
+    }
+
+    async function loadAnalytics(range) {
+      var dates = getDateRange(range);
+
+      try {
+        var revenueData = await API.getAnalyticsRevenue({ dal: dates.dal, al: dates.al });
+        if (revenueData && revenueData.data) createRevenueChart(revenueData);
+      } catch (err) { console.error('Errore revenue:', err); }
+
+      try {
+        var topFilmsData = await API.getAnalyticsTopFilms({ dal: dates.dal, al: dates.al, limit: 10 });
+        if (topFilmsData && topFilmsData.data && topFilmsData.data.length) createTopFilmsChart(topFilmsData);
+      } catch (err) { console.error('Errore top films:', err); }
+
+      try {
+        var timeSlotsData = await API.getAnalyticsTimeSlots({ dal: dates.dal, al: dates.al });
+        if (timeSlotsData && timeSlotsData.data) createTimeSlotsChart(timeSlotsData);
+      } catch (err) { console.error('Errore time slots:', err); }
+
+      try {
+        var cinemaData = await API.getAnalyticsCinemaComparison({ dal: dates.dal, al: dates.al });
+        if (cinemaData && cinemaData.data && cinemaData.data.length) createCinemaChart(cinemaData);
+      } catch (err) { console.error('Errore cinema:', err); }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('range-oggi').addEventListener('click', function () { updateRangeButtons('oggi'); loadAnalytics('oggi'); });
+      document.getElementById('range-7gg').addEventListener('click', function () { updateRangeButtons('7gg'); loadAnalytics('7gg'); });
+      document.getElementById('range-30gg').addEventListener('click', function () { updateRangeButtons('30gg'); loadAnalytics('30gg'); });
+      document.getElementById('range-custom').addEventListener('click', function () { updateRangeButtons('custom'); });
+      document.getElementById('apply-range').addEventListener('click', function () { loadAnalytics('custom'); });
+
+      loadDashboard();
+      loadAnalytics('oggi');
+    });
+
+    var themeObserver = new MutationObserver(function () {
+      if (currentRange) loadAnalytics(currentRange);
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  </script>
+
+  <style>
+    .chart-container { position: relative; height: 300px; width: 100%; }
+    .range-btn {
+      padding: 0.375rem 0.875rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--color-brand-outline-variant, #d6cec4);
+      background: transparent;
+      color: var(--color-brand-on-surface-variant, #5c4a3a);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .range-btn:hover { border-color: var(--color-brand-gold, #d4a843); color: var(--color-brand-gold, #d4a843); }
+    .range-btn-active { background: var(--color-brand-gold, #d4a843); color: #fff; border-color: var(--color-brand-gold, #d4a843); }
+    .dark .range-btn { border-color: #3d3530; color: #a89888; }
+    .dark .range-btn:hover { border-color: #d4a843; color: #d4a843; }
+  </style>
+</body>
+
+</html>

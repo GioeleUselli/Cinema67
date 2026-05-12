@@ -10,6 +10,7 @@ public class OrdineTicketSummaryDTO
     public int Numero { get; set; }
     public decimal PrezzoTotale { get; set; }
     public string Stato { get; set; } = string.Empty;
+    public string TipoBiglietto { get; set; } = string.Empty;
     public DateTime? ValidatoAtUtc { get; set; }
 }
 
@@ -28,6 +29,7 @@ public class BigliettoSummaryDTO
     public int Numero { get; set; }
     public decimal PrezzoTotale { get; set; }
     public string Stato { get; set; } = string.Empty;
+    public string TipoBiglietto { get; set; } = string.Empty;
     public DateTime? ValidatoAtUtc { get; set; }
 }
 

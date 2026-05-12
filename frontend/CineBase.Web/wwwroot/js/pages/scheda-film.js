@@ -252,6 +252,9 @@ function renderFilm() {
 
   // Store show calendar
   showCalendar = filmData.showCalendar || [];
+
+  // Setup social sharing
+  setupSocialSharing();
 }
 
 function renderCinemaInfo() {
@@ -657,3 +660,137 @@ function getUserLocation() {
 }
 
 window.selectCinema = selectCinema;
+
+// ── Social Sharing ──
+function getShareUrl() {
+  return window.location.href;
+}
+
+function getShareText() {
+  var title = filmData?.titolo || 'questo film';
+  return 'Guarda "' + title + '" al Cinema67!';
+}
+
+function setupSocialSharing() {
+  var section = document.getElementById('social-sharing');
+  if (!section) return;
+  section.classList.remove('hidden');
+
+  var url = encodeURIComponent(getShareUrl());
+  var text = encodeURIComponent(getShareText());
+
+  var fbBtn = document.getElementById('share-facebook');
+  if (fbBtn) {
+    fbBtn.setAttribute('onclick', "window.open('https://www.facebook.com/sharer/sharer.php?u=" + url + "','_blank','noopener,noreferrer,width=600,height=400')");
+  }
+
+  var twBtn = document.getElementById('share-twitter');
+  if (twBtn) {
+    twBtn.setAttribute('onclick', "window.open('https://twitter.com/intent/tweet?text=" + text + "&url=" + url + "','_blank','noopener,noreferrer,width=600,height=400')");
+  }
+
+  var waBtn = document.getElementById('share-whatsapp');
+  if (waBtn) {
+    waBtn.setAttribute('onclick', "window.open('https://wa.me/?text=" + text + "+" + url + "','_blank','noopener,noreferrer')");
+  }
+
+  var copyBtn = document.getElementById('share-copy-link');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var link = getShareUrl();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          showCopyToast();
+        }).catch(function () {
+          fallbackCopy(link);
+        });
+      } else {
+        fallbackCopy(link);
+      }
+    });
+  }
+
+  var refBtn = document.getElementById('share-referral');
+  if (refBtn) {
+    refBtn.addEventListener('click', generateReferralLink);
+  }
+}
+
+function showCopyToast() {
+  var container = document.getElementById('toast-container');
+  if (!container) return;
+  var toast = document.createElement('div');
+  toast.className = 'bg-brand-surface-container-high text-brand-on-surface px-4 py-2 rounded-xl shadow-lg border border-brand-gold/30 text-sm animate-fade-in';
+  toast.innerHTML = '<i class="fa-solid fa-check text-brand-gold mr-1"></i>Link copiato negli appunti';
+  container.appendChild(toast);
+  setTimeout(function () {
+    toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+    setTimeout(function () { toast.remove(); }, 300);
+  }, 2500);
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showCopyToast(); } catch (e) { /* ignore */ }
+  document.body.removeChild(ta);
+}
+
+var referralData = null;
+
+async function generateReferralLink() {
+  var auth = getAuthSafe();
+  if (!auth || !auth.isLoggedIn()) {
+    var targetUrl = getShareUrl();
+    window.location.href = '/login.html?redirect=' + encodeURIComponent(targetUrl);
+    return;
+  }
+
+  if (referralData) {
+    showReferralResult(referralData);
+    return;
+  }
+
+  try {
+    referralData = await API.generateReferral();
+    showReferralResult(referralData);
+  } catch (err) {
+    console.error('Errore generazione referral:', err);
+    if (window.showToast) {
+      window.showToast(err.message || 'Errore generazione codice referral', 'error');
+    }
+  }
+}
+
+function showReferralResult(data) {
+  var result = document.getElementById('referral-result');
+  var code = document.getElementById('referral-code');
+  if (!result || !code) return;
+  result.classList.remove('hidden');
+  code.textContent = data.code;
+
+  var copyRefBtn = document.getElementById('referral-copy-btn');
+  if (copyRefBtn) {
+    copyRefBtn.onclick = function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(data.code).then(function () {
+          showCopyToast();
+        }).catch(function () {
+          fallbackCopy(data.code);
+        });
+      } else {
+        fallbackCopy(data.code);
+      }
+    };
+  }
+
+  var waRefBtn = document.getElementById('referral-share-whatsapp');
+  if (waRefBtn) {
+    var waText = encodeURIComponent('Usa il codice ' + data.code + ' per avere il 10% di sconto al Cinema67! ' + getShareUrl());
+    waRefBtn.setAttribute('onclick', "window.open('https://wa.me/?text=" + waText + "','_blank','noopener,noreferrer')");
+  }
+}

@@ -1,5 +1,7 @@
 using FilmAPI.DTO;
+using FilmAPI.Data;
 using FilmAPI.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace FilmAPI.Endpoints;
 
@@ -83,5 +85,19 @@ public static class ShowsEndpoints
                 return Results.Conflict(ex.Message);
             }
         }).RequireAuthorization("PowerUserOrAdmin");
+
+        group.MapGet("/{showId}/pricing", async (
+            int showId,
+            FilmDbContext db,
+            IPricingService pricingService) =>
+        {
+            var show = await db.Shows.FirstOrDefaultAsync(s => s.Id == showId);
+            if (show == null)
+                return Results.NotFound("Show non trovato.");
+            var prezzoBase = TicketPriceNormalizer.NormalizeUnitPrice(show.PrezzoBase)
+                + TicketPriceNormalizer.NormalizeUnitPrice(show.SupplementoSala);
+            var options = pricingService.GetPricingOptions(prezzoBase);
+            return Results.Ok(options);
+        }).AllowAnonymous();
     }
 }

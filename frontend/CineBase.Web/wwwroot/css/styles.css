@@ -2689,3 +2689,63 @@ input[type="range"]::-moz-range-thumb {
 .dark .cine-corner-accent::before {
   opacity: 0.22;
 }
+
+/* ── Social Share Buttons ── */
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.share-btn-facebook { background: #1877f2; color: #fff; }
+.share-btn-facebook:hover { background: #1565d6; }
+
+.share-btn-twitter { background: #0f1419; color: #fff; }
+.share-btn-twitter:hover { background: #1a1e23; }
+
+.share-btn-whatsapp { background: #25d366; color: #fff; }
+.share-btn-whatsapp:hover { background: #1eba56; }
+
+.share-btn-copy { background: var(--color-brand-surface-container, #f0ede8); color: var(--color-brand-on-surface, #1c1108); border-color: var(--color-brand-outline-variant, #d6cec4); }
+.share-btn-copy:hover { background: var(--color-brand-surface-container-high, #e8e3dc); }
+
+.share-btn-referral { background: linear-gradient(135deg, var(--color-brand-red, #c1272d), var(--color-brand-gold, #d4a843)); color: #fff; }
+.share-btn-referral:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.dark .share-btn-copy { background: #2a2520; color: #e8dbcb; border-color: #3d3530; }
+.dark .share-btn-copy:hover { background: #3d3530; }
+
+/* ── Ticket Type Badges ── */
+.ticket-type-select {
+  border: 1px solid var(--brand-outline-variant);
+  background: var(--brand-surface-container);
+  color: var(--brand-on-surface);
+  font-size: 0.75rem;
+}
+
+.badge-intero {
+  border-color: var(--brand-gold);
+}
+
+.badge-ridotto {
+  border-color: #3b82f6;
+}
+
+.badge-bambino {
+  border-color: #22c55e;
+}
+
+.badge-over65 {
+  border-color: #a855f7;
+}
+
+.badge-studente {
+  border-color: #f97316;
+}

@@ -131,6 +131,47 @@
         <h3 class="text-xl font-semibold text-brand-on-surface mb-2">Nessuno show disponibile</h3>
         <p class="text-brand-on-surface-variant">Non ci sono spettacoli per la data selezionata</p>
       </div>
+
+      <!-- Social Sharing -->
+      <div id="social-sharing" class="hidden mt-6">
+        <div class="cine-premium-card p-5">
+          <h3 class="text-sm font-semibold text-brand-on-surface mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-share-nodes text-brand-gold"></i>Condividi
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            <button id="share-facebook" class="share-btn share-btn-facebook" title="Condividi su Facebook">
+              <i class="fa-brands fa-facebook-f"></i><span>Facebook</span>
+            </button>
+            <button id="share-twitter" class="share-btn share-btn-twitter" title="Condividi su Twitter">
+              <i class="fa-brands fa-x-twitter"></i><span>Twitter</span>
+            </button>
+            <button id="share-whatsapp" class="share-btn share-btn-whatsapp" title="Condividi su WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span>
+            </button>
+            <button id="share-copy-link" class="share-btn share-btn-copy" title="Copia link">
+              <i class="fa-solid fa-link"></i><span>Copia link</span>
+            </button>
+            <button id="share-referral" class="share-btn share-btn-referral" title="Invita un amico">
+              <i class="fa-solid fa-gift"></i><span>Invita un amico</span>
+            </button>
+          </div>
+          <div id="referral-result" class="hidden mt-3 p-3 bg-brand-surface-container rounded-xl text-sm">
+            <p class="text-brand-on-surface mb-2">Il tuo codice sconto referral:</p>
+            <div class="flex items-center gap-2">
+              <code id="referral-code" class="bg-brand-surface-container-high px-3 py-1.5 rounded-lg text-brand-gold font-bold text-lg"></code>
+              <button id="referral-copy-btn" class="text-brand-on-surface-variant hover:text-brand-gold transition-colors p-1" title="Copia codice">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+            </div>
+            <p class="text-xs text-brand-on-surface-variant mt-1">10% di sconto per chi usa questo codice</p>
+            <div class="mt-2">
+              <button id="referral-share-whatsapp" class="text-sm text-brand-gold hover:underline flex items-center gap-1">
+                <i class="fa-brands fa-whatsapp"></i>Condividi su WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 

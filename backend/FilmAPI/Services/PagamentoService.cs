@@ -836,6 +836,7 @@ public class PagamentoService : IPagamentoService
                         Numero = b.SalaPosto?.Numero ?? 0,
                         PrezzoTotale = TicketPriceNormalizer.NormalizeUnitPrice(b.PrezzoTotale),
                         Stato = b.Stato.ToString(),
+                        TipoBiglietto = b.TipoBiglietto.ToString(),
                         ValidatoAtUtc = b.ValidatoAtUtc
                     })
                     .ToList()

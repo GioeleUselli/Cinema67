@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Gestione Merch Shop</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+  <main>
+    <div class="mb-8">
+      <p class="text-xs uppercase tracking-[0.24em] text-brand-gold mb-1">Shop Cinema67</p>
+      <h2 class="text-2xl font-bold text-brand-on-surface mb-4">Gestione Merchandise</h2>
+
+      <div class="flex gap-3">
+        <button id="tab-items-btn" onclick="showTab('items')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-brand-gold/10 text-brand-gold border border-brand-gold/20 active-tab">Articoli</button>
+        <button id="tab-orders-btn" onclick="showTab('orders')" class="px-4 py-2 rounded-xl text-sm font-semibold text-brand-on-surface-variant hover:text-brand-gold border border-transparent hover:border-brand-gold/20">Ordini</button>
+        <button id="tab-new-item-btn" onclick="showTab('new-item')" class="px-4 py-2 rounded-xl text-sm font-semibold text-brand-on-surface-variant hover:text-brand-gold border border-transparent hover:border-brand-gold/20"><i class="fa-solid fa-plus mr-1"></i>Nuovo Articolo</button>
+      </div>
+    </div>
+
+    <!-- Tab: Items List -->
+    <div id="tab-items" class="space-y-4">
+      <div id="items-list" class="space-y-2"></div>
+    </div>
+
+    <!-- Tab: Edit Item Modal -->
+    <div id="tab-edit-item" class="hidden">
+      <div class="cine-premium-card p-6 max-w-lg">
+        <h3 class="text-lg font-bold text-brand-on-surface mb-4" id="edit-item-title">Modifica Articolo</h3>
+        <form id="edit-item-form" class="space-y-4">
+          <input type="hidden" id="edit-item-id">
+          <div>
+            <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Nome</label>
+            <input type="text" id="edit-item-nome" required maxlength="150" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Descrizione</label>
+            <textarea id="edit-item-descrizione" maxlength="500" rows="2" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Prezzo (€)</label>
+              <input type="number" id="edit-item-prezzo" required step="0.01" min="0.01" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Stock</label>
+              <input type="number" id="edit-item-stock" required min="0" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Categoria</label>
+              <select id="edit-item-categoria" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold">
+                <option value="Abbigliamento">Abbigliamento</option>
+                <option value="Poster">Poster</option>
+                <option value="Gadget">Gadget</option>
+                <option value="Collezionabili">Collezionabili</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Immagine URL</label>
+              <input type="text" id="edit-item-immagine" maxlength="500" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="edit-item-attivo" checked class="rounded border-brand-outline-variant/30 text-brand-gold focus:ring-brand-gold/20">
+            <label class="text-sm text-brand-on-surface-variant">Articolo attivo</label>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn-gold text-sm px-6 py-2">Salva</button>
+            <button type="button" onclick="showTab('items')" class="btn-ghost text-sm px-6 py-2">Annulla</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tab: New Item -->
+    <div id="tab-new-item" class="hidden">
+      <div class="cine-premium-card p-6 max-w-lg">
+        <h3 class="text-lg font-bold text-brand-on-surface mb-4">Nuovo Articolo</h3>
+        <form id="new-item-form" class="space-y-4">
+          <div>
+            <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Nome *</label>
+            <input type="text" id="new-item-nome" required maxlength="150" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Descrizione</label>
+            <textarea id="new-item-descrizione" maxlength="500" rows="2" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Prezzo (€) *</label>
+              <input type="number" id="new-item-prezzo" required step="0.01" min="0.01" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Stock</label>
+              <input type="number" id="new-item-stock" required min="0" value="10" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Categoria</label>
+              <select id="new-item-categoria" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold">
+                <option value="Abbigliamento">Abbigliamento</option>
+                <option value="Poster">Poster</option>
+                <option value="Gadget">Gadget</option>
+                <option value="Collezionabili">Collezionabili</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Immagine URL</label>
+              <input type="text" id="new-item-immagine" maxlength="500" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/20">
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="new-item-attivo" checked class="rounded border-brand-outline-variant/30 text-brand-gold focus:ring-brand-gold/20">
+            <label class="text-sm text-brand-on-surface-variant">Articolo attivo</label>
+          </div>
+          <button type="submit" class="btn-gold text-sm px-6 py-2">Crea Articolo</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tab: Orders -->
+    <div id="tab-orders" class="hidden space-y-4">
+      <div id="orders-list" class="space-y-2"></div>
+    </div>
+  </main>
+
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script src="/js/admin-shell.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/api-app.js?v=99"></script>
+
+  <script>
+    function escapeHtml(str) {
+      var d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
+    function showTab(tabName) {
+      ['items', 'orders', 'new-item', 'edit-item'].forEach(t => {
+        var el = document.getElementById('tab-' + t);
+        if (el) el.classList.add('hidden');
+      });
+      var target = document.getElementById('tab-' + tabName);
+      if (target) target.classList.remove('hidden');
+
+      ['tab-items-btn', 'tab-orders-btn', 'tab-new-item-btn'].forEach(id => {
+        var btn = document.getElementById(id);
+        if (btn) {
+          btn.classList.remove('bg-brand-gold/10', 'text-brand-gold', 'border-brand-gold/20', 'active-tab');
+          btn.classList.add('text-brand-on-surface-variant', 'border-transparent');
+        }
+      });
+      var activeBtn = document.getElementById('tab-' + tabName + '-btn');
+      if (activeBtn) {
+        activeBtn.classList.add('bg-brand-gold/10', 'text-brand-gold', 'border-brand-gold/20', 'active-tab');
+        activeBtn.classList.remove('text-brand-on-surface-variant', 'border-transparent');
+      }
+
+      if (tabName === 'items') loadItems();
+      if (tabName === 'orders') loadOrders();
+    }
+
+    async function loadItems() {
+      try {
+        var items = await API.getAllMerchItems();
+        var list = document.getElementById('items-list');
+        if (!items || !items.length) {
+          list.innerHTML = '<p class="text-brand-on-surface-variant py-8 text-center">Nessun articolo.</p>';
+          return;
+        }
+        list.innerHTML = items.map(i => `
+          <div class="cine-premium-card p-4 flex items-center gap-4 ${i.attivo ? '' : 'opacity-50'}">
+            <div class="w-12 h-12 rounded-lg bg-brand-surface-dim flex items-center justify-center text-brand-gold text-xl flex-shrink-0">
+              ${i.immaginePath ? `<img src="${escapeHtml(i.immaginePath)}" alt="" class="w-full h-full object-cover rounded-lg" />` : '<i class="fa-solid fa-film"></i>'}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-bold text-brand-on-surface">${escapeHtml(i.nome)}</p>
+              <p class="text-xs text-brand-on-surface-variant">${escapeHtml(i.categoria)} &middot; Stock: ${i.stock} &middot; ${i.attivo ? 'Attivo' : 'Disattivato'}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold text-brand-gold font-serif">€${i.prezzo.toFixed(2)}</p>
+              <div class="flex gap-1 mt-1">
+                <button onclick="editItem(${i.id})" class="text-xs text-brand-on-surface-variant hover:text-brand-gold"><i class="fa-solid fa-pen"></i></button>
+                <button onclick="deleteItem(${i.id}, '${escapeHtml(i.nome).replace(/'/g, "\\'")}')" class="text-xs text-brand-on-surface-variant hover:text-brand-red"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('items-list').innerHTML = `<p class="text-brand-red py-4">Errore: ${escapeHtml(e.message)}</p>`;
+      }
+    }
+
+    async function editItem(id) {
+      try {
+        var items = await API.getAllMerchItems();
+        var item = items.find(i => i.id === id);
+        if (!item) return;
+        document.getElementById('edit-item-id').value = item.id;
+        document.getElementById('edit-item-nome').value = item.nome;
+        document.getElementById('edit-item-descrizione').value = item.descrizione || '';
+        document.getElementById('edit-item-prezzo').value = item.prezzo;
+        document.getElementById('edit-item-stock').value = item.stock;
+        document.getElementById('edit-item-categoria').value = item.categoria;
+        document.getElementById('edit-item-immagine').value = item.immaginePath || '';
+        document.getElementById('edit-item-attivo').checked = item.attivo;
+        document.getElementById('edit-item-title').textContent = 'Modifica: ' + item.nome;
+        showTab('edit-item');
+      } catch (e) { alert('Errore: ' + e.message); }
+    }
+
+    async function deleteItem(id, nome) {
+      if (!confirm('Eliminare "' + nome + '"?')) return;
+      try {
+        await API.deleteMerchItem(id);
+        loadItems();
+      } catch (e) { alert('Errore: ' + e.message); }
+    }
+
+    document.getElementById('edit-item-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var id = parseInt(document.getElementById('edit-item-id').value);
+      var data = {
+        nome: document.getElementById('edit-item-nome').value.trim(),
+        descrizione: document.getElementById('edit-item-descrizione').value.trim() || null,
+        prezzo: parseFloat(document.getElementById('edit-item-prezzo').value),
+        stock: parseInt(document.getElementById('edit-item-stock').value),
+        categoria: document.getElementById('edit-item-categoria').value,
+        immaginePath: document.getElementById('edit-item-immagine').value.trim() || null,
+        attivo: document.getElementById('edit-item-attivo').checked
+      };
+      try {
+        await API.updateMerchItem(id, data);
+        showTab('items');
+      } catch (e) { alert('Errore: ' + e.message); }
+    });
+
+    document.getElementById('new-item-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var data = {
+        nome: document.getElementById('new-item-nome').value.trim(),
+        descrizione: document.getElementById('new-item-descrizione').value.trim() || null,
+        prezzo: parseFloat(document.getElementById('new-item-prezzo').value),
+        stock: parseInt(document.getElementById('new-item-stock').value),
+        categoria: document.getElementById('new-item-categoria').value,
+        immaginePath: document.getElementById('new-item-immagine').value.trim() || null,
+        attivo: document.getElementById('new-item-attivo').checked
+      };
+      try {
+        await API.createMerchItem(data);
+        document.getElementById('new-item-form').reset();
+        document.getElementById('new-item-stock').value = 10;
+        document.getElementById('new-item-attivo').checked = true;
+        showTab('items');
+      } catch (e) { alert('Errore: ' + e.message); }
+    });
+
+    async function loadOrders() {
+      try {
+        var orders = await API.getAllMerchOrders();
+        var list = document.getElementById('orders-list');
+        if (!orders || !orders.length) {
+          list.innerHTML = '<p class="text-brand-on-surface-variant py-8 text-center">Nessun ordine.</p>';
+          return;
+        }
+        var statoColors = { 'Pending': 'text-yellow-400', 'Paid': 'text-green-400', 'Shipped': 'text-blue-400', 'Cancelled': 'text-red-400' };
+        var validStatuses = ['Pending', 'Paid', 'Shipped', 'Cancelled'];
+        list.innerHTML = orders.map(o => `
+          <div class="cine-premium-card p-4">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="text-xs font-mono text-brand-gold">${escapeHtml(o.codiceOrdine || '')}</span>
+                <span class="ml-2 text-[10px] uppercase tracking-widest ${statoColors[o.stato] || 'text-brand-on-surface-variant'}">${escapeHtml(o.stato)}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-brand-on-surface-variant">${escapeHtml(o.userEmail || '')}</span>
+                <select onchange="updateOrderStatus(${o.id}, this.value)" class="text-xs rounded-lg bg-brand-surface-container border border-brand-outline-variant/30 px-2 py-1 text-brand-on-surface">
+                  ${validStatuses.map(s => `<option value="${s}" ${o.stato === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="space-y-1 mb-2">
+              ${o.items.map(i => `
+                <div class="flex justify-between text-xs text-brand-on-surface-variant">
+                  <span>${escapeHtml(i.nome)} &times; ${i.quantita}</span>
+                  <span>€${i.subTotale.toFixed(2)}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="border-t border-brand-outline-variant/10 pt-2 flex justify-between">
+              <span class="text-xs text-brand-on-surface-variant">${new Date(o.createdAtUtc).toLocaleString('it-IT')}</span>
+              <span class="text-sm font-bold text-brand-gold font-serif">€${o.totale.toFixed(2)}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('orders-list').innerHTML = `<p class="text-brand-red py-4">Errore: ${escapeHtml(e.message)}</p>`;
+      }
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        await API.updateMerchOrderStatus(orderId, status);
+        loadOrders();
+      } catch (e) { alert('Errore: ' + e.message); }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      showTab('items');
+    });
+  </script>
+</body>
+</html>

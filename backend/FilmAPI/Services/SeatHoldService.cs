@@ -104,7 +104,7 @@ public class SeatHoldService : ISeatHoldService
         };
     }
 
-    public async Task<SeatHoldResponseDTO> CreateHoldAsync(int showId, int userId, List<int> salaPostoIds)
+    public async Task<SeatHoldResponseDTO> CreateHoldAsync(int showId, int userId, List<int> salaPostoIds, List<TicketType>? ticketTypes = null)
     {
         if (salaPostoIds.Count == 0)
             throw new ArgumentException("Nessun posto selezionato.");
@@ -188,8 +188,10 @@ public class SeatHoldService : ISeatHoldService
 
         var holdToken = $"{userId}_{showId}_{Guid.NewGuid():N}";
 
-        foreach (var postoId in postiDaAcquisire)
+        for (int i = 0; i < postiDaAcquisire.Count; i++)
         {
+            var postoId = postiDaAcquisire[i];
+            var ticketType = ticketTypes != null && i < ticketTypes.Count ? ticketTypes[i] : (TicketType?)null;
             var stato = statiEsistenti.FirstOrDefault(sps => sps.SalaPostoId == postoId);
             if (stato == null)
             {
@@ -201,6 +203,7 @@ public class SeatHoldService : ISeatHoldService
                     Stato = ShowPostoState.Hold,
                     HoldToken = holdToken,
                     ScadeAtUtc = expiresAt,
+                    TicketType = ticketType,
                     UpdatedAtUtc = now
                 };
                 _db.ShowPostiStato.Add(stato);
@@ -211,6 +214,7 @@ public class SeatHoldService : ISeatHoldService
                 stato.Stato = ShowPostoState.Hold;
                 stato.HoldToken = holdToken;
                 stato.ScadeAtUtc = expiresAt;
+                stato.TicketType = ticketType;
                 stato.UpdatedAtUtc = now;
             }
         }

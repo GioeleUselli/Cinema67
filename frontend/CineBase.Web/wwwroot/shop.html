@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Shop</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+  <style>
+    .cart-badge { animation: cartPop 0.3s ease; }
+    @keyframes cartPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes slideIn { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOut { 0% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
+    .cart-sidebar-enter { animation: slideIn 0.3s ease forwards; }
+    .cart-sidebar-exit { animation: slideOut 0.3s ease forwards; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--brand-gold); border-radius: 999px; }
+  </style>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+  <div id="navbar-container"></div>
+
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Hero -->
+    <section class="mb-8">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none"></div>
+        <div class="relative flex items-center justify-between">
+          <div>
+            <p class="cine-kicker">Collezione Ufficiale</p>
+            <h1 class="cine-headline text-brand-on-surface mt-1">Shop Cinema67</h1>
+            <p class="mt-2 text-sm text-brand-on-surface-variant max-w-xl">Scopri la nostra collezione di merchandise ufficiale: abbigliamento, poster, gadget e oggetti da collezione.</p>
+          </div>
+          <button id="cart-toggle" class="relative btn-gold px-4 py-2 text-sm">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span id="cart-count" class="hidden absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center cart-badge">0</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="products-grid">
+      <div class="col-span-full text-center py-12 text-brand-on-surface-variant">
+        <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+        <p>Caricamento articoli...</p>
+      </div>
+    </section>
+
+    <!-- My Orders -->
+    <section id="my-orders-section" class="mt-12 hidden">
+      <div class="cine-premium-card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-6 flex items-center gap-2">
+          <i class="fa-solid fa-box"></i> I Miei Ordini
+        </h2>
+        <div id="my-orders-list" class="space-y-4"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Cart Sidebar -->
+  <div id="cart-overlay" class="hidden fixed inset-0 bg-black/40 z-50" onclick="closeCart()"></div>
+  <aside id="cart-sidebar" class="hidden fixed top-0 right-0 h-full w-full max-w-md bg-brand-surface-container border-l border-brand-outline-variant/20 z-50 flex flex-col shadow-2xl">
+    <div class="flex items-center justify-between p-4 border-b border-brand-outline-variant/20">
+      <h2 class="text-lg font-bold text-brand-on-surface flex items-center gap-2">
+        <i class="fa-solid fa-cart-shopping text-brand-gold"></i> Carrello
+        <span id="cart-sidebar-count" class="text-sm text-brand-on-surface-variant font-normal"></span>
+      </h2>
+      <button onclick="closeCart()" class="text-brand-on-surface-variant hover:text-brand-red transition-colors text-xl">&times;</button>
+    </div>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+    <div id="cart-totale" class="p-4 border-t border-brand-outline-variant/20">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-sm font-semibold text-brand-on-surface-variant">Totale</span>
+        <span id="cart-totale-amount" class="text-xl font-bold text-brand-gold font-serif">€0.00</span>
+      </div>
+      <button id="btn-acquista" onclick="checkoutCart()" class="w-full btn-gold py-3 font-semibold" disabled>
+        <i class="fa-solid fa-credit-card mr-2"></i>Acquista
+      </button>
+    </div>
+  </aside>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/auth.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
+  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/api-app.js?v=99"></script>
+
+  <script>
+    let cart = [];
+    let products = [];
+
+    function saveCart() { localStorage.setItem('cinema67_merch_cart', JSON.stringify(cart)); }
+    function loadCart() {
+      try { cart = JSON.parse(localStorage.getItem('cinema67_merch_cart') || '[]'); } catch (e) { cart = []; }
+    }
+    function updateCartUI() {
+      const count = cart.reduce((s, i) => s + i.qty, 0);
+      const countEl = document.getElementById('cart-count');
+      if (count > 0) { countEl.textContent = count; countEl.classList.remove('hidden'); countEl.classList.add('flex'); }
+      else { countEl.classList.add('hidden'); countEl.classList.remove('flex'); }
+      document.getElementById('cart-sidebar-count').textContent = `(${count} articoli)`;
+
+      const itemsContainer = document.getElementById('cart-items');
+      const totale = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      document.getElementById('cart-totale-amount').textContent = `€${totale.toFixed(2)}`;
+      document.getElementById('btn-acquista').disabled = cart.length === 0;
+
+      itemsContainer.innerHTML = cart.length === 0
+        ? `<p class="text-center text-brand-on-surface-variant py-8"><i class="fa-solid fa-cart-shopping text-3xl mb-3 block"></i>Il carrello è vuoto</p>`
+        : cart.map((item, idx) => `
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-brand-surface-container-high border border-brand-outline-variant/10">
+            <div class="w-12 h-12 rounded-lg bg-brand-surface flex items-center justify-center text-brand-gold text-lg flex-shrink-0">
+              <i class="fa-solid fa-film"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-brand-on-surface truncate">${escapeHtml(item.name)}</p>
+              <p class="text-xs text-brand-on-surface-variant">€${item.price.toFixed(2)} &times; ${item.qty}</p>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="changeQty(${idx}, -1)" class="w-7 h-7 rounded-lg bg-brand-surface border border-brand-outline-variant/20 flex items-center justify-center text-xs text-brand-on-surface hover:text-brand-gold"><i class="fa-solid fa-minus"></i></button>
+              <span class="w-6 text-center text-sm font-semibold">${item.qty}</span>
+              <button onclick="changeQty(${idx}, 1)" class="w-7 h-7 rounded-lg bg-brand-surface border border-brand-outline-variant/20 flex items-center justify-center text-xs text-brand-on-surface hover:text-brand-gold"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <button onclick="removeFromCart(${idx})" class="text-brand-on-surface-variant hover:text-brand-red ml-1"><i class="fa-solid fa-trash-can text-sm"></i></button>
+          </div>
+        `).join('');
+    }
+
+    function changeQty(idx, delta) {
+      cart[idx].qty += delta;
+      if (cart[idx].qty <= 0) cart.splice(idx, 1);
+      saveCart();
+      updateCartUI();
+    }
+
+    function removeFromCart(idx) { cart.splice(idx, 1); saveCart(); updateCartUI(); }
+
+    function closeCart() {
+      document.getElementById('cart-overlay').classList.add('hidden');
+      document.getElementById('cart-sidebar').classList.add('hidden');
+    }
+
+    function openCart() {
+      document.getElementById('cart-overlay').classList.remove('hidden');
+      document.getElementById('cart-sidebar').classList.remove('hidden');
+    }
+
+    function escapeHtml(str) {
+      var d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    const CATEGORY_ICONS = {
+      'Abbigliamento': 'fa-solid fa-shirt',
+      'Poster': 'fa-solid fa-image',
+      'Gadget': 'fa-solid fa-mug-hot',
+      'Collezionabili': 'fa-solid fa-star',
+    };
+
+    function renderProducts(items) {
+      const grid = document.getElementById('products-grid');
+      if (!items.length) {
+        grid.innerHTML = '<div class="col-span-full text-center py-12 text-brand-on-surface-variant"><i class="fa-solid fa-store-slash text-3xl mb-3 block"></i>Nessun articolo disponibile al momento.</div>';
+        return;
+      }
+      grid.innerHTML = items.map(p => {
+        const inCart = cart.find(c => c.id === p.id);
+        const inCartQty = inCart ? inCart.qty : 0;
+        const catIcon = CATEGORY_ICONS[p.categoria] || 'fa-solid fa-box';
+        return `
+          <div class="cine-premium-card p-4 flex flex-col hover:border-brand-gold/30 transition-all group">
+            <div class="relative mb-3">
+              <div class="w-full aspect-square rounded-xl bg-brand-surface-dim flex items-center justify-center text-brand-gold text-5xl overflow-hidden">
+                ${p.immaginePath ? `<img src="${escapeHtml(p.immaginePath)}" alt="${escapeHtml(p.nome)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-film"></i>`}
+              </div>
+              <span class="absolute top-2 left-2 text-[10px] uppercase tracking-widest bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/20">
+                <i class="${catIcon} mr-1"></i>${escapeHtml(p.categoria)}
+              </span>
+              ${inCartQty > 0 ? `<span class="absolute top-2 right-2 bg-brand-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full">x${inCartQty}</span>` : ''}
+            </div>
+            <h3 class="text-sm font-bold text-brand-on-surface mb-1 group-hover:text-brand-gold transition-colors">${escapeHtml(p.nome)}</h3>
+            ${p.descrizione ? `<p class="text-xs text-brand-on-surface-variant mb-3 line-clamp-2 flex-1">${escapeHtml(p.descrizione)}</p>` : '<div class="flex-1"></div>'}
+            <div class="flex items-center justify-between mt-auto pt-3 border-t border-brand-outline-variant/10">
+              <span class="text-lg font-bold text-brand-gold font-serif">€${p.prezzo.toFixed(2)}</span>
+              <button onclick="addToCart(${p.id}, '${escapeHtml(p.nome).replace(/'/g, "\\'")}', ${p.prezzo}, ${p.stock})" 
+                class="btn-outline-brand text-xs px-3 py-1.5 ${inCartQty >= p.stock ? 'opacity-50 pointer-events-none' : ''}"
+                ${inCartQty >= p.stock ? 'disabled' : ''}>
+                <i class="fa-solid fa-cart-plus mr-1"></i>Aggiungi
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function addToCart(id, name, price, maxStock) {
+      const existing = cart.find(c => c.id === id);
+      if (existing) {
+        if (existing.qty >= maxStock) return;
+        existing.qty++;
+      } else {
+        cart.push({ id, name, price, qty: 1 });
+      }
+      saveCart();
+      updateCartUI();
+      renderProducts(products);
+    }
+
+    async function loadProducts() {
+      try {
+        products = await API.getMerchItems();
+        renderProducts(products);
+      } catch (e) {
+        document.getElementById('products-grid').innerHTML = `<div class="col-span-full text-center py-12 text-brand-red"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i>${escapeHtml(e.message || 'Errore caricamento articoli')}</div>`;
+      }
+    }
+
+    async function checkoutCart() {
+      if (cart.length === 0) return;
+      if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) {
+        window.Auth.redirectToLogin('/shop.html');
+        return;
+      }
+      const btn = document.getElementById('btn-acquista');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Elaborazione...';
+      try {
+        const dto = { items: cart.map(c => ({ merchItemId: c.id, quantita: c.qty })) };
+        const result = await API.createMerchOrder(dto);
+        cart = [];
+        saveCart();
+        updateCartUI();
+        closeCart();
+        await loadProducts();
+        alert('Ordine creato con successo! Codice: ' + result.codiceOrdine + '\nTotale: €' + result.totale.toFixed(2));
+        loadMyOrders();
+      } catch (e) {
+        alert('Errore: ' + (e.message || 'Impossibile creare l\'ordine.'));
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-credit-card mr-2"></i>Acquista';
+    }
+
+    async function loadMyOrders() {
+      if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) return;
+      try {
+        const orders = await API.getMyMerchOrders();
+        const section = document.getElementById('my-orders-section');
+        const list = document.getElementById('my-orders-list');
+        if (!orders || !orders.length) {
+          section.classList.add('hidden');
+          return;
+        }
+        section.classList.remove('hidden');
+        const statoColors = { 'Pending': 'text-yellow-400', 'Paid': 'text-green-400', 'Shipped': 'text-blue-400', 'Cancelled': 'text-red-400' };
+        list.innerHTML = orders.map(o => `
+          <div class="p-4 rounded-xl bg-brand-surface-container-high border border-brand-outline-variant/10">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="text-xs font-mono text-brand-gold">${escapeHtml(o.codiceOrdine || '')}</span>
+                <span class="ml-2 text-[10px] uppercase tracking-widest ${statoColors[o.stato] || 'text-brand-on-surface-variant'}">${escapeHtml(o.stato)}</span>
+              </div>
+              <span class="text-sm text-brand-on-surface-variant">${new Date(o.createdAtUtc).toLocaleDateString('it-IT')}</span>
+            </div>
+            <div class="space-y-1">
+              ${o.items.map(i => `
+                <div class="flex justify-between text-xs text-brand-on-surface-variant">
+                  <span>${escapeHtml(i.nome)} &times; ${i.quantita}</span>
+                  <span>€${i.subTotale.toFixed(2)}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="mt-2 pt-2 border-t border-brand-outline-variant/10 flex justify-between">
+              <span class="text-sm font-bold text-brand-on-surface">Totale</span>
+              <span class="text-sm font-bold text-brand-gold font-serif">€${o.totale.toFixed(2)}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) { /* silent */ }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCart();
+      updateCartUI();
+      loadProducts();
+      loadMyOrders();
+
+      document.getElementById('cart-toggle').addEventListener('click', openCart);
+    });
+  </script>
+</body>
+</html>

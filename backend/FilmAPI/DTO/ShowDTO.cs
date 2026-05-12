@@ -18,6 +18,14 @@ public class ShowDTO
     public TipoSala? SalaTipo { get; set; }
 }
 
+public class PricingOptionDTO
+{
+    public TicketType Tipo { get; set; }
+    public string Label { get; set; } = string.Empty;
+    public decimal Prezzo { get; set; }
+    public decimal Moltiplicatore { get; set; }
+}
+
 public class ShowPagedResultDTO
 {
     public List<ShowDTO> Items { get; set; } = new();

@@ -15,6 +15,12 @@ let pollInterval = null;
 let zoomIndex = DEFAULT_ZOOM_INDEX;
 let appliedDiscount = 0;
 let discountCodeApplied = null;
+let seatTicketTypes = {};
+let pricingOptions = [];
+let baseUnitPrice = 0;
+let foodMenu = null;
+let selectedFoodItems = {};
+let currentOrdineId = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!Auth?.isLoggedIn?.()) {
@@ -31,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await loadSeatMap();
+  await loadFoodMenu();
   setupActions();
   setupZoomControls();
 });
@@ -39,6 +46,16 @@ async function loadSeatMap() {
   showLoading();
   try {
     seatMap = await API.getSeatMap(showId);
+    const priceBase = seatMap.prezzoBase || 0;
+    const supplement = seatMap.supplementoSala || 0;
+    baseUnitPrice = priceBase + supplement;
+
+    try {
+      pricingOptions = await API.getShowPricing(showId);
+    } catch (e) {
+      pricingOptions = [];
+    }
+
     renderShowInfo();
     renderSeatMap();
     if (seatMap.scadeAtUtc) {
@@ -354,8 +371,13 @@ async function toggleSeat(btn) {
   const newSelected = new Set([...selectedSeatIds, seatId]);
   const seatIdsArray = Array.from(newSelected);
 
+  if (!seatTicketTypes[seatId]) {
+    seatTicketTypes[seatId] = 0;
+  }
+
   try {
-    const result = await API.createHold(showId, seatIdsArray);
+    const ticketTypes = seatIdsArray.map(function(id) { return seatTicketTypes[id] || 0; });
+    const result = await API.createHold(showId, seatIdsArray, ticketTypes);
 
     if (result.conflitti && result.conflitti.length > 0) {
       showToast('Alcuni posti non sono più disponibili', 'warning');
@@ -392,7 +414,8 @@ async function refreshHoldSeats() {
 
   try {
     const seatIdsArray = Array.from(selectedSeatIds);
-    const result = await API.createHold(showId, seatIdsArray);
+    const ticketTypes = seatIdsArray.map(function(id) { return seatTicketTypes[id] || 0; });
+    const result = await API.createHold(showId, seatIdsArray, ticketTypes);
 
     holdToken = result.holdToken;
     holdExpiresAt = new Date(result.scadeAtUtc);
@@ -404,6 +427,7 @@ async function refreshHoldSeats() {
     if (error.status === 409) {
       showToast('Conflitto sui posti. La piantina verrà aggiornata.', 'warning');
       selectedSeatIds.clear();
+      seatTicketTypes = {};
       holdToken = null;
       holdExpiresAt = null;
       stopCountdown();
@@ -424,6 +448,7 @@ async function releaseCurrentHold() {
   holdToken = null;
   holdExpiresAt = null;
   selectedSeatIds.clear();
+  seatTicketTypes = {};
   stopCountdown();
   stopKeepAlive();
   stopPolling();
@@ -444,6 +469,7 @@ function updateSummary() {
   const list = document.getElementById('selected-seats-list');
   const countEl = document.getElementById('summary-count');
   const totalEl = document.getElementById('summary-total');
+  const unitPriceEl = document.getElementById('summary-unit-price');
   const btnContinue = document.getElementById('btn-continue');
   const countdownCard = document.getElementById('countdown-card');
   const discountRow = document.getElementById('discount-row');
@@ -453,10 +479,23 @@ function updateSummary() {
   const selected = getSelectedSeats();
   countEl.textContent = selected.length;
 
-  const priceBase = seatMap?.prezzoBase || 0;
-  const supplement = seatMap?.supplementoSala || 0;
-  const unitPrice = priceBase + supplement;
-  var total = selected.length * unitPrice;
+  var total = 0;
+  var unitPrices = [];
+
+  selected.forEach(function(s) {
+    var id = s.salaPostoId;
+    if (!(id in seatTicketTypes)) seatTicketTypes[id] = 0;
+    var tt = seatTicketTypes[id];
+    var price = getTicketPrice(tt);
+    unitPrices.push(price);
+    total += price;
+  });
+
+  if (unitPriceEl && unitPrices.length === 1) {
+    unitPriceEl.textContent = formatCurrency(unitPrices[0]);
+  } else if (unitPriceEl) {
+    unitPriceEl.textContent = formatCurrency(baseUnitPrice);
+  }
 
   if (appliedDiscount > 0) {
     var discountVal = total * (appliedDiscount / 100);
@@ -467,6 +506,63 @@ function updateSummary() {
   } else {
     discountRow.classList.add('hidden');
   }
+  totalEl.textContent = formatCurrency(total);
+
+  if (selected.length > 0) {
+    list.innerHTML = selected.map(function(s) {
+      var id = s.salaPostoId;
+      if (!(id in seatTicketTypes)) seatTicketTypes[id] = 0;
+      var tt = seatTicketTypes[id];
+      var price = getTicketPrice(tt);
+      var typeLabel = getTicketTypeLabel(tt);
+      var badgeClass = getTicketTypeBadge(tt);
+      return '<div class="flex items-center justify-between py-1.5 px-2 rounded-lg bg-brand-surface-container text-sm">'
+        + '<div class="flex-1 min-w-0">'
+        + '<span class="text-brand-on-surface">'
+        + '<span class="text-brand-on-surface-variant text-xs">' + s.settore + '</span> '
+        + 'Fila ' + s.fila + ', Posto ' + s.numero
+        + (s.isWheelchair ? ' <i class="fa-solid fa-wheelchair text-xs text-brand-on-surface-variant"></i>' : '')
+        + '</span>'
+        + '<select class="ticket-type-select ghost-input text-xs px-1.5 py-0.5 mt-1 rounded ' + badgeClass + '" data-seat-id="' + id + '">'
+        + pricingOptions.map(function(opt) {
+          return '<option value="' + opt.tipo + '"' + (tt === opt.tipo ? ' selected' : '') + '>' + opt.label + ' (' + formatCurrency(opt.prezzo) + ')</option>';
+        }).join('')
+        + '</select>'
+        + '</div>'
+        + '<span class="text-brand-gold font-semibold ml-2 whitespace-nowrap">' + formatCurrency(price) + '</span>'
+        + '</div>';
+    }).join('');
+
+    list.querySelectorAll('.ticket-type-select').forEach(function(sel) {
+      sel.addEventListener('change', async function() {
+        var seatId = parseInt(sel.dataset.seatId);
+        var newType = parseInt(sel.value);
+        seatTicketTypes[seatId] = newType;
+        updateSummary();
+        if (holdToken) {
+          await refreshHoldSeats();
+        }
+      });
+    });
+
+    btnContinue.disabled = false;
+    btnContinue.classList.remove('opacity-50', 'cursor-not-allowed');
+    countdownCard.classList.remove('hidden');
+  } else {
+    list.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Seleziona almeno un posto dalla piantina</p>';
+    btnContinue.disabled = true;
+    btnContinue.classList.add('opacity-50', 'cursor-not-allowed');
+    countdownCard.classList.add('hidden');
+  }
+}
+
+  var foodTotal = 0;
+  Object.values(selectedFoodItems).forEach(function(item) {
+    foodTotal += item.price * item.qty;
+  });
+  total += foodTotal;
+  document.getElementById('food-total').textContent = formatCurrency(foodTotal);
+
   totalEl.textContent = formatCurrency(total);
 
   if (selected.length > 0) {
@@ -496,6 +592,77 @@ function getSelectedSeats() {
   return seatMap.posti.filter(p => selectedSeatIds.has(p.salaPostoId));
 }
 
+async function loadFoodMenu() {
+  try {
+    foodMenu = await API.getFoodMenu();
+    renderFoodMenu();
+  } catch (e) {
+    document.getElementById('food-menu-container').innerHTML =
+      '<p class="text-sm text-brand-on-surface-variant text-center py-2">Menu non disponibile</p>';
+  }
+}
+
+function renderFoodMenu() {
+  var container = document.getElementById('food-menu-container');
+  if (!container || !foodMenu) return;
+
+  var allCategories = [
+    { key: 'popcorn', label: 'Popcorn', icon: 'popcorn' },
+    { key: 'bevande', label: 'Bevande', icon: 'wine-glass' },
+    { key: 'snack', label: 'Snack', icon: 'cookie' },
+    { key: 'dolci', label: 'Dolci', icon: 'candy-cane' }
+  ];
+
+  var html = '';
+  allCategories.forEach(function(cat) {
+    var items = foodMenu[cat.key] || [];
+    if (items.length === 0) return;
+    html += '<div class="mb-2"><div class="text-xs font-semibold text-brand-on-surface-variant mb-1">' + cat.label + '</div>';
+    items.forEach(function(item) {
+      var qty = selectedFoodItems[item.id] ? selectedFoodItems[item.id].qty : 0;
+      html += '<div class="flex items-center justify-between py-1 px-2 rounded-lg bg-brand-surface-container text-sm mb-1">' +
+        '<span class="text-brand-on-surface flex-1"><span class="text-xs">' + item.nome + '</span></span>' +
+        '<span class="text-brand-gold text-xs font-semibold mr-2">' + formatCurrency(item.prezzo) + '</span>' +
+        '<button class="food-add-btn w-6 h-6 rounded-full bg-brand-gold text-brand-on-surface text-xs font-bold flex items-center justify-center hover:bg-brand-red transition-colors" data-food-id="' + item.id + '" data-food-name="' + item.nome + '" data-food-price="' + item.prezzo + '" type="button">+</button>' +
+        (qty > 0 ? '<span class="food-qty text-xs ml-1 text-brand-gold font-bold" data-food-id-qty="' + item.id + '">' + qty + '</span>' : '<span class="food-qty text-xs ml-1 text-brand-gold font-bold hidden" data-food-id-qty="' + item.id + '">0</span>') +
+        '</div>';
+    });
+    html += '</div>';
+  });
+
+  container.innerHTML = html || '<p class="text-sm text-brand-on-surface-variant text-center py-2">Nessun prodotto disponibile</p>';
+
+  container.querySelectorAll('.food-add-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = parseInt(btn.dataset.foodId);
+      var name = btn.dataset.foodName;
+      var price = parseFloat(btn.dataset.foodPrice);
+      addFoodItem(id, name, price);
+    });
+  });
+}
+
+function addFoodItem(id, name, price) {
+  if (!selectedFoodItems[id]) {
+    selectedFoodItems[id] = { name: name, price: price, qty: 0 };
+  }
+  selectedFoodItems[id].qty++;
+  updateFoodQtyDisplay(id);
+  updateSummary();
+}
+
+function updateFoodQtyDisplay(id) {
+  var qtyEl = document.querySelector('[data-food-id-qty="' + id + '"]');
+  if (!qtyEl) return;
+  var qty = selectedFoodItems[id] ? selectedFoodItems[id].qty : 0;
+  qtyEl.textContent = qty;
+  if (qty > 0) {
+    qtyEl.classList.remove('hidden');
+  } else {
+    qtyEl.classList.add('hidden');
+  }
+}
+
 function startCountdown() {
   stopCountdown();
   if (!holdExpiresAt) return;
@@ -521,6 +688,7 @@ function updateCountdownDisplay() {
     stopPolling();
     showToast('Tempo scaduto! I posti sono stati rilasciati.', 'warning');
     selectedSeatIds.clear();
+    seatTicketTypes = {};
     holdToken = null;
     holdExpiresAt = null;
     refreshSeatMap();
@@ -628,6 +796,18 @@ function setupActions() {
       const idempotencyKey = `order-${holdToken}-${Date.now()}`;
       const ordine = await API.createOrdine(holdToken, idempotencyKey, discountCodeApplied || undefined);
 
+      var foodItemIds = Object.keys(selectedFoodItems);
+      if (foodItemIds.length > 0 && ordine.id) {
+        var items = foodItemIds.map(function(fid) {
+          return { foodItemId: parseInt(fid), quantita: selectedFoodItems[fid].qty };
+        });
+        try {
+          await API.addFoodToOrder(ordine.id, { ordineId: ordine.id, items: items });
+        } catch (foodErr) {
+          // continue even if food fails
+        }
+      }
+
       stopPolling();
       stopKeepAlive();
       stopCountdown();
@@ -687,3 +867,31 @@ window.addEventListener('beforeunload', async () => {
     }
   }
 });
+
+function getTicketPrice(ticketType) {
+  if (pricingOptions.length === 0) return baseUnitPrice;
+  var opt = pricingOptions.find(function(o) { return o.tipo === ticketType; });
+  return opt ? opt.prezzo : baseUnitPrice;
+}
+
+function getTicketTypeLabel(ticketType) {
+  switch (ticketType) {
+    case 0: return 'Intero';
+    case 1: return 'Ridotto';
+    case 2: return 'Bambino';
+    case 3: return 'Over 65';
+    case 4: return 'Studente';
+    default: return 'Intero';
+  }
+}
+
+function getTicketTypeBadge(ticketType) {
+  switch (ticketType) {
+    case 0: return 'badge-intero';
+    case 1: return 'badge-ridotto';
+    case 2: return 'badge-bambino';
+    case 3: return 'badge-over65';
+    case 4: return 'badge-studente';
+    default: return 'badge-intero';
+  }
+}

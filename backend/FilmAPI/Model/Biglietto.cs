@@ -52,6 +52,8 @@ public class Biglietto
     [Column(TypeName = "decimal(10,2)")]
     public decimal PrezzoTotale { get; set; }
 
+    public TicketType TipoBiglietto { get; set; } = TicketType.Intero;
+
     [Required]
     public BigliettoState Stato { get; set; }
 

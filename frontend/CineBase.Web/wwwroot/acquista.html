@@ -143,6 +143,15 @@
             <h3 class="relative text-sm lg:text-base font-bold text-brand-on-surface mb-2.5">
               <i class="fa-solid fa-ticket text-brand-gold mr-2"></i>Riepilogo
             </h3>
+            <div id="ticket-type-template" class="hidden">
+              <select class="ticket-type-select ghost-input text-xs px-2 py-1 rounded">
+                <option value="0">Intero</option>
+                <option value="1">Ridotto</option>
+                <option value="2">Bambino</option>
+                <option value="3">Over 65</option>
+                <option value="4">Studente</option>
+              </select>
+            </div>
             <div id="selected-seats-list" class="space-y-1.5 mb-4 max-h-52 overflow-y-auto pr-1">
               <p class="text-sm text-brand-on-surface-variant text-center py-4">
                 Seleziona almeno un posto dalla piantina
@@ -181,6 +190,25 @@
                 class="w-full btn-outline-brand py-3 text-center">
                 <i class="fa-solid fa-arrow-left mr-2"></i>Torna allo show
               </button>
+            </div>
+          </div>
+
+          <!-- Food & Beverage Section -->
+          <div class="cine-premium-card cine-curtain-in cine-curtain-delay-3 p-4 lg:p-4 mt-4 relative overflow-hidden">
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-brand-red/5 blur-3xl pointer-events-none"></div>
+            <h3 class="relative text-sm lg:text-base font-bold text-brand-on-surface mb-2.5">
+              <i class="fa-solid fa-popcorn text-brand-gold mr-2"></i>Aggiungi al tuo ordine
+            </h3>
+            <div id="food-menu-container" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+              <p class="text-sm text-brand-on-surface-variant text-center py-2">
+                <i class="fa-solid fa-spinner fa-spin mr-1"></i>Caricamento menu...
+              </p>
+            </div>
+            <div class="border-t border-brand-outline-variant/20 pt-3 mt-3">
+              <div class="flex justify-between text-sm font-semibold text-brand-on-surface">
+                <span>Totale Cibo</span>
+                <span id="food-total">€0,00</span>
+              </div>
             </div>
           </div>
         </div>

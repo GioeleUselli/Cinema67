@@ -4,6 +4,7 @@ using FilmAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmAPI.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    partial class FilmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260512085830_AddReferralCode")]
+    partial class AddReferralCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,7 +97,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("ShowId", "SalaPostoId")
                         .IsUnique();
 
-                    b.ToTable("Biglietti", (string)null);
+                    b.ToTable("Biglietti");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.CampaignConfig", b =>
@@ -142,7 +145,7 @@ namespace FilmAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CampaignConfigs", (string)null);
+                    b.ToTable("CampaignConfigs");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Categoria", b =>
@@ -163,7 +166,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("Nome")
                         .IsUnique();
 
-                    b.ToTable("Categorie", (string)null);
+                    b.ToTable("Categorie");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Cinema", b =>
@@ -205,7 +208,7 @@ namespace FilmAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cinemas", (string)null);
+                    b.ToTable("Cinemas");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Film", b =>
@@ -253,7 +256,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("RegistaId");
 
-                    b.ToTable("Films", (string)null);
+                    b.ToTable("Films");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.FilmCategoria", b =>
@@ -268,7 +271,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("CategoriaId");
 
-                    b.ToTable("FilmCategorie", (string)null);
+                    b.ToTable("FilmCategorie");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.FoodItem", b =>
@@ -308,7 +311,7 @@ namespace FilmAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FoodItems", (string)null);
+                    b.ToTable("FoodItems");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.FoodOrderItem", b =>
@@ -337,7 +340,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("OrdineId");
 
-                    b.ToTable("FoodOrderItems", (string)null);
+                    b.ToTable("FoodOrderItems");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.GiftCard", b =>
@@ -414,7 +417,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("Stato");
 
-                    b.ToTable("GiftCards", (string)null);
+                    b.ToTable("GiftCards");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.ManualRefundReview", b =>
@@ -465,7 +468,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("ShowCancellationId");
 
-                    b.ToTable("ManualRefundReviews", (string)null);
+                    b.ToTable("ManualRefundReviews");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.MembershipCard", b =>
@@ -539,7 +542,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("MembershipCards", (string)null);
+                    b.ToTable("MembershipCards");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.MerchItem", b =>
@@ -584,7 +587,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("Nome");
 
-                    b.ToTable("MerchItems", (string)null);
+                    b.ToTable("MerchItems");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.MerchOrder", b =>
@@ -620,7 +623,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MerchOrders", (string)null);
+                    b.ToTable("MerchOrders");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.MerchOrderItem", b =>
@@ -650,7 +653,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("MerchOrderId", "MerchItemId")
                         .IsUnique();
 
-                    b.ToTable("MerchOrderItems", (string)null);
+                    b.ToTable("MerchOrderItems");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.MovimentoCredito", b =>
@@ -702,7 +705,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MovimentiCredito", (string)null);
+                    b.ToTable("MovimentiCredito");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.NewsletterScheduled", b =>
@@ -739,7 +742,7 @@ namespace FilmAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("NewsletterScheduleds", (string)null);
+                    b.ToTable("NewsletterScheduleds");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.NewsletterSubscriber", b =>
@@ -774,7 +777,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("NewsletterSubscribers", (string)null);
+                    b.ToTable("NewsletterSubscribers");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Ordine", b =>
@@ -893,7 +896,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ordini", (string)null);
+                    b.ToTable("Ordini");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.OrdineRefund", b =>
@@ -945,7 +948,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("ShowCancellationId");
 
-                    b.ToTable("OrdineRefunds", (string)null);
+                    b.ToTable("OrdineRefunds");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PartyBooking", b =>
@@ -1023,7 +1026,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PartyBookings", (string)null);
+                    b.ToTable("PartyBookings");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PartyFeedback", b =>
@@ -1051,7 +1054,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("PartyBookingId");
 
-                    b.ToTable("PartyFeedbacks", (string)null);
+                    b.ToTable("PartyFeedbacks");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PasswordResetToken", b =>
@@ -1088,7 +1091,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResetTokens", (string)null);
+                    b.ToTable("PasswordResetTokens");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Premio", b =>
@@ -1134,7 +1137,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("Attivo");
 
-                    b.ToTable("Premi", (string)null);
+                    b.ToTable("Premi");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PremioRiscatto", b =>
@@ -1187,7 +1190,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PremiRiscatti", (string)null);
+                    b.ToTable("PremiRiscatti");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Prenotazione", b =>
@@ -1220,7 +1223,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Prenotazioni", (string)null);
+                    b.ToTable("Prenotazioni");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Proiezione", b =>
@@ -1250,7 +1253,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("CinemaId", "FilmId", "Data", "Ora")
                         .IsUnique();
 
-                    b.ToTable("Proiezioni", (string)null);
+                    b.ToTable("Proiezioni");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Promotion", b =>
@@ -1324,7 +1327,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("StartDate");
 
-                    b.ToTable("Promotions", (string)null);
+                    b.ToTable("Promotions");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.PuntiMovimento", b =>
@@ -1375,7 +1378,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PuntiMovimenti", (string)null);
+                    b.ToTable("PuntiMovimenti");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.ReferralCode", b =>
@@ -1410,7 +1413,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ReferralCodes", (string)null);
+                    b.ToTable("ReferralCodes");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.RefreshToken", b =>
@@ -1452,7 +1455,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId", "DeviceId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Regista", b =>
@@ -1480,7 +1483,7 @@ namespace FilmAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Registi", (string)null);
+                    b.ToTable("Registi");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Sala", b =>
@@ -1515,7 +1518,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("CinemaId", "NumeroProgressivo")
                         .IsUnique();
 
-                    b.ToTable("Sale", (string)null);
+                    b.ToTable("Sale");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.SalaPosto", b =>
@@ -1557,7 +1560,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("SalaId", "Settore", "Fila", "Numero")
                         .IsUnique();
 
-                    b.ToTable("SalaPosti", (string)null);
+                    b.ToTable("SalaPosti");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Show", b =>
@@ -1603,7 +1606,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("CinemaId", "SalaId", "StartAtUtc")
                         .IsUnique();
 
-                    b.ToTable("Shows", (string)null);
+                    b.ToTable("Shows");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.ShowCancellation", b =>
@@ -1673,7 +1676,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("ShowId");
 
-                    b.ToTable("ShowCancellations", (string)null);
+                    b.ToTable("ShowCancellations");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.ShowPostoStato", b =>
@@ -1732,7 +1735,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("ShowId", "SalaPostoId")
                         .IsUnique();
 
-                    b.ToTable("ShowPostiStato", (string)null);
+                    b.ToTable("ShowPostiStato");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.SupportConversation", b =>
@@ -1761,7 +1764,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SupportConversations", (string)null);
+                    b.ToTable("SupportConversations");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.SupportMessage", b =>
@@ -1797,7 +1800,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SupportMessages", (string)null);
+                    b.ToTable("SupportMessages");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.SupportTicket", b =>
@@ -1878,7 +1881,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SupportTickets", (string)null);
+                    b.ToTable("SupportTickets");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.SupportTicketAudit", b =>
@@ -1916,7 +1919,7 @@ namespace FilmAPI.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("SupportTicketAudits", (string)null);
+                    b.ToTable("SupportTicketAudits");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.User", b =>
@@ -1988,7 +1991,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.UserCinemaAssignment", b =>
@@ -2044,7 +2047,7 @@ namespace FilmAPI.Migrations
                     b.HasIndex("UserId", "CinemaId")
                         .IsUnique();
 
-                    b.ToTable("UserCinemaAssignments", (string)null);
+                    b.ToTable("UserCinemaAssignments");
                 });
 
             modelBuilder.Entity("FilmAPI.Model.Biglietto", b =>

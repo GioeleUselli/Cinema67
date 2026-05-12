@@ -39,6 +39,8 @@ public class ShowPostoStato
     [ForeignKey(nameof(OrdineId))]
     public Ordine? Ordine { get; set; }
 
+    public TicketType? TicketType { get; set; }
+
     [Required]
     public DateTime UpdatedAtUtc { get; set; }
 

@@ -41,7 +41,7 @@ public static class CheckoutEndpoints
 
             try
             {
-                var result = await service.CreateHoldAsync(dto.ShowId, userId, dto.SalaPostoIds);
+                var result = await service.CreateHoldAsync(dto.ShowId, userId, dto.SalaPostoIds, dto.TicketTypes);
                 if (result.Conflitti.Count > 0)
                 {
                     return Results.Conflict(result);

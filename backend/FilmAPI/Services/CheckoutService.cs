@@ -65,10 +65,16 @@ public class CheckoutService : ICheckoutService
             }
         }
 
-        var prezzoPerPosto = TicketPriceNormalizer.NormalizeUnitPrice(show.PrezzoBase)
+        var prezzoBase = TicketPriceNormalizer.NormalizeUnitPrice(show.PrezzoBase)
             + TicketPriceNormalizer.NormalizeUnitPrice(show.SupplementoSala);
         var numeroBiglietti = statiHold.Count;
-        var totaleLordo = prezzoPerPosto * numeroBiglietti;
+
+        var pricingService = new PricingService();
+        var totaleLordo = statiHold.Sum(sps =>
+        {
+            var tipo = sps.TicketType ?? TicketType.Intero;
+            return pricingService.CalcolaPrezzo(tipo, prezzoBase);
+        });
 
         // Discount code validation
         int? scontoPercent = null;
@@ -262,6 +268,7 @@ public class CheckoutService : ICheckoutService
                     Numero = b.SalaPosto?.Numero ?? 0,
                     PrezzoTotale = TicketPriceNormalizer.NormalizeUnitPrice(b.PrezzoTotale),
                     Stato = b.Stato.ToString(),
+                    TipoBiglietto = b.TipoBiglietto.ToString(),
                     ValidatoAtUtc = b.ValidatoAtUtc
                 })
                 .ToList()
@@ -285,6 +292,7 @@ public class CheckoutService : ICheckoutService
             Numero = ticket.SalaPosto?.Numero ?? 0,
             PrezzoTotale = TicketPriceNormalizer.NormalizeUnitPrice(ticket.PrezzoTotale),
             Stato = ticket.Stato.ToString(),
+            TipoBiglietto = ticket.TipoBiglietto.ToString(),
             ValidatoAtUtc = ticket.ValidatoAtUtc
         };
     }

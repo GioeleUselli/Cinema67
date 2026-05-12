@@ -16,7 +16,8 @@
     '/newsletter-admin.html',
     '/campaigns-admin.html',
     '/feste-admin.html',
-    '/rimborsi-admin.html'
+    '/rimborsi-admin.html',
+    '/analytics.html'
   ]);
 
   const PAGE_TITLES = {
@@ -36,7 +37,8 @@
     '/newsletter-admin.html': 'Newsletter',
     '/campaigns-admin.html': 'Campagne',
     '/feste-admin.html': 'Feste',
-    '/rimborsi-admin.html': 'Rimborsi'
+    '/rimborsi-admin.html': 'Rimborsi',
+    '/analytics.html': 'Analytics'
   };
 
   function getUser() {
@@ -150,6 +152,7 @@
             <a data-admin-link href="/campaigns-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Campagne</a>
             <a data-admin-link href="/feste-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-cake-candles"></i>Feste</a>
             <a data-admin-link href="/rimborsi-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-rotate-left"></i>Rimborsi</a>
+            <a data-admin-link href="/analytics.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-chart-line"></i>Analytics</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="toggleAdminTheme()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">

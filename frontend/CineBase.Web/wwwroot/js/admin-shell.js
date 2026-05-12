@@ -13,7 +13,8 @@
     '/promozioni.html',
     '/admin-utenti.html',
     '/membership-admin.html',
-    '/newsletter-admin.html'
+    '/newsletter-admin.html',
+    '/merch-admin.html'
   ]);
 
   const PAGE_TITLES = {
@@ -29,7 +30,8 @@
     '/support-tickets.html': 'Support Tickets',
     '/promozioni.html': 'Promozioni',
     '/admin-utenti.html': 'Gestione Utenti',
-    '/membership-admin.html': 'Membership'
+    '/membership-admin.html': 'Membership',
+    '/merch-admin.html': 'Merch Shop'
   };
 
   function getUser() {
@@ -141,6 +143,7 @@
             <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
             <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
             <a data-admin-link href="/membership-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-crown"></i>Membership</a>
+            <a data-admin-link href="/merch-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-store"></i>Merch Shop</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">

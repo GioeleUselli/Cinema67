@@ -45,6 +45,12 @@ public class FilmDbContext : DbContext
     public DbSet<ManualRefundReview> ManualRefundReviews { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public DbSet<UserCinemaAssignment> UserCinemaAssignments { get; set; }
+    public DbSet<MerchItem> MerchItems { get; set; }
+    public DbSet<MerchOrder> MerchOrders { get; set; }
+    public DbSet<MerchOrderItem> MerchOrderItems { get; set; }
+    public DbSet<FoodItem> FoodItems { get; set; }
+    public DbSet<FoodOrderItem> FoodOrderItems { get; set; }
+    public DbSet<ReferralCode> ReferralCodes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -471,6 +477,60 @@ public class FilmDbContext : DbContext
             entity.HasOne(a => a.User).WithMany().HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(a => a.Cinema).WithMany().HasForeignKey(a => a.CinemaId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(a => a.CreatedByUser).WithMany().HasForeignKey(a => a.CreatedByUserId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<MerchItem>(entity =>
+        {
+            entity.HasIndex(e => e.Nome);
+        });
+
+        modelBuilder.Entity<MerchOrder>(entity =>
+        {
+            entity.HasIndex(e => e.CodiceOrdine).IsUnique();
+            entity.HasIndex(e => e.UserId);
+
+            entity.HasOne(o => o.User)
+                  .WithMany()
+                  .HasForeignKey(o => o.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<MerchOrderItem>(entity =>
+        {
+            entity.HasIndex(e => new { e.MerchOrderId, e.MerchItemId }).IsUnique();
+
+            entity.HasOne(i => i.MerchOrder)
+                  .WithMany(o => o.Items)
+                  .HasForeignKey(i => i.MerchOrderId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(i => i.MerchItem)
+                  .WithMany(m => m.OrderItems)
+                  .HasForeignKey(i => i.MerchItemId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<FoodOrderItem>(entity =>
+        {
+            entity.HasOne(foi => foi.Ordine)
+                  .WithMany()
+                  .HasForeignKey(foi => foi.OrdineId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(foi => foi.FoodItem)
+                  .WithMany()
+                  .HasForeignKey(foi => foi.FoodItemId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ReferralCode>(entity =>
+        {
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.HasOne(r => r.User)
+                  .WithMany()
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

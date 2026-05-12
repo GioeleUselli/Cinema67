@@ -32,7 +32,8 @@ function isAdminAreaPath(pathname) {
     '/admin-utenti.html',
     '/membership-admin.html',
     '/newsletter-admin.html',
-    '/campaigns-admin.html'
+    '/campaigns-admin.html',
+    '/merch-admin.html'
   ]);
   return adminPaths.has((pathname || '').toLowerCase());
 }
@@ -381,9 +382,9 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   getSeatMap: (showId) => apiFetch(`/checkout/shows/${showId}/seat-map`),
 
   // Checkout - Hold posti
-  createHold: (showId, salaPostoIds) => apiFetch('/checkout/holds', {
+  createHold: (showId, salaPostoIds, ticketTypes) => apiFetch('/checkout/holds', {
     method: 'POST',
-    body: JSON.stringify({ showId, salaPostoIds })
+    body: JSON.stringify({ showId, salaPostoIds, ticketTypes: ticketTypes || undefined })
   }),
 
   // Checkout - Refresh hold (keep-alive)
@@ -507,6 +508,7 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
     return apiFetch(`/shows${queryString ? `?${queryString}` : ''}`);
   },
   getShow: (id) => apiFetch(`/shows/${id}`),
+  getShowPricing: (showId) => apiFetch(`/shows/${showId}/pricing`),
   createShow: (data) => apiFetch('/shows', {
     method: 'POST',
     body: JSON.stringify(data)
@@ -651,5 +653,57 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   getNewsletterSubscribers: function () { return apiFetch('/admin/newsletter/subscribers'); },
   adminAddSubscriber: function (data) { return apiFetch('/admin/newsletter/subscribe', { method: 'POST', body: JSON.stringify(data) }); },
   removeNewsletterSubscriber: function (id) { return apiFetch('/admin/newsletter/subscribers/' + id, { method: 'DELETE' }); },
-  inviaNewsletter: function (data) { return apiFetch('/admin/newsletter/send', { method: 'POST', body: JSON.stringify(data) }); }
+  inviaNewsletter: function (data) { return apiFetch('/admin/newsletter/send', { method: 'POST', body: JSON.stringify(data) }); },
+
+  // ── Food & Beverage ──
+  getFoodMenu: function () { return apiFetch('/food/menu'); },
+  addFoodToOrder: function (ordineId, data) { return apiFetch('/food/order/' + ordineId, { method: 'POST', body: JSON.stringify(data) }); },
+  getOrderFood: function (ordineId) { return apiFetch('/food/order/' + ordineId); },
+  getAllFoodItems: function () { return apiFetch('/admin/food'); },
+  createFoodItem: function (data) { return apiFetch('/admin/food', { method: 'POST', body: JSON.stringify(data) }); },
+  updateFoodItem: function (id, data) { return apiFetch('/admin/food/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
+  deleteFoodItem: function (id) { return apiFetch('/admin/food/' + id, { method: 'DELETE' }); },
+
+  // ── Referral ──
+  generateReferral: function () { return apiFetch('/referral/generate', { method: 'POST' }); },
+
+  // ── Analytics ──
+  getAnalyticsRevenue: function (params) {
+    var q = new URLSearchParams();
+    if (params && params.dal) q.set('dal', params.dal);
+    if (params && params.al) q.set('al', params.al);
+    if (params && params.cinemaId) q.set('cinemaId', String(params.cinemaId));
+    return apiFetch('/admin/analytics/revenue' + (q.toString() ? '?' + q.toString() : ''));
+  },
+  getAnalyticsTopFilms: function (params) {
+    var q = new URLSearchParams();
+    if (params && params.dal) q.set('dal', params.dal);
+    if (params && params.al) q.set('al', params.al);
+    if (params && params.limit) q.set('limit', String(params.limit));
+    return apiFetch('/admin/analytics/top-films' + (q.toString() ? '?' + q.toString() : ''));
+  },
+  getAnalyticsTimeSlots: function (params) {
+    var q = new URLSearchParams();
+    if (params && params.dal) q.set('dal', params.dal);
+    if (params && params.al) q.set('al', params.al);
+    return apiFetch('/admin/analytics/time-slots' + (q.toString() ? '?' + q.toString() : ''));
+  },
+  getAnalyticsCinemaComparison: function (params) {
+    var q = new URLSearchParams();
+    if (params && params.dal) q.set('dal', params.dal);
+    if (params && params.al) q.set('al', params.al);
+    return apiFetch('/admin/analytics/cinema-comparison' + (q.toString() ? '?' + q.toString() : ''));
+  },
+  getAnalyticsDashboard: function () { return apiFetch('/admin/analytics/dashboard'); },
+
+  // ── Merch Shop ──
+  getMerchItems: function () { return apiFetch('/merch/items'); },
+  createMerchOrder: function (data) { return apiFetch('/merch/orders', { method: 'POST', body: JSON.stringify(data) }); },
+  getMyMerchOrders: function () { return apiFetch('/merch/orders/mie'); },
+  getAllMerchOrders: function () { return apiFetch('/admin/merch/orders'); },
+  updateMerchOrderStatus: function (id, status) { return apiFetch('/admin/merch/orders/' + id + '/status', { method: 'PUT', body: JSON.stringify({ stato: status }) }); },
+  getAllMerchItems: function () { return apiFetch('/admin/merch/items'); },
+  createMerchItem: function (data) { return apiFetch('/admin/merch/items', { method: 'POST', body: JSON.stringify(data) }); },
+  updateMerchItem: function (id, data) { return apiFetch('/admin/merch/items/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
+  deleteMerchItem: function (id) { return apiFetch('/admin/merch/items/' + id, { method: 'DELETE' }); }
 };

@@ -87,6 +87,9 @@ builder.Services.AddScoped<IPartyBookingService, PartyBookingService>();
 builder.Services.AddScoped<IShowCancellationService, ShowCancellationService>();
 builder.Services.AddScoped<ICinemaAccessService, CinemaAccessService>();
 builder.Services.AddScoped<IAccountDeletionService, AccountDeletionService>();
+builder.Services.AddScoped<IMerchService, MerchService>();
+builder.Services.AddScoped<IFoodService, FoodService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();
 
@@ -278,6 +281,10 @@ app.MapPartyBookingEndpoints();
 app.MapShowCancellationEndpoints();
 app.MapCinemaStaffEndpoints();
 app.MapAccountEndpoints();
+app.MapFoodEndpoints();
+app.MapReferralEndpoints();
+app.MapAnalyticsEndpoints();
+app.MapMerchEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {

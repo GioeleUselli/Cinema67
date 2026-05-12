@@ -49,6 +49,10 @@ public class BigliettoService : IBigliettoService
         foreach (var seatState in seatStates.Where(s => !existingSeatIdSet.Contains(s.SalaPostoId)))
         {
             var ticketCode = await GenerateUniqueTicketCodeAsync();
+            var unitPrice = new PricingService().CalcolaPrezzo(
+                seatState.TicketType ?? TicketType.Intero,
+                TicketPriceNormalizer.NormalizeUnitPrice(ordine.Show?.PrezzoBase ?? 0m)
+                    + TicketPriceNormalizer.NormalizeUnitPrice(ordine.Show?.SupplementoSala ?? 0m));
             _db.Biglietti.Add(new Biglietto
             {
                 OrdineId = ordine.Id,
@@ -59,8 +63,8 @@ public class BigliettoService : IBigliettoService
                 BarcodeValue = ticketCode,
                 PrezzoBase = TicketPriceNormalizer.NormalizeUnitPrice(ordine.Show?.PrezzoBase ?? 0m),
                 Supplemento = TicketPriceNormalizer.NormalizeUnitPrice(ordine.Show?.SupplementoSala ?? 0m),
-                PrezzoTotale = TicketPriceNormalizer.NormalizeUnitPrice(ordine.Show?.PrezzoBase ?? 0m)
-                    + TicketPriceNormalizer.NormalizeUnitPrice(ordine.Show?.SupplementoSala ?? 0m),
+                PrezzoTotale = unitPrice,
+                TipoBiglietto = seatState.TicketType ?? TicketType.Intero,
                 Stato = BigliettoState.Issued
             });
         }

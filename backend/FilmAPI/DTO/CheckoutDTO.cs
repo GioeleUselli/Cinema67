@@ -1,3 +1,5 @@
+using FilmAPI.Model;
+
 namespace FilmAPI.DTO;
 
 public enum SeatStatus
@@ -35,6 +37,7 @@ public class SeatHoldRequestDTO
 {
     public int ShowId { get; set; }
     public List<int> SalaPostoIds { get; set; } = new();
+    public List<TicketType>? TicketTypes { get; set; }
 }
 
 public class SeatHoldResponseDTO
