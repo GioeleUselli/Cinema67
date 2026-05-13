@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Dettaglio Articolo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+  <style>::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--brand-gold);border-radius:999px}.gallery-thumb{cursor:pointer;border:2px solid transparent;}.gallery-thumb.active{border-color:var(--brand-gold)}</style>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+<div id="navbar-container"></div>
+<main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+  <a href="/shop.html" class="inline-flex items-center gap-2 text-sm text-brand-on-surface-variant hover:text-brand-gold mb-6 transition-colors"><i class="fa-solid fa-arrow-left"></i> Torna allo Shop</a>
+  <div id="loading-state" class="text-center py-16"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-brand-gold"></i><p class="text-brand-on-surface-variant">Caricamento articolo...</p></div>
+  <div id="error-state" class="hidden text-center py-16"><i class="fa-solid fa-circle-exclamation text-6xl text-brand-error mb-4"></i><h3 class="text-xl font-semibold text-brand-on-surface mb-2">Articolo non trovato</h3><p class="text-brand-on-surface-variant mb-4" id="error-message"></p><a href="/shop.html" class="btn-outline-brand"><i class="fa-solid fa-arrow-left mr-1"></i>Torna allo Shop</a></div>
+  <div id="article-detail" class="hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <div class="cine-premium-card p-4 mb-4">
+          <div id="article-main-image" class="w-full aspect-square rounded-xl bg-brand-surface-dim flex items-center justify-center text-brand-gold text-7xl overflow-hidden"><i class="fa-solid fa-film"></i></div>
+        </div>
+        <div id="article-gallery" class="flex gap-2 overflow-x-auto pb-2"></div>
+      </div>
+      <div class="flex flex-col">
+        <span id="article-category" class="text-[10px] uppercase tracking-[0.2em] text-brand-gold mb-3"></span>
+        <h1 id="article-name" class="text-3xl md:text-4xl font-serif font-bold text-brand-on-surface mb-4"></h1>
+        <p id="article-description" class="text-sm text-brand-on-surface-variant leading-relaxed mb-6"></p>
+        <div class="flex items-baseline gap-2 mb-4"><span id="article-price" class="text-3xl font-bold text-brand-gold font-serif"></span></div>
+        <div id="article-variants" class="mb-6 space-y-3"></div>
+        <div id="article-stock" class="mb-4"><span class="text-xs text-brand-on-surface-variant"></span></div>
+        <div class="flex items-center gap-4 mt-auto">
+          <div class="flex items-center gap-1">
+            <button onclick="changeQty(-1)" class="w-10 h-10 rounded-lg bg-brand-surface border border-brand-outline-variant/20 flex items-center justify-center text-brand-on-surface hover:text-brand-gold"><i class="fa-solid fa-minus"></i></button>
+            <span id="qty-value" class="w-10 text-center text-lg font-semibold">1</span>
+            <button onclick="changeQty(1)" class="w-10 h-10 rounded-lg bg-brand-surface border border-brand-outline-variant/20 flex items-center justify-center text-brand-on-surface hover:text-brand-gold"><i class="fa-solid fa-plus"></i></button>
+          </div>
+          <button onclick="addToCart()" class="btn-gold px-6 py-3 font-semibold flex-1"><i class="fa-solid fa-cart-shopping mr-2"></i>Aggiungi al Carrello</button>
+        </div>
+        <div id="cart-added-msg" class="hidden mt-3 text-sm text-brand-gold"><i class="fa-solid fa-circle-check mr-1"></i>Aggiunto al carrello! <a href="/shop.html" class="underline">Vai allo Shop</a></div>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="footer-container"></div>
+<script src="/js/utils.js?v=99"></script>
+<script src="/js/api-app.js?v=100"></script>
+<script src="/js/auth.js?v=99"></script>
+<script src="/js/template-loader.js?v=99"></script>
+<script src="/js/navbar.js?v=99"></script>
+<script>
+var article=null,qty=1,selectedColor=null,selectedSize=null;
+
+function parseArticleId(){var p=new URLSearchParams(window.location.search);return parseInt(p.get('id')||'0');}
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+function changeQty(d){var max=selectedVariant()?selectedVariant().stock:(article?article.stock||999:999);qty=Math.max(1,Math.min(qty+d,max));document.getElementById('qty-value').textContent=qty;}
+
+function selectedVariant(){
+  if(!article||!article.varianti)return null;
+  return article.varianti.find(function(v){return v.colore===selectedColor&&v.taglia===selectedSize;})||null;
+}
+
+function updatePrice(){
+  var v=selectedVariant();
+  var prezzo=v&&v.prezzo?v.prezzo:article.prezzo;
+  document.getElementById('article-price').textContent='€'+prezzo.toFixed(2);
+  var stock=v?('Disponibilità: <b>'+v.stock+'</b> pezzi'):('<b>'+(article.stock||0)+'</b> pezzi');
+  document.getElementById('article-stock').innerHTML='<span class="text-xs text-brand-on-surface-variant">'+stock+'</span>';
+  qty=1;document.getElementById('qty-value').textContent='1';
+}
+
+function renderVariants(){
+  var container=document.getElementById('article-variants');
+  if(!article||!article.varianti||!article.varianti.length){container.innerHTML='';return;}
+  var colors=[...new Set(article.varianti.map(function(v){return v.colore;}).filter(Boolean))];
+  var sizes=[...new Set(article.varianti.map(function(v){return v.taglia;}).filter(Boolean))];
+  var html='';
+  if(colors.length){
+    html+='<div><label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Colore</label><div class="flex flex-wrap gap-2">';
+    colors.forEach(function(c){
+      var avail=article.varianti.some(function(v){return v.colore===c&&v.stock>0;});
+      html+='<button onclick="selectVariant(\'color\',\''+escapeHtml(c)+'\')" class="px-3 py-1 text-xs rounded-full border '+((selectedColor===c)?'bg-brand-gold/10 text-brand-gold border-brand-gold/30':'border-brand-outline-variant/30 text-brand-on-surface-variant hover:border-brand-gold/20')+(!avail?' opacity-40 line-through':'')+'">'+escapeHtml(c)+'</button>';
+    });
+    html+='</div></div>';
+  }
+  if(sizes.length){
+    html+='<div><label class="block text-xs uppercase tracking-widest text-brand-on-surface-variant mb-1">Taglia</label><div class="flex flex-wrap gap-2">';
+    sizes.forEach(function(s){
+      var avail=article.varianti.some(function(v){return v.taglia===s&&v.stock>0&&(!selectedColor||v.colore===selectedColor);});
+      html+='<button onclick="selectVariant(\'size\',\''+escapeHtml(s)+'\')" class="px-3 py-1 text-xs rounded-full border '+((selectedSize===s)?'bg-brand-gold/10 text-brand-gold border-brand-gold/30':'border-brand-outline-variant/30 text-brand-on-surface-variant hover:border-brand-gold/20')+(!avail?' opacity-40 line-through':'')+'">'+escapeHtml(s)+'</button>';
+    });
+    html+='</div></div>';
+  }
+  container.innerHTML=html;
+}
+
+function selectVariant(type,val){
+  if(type==='color'){selectedColor=(selectedColor===val)?null:val;}
+  else{selectedSize=(selectedSize===val)?null:val;}
+  renderVariants();
+  updatePrice();
+}
+
+function addToCart(){
+  if(!article)return;
+  var v=selectedVariant();
+  var stock=v?v.stock:article.stock;
+  if(stock<=0)return;
+  var cart=[];try{cart=JSON.parse(localStorage.getItem('cinema67_merch_cart')||'[]');}catch(e){cart=[];}
+  var key=article.id+(v?'_v'+v.id:'');
+  var existing=cart.find(function(c){return c.key===key;});
+  if(existing){existing.qty=Math.min(existing.qty+qty,stock);}
+  else{
+    var prezzo=v&&v.prezzo?v.prezzo:article.prezzo;
+    var label=article.nome+(v?' - '+[v.colore,v.taglia].filter(Boolean).join(' / '):'');
+    cart.push({key:key,id:article.id,name:label,price:prezzo,qty:qty,variantId:v?v.id:null});
+  }
+  localStorage.setItem('cinema67_merch_cart',JSON.stringify(cart));
+  document.getElementById('cart-added-msg').classList.remove('hidden');
+  qty=1;document.getElementById('qty-value').textContent='1';
+}
+
+function setMainImage(src){
+  document.getElementById('article-main-image').innerHTML='<img src="'+escapeHtml(src)+'" alt="" class="w-full h-full object-cover" />';
+}
+
+async function loadArticle(){
+  var id=parseArticleId();if(!id){showError('ID articolo non valido.');return;}
+  try{
+    article=await API.getMerchItemById(id);
+    if(!article){showError('Articolo non trovato.');return;}
+    renderArticle();
+  }catch(e){showError('Errore caricamento articolo.');}
+}
+
+function renderArticle(){
+  document.getElementById('loading-state').classList.add('hidden');
+  document.getElementById('article-detail').classList.remove('hidden');
+  document.getElementById('article-category').textContent=article.categoria||'';
+  document.getElementById('article-name').textContent=article.nome;
+  document.getElementById('article-description').textContent=article.descrizione||'';
+  document.title=article.nome+' — Cinema67 Shop';
+
+  var mainImg=null;
+  if(article.immagini&&article.immagini.length>0)mainImg=article.immagini[0];
+  else if(article.immaginePath)mainImg=article.immaginePath;
+  if(mainImg)setMainImage(API_BASE_URL+mainImg);
+
+  var gallery=document.getElementById('article-gallery');
+  var imgs=article.immagini||[];
+  if(!imgs.length&&article.immaginePath)imgs=[article.immaginePath];
+  if(imgs.length>0){
+    gallery.innerHTML=imgs.map(function(img,i){
+      var src=img.startsWith('/')?API_BASE_URL+img:img;
+      return '<div class="gallery-thumb w-16 h-16 rounded-lg bg-brand-surface-dim overflow-hidden flex-shrink-0'+(i===0?' active':'')+'" onclick="setMainImage(\''+escapeHtml(src)+'\')"><img src="'+escapeHtml(src)+'" alt="" class="w-full h-full object-cover" /></div>';
+    }).join('');
+  }else{gallery.innerHTML='';}
+
+  selectedColor=null;selectedSize=null;
+  renderVariants();
+  updatePrice();
+}
+
+function showError(msg){document.getElementById('loading-state').classList.add('hidden');document.getElementById('error-state').classList.remove('hidden');document.getElementById('error-message').textContent=msg;}
+
+document.addEventListener('DOMContentLoaded',loadArticle);
+</script>
+</body>
+</html>

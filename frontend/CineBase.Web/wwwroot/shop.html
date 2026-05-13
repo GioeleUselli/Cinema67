@@ -84,6 +84,13 @@
         <span class="text-sm font-semibold text-brand-on-surface-variant">Totale</span>
         <span id="cart-totale-amount" class="text-xl font-bold text-brand-gold font-serif">€0.00</span>
       </div>
+      <div id="discount-section" class="mb-3 hidden">
+        <div class="flex gap-2 mb-2">
+          <input type="text" id="discount-input" placeholder="Codice sconto" maxlength="50" class="flex-1 text-xs rounded-lg bg-brand-surface-container border border-brand-outline-variant/30 px-3 py-1.5 text-brand-on-surface focus:border-brand-gold" autocomplete="off">
+          <button onclick="applyDiscount()" class="btn-outline-brand text-xs px-3 py-1">Applica</button>
+        </div>
+        <div id="discount-msg" class="text-xs"></div>
+      </div>
       <button id="btn-acquista" onclick="checkoutCart()" class="w-full btn-gold py-3 font-semibold" disabled>
         <i class="fa-solid fa-credit-card mr-2"></i>Acquista
       </button>
@@ -92,15 +99,57 @@
 
   <div id="footer-container"></div>
 
+  <!-- Delivery Modal -->
+  <div id="delivery-modal" class="hidden fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-4">
+    <div class="cine-premium-card p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <h3 class="text-lg font-bold text-brand-on-surface mb-4">Dettagli Consegna</h3>
+
+      <div class="flex gap-2 mb-4">
+        <button id="tab-ritiro-btn" onclick="switchDeliveryTab('ritiro')" class="flex-1 py-2 text-xs font-semibold rounded-xl border bg-brand-gold/10 text-brand-gold border-brand-gold/20">Ritiro al Cinema</button>
+        <button id="tab-spedizione-btn" onclick="switchDeliveryTab('spedizione')" class="flex-1 py-2 text-xs font-semibold rounded-xl border border-brand-outline-variant/30 text-brand-on-surface-variant hover:border-brand-gold/20">Spedizione a casa</button>
+      </div>
+
+      <div id="delivery-tab-ritiro">
+        <label class="block text-xs text-brand-on-surface-variant mb-1">Scegli il cinema</label>
+        <select id="ritiro-cinema" onchange="updateShippingEstimate()" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold mb-3">
+          <option value="">Caricamento...</option>
+        </select>
+      </div>
+
+      <div id="delivery-tab-spedizione" class="hidden space-y-3">
+        <div><label class="block text-xs text-brand-on-surface-variant mb-1">Indirizzo *</label><input type="text" id="delivery-indirizzo" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold" placeholder="Via Roma 12"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-xs text-brand-on-surface-variant mb-1">Città *</label><input type="text" id="delivery-citta" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold" placeholder="Milano"></div>
+          <div><label class="block text-xs text-brand-on-surface-variant mb-1">CAP *</label><input type="text" id="delivery-cap" maxlength="10" oninput="updateShippingEstimate()" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold" placeholder="20100"></div>
+        </div>
+        <div><label class="block text-xs text-brand-on-surface-variant mb-1">Provincia</label><input type="text" id="delivery-provincia" maxlength="50" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold" placeholder="MI"></div>
+        <div><label class="block text-xs text-brand-on-surface-variant mb-1">Telefono *</label><input type="text" id="delivery-telefono" maxlength="20" class="w-full rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold" placeholder="+39 333 1234567"></div>
+      </div>
+
+      <div id="shipping-cost-display" class="mb-3 p-3 rounded-lg bg-brand-surface-container border border-brand-gold/10 text-sm space-y-1">
+        <div><span class="text-brand-on-surface-variant">Spedizione: </span><span id="shipping-cost-amount" class="font-bold text-brand-gold">€0.00</span><span id="shipping-free-badge" class="ml-1 text-xs text-green-400">(Gratuita!)</span></div>
+        <div id="shipping-eta-line"><span class="text-brand-on-surface-variant">Consegna prevista: </span><span id="shipping-eta" class="text-brand-on-surface text-xs"></span></div>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button onclick="closeDeliveryModal()" class="btn-ghost text-sm flex-1">Annulla</button>
+        <button onclick="confirmDelivery()" class="btn-gold text-sm flex-1">
+          <i class="fa-solid fa-check mr-1"></i>Conferma e Vai al Pagamento
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=100"></script>
   <script src="/js/auth.js?v=99"></script>
-  <script src="/js/navbar.js?v=99"></script>
   <script src="/js/template-loader.js?v=99"></script>
-  <script src="/js/api-app.js?v=99"></script>
+  <script src="/js/navbar.js?v=99"></script>
 
   <script>
     let cart = [];
     let products = [];
-
+    let discountState = { codice: null, percentuale: 0, totaleOriginale: 0 };
     function saveCart() { localStorage.setItem('cinema67_merch_cart', JSON.stringify(cart)); }
     function loadCart() {
       try { cart = JSON.parse(localStorage.getItem('cinema67_merch_cart') || '[]'); } catch (e) { cart = []; }
@@ -114,8 +163,15 @@
 
       const itemsContainer = document.getElementById('cart-items');
       const totale = cart.reduce((s, i) => s + i.price * i.qty, 0);
-      document.getElementById('cart-totale-amount').textContent = `€${totale.toFixed(2)}`;
+      discountState.totaleOriginale = totale;
+      var discounted = totale;
+      if (discountState.percentuale > 0) discounted = Math.round((totale * (1 - discountState.percentuale / 100)) * 100) / 100;
+      document.getElementById('cart-totale-amount').textContent = '€' + discounted.toFixed(2);
       document.getElementById('btn-acquista').disabled = cart.length === 0;
+
+      var discSection = document.getElementById('discount-section');
+      if (cart.length > 0) { discSection.classList.remove('hidden'); }
+      else { discSection.classList.add('hidden'); discountState.codice = null; discountState.percentuale = 0; }
 
       itemsContainer.innerHTML = cart.length === 0
         ? `<p class="text-center text-brand-on-surface-variant py-8"><i class="fa-solid fa-cart-shopping text-3xl mb-3 block"></i>Il carrello è vuoto</p>`
@@ -170,6 +226,12 @@
       'Collezionabili': 'fa-solid fa-star',
     };
 
+    function getCardImage(p) {
+      if (p.immagini && p.immagini.length > 0) return API_BASE_URL + p.immagini[0];
+      if (p.immaginePath) return API_BASE_URL + p.immaginePath;
+      return null;
+    }
+
     function renderProducts(items) {
       const grid = document.getElementById('products-grid');
       if (!items.length) {
@@ -182,20 +244,23 @@
         const catIcon = CATEGORY_ICONS[p.categoria] || 'fa-solid fa-box';
         return `
           <div class="cine-premium-card p-4 flex flex-col hover:border-brand-gold/30 transition-all group">
-            <div class="relative mb-3">
+            <a href="/articolo.html?id=${p.id}" class="block relative mb-3 cursor-pointer">
               <div class="w-full aspect-square rounded-xl bg-brand-surface-dim flex items-center justify-center text-brand-gold text-5xl overflow-hidden">
-                ${p.immaginePath ? `<img src="${escapeHtml(p.immaginePath)}" alt="${escapeHtml(p.nome)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-film"></i>`}
+                ${getCardImage(p) ? `<img src="${escapeHtml(getCardImage(p))}" alt="${escapeHtml(p.nome)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-film"></i>`}
               </div>
               <span class="absolute top-2 left-2 text-[10px] uppercase tracking-widest bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/20">
                 <i class="${catIcon} mr-1"></i>${escapeHtml(p.categoria)}
               </span>
+              ${p.varianti && p.varianti.length ? `<span class="absolute bottom-2 right-2 text-[10px] bg-brand-surface/80 text-brand-on-surface-variant px-1.5 py-0.5 rounded-full">${p.varianti.length} var.</span>` : ''}
               ${inCartQty > 0 ? `<span class="absolute top-2 right-2 bg-brand-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full">x${inCartQty}</span>` : ''}
-            </div>
-            <h3 class="text-sm font-bold text-brand-on-surface mb-1 group-hover:text-brand-gold transition-colors">${escapeHtml(p.nome)}</h3>
-            ${p.descrizione ? `<p class="text-xs text-brand-on-surface-variant mb-3 line-clamp-2 flex-1">${escapeHtml(p.descrizione)}</p>` : '<div class="flex-1"></div>'}
+            </a>
+            <a href="/articolo.html?id=${p.id}" class="block cursor-pointer">
+              <h3 class="text-sm font-bold text-brand-on-surface mb-1 group-hover:text-brand-gold transition-colors">${escapeHtml(p.nome)}</h3>
+              ${p.descrizione ? `<p class="text-xs text-brand-on-surface-variant mb-3 line-clamp-2 flex-1">${escapeHtml(p.descrizione)}</p>` : '<div class="flex-1"></div>'}
+            </a>
             <div class="flex items-center justify-between mt-auto pt-3 border-t border-brand-outline-variant/10">
               <span class="text-lg font-bold text-brand-gold font-serif">€${p.prezzo.toFixed(2)}</span>
-              <button onclick="addToCart(${p.id}, '${escapeHtml(p.nome).replace(/'/g, "\\'")}', ${p.prezzo}, ${p.stock})" 
+              <button onclick="event.stopPropagation(); addToCart(${p.id}, '${escapeHtml(p.nome).replace(/'/g, "\\'")}', ${p.prezzo}, ${p.stock})" 
                 class="btn-outline-brand text-xs px-3 py-1.5 ${inCartQty >= p.stock ? 'opacity-50 pointer-events-none' : ''}"
                 ${inCartQty >= p.stock ? 'disabled' : ''}>
                 <i class="fa-solid fa-cart-plus mr-1"></i>Aggiungi
@@ -218,6 +283,23 @@
       renderProducts(products);
     }
 
+    async function applyDiscount() {
+      var code = document.getElementById('discount-input').value.trim();
+      if (!code) { document.getElementById('discount-msg').innerHTML = ''; discountState.codice = null; discountState.percentuale = 0; updateCartUI(); return; }
+      try {
+        var r = await API.validateDiscount(code);
+        if (r.valido) {
+          discountState.codice = r.codice;
+          discountState.percentuale = r.percentualeSconto;
+          document.getElementById('discount-msg').innerHTML = '<span class="text-green-400">' + r.messaggio + '</span>';
+        } else {
+          discountState.codice = null; discountState.percentuale = 0;
+          document.getElementById('discount-msg').innerHTML = '<span class="text-brand-red">' + (r.messaggio || 'Codice non valido') + '</span>';
+        }
+      } catch(e) { document.getElementById('discount-msg').innerHTML = '<span class="text-brand-red">Errore</span>'; }
+      updateCartUI();
+    }
+
     async function loadProducts() {
       try {
         products = await API.getMerchItems();
@@ -233,24 +315,100 @@
         window.Auth.redirectToLogin('/shop.html');
         return;
       }
-      const btn = document.getElementById('btn-acquista');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Elaborazione...';
+      // Load cinemas and show delivery modal
+      await loadCinemasForDelivery();
+      openDeliveryModal();
+    }
+
+    async function loadCinemasForDelivery() {
       try {
-        const dto = { items: cart.map(c => ({ merchItemId: c.id, quantita: c.qty })) };
-        const result = await API.createMerchOrder(dto);
-        cart = [];
-        saveCart();
-        updateCartUI();
-        closeCart();
-        await loadProducts();
-        alert('Ordine creato con successo! Codice: ' + result.codiceOrdine + '\nTotale: €' + result.totale.toFixed(2));
-        loadMyOrders();
+        var data = await API.getCinemas();
+        var cinemas = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
+        var sel = document.getElementById('ritiro-cinema');
+        sel.innerHTML = cinemas.map(function(c) { return '<option value="' + c.id + '">' + escapeHtml(c.nome) + ' — ' + escapeHtml(c.citta || '') + '</option>'; }).join('');
+        if (cinemas.length === 0) sel.innerHTML = '<option value="">Nessun cinema disponibile</option>';
+      } catch(e) { document.getElementById('ritiro-cinema').innerHTML = '<option value="">Errore caricamento</option>'; }
+    }
+
+    var deliveryMode = 'ritiro';
+    function switchDeliveryTab(mode) {
+      deliveryMode = mode;
+      var ritiro = document.getElementById('delivery-tab-ritiro'), sped = document.getElementById('delivery-tab-spedizione');
+      var rbtn = document.getElementById('tab-ritiro-btn'), sbtn = document.getElementById('tab-spedizione-btn');
+      if (mode === 'ritiro') {
+        ritiro.classList.remove('hidden'); sped.classList.add('hidden');
+        rbtn.className = 'flex-1 py-2 text-xs font-semibold rounded-xl border bg-brand-gold/10 text-brand-gold border-brand-gold/20';
+        sbtn.className = 'flex-1 py-2 text-xs font-semibold rounded-xl border border-brand-outline-variant/30 text-brand-on-surface-variant hover:border-brand-gold/20';
+      } else {
+        ritiro.classList.add('hidden'); sped.classList.remove('hidden');
+        rbtn.className = 'flex-1 py-2 text-xs font-semibold rounded-xl border border-brand-outline-variant/30 text-brand-on-surface-variant hover:border-brand-gold/20';
+        sbtn.className = 'flex-1 py-2 text-xs font-semibold rounded-xl border bg-brand-gold/10 text-brand-gold border-brand-gold/20';
+      }
+      updateShippingEstimate();
+    }
+
+    function openDeliveryModal() { document.getElementById('delivery-modal').classList.remove('hidden'); updateShippingEstimate(); }
+    function closeDeliveryModal() { document.getElementById('delivery-modal').classList.add('hidden'); }
+
+    async function updateShippingEstimate() {
+      var tipo = deliveryMode, cinemaId = null, cap = null;
+      if (tipo === 'ritiro') {
+        var sel = document.getElementById('ritiro-cinema');
+        cinemaId = sel.value ? parseInt(sel.value) : null;
+      } else {
+        cap = document.getElementById('delivery-cap').value.trim() || null;
+      }
+      try {
+        var params = new URLSearchParams();
+        params.set('tipo', tipo === 'ritiro' ? 'RitiroCinema' : 'Spedizione');
+        if (cinemaId) params.set('cinemaId', cinemaId);
+        if (cap) params.set('cap', cap);
+        var resp = await fetch(API_BASE_URL + '/merch/shipping/estimate?' + params.toString());
+        if (resp.ok) {
+          var data = await resp.json();
+          document.getElementById('shipping-cost-amount').textContent = '€' + data.costo.toFixed(2);
+          document.getElementById('shipping-free-badge').style.display = data.gratis ? 'inline' : 'none';
+          if (data.dataPrevista) {
+            var d = new Date(data.dataPrevista);
+            document.getElementById('shipping-eta').textContent = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' }) + ' (14:00–18:00)';
+            document.getElementById('shipping-eta-line').style.display = '';
+          } else {
+            document.getElementById('shipping-eta-line').style.display = 'none';
+          }
+        }
+      } catch(e) {}
+    }
+
+    async function confirmDelivery() {
+      var dto = { items: cart.map(c => ({ merchItemId: c.id, quantita: c.qty, variantId: c.variantId || null })), discountCode: discountState.codice || null };
+
+      if (deliveryMode === 'spedizione') {
+        dto.tipoConsegna = 'Spedizione';
+        dto.indirizzo = document.getElementById('delivery-indirizzo').value.trim();
+        dto.citta = document.getElementById('delivery-citta').value.trim();
+        dto.cap = document.getElementById('delivery-cap').value.trim();
+        dto.provincia = document.getElementById('delivery-provincia').value.trim();
+        dto.telefono = document.getElementById('delivery-telefono').value.trim();
+        if (!dto.indirizzo || !dto.citta || !dto.cap) { alert('Indirizzo, Città e CAP sono obbligatori per la spedizione.'); return; }
+      } else {
+        dto.tipoConsegna = 'RitiroCinema';
+        var cinemaId = parseInt(document.getElementById('ritiro-cinema').value);
+        dto.cinemaRitiroId = cinemaId || null;
+      }
+
+      closeDeliveryModal();
+      var btn = document.getElementById('btn-acquista');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Creazione ordine...';
+      try {
+        var result = await API.createMerchOrder(dto);
+        cart = []; saveCart(); updateCartUI(); closeCart();
+        window.location.href = '/pagamento-merch.html?orderId=' + result.id;
       } catch (e) {
         alert('Errore: ' + (e.message || 'Impossibile creare l\'ordine.'));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-credit-card mr-2"></i>Acquista';
       }
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-credit-card mr-2"></i>Acquista';
     }
 
     async function loadMyOrders() {

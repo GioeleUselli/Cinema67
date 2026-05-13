@@ -38,7 +38,7 @@ async function loadLayoutComponents() {
   if (!navbarContainer && !footerContainer) return;
 
   var pathname = (window.location.pathname || '').toLowerCase();
-  var landingPaths = ['/', '/index.html', '/programmazione.html', '/scheda-film.html', '/my-cinemas.html', '/scegli-cinema.html', '/login.html', '/registrazione.html', '/profilo.html', '/membership.html', '/feste.html', '/acquista.html', '/pagamento.html', '/esito-acquisto.html', '/forgot-password.html', '/reset-password.html', '/giftcard.html', '/riscatta-giftcard.html', '/privacy.html', '/cookie.html', '/termini-condizioni.html', '/shop.html'];
+  var landingPaths = ['/', '/index.html', '/programmazione.html', '/scheda-film.html', '/my-cinemas.html', '/scegli-cinema.html', '/login.html', '/registrazione.html', '/profilo.html', '/membership.html', '/feste.html', '/acquista.html', '/pagamento.html', '/esito-acquisto.html', '/forgot-password.html', '/reset-password.html', '/giftcard.html', '/riscatta-giftcard.html', '/privacy.html', '/cookie.html', '/termini-condizioni.html', '/shop.html', '/articolo.html', '/pagamento-merch.html', '/esito-acquisto-merch.html', '/tracking-merch.html'];
   var adminShellPaths = ['/films.html', '/registi.html', '/cinemas.html', '/proiezioni.html', '/categorie.html', '/sale.html', '/ricarica-credito.html', '/validazione-biglietti.html', '/support-tickets.html', '/promozioni.html', '/admin-utenti.html', '/membership-admin.html', '/newsletter-admin.html', '/campaigns-admin.html', '/feste-admin.html', '/rimborsi-admin.html', '/analytics.html', '/food-admin.html', '/merch-admin.html'];
 
   if (adminShellPaths.indexOf(pathname) !== -1) {

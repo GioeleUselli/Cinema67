@@ -88,10 +88,13 @@ builder.Services.AddScoped<IShowCancellationService, ShowCancellationService>();
 builder.Services.AddScoped<ICinemaAccessService, CinemaAccessService>();
 builder.Services.AddScoped<IAccountDeletionService, AccountDeletionService>();
 builder.Services.AddScoped<IMerchService, MerchService>();
+builder.Services.AddScoped<IMerchPagamentoService, MerchPagamentoService>();
+builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();
+builder.Services.AddHostedService<ShippingBackgroundService>();
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
@@ -288,6 +291,7 @@ app.MapFoodEndpoints();
 app.MapReferralEndpoints();
 app.MapAnalyticsEndpoints();
 app.MapMerchEndpoints();
+app.MapMerchPagamentoEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {

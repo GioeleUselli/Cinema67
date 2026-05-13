@@ -39,5 +39,36 @@ public static class MediaEndpoints
             }
         })
         .DisableAntiforgery();
+
+        group.MapPost("/merch", async (HttpRequest request, IMediaService service) =>
+        {
+            try
+            {
+                IFormFile? file = null;
+                
+                try
+                {
+                    var form = await request.ReadFormAsync();
+                    file = form.Files.GetFile("file");
+                }
+                catch
+                {
+                    return Results.BadRequest("Nessun file caricato");
+                }
+                
+                if (file is null || file.Length == 0)
+                {
+                    return Results.BadRequest("Nessun file caricato");
+                }
+
+                var result = await service.UploadMerchAsync(file);
+                return Results.Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(ex.Message);
+            }
+        })
+        .DisableAntiforgery();
     }
 }

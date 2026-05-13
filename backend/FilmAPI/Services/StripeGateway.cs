@@ -25,6 +25,17 @@ public class StripeCreateCheckoutSessionRequest
     public string CancelUrl { get; set; } = string.Empty;
 }
 
+public class StripeCreateMerchCheckoutSessionRequest
+{
+    public int MerchOrderId { get; set; }
+    public string OrderCode { get; set; } = string.Empty;
+    public int UserId { get; set; }
+    public decimal Amount { get; set; }
+    public string Currency { get; set; } = "eur";
+    public string SuccessUrl { get; set; } = string.Empty;
+    public string CancelUrl { get; set; } = string.Empty;
+}
+
 public class StripePaymentIntentSnapshot
 {
     public string Id { get; set; } = string.Empty;
@@ -60,6 +71,7 @@ public interface IStripePaymentGateway
     Task<StripePaymentIntentSnapshot> CreatePaymentIntentAsync(StripeCreatePaymentIntentRequest request, string? idempotencyKey, CancellationToken cancellationToken = default);
     Task<StripePaymentIntentSnapshot> GetPaymentIntentAsync(string paymentIntentId, CancellationToken cancellationToken = default);
     Task<StripeCheckoutSessionSnapshot> CreateCheckoutSessionAsync(StripeCreateCheckoutSessionRequest request, string? idempotencyKey, CancellationToken cancellationToken = default);
+    Task<StripeCheckoutSessionSnapshot> CreateMerchCheckoutSessionAsync(StripeCreateMerchCheckoutSessionRequest request, string? idempotencyKey, CancellationToken cancellationToken = default);
     Task<StripeCheckoutSessionSnapshot> GetCheckoutSessionAsync(string sessionId, CancellationToken cancellationToken = default);
     Task<StripeRefundSnapshot> CreateRefundAsync(string paymentIntentId, long amount, string? reason = null, CancellationToken cancellationToken = default);
     StripeWebhookEvent ParseWebhookEvent(string payload, string? signatureHeader);
@@ -219,6 +231,43 @@ public class StripePaymentGateway : IStripePaymentGateway
         var service = new SessionService(_stripeClient);
         var session = await service.CreateAsync(
             options,
+            new RequestOptions { IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? null : idempotencyKey },
+            cancellationToken);
+
+        return MapCheckoutSnapshot(session);
+    }
+
+    public async Task<StripeCheckoutSessionSnapshot> CreateMerchCheckoutSessionAsync(StripeCreateMerchCheckoutSessionRequest request, string? idempotencyKey, CancellationToken cancellationToken = default)
+    {
+        var options = new SessionCreateOptions
+        {
+            Mode = "payment",
+            SuccessUrl = request.SuccessUrl,
+            CancelUrl = request.CancelUrl,
+            LineItems = new List<SessionLineItemOptions>
+            {
+                new()
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = ToStripeAmount(request.Amount),
+                        Currency = request.Currency,
+                        ProductData = new SessionLineItemPriceDataProductDataOptions { Name = $"Shop Cinema67 {request.OrderCode}" }
+                    },
+                    Quantity = 1
+                }
+            },
+            Metadata = new Dictionary<string, string>
+            {
+                ["merchOrderId"] = request.MerchOrderId.ToString(),
+                ["orderCode"] = request.OrderCode,
+                ["userId"] = request.UserId.ToString(),
+                ["orderType"] = "merch"
+            }
+        };
+
+        var service = new SessionService(_stripeClient);
+        var session = await service.CreateAsync(options,
             new RequestOptions { IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? null : idempotencyKey },
             cancellationToken);
 

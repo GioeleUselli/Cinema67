@@ -14,6 +14,9 @@ public interface ICreditoService
     Task<MovimentoCredito> ApplyOrderDebitAsync(int userId, int orderId, decimal importo, string? note = null);
     Task<MovimentoCredito> ReserveOrderCreditAsync(int userId, int orderId, decimal importo, string? note = null);
     Task<MovimentoCredito?> ReleaseReservedOrderCreditAsync(int userId, int orderId, string? note = null);
+    Task<MovimentoCredito> ApplyMerchOrderDebitAsync(int userId, int merchOrderId, decimal importo, string? note = null);
+    Task<MovimentoCredito> ReserveMerchOrderCreditAsync(int userId, int merchOrderId, decimal importo, string? note = null);
+    Task<MovimentoCredito?> ReleaseReservedMerchOrderCreditAsync(int userId, int merchOrderId, string? note = null);
 }
 
 public class CreditoService : ICreditoService
@@ -284,6 +287,112 @@ public class CreditoService : ICreditoService
         return movimento;
     }
 
+    public async Task<MovimentoCredito> ApplyMerchOrderDebitAsync(int userId, int merchOrderId, decimal importo, string? note = null)
+    {
+        if (importo <= 0)
+            throw new ArgumentException("L'importo da addebitare deve essere maggiore di zero.");
+
+        await using var transaction = _db.Database.CurrentTransaction == null
+            ? await _db.Database.BeginTransactionAsync()
+            : null;
+
+        var existing = await _db.MovimentiCredito
+            .FirstOrDefaultAsync(m => m.UserId == userId && m.MerchOrderId == merchOrderId && m.Tipo == MovimentoCreditoTipo.DebitOrder);
+
+        if (existing is not null)
+            return existing;
+
+        var user = await _db.Users.FindAsync(userId);
+        if (user is null) throw new InvalidOperationException("Utente non trovato.");
+        if (user.CreditoResiduo < importo) throw new InvalidOperationException("Credito insufficiente.");
+
+        var saldoPre = user.CreditoResiduo;
+        var saldoPost = saldoPre - importo;
+        var movimento = new MovimentoCredito
+        {
+            UserId = userId,
+            Tipo = MovimentoCreditoTipo.DebitOrder,
+            Importo = -importo,
+            SaldoPre = saldoPre,
+            SaldoPost = saldoPost,
+            MerchOrderId = merchOrderId,
+            CreatedAtUtc = DateTime.UtcNow,
+            Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim()
+        };
+        user.CreditoResiduo = saldoPost;
+        _db.MovimentiCredito.Add(movimento);
+        await _db.SaveChangesAsync();
+        if (transaction != null) await transaction.CommitAsync();
+        return movimento;
+    }
+
+    public async Task<MovimentoCredito> ReserveMerchOrderCreditAsync(int userId, int merchOrderId, decimal importo, string? note = null)
+    {
+        if (importo <= 0) throw new ArgumentException("L'importo da riservare deve essere maggiore di zero.");
+
+        var existing = await _db.MovimentiCredito
+            .FirstOrDefaultAsync(m => m.UserId == userId && m.MerchOrderId == merchOrderId && m.Tipo == MovimentoCreditoTipo.Adjustment && m.Note != null && m.Note.StartsWith("RESERVE:"));
+
+        if (existing is not null) return existing;
+
+        var user = await _db.Users.FindAsync(userId);
+        if (user is null) throw new InvalidOperationException("Utente non trovato.");
+        if (user.CreditoResiduo < importo) throw new InvalidOperationException("Credito insufficiente.");
+
+        var saldoPre = user.CreditoResiduo;
+        var saldoPost = saldoPre - importo;
+        var movimento = new MovimentoCredito
+        {
+            UserId = userId,
+            Tipo = MovimentoCreditoTipo.Adjustment,
+            Importo = -importo,
+            SaldoPre = saldoPre,
+            SaldoPost = saldoPost,
+            MerchOrderId = merchOrderId,
+            CreatedAtUtc = DateTime.UtcNow,
+            Note = $"RESERVE:{(string.IsNullOrWhiteSpace(note) ? "Riserva credito checkout merch" : note.Trim())}"
+        };
+        user.CreditoResiduo = saldoPost;
+        _db.MovimentiCredito.Add(movimento);
+        await _db.SaveChangesAsync();
+        return movimento;
+    }
+
+    public async Task<MovimentoCredito?> ReleaseReservedMerchOrderCreditAsync(int userId, int merchOrderId, string? note = null)
+    {
+        var reserveMovement = await _db.MovimentiCredito
+            .FirstOrDefaultAsync(m => m.UserId == userId && m.MerchOrderId == merchOrderId && m.Tipo == MovimentoCreditoTipo.Adjustment && m.Note != null && m.Note.StartsWith("RESERVE:"));
+
+        if (reserveMovement is null) return null;
+
+        var alreadyReleased = await _db.MovimentiCredito
+            .AnyAsync(m => m.UserId == userId && m.MerchOrderId == merchOrderId && m.Tipo == MovimentoCreditoTipo.Refund && m.Note != null && m.Note.StartsWith("RELEASE:"));
+
+        if (alreadyReleased) return null;
+
+        var user = await _db.Users.FindAsync(userId);
+        if (user is null) throw new InvalidOperationException("Utente non trovato.");
+
+        var importo = Math.Abs(reserveMovement.Importo);
+        var saldoPre = user.CreditoResiduo;
+        var saldoPost = saldoPre + importo;
+        var movimento = new MovimentoCredito
+        {
+            UserId = userId,
+            Tipo = MovimentoCreditoTipo.Refund,
+            Importo = importo,
+            SaldoPre = saldoPre,
+            SaldoPost = saldoPost,
+            MerchOrderId = merchOrderId,
+            CreatedAtUtc = DateTime.UtcNow,
+            Note = $"RELEASE:{(string.IsNullOrWhiteSpace(note) ? "Rilascio credito riservato checkout merch" : note.Trim())}"
+        };
+        user.CreditoResiduo = saldoPost;
+        _db.MovimentiCredito.Add(movimento);
+        await _db.SaveChangesAsync();
+        return movimento;
+    }
+
     private static MovimentoCreditoDTO MapMovimento(MovimentoCredito movimento)
     {
         return new MovimentoCreditoDTO
@@ -301,6 +410,8 @@ public class CreditoService : ICreditoService
             CinemaNome = movimento.Cinema?.Nome,
             OrdineId = movimento.OrdineId,
             CodiceOrdine = movimento.Ordine?.CodiceOrdine,
+            MerchOrderId = movimento.MerchOrderId,
+            MerchCodiceOrdine = movimento.MerchOrder?.CodiceOrdine,
             CreatedAtUtc = movimento.CreatedAtUtc,
             Note = movimento.Note
         };

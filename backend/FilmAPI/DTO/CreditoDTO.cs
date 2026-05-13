@@ -45,6 +45,8 @@ public class MovimentoCreditoDTO
     public string? CinemaNome { get; set; }
     public int? OrdineId { get; set; }
     public string? CodiceOrdine { get; set; }
+    public int? MerchOrderId { get; set; }
+    public string? MerchCodiceOrdine { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public string? Note { get; set; }
 }

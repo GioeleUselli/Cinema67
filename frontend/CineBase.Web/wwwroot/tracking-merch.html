@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Tracking Spedizione</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+  <style>
+    .tracking-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; }
+    .tracking-dot.completed { background: #22c55e; }
+    .tracking-dot.active { background: #d4af37; animation: pulse 2s infinite; }
+    .tracking-dot.pending { background: #3a332e; border: 2px solid #555; }
+    .tracking-line { position: absolute; left: 11px; top: 24px; bottom: 0; width: 2px; background: #555; z-index: 1; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); } 50% { box-shadow: 0 0 0 8px rgba(212,175,55,0); } }
+  </style>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+<div id="navbar-container"></div>
+<main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+  <div id="loading-state" class="text-center py-16"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-brand-gold"></i><p class="text-brand-on-surface-variant">Caricamento...</p></div>
+  <div id="error-state" class="hidden text-center py-16"><i class="fa-solid fa-circle-exclamation text-6xl text-brand-error mb-4"></i><p id="error-message" class="text-brand-on-surface-variant"></p></div>
+
+  <div id="main-content" class="hidden max-w-2xl mx-auto">
+    <a href="/shop.html" class="inline-flex items-center gap-2 text-sm text-brand-on-surface-variant hover:text-brand-gold mb-6"><i class="fa-solid fa-arrow-left"></i> Torna allo Shop</a>
+
+    <div class="cine-premium-card p-6 mb-6">
+      <h2 class="text-xl font-serif font-bold text-brand-on-surface mb-2">Tracking Spedizione</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div><span class="text-brand-on-surface-variant">Ordine:</span> <span id="track-code" class="font-mono text-brand-gold"></span></div>
+        <div><span class="text-brand-on-surface-variant">Tracking:</span> <span id="track-number" class="font-mono"></span></div>
+        <div><span class="text-brand-on-surface-variant">Consegna:</span> <span id="track-dest"></span></div>
+        <div><span class="text-brand-on-surface-variant">Prevista:</span> <span id="track-eta"></span></div>
+      </div>
+    </div>
+
+    <div class="cine-premium-card p-6">
+      <h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-6">Stato Spedizione</h3>
+      <div id="tracking-steps" class="relative pl-4"></div>
+    </div>
+  </div>
+</main>
+<div id="footer-container"></div>
+
+<script src="/js/utils.js?v=99"></script>
+<script src="/js/api-app.js?v=100"></script>
+<script src="/js/auth.js?v=99"></script>
+<script src="/js/template-loader.js?v=99"></script>
+<script src="/js/navbar.js?v=99"></script>
+<script>
+var orderId=parseInt(new URLSearchParams(window.location.search).get('orderId')||'0');
+
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+async function loadTracking(){
+  if(!orderId){showError('ID ordine mancante.');return;}
+  try{
+    var t=await API.getShipmentTracking(orderId);
+    renderTracking(t);
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+  }catch(e){showError('Errore: '+(e.message||''));}
+}
+
+function renderTracking(t){
+  document.getElementById('track-code').textContent=t.codiceOrdine||'';
+  document.getElementById('track-number').textContent=t.trackingNumber||'—';
+  document.getElementById('track-dest').textContent=escapeHtml(t.destinazione||'');
+  var eta=t.dataConsegnaEffettiva?new Date(t.dataConsegnaEffettiva).toLocaleDateString('it-IT'):(t.dataConsegnaPrevista?'Entro '+new Date(t.dataConsegnaPrevista).toLocaleDateString('it-IT'):'—');
+  document.getElementById('track-eta').textContent=eta;
+
+  var steps=document.getElementById('tracking-steps');
+  steps.innerHTML=(t.steps||[]).map(function(s,i){
+    var cls=s.completato?'completed':(s.attivo?'active':'pending');
+    var icon=s.completato?'fa-check':(s.attivo?'fa-truck-fast':'fa-circle');
+    var textCls=s.completato?'text-green-400':(s.attivo?'text-brand-gold':'text-brand-on-surface-variant');
+    var dateStr=s.data?new Date(s.data).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+    return '<div class="relative flex gap-4 pb-8 last:pb-0">'
+      +'<div class="tracking-dot '+cls+'"><i class="fa-solid '+icon+' text-xs '+(s.completato||s.attivo?'text-white':'text-brand-on-surface-variant')+'"></i></div>'
+      +'<div><p class="text-sm font-semibold '+textCls+'">'+escapeHtml(s.label)+'</p>'
+      +(dateStr?'<p class="text-xs text-brand-on-surface-variant">'+dateStr+'</p>':'')
+      +'</div>'
+      +(i<t.steps.length-1?'<div class="tracking-line '+(s.completato?'completed':'pending')+'" style="'+(s.completato?'background:#22c55e':'')+'"></div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function showError(msg){
+  document.getElementById('loading-state').classList.add('hidden');
+  document.getElementById('error-state').classList.remove('hidden');
+  document.getElementById('error-message').textContent=msg;
+}
+
+setInterval(function(){if(document.getElementById('main-content').classList.contains('hidden'))return;loadTracking();},30000);
+document.addEventListener('DOMContentLoaded',loadTracking);
+</script>
+</body>
+</html>

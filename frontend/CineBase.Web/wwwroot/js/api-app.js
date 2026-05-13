@@ -705,5 +705,48 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   getAllMerchItems: function () { return apiFetch('/admin/merch/items'); },
   createMerchItem: function (data) { return apiFetch('/admin/merch/items', { method: 'POST', body: JSON.stringify(data) }); },
   updateMerchItem: function (id, data) { return apiFetch('/admin/merch/items/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
-  deleteMerchItem: function (id) { return apiFetch('/admin/merch/items/' + id, { method: 'DELETE' }); }
+  deleteMerchItem: function (id) { return apiFetch('/admin/merch/items/' + id, { method: 'DELETE' }); },
+  getMerchItemById: function (id) { return apiFetch('/merch/items/' + id); },
+  getMerchOrder: function (id) { return apiFetch('/merch/orders/' + id); },
+  payMerchOrder: function (id, metodo, importoCredito) { return apiFetch('/merch/orders/' + id + '/pay', { method: 'POST', body: JSON.stringify({ metodoPagamento: metodo, importoCreditoRichiesto: importoCredito || 0 }) }); },
+  createMerchStripeCheckoutSession: function (id, payload) { return apiFetch('/merch/orders/' + id + '/stripe-checkout-session', { method: 'POST', body: JSON.stringify(payload) }); },
+  cancelMerchOrder: function (id) { return apiFetch('/merch/orders/' + id + '/cancel', { method: 'POST' }); },
+  getMerchCheckoutStatus: function (id) { return apiFetch('/merch/orders/' + id + '/checkout-status'); },
+  reconcileMerchCheckoutSession: function (id) { return apiFetch('/merch/orders/' + id + '/reconcile-checkout-session', { method: 'POST' }); },
+
+  validateDiscount: function (codice) { return apiFetch('/merch/discounts/validate?codice=' + encodeURIComponent(codice)); },
+  getShipmentTracking: function (orderId) { return apiFetch('/merch/orders/' + orderId + '/tracking'); },
+
+  uploadMerchImage: async function (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const headers = {};
+    const auth = getAuthSafe();
+    const accessToken = auth?.getAccessToken?.();
+    if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
+    const response = await fetch(`${API_BASE_URL}/media/merch`, { method: 'POST', body: formData, headers: headers });
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw { status: response.status, message: errorText || 'Errore durante upload immagine merch' };
+    }
+    return response.json();
+  },
+
+  addMerchItemImage: async function (itemId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const headers = {};
+    const auth = getAuthSafe();
+    const accessToken = auth?.getAccessToken?.();
+    if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
+    const response = await fetch(`${API_BASE_URL}/admin/merch/items/${itemId}/images`, { method: 'POST', body: formData, headers: headers });
+    if (!response.ok) throw { status: response.status, message: 'Errore upload immagine' };
+    return response.json();
+  },
+
+  deleteMerchItemImage: function (itemId, imageId) { return apiFetch('/admin/merch/items/' + itemId + '/images/' + imageId, { method: 'DELETE' }); },
+
+  addMerchItemVariant: function (itemId, data) { return apiFetch('/admin/merch/items/' + itemId + '/variants', { method: 'POST', body: JSON.stringify(data) }); },
+  updateMerchItemVariant: function (itemId, variantId, data) { return apiFetch('/admin/merch/items/' + itemId + '/variants/' + variantId, { method: 'PUT', body: JSON.stringify(data) }); },
+  deleteMerchItemVariant: function (itemId, variantId) { return apiFetch('/admin/merch/items/' + itemId + '/variants/' + variantId, { method: 'DELETE' }); }
 };

@@ -1,6 +1,7 @@
 using FilmAPI.DTO;
 using FilmAPI.Data;
 using FilmAPI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FilmAPI.Endpoints;
@@ -88,8 +89,8 @@ public static class ShowsEndpoints
 
         group.MapGet("/{showId}/pricing", async (
             int showId,
-            FilmDbContext db,
-            IPricingService pricingService) =>
+            [FromServices] FilmDbContext db,
+            [FromServices] IPricingService pricingService) =>
         {
             var show = await db.Shows.FirstOrDefaultAsync(s => s.Id == showId);
             if (show == null)

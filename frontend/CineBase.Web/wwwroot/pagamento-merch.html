@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Pagamento Shop</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=99"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+<div id="navbar-container"></div>
+<main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
+  <a href="/shop.html" class="inline-flex items-center gap-2 text-sm text-brand-on-surface-variant hover:text-brand-gold mb-6"><i class="fa-solid fa-arrow-left"></i> Torna allo Shop</a>
+
+  <div id="loading-state" class="text-center py-16"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-brand-gold"></i><p class="text-brand-on-surface-variant">Caricamento ordine...</p></div>
+  <div id="error-state" class="hidden text-center py-16"><i class="fa-solid fa-circle-exclamation text-6xl text-brand-error mb-4"></i><h3 class="text-xl font-semibold mb-2">Errore</h3><p class="text-brand-on-surface-variant mb-4" id="error-message"></p><a href="/shop.html" class="btn-outline-brand">Torna allo Shop</a></div>
+
+  <div id="main-content" class="hidden grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-3">
+      <div class="cine-premium-card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4 flex items-center gap-2"><i class="fa-solid fa-box"></i> Riepilogo Ordine</h2>
+        <div class="space-y-2 mb-4" id="order-items"></div>
+        <div class="border-t border-brand-outline-variant/20 pt-3 flex justify-between">
+          <span class="text-sm font-bold text-brand-on-surface">Totale</span>
+          <span id="order-total" class="text-xl font-bold text-brand-gold font-serif">€0.00</span>
+        </div>
+        <div class="mt-2 text-xs text-brand-on-surface-variant">Codice: <span id="order-code" class="font-mono"></span></div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2">
+      <div class="cine-premium-card p-6">
+        <h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4">Metodo di Pagamento</h3>
+
+        <div class="mb-4 p-3 rounded-xl bg-brand-surface-container border border-brand-outline-variant/20">
+          <div class="flex justify-between text-sm"><span>Credito disponibile</span><span id="credito-disponibile" class="font-bold text-brand-gold">€0.00</span></div>
+        </div>
+
+        <form id="payment-form" class="space-y-3">
+          <label class="flex items-center gap-3 p-3 rounded-xl border border-brand-outline-variant/20 cursor-pointer hover:border-brand-gold/30" id="opt-carta">
+            <input type="radio" name="metodo" value="Carta" checked onchange="updateMethod()" class="text-brand-gold focus:ring-brand-gold/20"><div><span class="text-sm font-semibold text-brand-on-surface"><i class="fa-solid fa-credit-card mr-1"></i>Carta</span><p class="text-xs text-brand-on-surface-variant">Paga con carta via Stripe</p></div>
+          </label>
+          <label class="flex items-center gap-3 p-3 rounded-xl border border-brand-outline-variant/20 cursor-pointer hover:border-brand-gold/30" id="opt-credito">
+            <input type="radio" name="metodo" value="Credito" onchange="updateMethod()" class="text-brand-gold focus:ring-brand-gold/20"><div><span class="text-sm font-semibold text-brand-on-surface"><i class="fa-solid fa-coins mr-1"></i>Credito</span><p class="text-xs text-brand-on-surface-variant">Usa il tuo saldo</p></div>
+          </label>
+          <label class="flex items-center gap-3 p-3 rounded-xl border border-brand-outline-variant/20 cursor-pointer hover:border-brand-gold/30" id="opt-misto">
+            <input type="radio" name="metodo" value="Misto" onchange="updateMethod()" class="text-brand-gold focus:ring-brand-gold/20"><div><span class="text-sm font-semibold text-brand-on-surface"><i class="fa-solid fa-wallet mr-1"></i>Carta + Credito</span><p class="text-xs text-brand-on-surface-variant">Dividi tra carta e credito</p></div>
+          </label>
+
+          <div id="misto-slider" class="hidden p-3">
+            <label class="text-xs text-brand-on-surface-variant mb-1 block">Credito da usare: <span id="misto-amount">€0.00</span></label>
+            <input type="range" id="misto-range" min="0" max="0" value="0" oninput="updateMistoSlider()" class="w-full accent-brand-gold">
+          </div>
+
+          <div id="countdown" class="hidden text-xs text-brand-gold text-center py-2">
+            <i class="fa-solid fa-hourglass-half mr-1"></i>Tempo rimasto: <span id="countdown-text">--:--</span>
+          </div>
+
+          <button type="submit" id="pay-btn" class="w-full btn-gold py-3 font-semibold" disabled>
+            <i class="fa-solid fa-lock mr-2"></i><span id="pay-btn-text">Caricamento...</span>
+          </button>
+        </form>
+
+        <button onclick="cancelOrder()" class="w-full text-xs text-brand-on-surface-variant hover:text-brand-red mt-3 text-center">Annulla ordine</button>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="footer-container"></div>
+
+<script src="/js/utils.js?v=99"></script>
+<script src="/js/api-app.js?v=100"></script>
+<script src="/js/auth.js?v=99"></script>
+<script src="/js/template-loader.js?v=99"></script>
+<script src="/js/navbar.js?v=99"></script>
+<script>
+var ordine=null, credito=0, countdownInterval=null;
+
+function parseOrderId(){return parseInt(new URLSearchParams(window.location.search).get('orderId')||'0');}
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+async function loadPayment(){
+  var id=parseOrderId();if(!id){showError('ID ordine non valido.');return;}
+  try{
+    ordine=await API.getMerchOrder(id);
+    if(!ordine){showError('Ordine non trovato.');return;}
+    if(ordine.stato==='Paid'){window.location.href='/esito-acquisto-merch.html?orderId='+id;return;}
+    if(ordine.stato!=='Pending'){showError('Ordine non pagabile: '+ordine.stato);return;}
+
+    var creditoData=await API.getCreditoMe();
+    credito=creditoData?creditoData.saldoAttuale||0:0;
+
+    renderOrder();
+    updateMethod();
+    if(ordine.checkoutExpiresAtUtc)startCountdown(ordine.checkoutExpiresAtUtc);
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+  }catch(e){showError(e.message||'Errore caricamento ordine');}
+}
+
+function renderOrder(){
+  document.getElementById('order-total').textContent='€'+ordine.totale.toFixed(2);
+  document.getElementById('order-code').textContent=ordine.codiceOrdine||'';
+  var items=document.getElementById('order-items');
+  items.innerHTML=(ordine.items||[]).map(function(i){
+    return '<div class="flex justify-between text-sm"><span class="text-brand-on-surface">'+escapeHtml(i.nome)+' &times; '+i.quantita+'</span><span class="text-brand-on-surface-variant">€'+i.subTotale.toFixed(2)+'</span></div>';
+  }).join('');
+  var dlv='';
+  if(ordine.tipoConsegna==='Spedizione'){
+    dlv='<div class="mt-3 pt-3 border-t border-brand-outline-variant/20 text-xs text-brand-on-surface-variant"><b>Spedizione a:</b> '+escapeHtml(ordine.indirizzo||'')+', '+escapeHtml(ordine.cap||'')+' '+escapeHtml(ordine.citta||'')+' ('+escapeHtml(ordine.provincia||'')+') — Tel: '+escapeHtml(ordine.telefono||'')+'</div>';
+  }else{
+    dlv='<div class="mt-3 pt-3 border-t border-brand-outline-variant/20 text-xs text-brand-on-surface-variant"><b>Ritiro al cinema:</b> '+escapeHtml(ordine.cinemaRitiroNome||'Da definire')+'</div>';
+  }
+  items.insertAdjacentHTML('afterend',dlv);
+}
+
+function updateMethod(){
+  var metodo=document.querySelector('input[name="metodo"]:checked').value;
+  var btn=document.getElementById('pay-btn');
+  var btnText=document.getElementById('pay-btn-text');
+  var tot=ordine.totale;
+
+  document.getElementById('opt-credito').style.opacity=credito>=tot?'1':'0.5';
+  document.querySelector('#opt-credito input').disabled=credito<tot;
+  document.getElementById('opt-misto').style.opacity=credito>0?'1':'0.5';
+  document.querySelector('#opt-misto input').disabled=!(credito>0);
+
+  if(metodo==='Credito'&&credito<tot){btn.disabled=true;btnText.textContent='Credito insufficiente';return;}
+  if(metodo==='Misto'&&credito<=0){btn.disabled=true;btnText.textContent='Nessun credito disponibile';return;}
+  if(metodo==='Misto'){
+    document.getElementById('misto-slider').classList.remove('hidden');
+    var maxCredito=Math.min(credito,tot);
+    document.getElementById('misto-range').max=maxCredito*100;
+    document.getElementById('misto-range').value=Math.min(maxCredito*100,parseInt(document.getElementById('misto-range').value||0));
+    updateMistoSlider();
+  }else{
+    document.getElementById('misto-slider').classList.add('hidden');
+  }
+
+  btn.disabled=false;
+  if(metodo==='Carta')btnText.textContent='Paga '+tot.toFixed(2)+'€ con Carta';
+  else if(metodo==='Credito')btnText.textContent='Paga '+tot.toFixed(2)+'€ con Credito';
+  else{var cr=getMistoCredit();btnText.textContent='Paga '+cr.toFixed(2)+'€ credito + '+(tot-cr).toFixed(2)+'€ carta';}
+}
+
+function getMistoCredit(){return parseInt(document.getElementById('misto-range').value||0)/100;}
+function updateMistoSlider(){var c=getMistoCredit();document.getElementById('misto-amount').textContent='€'+c.toFixed(2);updateMethod();}
+
+function startCountdown(expiresAt){
+  var exp=new Date(expiresAt).getTime();
+  if(isNaN(exp)||exp<=Date.now())return;
+  document.getElementById('countdown').classList.remove('hidden');
+  countdownInterval=setInterval(function(){
+    var s=Math.max(0,Math.floor((exp-Date.now())/1000));
+    var m=Math.floor(s/60),sec=s%60;
+    document.getElementById('countdown-text').textContent=m+':'+(sec<10?'0':'')+sec;
+    if(s<=0){clearInterval(countdownInterval);document.getElementById('pay-btn').disabled=true;document.getElementById('pay-btn-text').textContent='Ordine scaduto';}
+  },1000);
+}
+
+document.getElementById('payment-form').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var metodo=document.querySelector('input[name="metodo"]:checked').value;
+  var btn=document.getElementById('pay-btn');btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-2"></i>Elaborazione...';
+
+  try{
+    if(metodo==='Credito'){
+      var r=await API.payMerchOrder(ordine.id,'Credito',ordine.totale);
+      if(r.statoPagamento==='Paid'){window.location.href='/esito-acquisto-merch.html?orderId='+ordine.id;return;}
+      throw new Error('Pagamento non riuscito');
+    }else{
+      var creditoRichiesto=metodo==='Misto'?getMistoCredit():0;
+      var session=await API.createMerchStripeCheckoutSession(ordine.id,{metodoPagamento:metodo,importoCreditoRichiesto:creditoRichiesto});
+      window.location.href=session.stripeCheckoutUrl;
+    }
+  }catch(ex){alert('Errore: '+(ex.message||''));btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-lock mr-2"></i>'+document.getElementById('pay-btn-text').textContent;}
+});
+
+async function cancelOrder(){
+  if(!confirm('Annullare questo ordine?'))return;
+  try{await API.cancelMerchOrder(ordine.id);window.location.href='/shop.html';}
+  catch(e){alert('Errore: '+(e.message||''));}
+}
+
+function showError(msg){
+  document.getElementById('loading-state').classList.add('hidden');
+  document.getElementById('error-state').classList.remove('hidden');
+  document.getElementById('error-message').textContent=msg;
+}
+
+document.addEventListener('DOMContentLoaded',loadPayment);
+</script>
+</body>
+</html>

@@ -48,6 +48,9 @@ public class FilmDbContext : DbContext
     public DbSet<MerchItem> MerchItems { get; set; }
     public DbSet<MerchOrder> MerchOrders { get; set; }
     public DbSet<MerchOrderItem> MerchOrderItems { get; set; }
+    public DbSet<MerchItemImage> MerchItemImages { get; set; }
+    public DbSet<MerchItemVariant> MerchItemVariants { get; set; }
+    public DbSet<MerchDiscountCode> MerchDiscountCodes { get; set; }
     public DbSet<FoodItem> FoodItems { get; set; }
     public DbSet<FoodOrderItem> FoodOrderItems { get; set; }
     public DbSet<ReferralCode> ReferralCodes { get; set; }
@@ -508,6 +511,22 @@ public class FilmDbContext : DbContext
                   .WithMany(m => m.OrderItems)
                   .HasForeignKey(i => i.MerchItemId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<MerchItemImage>(entity =>
+        {
+            entity.HasOne(i => i.MerchItem)
+                  .WithMany(m => m.Immagini)
+                  .HasForeignKey(i => i.MerchItemId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<MerchItemVariant>(entity =>
+        {
+            entity.HasOne(v => v.MerchItem)
+                  .WithMany(m => m.Varianti)
+                  .HasForeignKey(v => v.MerchItemId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<FoodOrderItem>(entity =>

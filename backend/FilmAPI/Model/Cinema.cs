@@ -19,6 +19,9 @@ public class Cinema
     [MaxLength(100)]
     public string Citta { get; set; } = string.Empty;
 
+    [MaxLength(10)]
+    public string? CAP { get; set; }
+
     public double? Latitudine { get; set; }
 
     public double? Longitudine { get; set; }

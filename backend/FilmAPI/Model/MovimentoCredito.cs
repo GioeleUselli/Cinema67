@@ -44,6 +44,11 @@ public class MovimentoCredito
     [ForeignKey(nameof(OrdineId))]
     public Ordine? Ordine { get; set; }
 
+    public int? MerchOrderId { get; set; }
+
+    [ForeignKey(nameof(MerchOrderId))]
+    public MerchOrder? MerchOrder { get; set; }
+
     [Required]
     public DateTime CreatedAtUtc { get; set; }
 
