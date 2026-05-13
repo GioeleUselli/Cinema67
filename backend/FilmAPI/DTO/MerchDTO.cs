@@ -86,6 +86,7 @@ public class MerchOrderDTO
     public string? Telefono { get; set; }
     public int? CinemaRitiroId { get; set; }
     public string? CinemaRitiroNome { get; set; }
+    public string? Destinazione { get; set; }
     public decimal CostoSpedizione { get; set; }
     public string StatoSpedizione { get; set; } = "Preparazione";
     public string? TrackingNumber { get; set; }

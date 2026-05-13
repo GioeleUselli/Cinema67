@@ -74,12 +74,17 @@ const Auth = {
   },
 
   getUserRole() {
-    const user = this.getUser();
-    if (user?.ruolo != null) return user.ruolo;
-
     const token = this.getAccessToken();
     const payload = token ? this.parseJwt(token) : null;
-    return payload?.role || null;
+    const jwtRole = payload?.role || null;
+
+    const user = this.getUser();
+    if (jwtRole && user && user.ruolo !== jwtRole) {
+      user.ruolo = jwtRole;
+      this.saveUser(user);
+    }
+
+    return jwtRole || user?.ruolo || null;
   },
 
   parseJwt(token) {

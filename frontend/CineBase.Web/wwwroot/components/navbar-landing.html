@@ -38,6 +38,7 @@
       <div id="user-dropdown" class="relative hidden">
         <button id="user-menu-toggle" class="flex items-center gap-2 rounded-full border border-brand-outline-variant/30 bg-brand-surface-container px-3 py-2 text-sm text-brand-on-surface hover:text-brand-gold">
           <span id="user-name" class="font-semibold"></span>
+          <span id="navbar-role-badge" class="hidden text-[10px] bg-brand-gold/10 text-brand-gold px-1.5 py-0.5 rounded-full font-bold"></span>
           <i class="fa-solid fa-chevron-down text-xs"></i>
         </button>
         <div id="user-menu" class="absolute right-0 mt-2 hidden w-52 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container py-2 shadow-lg">
@@ -121,7 +122,11 @@
         if (token && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn()) {
           hasToken = true;
           try { var u = Auth.getUser(); displayName = (u && (u.nome || u.email)) || 'Account'; } catch (e) {}
-          try { var r = String((Auth.getUserRole ? Auth.getUserRole() : '') || '').toLowerCase(); admin = r === 'admin' || r === 'poweruser'; } catch (e) {}
+          try {
+            var rawRole = (Auth.getUserRole ? Auth.getUserRole() : '?');
+            var r = String(rawRole || '').toLowerCase();
+            admin = r === 'admin' || r === 'poweruser' || r === '2' || r === '1' || r === '4' || r === '5' || r === '3' || r === 'corriere' || r === 'magazziniere' || r === 'cinemastaff';
+          } catch (e) {}
         }
       }
     } catch (e) {}
@@ -136,12 +141,29 @@
     toggle(mobileAuthLinks, !hasToken);
     toggle(userDropdown, hasToken);
     if (userName) userName.textContent = displayName;
+    var roleBadge = document.getElementById('navbar-role-badge');
+    if (roleBadge && hasToken) {
+      try {
+        roleBadge.textContent = (Auth.getUserRole ? Auth.getUserRole() : '');
+        roleBadge.classList.remove('hidden');
+      } catch(e) { roleBadge.classList.add('hidden'); }
+    }
     toggle(mobileUserMenu, hasToken);
     if (mobileUserName) mobileUserName.textContent = displayName;
 
     document.querySelectorAll('.admin-only').forEach(function (el) {
       toggle(el, admin);
+      if (admin) { el.style.display = ''; el.classList.remove('hidden'); }
     });
+
+    if (admin) {
+      var role = (Auth.getUserRole ? Auth.getUserRole() : '') + '';
+      var label = 'Area Admin', link = '/dashboard.html';
+      if (role === 'Corriere' || role === '4') { label = 'Area Corriere'; link = '/corriere.html'; }
+      else if (role === 'Magazziniere' || role === '5') { label = 'Area Magazzino'; link = '/magazzino.html'; }
+      var db = document.getElementById('admin-area-btn'); if (db) { db.textContent = label; db.href = link; }
+      var mb = document.getElementById('mobile-admin-area-btn'); if (mb) { mb.textContent = label; mb.href = link; }
+    }
 
     var hl = document.getElementById('hero-login-btn');
     var hp = document.getElementById('hero-profile-btn');

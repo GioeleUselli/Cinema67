@@ -1037,12 +1037,12 @@ img {
 }
 
 .active-tab {
-  color: #1c1108;
-  background: var(--brand-gold);
+  color: #1c1108 !important;
+  background: var(--brand-gold) !important;
 }
 
 .dark .active-tab {
-  color: #0d0806;
+  color: #0d0806 !important;
 }
 
 .active-tab:hover {

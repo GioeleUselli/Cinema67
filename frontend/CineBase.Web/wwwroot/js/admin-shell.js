@@ -14,7 +14,10 @@
     '/admin-utenti.html',
     '/membership-admin.html',
     '/newsletter-admin.html',
-    '/merch-admin.html'
+    '/merch-admin.html',
+    '/corriere.html',
+    '/magazzino.html',
+    '/admin-pacchi.html'
   ]);
 
   const PAGE_TITLES = {
@@ -31,7 +34,10 @@
     '/promozioni.html': 'Promozioni',
     '/admin-utenti.html': 'Gestione Utenti',
     '/membership-admin.html': 'Membership',
-    '/merch-admin.html': 'Merch Shop'
+    '/merch-admin.html': 'Merch Shop',
+    '/corriere.html': 'Corriere',
+    '/magazzino.html': 'Magazzino',
+    '/admin-pacchi.html': 'Gestione Pacchi'
   };
 
   function getUser() {
@@ -73,6 +79,57 @@
       userAvatarEl.textContent = `${first}${second}`.toUpperCase();
     }
 
+    filterSidebarByRole(user);
+  }
+
+  function getNormalizedRole() {
+    var u = getUser();
+    if (!u || !u.ruolo) return 'user';
+    var r = String(u.ruolo).trim().toLowerCase();
+    if (r === 'admin' || r === '2') return 'admin';
+    if (r === 'poweruser' || r === '1') return 'poweruser';
+    if (r === 'corriere' || r === '4') return 'corriere';
+    if (r === 'magazziniere' || r === '5') return 'magazziniere';
+    if (r === 'cinemastaff' || r === '3') return 'cinemastaff';
+    return 'user';
+  }
+
+  function filterSidebarByRole(user) {
+    var role = getNormalizedRole();
+    var consoleLabel = document.querySelector('#admin-shell-root .admin-console-label');
+    if (consoleLabel) {
+      if (role === 'corriere') consoleLabel.textContent = 'Area Corriere';
+      else if (role === 'magazziniere') consoleLabel.textContent = 'Area Magazzino';
+      else consoleLabel.textContent = 'Admin console';
+    }
+
+    // Corriere: show only Corriere link + Profilo
+    // Magazziniere: show only Magazzino link + Profilo
+    var allowed = (role === 'corriere') ? ['corriere'] :
+                  (role === 'magazziniere') ? ['magazzino'] : null;
+
+    if (!allowed) return; // Admin/PowerUser = tutto visibile
+
+    document.querySelectorAll('[data-admin-link]').forEach(function(el) {
+      var href = (el.getAttribute('href') || '').toLowerCase().replace('.html', '').replace('/', '');
+      var visible = allowed.some(function(a) { return href === a; });
+      if (!visible && href !== 'profilo') {
+        el.style.display = 'none';
+      }
+    });
+
+    // Hide separators between hidden groups
+    var rails = document.querySelectorAll('.admin-sidebar-rail > *');
+    var inGroup = false;
+    for (var i = 0; i < rails.length; i++) {
+      var el = rails[i];
+      if (el.tagName === 'DIV' && el.classList.contains('border-t')) {
+        el.style.display = inGroup ? '' : 'none';
+        inGroup = false;
+      } else if (el.style.display !== 'none') {
+        inGroup = true;
+      }
+    }
   }
 
   function bindActions() {
@@ -120,14 +177,12 @@
       <div class="flex w-full min-h-screen">
         <aside id="admin-sidebar" class="admin-sidebar w-64 flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 border-r border-brand-outline-variant/20">
           <div class="p-6">
-            <a href="/index.html" class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full border border-brand-gold/40 sidebar-logo-bg flex items-center justify-center text-brand-gold">
-                <i class="fa-solid fa-film"></i>
-              </div>
-              <span class="font-serif text-lg font-bold uppercase tracking-[0.2em] sidebar-text">Cinema67</span>
+            <a href="/index.html" class="flex flex-col items-center gap-2" style="color: rgb(168, 152, 136);">
+              <img src="/assets/logo.png" alt="Cinema67" class="h-20 w-20 rounded-full object-cover border-2 border-brand-gold/40">
+              <span class="font-serif text-base font-bold uppercase tracking-[0.2em] sidebar-text">Cinema67</span>
             </a>
           </div>
-          <p class="px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
+          <p class="admin-console-label px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
           <nav class="admin-sidebar-rail flex-1 px-4 space-y-1">
             <a data-admin-link href="/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
             <a data-admin-link href="/films.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-film"></i>Film</a>
@@ -144,6 +199,10 @@
             <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
             <a data-admin-link href="/membership-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-crown"></i>Membership</a>
             <a data-admin-link href="/merch-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-store"></i>Merch Shop</a>
+            <div class="my-2 border-t border-brand-outline-variant/20"></div>
+            <a data-admin-link href="/magazzino.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-packing"></i>Magazzino</a>
+            <a data-admin-link href="/corriere.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-truck-fast"></i>Corriere</a>
+            <a data-admin-link href="/admin-pacchi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-stacked"></i>Gestione Pacchi</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">

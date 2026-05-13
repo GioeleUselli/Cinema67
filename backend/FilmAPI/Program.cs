@@ -90,6 +90,7 @@ builder.Services.AddScoped<IAccountDeletionService, AccountDeletionService>();
 builder.Services.AddScoped<IMerchService, MerchService>();
 builder.Services.AddScoped<IMerchPagamentoService, MerchPagamentoService>();
 builder.Services.AddScoped<IShippingService, ShippingService>();
+builder.Services.AddScoped<IPaccoService, PaccoService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
@@ -184,6 +185,17 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("CinemaStaffOrPowerUserOrAdmin", policy =>
         policy.RequireRole("Admin", "PowerUser", "CinemaStaff"));
+
+    options.AddPolicy("CorriereOrPowerUserOrAdmin", policy =>
+        policy.RequireRole("Admin", "PowerUser", "Corriere"));
+
+    options.AddPolicy("MagazziniereOrPowerUserOrAdmin", policy =>
+        policy.RequireRole("Admin", "PowerUser", "Magazziniere"));
+
+    options.AddPolicy("StaffOrPowerUserOrAdmin", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
+                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "CinemaStaff" || c.Value == "Corriere" || c.Value == "Magazziniere"))));
 });
 
 builder.Services.AddOpenApiDocument(config =>
@@ -292,6 +304,7 @@ app.MapReferralEndpoints();
 app.MapAnalyticsEndpoints();
 app.MapMerchEndpoints();
 app.MapMerchPagamentoEndpoints();
+app.MapPaccoEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {

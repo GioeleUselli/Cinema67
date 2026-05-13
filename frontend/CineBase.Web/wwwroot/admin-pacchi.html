@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Gestione Pacchi</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=102"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+<main>
+  <div class="mb-8">
+    <p class="text-xs uppercase tracking-[0.24em] text-brand-gold mb-1">Cinema67</p>
+    <h2 class="text-2xl font-bold text-brand-on-surface mb-4">Gestione Pacchi — Vista Admin</h2>
+    <div class="flex gap-3 mb-6">
+      <button id="tab-corrieri-btn" onclick="showTab('corrieri')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-brand-gold/10 text-brand-gold border border-brand-gold/20 active-tab">Corrieri</button>
+      <button id="tab-magazzinieri-btn" onclick="showTab('magazzinieri')" class="px-4 py-2 rounded-xl text-sm font-semibold text-brand-on-surface-variant border border-transparent hover:border-brand-gold/20">Magazzinieri</button>
+      <button id="tab-tutti-btn" onclick="showTab('tutti')" class="px-4 py-2 rounded-xl text-sm font-semibold text-brand-on-surface-variant border border-transparent hover:border-brand-gold/20">Tutti i Pacchi</button>
+    </div>
+  </div>
+  <div id="tab-corrieri" class="space-y-6">
+    <div class="cine-premium-card p-6"><h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4"><i class="fa-solid fa-truck-fast mr-1"></i>Corrieri con Pacchi in Carico</h3><div id="corrieri-attivi" class="space-y-4"></div></div>
+    <div class="cine-premium-card p-6"><h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Storico Consegne Corrieri</h3><div id="corrieri-storico" class="space-y-4"></div></div>
+  </div>
+  <div id="tab-magazzinieri" class="hidden space-y-6">
+    <div class="cine-premium-card p-6"><h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4"><i class="fa-solid fa-boxes-packing mr-1"></i>Pacchi Preparati per Magazziniere</h3><div id="magazzinieri-pacchi" class="space-y-4"></div></div>
+  </div>
+  <div id="tab-tutti" class="hidden space-y-4"><div id="tutti-pacchi" class="space-y-4"></div></div>
+</main>
+
+<script src="/js/auth.js?v=100"></script>
+<script src="/js/navbar.js?v=100"></script>
+<script src="/js/admin-shell.js?v=103"></script>
+<script src="/js/template-loader.js?v=101"></script>
+<script src="/js/api-app.js?v=102"></script>
+<script>
+var allPacchi=[];
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+function showTab(tab){
+  ['corrieri','magazzinieri','tutti'].forEach(function(t){document.getElementById('tab-'+t).classList.add('hidden');});
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  ['tab-corrieri-btn','tab-magazzinieri-btn','tab-tutti-btn'].forEach(function(id){
+    var b=document.getElementById(id);if(b){b.classList.remove('bg-brand-gold/10','text-brand-gold','border-brand-gold/20','active-tab');b.classList.add('text-brand-on-surface-variant','border-transparent');}
+  });
+  var ab=document.getElementById('tab-'+tab+'-btn');
+  if(ab){ab.classList.add('bg-brand-gold/10','text-brand-gold','border-brand-gold/20','active-tab');ab.classList.remove('text-brand-on-surface-variant','border-transparent');}
+}
+
+async function loadAll(){
+  try{
+    allPacchi=await apiFetch('/admin/pacchi/tutti');
+    renderCorrieri();
+    renderMagazzinieri();
+    renderTutti();
+  }catch(e){}
+}
+
+function renderCorrieri(){
+  var byCorriere={};
+  allPacchi.forEach(function(p){
+    if(!p.corriereId)return;
+    var key=p.corriereId;
+    if(!byCorriere[key])byCorriere[key]={corriereId:p.corriereId,corriereNome:p.corriereNome||('ID '+p.corriereId),attivi:[],storico:[]};
+    if(p.stato==='InCarico'||p.stato==='InConsegna')byCorriere[key].attivi.push(p);
+    else byCorriere[key].storico.push(p);
+  });
+
+  var htmlAttivi='',htmlStorico='';
+  Object.values(byCorriere).forEach(function(c){
+    if(c.attivi.length){
+      htmlAttivi+='<div class="p-3 rounded-lg bg-brand-surface-container border border-brand-gold/10"><p class="text-sm font-bold text-brand-gold mb-2"><i class="fa-solid fa-user mr-1"></i>'+escapeHtml(c.corriereNome)+' ('+c.attivi.length+' pacchi)</p>'+c.attivi.map(renderRiga).join('')+'</div>';
+    }
+    if(c.storico.length){
+      htmlStorico+='<div class="p-3 rounded-lg bg-brand-surface-container border border-brand-outline-variant/10"><p class="text-sm font-bold text-brand-on-surface mb-2"><i class="fa-solid fa-user mr-1"></i>'+escapeHtml(c.corriereNome)+' ('+c.storico.length+' consegne)</p>'+c.storico.map(renderRiga).join('')+'</div>';
+    }
+  });
+
+  document.getElementById('corrieri-attivi').innerHTML=htmlAttivi||'<p class="text-sm text-brand-on-surface-variant">Nessun corriere attivo.</p>';
+  document.getElementById('corrieri-storico').innerHTML=htmlStorico||'<p class="text-sm text-brand-on-surface-variant">Nessuna consegna storica.</p>';
+}
+
+function renderMagazzinieri(){
+  var byPreparatore={};
+  allPacchi.forEach(function(p){
+    if(!p.preparatoreId)return;
+    var key=p.preparatoreId;
+    if(!byPreparatore[key])byPreparatore[key]={preparatoreId:p.preparatoreId,preparatoreNome:p.preparatoreNome||('ID '+p.preparatoreId),pacchi:[]};
+    byPreparatore[key].pacchi.push(p);
+  });
+
+  var html='';
+  Object.values(byPreparatore).forEach(function(m){
+    html+='<div class="p-3 rounded-lg bg-brand-surface-container border border-brand-outline-variant/10"><p class="text-sm font-bold text-brand-on-surface mb-2"><i class="fa-solid fa-user mr-1"></i>'+escapeHtml(m.preparatoreNome)+' ('+m.pacchi.length+' pacchi)</p>'+m.pacchi.map(renderRiga).join('')+'</div>';
+  });
+  document.getElementById('magazzinieri-pacchi').innerHTML=html||'<p class="text-sm text-brand-on-surface-variant">Nessun pacco preparato.</p>';
+}
+
+function renderTutti(){
+  document.getElementById('tutti-pacchi').innerHTML=allPacchi.map(renderRiga).join('')||'<p class="text-sm text-brand-on-surface-variant">Nessun pacco.</p>';
+}
+
+function renderRiga(p){
+  var statoColor={DaPreparare:'text-gray-400',Pronto:'text-yellow-400',InCarico:'text-blue-400',InConsegna:'text-brand-gold',Consegnato:'text-green-400',MancataConsegna:'text-brand-red'};
+  return '<div class="cine-premium-card p-3 flex items-center justify-between text-sm">'
+    +'<div><span class="font-mono text-brand-gold text-xs">'+escapeHtml(p.codiceOrdine||'')+'</span>'
+    +'<span class="ml-2">'+escapeHtml(p.codiceInterno)+'</span>'
+    +'<span class="ml-2 text-xs text-brand-on-surface-variant">'+escapeHtml(p.destinazione||'')+'</span></div>'
+    +'<div class="flex items-center gap-3"><span class="text-xs '+statoColor[p.stato]+'">'+escapeHtml(p.stato)+'</span>'
+    +(p.consegnatoIl?'<span class="text-xs text-brand-on-surface-variant">'+new Date(p.consegnatoIl).toLocaleDateString('it-IT')+'</span>':'')
+    +(p.firma?'<span class="text-xs text-brand-on-surface-variant">Firma: '+escapeHtml(p.firma)+'</span>':'')
+    +'</div></div>';
+}
+
+document.addEventListener('DOMContentLoaded',loadAll);
+</script>
+</body>
+</html>

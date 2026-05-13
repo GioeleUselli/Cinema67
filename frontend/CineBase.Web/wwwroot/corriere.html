@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Corriere</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=102"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    #qr-reader { width: 100%; max-width: 400px; margin: 0 auto; border-radius: 12px; overflow: hidden; }
+    #qr-reader video { border-radius: 12px; }
+  </style>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+<main>
+  <div class="mb-8">
+    <p class="text-xs uppercase tracking-[0.24em] text-brand-gold mb-1">Cinema67</p>
+    <h2 class="text-2xl font-bold text-brand-on-surface mb-4">Corriere — Consegne</h2>
+
+    <div class="cine-premium-card p-4 mb-6">
+      <h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-3"><i class="fa-solid fa-qrcode mr-1"></i>Inquadra o inserisci codice pacco</h3>
+      <div class="flex gap-2 mb-3">
+        <button id="btn-start-scan" onclick="startScanner()" class="btn-gold text-xs px-4 py-2"><i class="fa-solid fa-camera mr-1"></i>Scansiona QR</button>
+        <button id="btn-stop-scan" onclick="stopScanner()" class="btn-outline-brand text-xs px-4 py-2 hidden"><i class="fa-solid fa-stop mr-1"></i>Ferma</button>
+      </div>
+      <div id="qr-reader" class="hidden mb-3"></div>
+      <div class="flex gap-2">
+        <input type="text" id="scan-input" placeholder="Oppure scrivi codice (8 caratteri)" maxlength="8" class="flex-1 rounded-xl bg-brand-surface-container border border-brand-outline-variant/30 px-4 py-2 text-sm text-brand-on-surface focus:border-brand-gold uppercase" style="letter-spacing:2px" autocomplete="off">
+        <button onclick="cercaPacco()" class="btn-gold text-sm px-4 py-2"><i class="fa-solid fa-search mr-1"></i>Cerca</button>
+      </div>
+      <div id="scan-result" class="mt-3"></div>
+    </div>
+
+    <div class="flex gap-3 mb-6">
+      <button id="tab-pronti-btn" onclick="switchTab('pronti')" class="px-4 py-2 rounded-xl text-sm font-semibold active-tab"><i class="fa-solid fa-boxes-stacked mr-1"></i>Pacchi disponibili</button>
+      <button id="tab-miei-btn" onclick="switchTab('miei')" class="px-4 py-2 rounded-xl text-sm font-semibold text-brand-on-surface-variant border border-transparent hover:border-brand-gold/20"><i class="fa-solid fa-truck-fast mr-1"></i>I miei pacchi</button>
+    </div>
+    <div id="pacchi-list" class="space-y-4"></div>
+  </div>
+</main>
+<script src="/js/auth.js?v=100"></script>
+<script src="/js/navbar.js?v=100"></script>
+<script src="/js/admin-shell.js?v=103"></script>
+<script src="/js/template-loader.js?v=101"></script>
+<script src="/js/api-app.js?v=102"></script>
+<script>
+var currentView="pronti",scanner=null;
+function escapeHtml(s){var d=document.createElement("div");d.textContent=s||"";return d.innerHTML;}
+async function startScanner(){
+  document.getElementById("qr-reader").classList.remove("hidden");
+  document.getElementById("btn-start-scan").classList.add("hidden");
+  document.getElementById("btn-stop-scan").classList.remove("hidden");
+  try{
+    scanner=new Html5Qrcode("qr-reader");
+    await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onScanSuccess,function(){});
+  }catch(e){
+    document.getElementById("scan-result").innerHTML="<p class=\"text-brand-red text-sm\">Fotocamera non disponibile. Inserisci il codice manualmente.</p>";
+    stopScanner();
+  }
+}
+function onScanSuccess(decodedText){
+  document.getElementById("scan-input").value=decodedText;
+  stopScanner();
+  cercaPacco();
+}
+async function stopScanner(){
+  document.getElementById("qr-reader").classList.add("hidden");
+  document.getElementById("btn-start-scan").classList.remove("hidden");
+  document.getElementById("btn-stop-scan").classList.add("hidden");
+  if(scanner){try{await scanner.stop();}catch(e){}try{document.getElementById("qr-reader").innerHTML="";}catch(e){}scanner=null;}
+}
+function renderPacco(p,showActions){
+  var itemsHtml=(p.items||[]).map(function(i){return escapeHtml(i.nome)+" x"+i.quantita;}).join(" &middot; ");
+  var sc={Pronto:"text-yellow-400",InCarico:"text-blue-400",InConsegna:"text-brand-gold",Consegnato:"text-green-400",MancataConsegna:"text-brand-red"};
+  var si={Pronto:"fa-box",InCarico:"fa-truck-fast",InConsegna:"fa-truck-fast",Consegnato:"fa-circle-check",MancataConsegna:"fa-circle-xmark"};
+  var sl={Pronto:"Pronto",InCarico:"In Carico",InConsegna:"In Consegna",Consegnato:"Consegnato",MancataConsegna:"Mancata Consegna"};
+  var actions="";
+  if(showActions){
+    if(p.stato==="Pronto") actions="<button onclick=\"prendiInCarico("+p.id+")\" class=\"btn-gold text-xs px-3 py-1.5\"><i class=\"fa-solid fa-hand mr-1\"></i>Prendi in Carico</button>";
+    else if(p.stato==="InCarico") actions="<button onclick=\"inConsegna("+p.id+")\" class=\"btn-gold text-xs px-3 py-1.5\"><i class=\"fa-solid fa-truck-fast mr-1\"></i>In Consegna</button>";
+    else if(p.stato==="InConsegna") actions="<div class=\"flex gap-2\"><button onclick=\"showConsegnaModal("+p.id+")\" class=\"btn-gold text-xs px-3 py-1.5\"><i class=\"fa-solid fa-circle-check mr-1\"></i>Consegnato</button><button onclick=\"mancataConsegna("+p.id+")\" class=\"btn-outline-brand text-xs px-3 py-1.5\"><i class=\"fa-solid fa-circle-xmark mr-1\"></i>Mancata Consegna</button></div>";
+  }
+  var info="";
+  if(p.presoInCaricoIl) info+="Preso: "+new Date(p.presoInCaricoIl).toLocaleString("it-IT")+" | ";
+  if(p.consegnatoIl) info+="Consegnato: "+new Date(p.consegnatoIl).toLocaleString("it-IT")+" | ";
+  if(p.firma) info+="Firma: "+escapeHtml(p.firma)+" | ";
+  if(p.noteCorriere) info+="Note: "+escapeHtml(p.noteCorriere)+" | ";
+  return "<div class=\"cine-premium-card p-4\"><div class=\"flex items-center justify-between mb-3\"><div><span class=\"text-xs font-mono text-brand-gold\">"+escapeHtml(p.codiceOrdine||"")+"</span><span class=\"ml-2 text-xs text-brand-on-surface-variant\">Pacco: <b>"+escapeHtml(p.codicePacco)+"</b></span><span class=\"ml-2 text-xs text-brand-on-surface-variant\">Interno: <b class=\"font-mono\">"+escapeHtml(p.codiceInterno)+"</b></span></div><span class=\"text-[10px] uppercase "+sc[p.stato]+" px-2 py-0.5 rounded-full\"><i class=\"fa-solid "+si[p.stato]+" mr-1\"></i>"+sl[p.stato]+"</span></div><p class=\"text-xs text-brand-on-surface-variant mb-2\">"+itemsHtml+"</p><p class=\"text-xs text-brand-on-surface mb-2\"><i class=\"fa-solid fa-location-dot text-brand-gold mr-1\"></i>"+escapeHtml(p.destinazione||"")+"</p>"+(info?"<p class=\"text-xs text-brand-on-surface-variant mb-2\">"+info+"</p>":"")+(p.qrCodeData?"<div class=\"mb-2\"><img src=\""+p.qrCodeData+"\" alt=\"QR\" class=\"w-24 h-24 rounded-lg border border-brand-outline-variant/20\"></div>":"")+actions+"</div>";
+}
+function switchTab(view){
+  currentView=view;
+  var pb=document.getElementById("tab-pronti-btn"), mb=document.getElementById("tab-miei-btn");
+  if(view==="pronti"){
+    pb.className="px-4 py-2 rounded-xl text-sm font-semibold active-tab";
+    mb.className="px-4 py-2 rounded-xl text-sm font-semibold text-brand-on-surface-variant border border-transparent hover:border-brand-gold/20";
+    loadPacchiPronti();
+  }else{
+    mb.className="px-4 py-2 rounded-xl text-sm font-semibold active-tab";
+    pb.className="px-4 py-2 rounded-xl text-sm font-semibold text-brand-on-surface-variant border border-transparent hover:border-brand-gold/20";
+    loadMieiPacchi();
+  }
+}
+async function loadPacchiPronti(){currentView="pronti";try{var pacchi=await apiFetch("/admin/pacchi/pronti");if(!pacchi||!pacchi.length){document.getElementById("pacchi-list").innerHTML="<p class=\"text-brand-on-surface-variant py-8 text-center\">Nessun pacco disponibile.</p>";return;}document.getElementById("pacchi-list").innerHTML=pacchi.map(function(p){return renderPacco(p,true);}).join("");}catch(e){document.getElementById("pacchi-list").innerHTML="<p class=\"text-brand-red\">Errore: "+(e.message||"")+"</p>";}}
+async function loadMieiPacchi(){currentView="miei";try{var pacchi=await apiFetch("/admin/pacchi/miei");if(!pacchi||!pacchi.length){document.getElementById("pacchi-list").innerHTML="<p class=\"text-brand-on-surface-variant py-8 text-center\">Nessun pacco in carico.</p>";return;}document.getElementById("pacchi-list").innerHTML=pacchi.map(function(p){return renderPacco(p,true);}).join("");}catch(e){document.getElementById("pacchi-list").innerHTML="<p class=\"text-brand-red\">Errore: "+(e.message||"")+"</p>";}}
+async function cercaPacco(){var codice=document.getElementById("scan-input").value.trim().toUpperCase();if(!codice)return;try{var p=await apiFetch("/admin/pacchi/codice/"+codice);document.getElementById("scan-result").innerHTML="<div class=\"border-t border-brand-outline-variant/20 pt-3 mt-3\">"+renderPacco(p,true)+"</div>";}catch(e){document.getElementById("scan-result").innerHTML="<p class=\"text-brand-red text-sm mt-2\">Pacco non trovato.</p>";}}
+async function prendiInCarico(id){try{await apiFetch("/admin/pacchi/"+id+"/prendi-in-carico",{method:"POST"});switchTab("pronti");document.getElementById("scan-result").innerHTML="";document.getElementById("scan-input").value="";}catch(e){alert("Errore: "+(e.message||""));}}
+async function inConsegna(id){try{await apiFetch("/admin/pacchi/"+id+"/in-consegna",{method:"POST"});loadMieiPacchi();}catch(e){alert("Errore: "+(e.message||""));}}
+async function consegnato(id,firma){try{await apiFetch("/admin/pacchi/"+id+"/consegnato",{method:"POST",body:JSON.stringify({firma:firma||null})});loadMieiPacchi();}catch(e){alert("Errore: "+(e.message||""));}}
+async function mancataConsegna(id){var note=prompt("Motivo mancata consegna:");if(note===null)return;try{await apiFetch("/admin/pacchi/"+id+"/mancata-consegna",{method:"POST",body:JSON.stringify({note:note})});loadMieiPacchi();}catch(e){alert("Errore: "+(e.message||""));}}
+function showConsegnaModal(id){var firma=prompt("Nome di chi ha ritirato:");if(firma===null)return;consegnato(id,firma);}
+document.addEventListener("DOMContentLoaded",function(){switchTab("pronti");});
+</script>
+</body>
+</html>

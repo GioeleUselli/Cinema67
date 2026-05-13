@@ -23,7 +23,7 @@ async function loadAll() {
         : '<span class="text-xs text-brand-on-surface-variant">Solo PowerUser</span>';
       return '<tr class="row-hover">' +
         '<td class="px-6 py-4"><p class="text-sm font-semibold">' + escapeHtml(u.nome + ' ' + u.cognome) + '</p><p class="text-xs text-brand-on-surface-variant">' + escapeHtml(u.email) + '</p></td>' +
-        '<td class="px-6 py-4"><select class="ghost-input px-2 py-1 text-xs" onchange="changeRole(' + u.id + ', this.value)"><option value="User"' + (u.ruolo === 'User' ? ' selected' : '') + '>User</option><option value="PowerUser"' + (u.ruolo === 'PowerUser' ? ' selected' : '') + '>PowerUser</option><option value="Admin"' + (u.ruolo === 'Admin' ? ' selected' : '') + '>Admin</option></select></td>' +
+        '<td class="px-6 py-4"><select class="ghost-input px-2 py-1 text-xs" onchange="changeRole(' + u.id + ', this.value)"><option value="User"' + (u.ruolo === 'User' ? ' selected' : '') + '>User</option><option value="PowerUser"' + (u.ruolo === 'PowerUser' ? ' selected' : '') + '>PowerUser</option><option value="Admin"' + (u.ruolo === 'Admin' ? ' selected' : '') + '>Admin</option><option value="Corriere"' + (u.ruolo === 'Corriere' ? ' selected' : '') + '>Corriere</option><option value="Magazziniere"' + (u.ruolo === 'Magazziniere' ? ' selected' : '') + '>Magazziniere</option><option value="CinemaStaff"' + (u.ruolo === 'CinemaStaff' ? ' selected' : '') + '>CinemaStaff</option></select></td>' +
         '<td class="px-6 py-4">' + cinemaCell + '</td>' +
         '<td class="px-6 py-4 text-sm font-bold text-brand-gold">&euro;' + Number(saldo).toFixed(2) + '</td>' +
         '<td class="px-6 py-4 text-xs text-brand-on-surface-variant">' + formatDate(u.dataRegistrazione) + '</td>' +

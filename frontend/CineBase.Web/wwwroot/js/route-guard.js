@@ -1,12 +1,20 @@
 var RouteGuard = (function () {
   var PAGE_PERMISSIONS = {
-    '/index.html': { roles: ['anonimo', 'user', 'poweruser', 'admin'], authRequired: false },
-    '/programmazione.html': { roles: ['anonimo', 'user', 'poweruser', 'admin'], authRequired: false },
-    '/scheda-film.html': { roles: ['anonimo', 'user', 'poweruser', 'admin'], authRequired: false },
-    '/my-cinemas.html': { roles: ['anonimo', 'user', 'poweruser', 'admin'], authRequired: false },
+    '/index.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/programmazione.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/scheda-film.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/my-cinemas.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/scegli-cinema.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
     '/login.html': { roles: ['anonimo'], authRequired: false, anonymousOnly: true },
     '/registrazione.html': { roles: ['anonimo'], authRequired: false, anonymousOnly: true },
-    '/dashboard.html': { roles: ['poweruser', 'admin'], authRequired: true },
+    '/forgot-password.html': { roles: ['anonimo'], authRequired: false },
+    '/reset-password.html': { roles: ['anonimo'], authRequired: false },
+    '/shop.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/articolo.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/pagamento-merch.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
+    '/esito-acquisto-merch.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
+    '/tracking-merch.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/dashboard.html': { roles: ['poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
     '/films.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/registi.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/cinemas.html': { roles: ['poweruser', 'admin'], authRequired: true },
@@ -20,10 +28,21 @@ var RouteGuard = (function () {
     '/admin-utenti.html': { roles: ['admin'], authRequired: true },
     '/membership-admin.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/newsletter-admin.html': { roles: ['poweruser', 'admin'], authRequired: true },
-    '/profilo.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
+    '/corriere.html': { roles: ['corriere', 'poweruser', 'admin'], authRequired: true },
+    '/magazzino.html': { roles: ['magazziniere', 'poweruser', 'admin'], authRequired: true },
+    '/label-pacco.html': { roles: ['corriere', 'magazziniere', 'poweruser', 'admin'], authRequired: true },
+    '/admin-pacchi.html': { roles: ['poweruser', 'admin'], authRequired: true },
+    '/profilo.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
     '/acquista.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
     '/pagamento.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
-    '/esito-acquisto.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true }
+    '/esito-acquisto.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
+    '/feste.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/membership.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
+    '/giftcard.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
+    '/riscatta-giftcard.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
+    '/privacy.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/cookie.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/termini-condizioni.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false }
   };
 
   var ACCESS_TOKEN_KEY = 'cb_access_token';
@@ -34,6 +53,9 @@ var RouteGuard = (function () {
     var value = String(role).trim().toLowerCase();
     if (value === '2' || value === 'admin') return 'admin';
     if (value === '1' || value === 'poweruser') return 'poweruser';
+    if (value === '4' || value === 'corriere') return 'corriere';
+    if (value === '5' || value === 'magazziniere') return 'magazziniere';
+    if (value === '3' || value === 'cinemastaff') return 'cinemastaff';
     if (value === '0' || value === 'user') return 'user';
     return 'anonimo';
   }

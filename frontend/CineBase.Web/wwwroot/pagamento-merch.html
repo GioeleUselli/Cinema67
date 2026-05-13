@@ -11,7 +11,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
-  <script src="/js/route-guard.js?v=99"></script>
+  <script src="/js/route-guard.js?v=102"></script>
 </head>
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
 <div id="navbar-container"></div>
@@ -75,10 +75,10 @@
 <div id="footer-container"></div>
 
 <script src="/js/utils.js?v=99"></script>
-<script src="/js/api-app.js?v=100"></script>
-<script src="/js/auth.js?v=99"></script>
-<script src="/js/template-loader.js?v=99"></script>
-<script src="/js/navbar.js?v=99"></script>
+<script src="/js/api-app.js?v=102"></script>
+<script src="/js/auth.js?v=100"></script>
+<script src="/js/template-loader.js?v=101"></script>
+<script src="/js/navbar.js?v=100"></script>
 <script>
 var ordine=null, credito=0, countdownInterval=null;
 
@@ -93,8 +93,7 @@ async function loadPayment(){
     if(ordine.stato==='Paid'){window.location.href='/esito-acquisto-merch.html?orderId='+id;return;}
     if(ordine.stato!=='Pending'){showError('Ordine non pagabile: '+ordine.stato);return;}
 
-    var creditoData=await API.getCreditoMe();
-    credito=creditoData?creditoData.saldoAttuale||0:0;
+    try{var creditoData=await API.getCreditoMe();credito=creditoData?creditoData.saldoAttuale||0:0;}catch(e){credito=0;}
 
     renderOrder();
     updateMethod();

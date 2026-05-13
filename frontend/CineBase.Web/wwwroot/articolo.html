@@ -11,7 +11,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
-  <script src="/js/route-guard.js?v=99"></script>
+  <script src="/js/route-guard.js?v=102"></script>
   <style>::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--brand-gold);border-radius:999px}.gallery-thumb{cursor:pointer;border:2px solid transparent;}.gallery-thumb.active{border-color:var(--brand-gold)}</style>
 </head>
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
@@ -50,10 +50,10 @@
 </main>
 <div id="footer-container"></div>
 <script src="/js/utils.js?v=99"></script>
-<script src="/js/api-app.js?v=100"></script>
-<script src="/js/auth.js?v=99"></script>
-<script src="/js/template-loader.js?v=99"></script>
-<script src="/js/navbar.js?v=99"></script>
+<script src="/js/api-app.js?v=102"></script>
+<script src="/js/auth.js?v=100"></script>
+<script src="/js/template-loader.js?v=101"></script>
+<script src="/js/navbar.js?v=100"></script>
 <script>
 var article=null,qty=1,selectedColor=null,selectedSize=null;
 
@@ -111,6 +111,10 @@ function selectVariant(type,val){
 function addToCart(){
   if(!article)return;
   var v=selectedVariant();
+  if(article.varianti && article.varianti.length > 0) {
+    if(!v){alert('Seleziona colore e/o taglia prima di aggiungere al carrello.');return;}
+    if(v.stock <= 0){alert('Variante non disponibile.');return;}
+  }
   var stock=v?v.stock:article.stock;
   if(stock<=0)return;
   var cart=[];try{cart=JSON.parse(localStorage.getItem('cinema67_merch_cart')||'[]');}catch(e){cart=[];}

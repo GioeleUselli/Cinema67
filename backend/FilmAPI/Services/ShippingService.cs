@@ -21,7 +21,7 @@ public class ShippingService : IShippingService
 
     private static readonly (double Lat, double Lon) MilanWarehouse = (45.4642, 9.1900);
 
-    private static readonly string[] StatusFlow = { "Preparazione", "Spedito", "InTransito", "InConsegna", "Consegnato" };
+    private static readonly string[] StatusFlow = PaccoStati.FlussoTracking;
 
     public ShippingService(FilmDbContext db, IEmailService emailService, ILogger<ShippingService> logger)
     {
@@ -163,10 +163,11 @@ public class ShippingService : IShippingService
 
     public async Task ProcessShipmentsAsync()
     {
+        var paccoOrderIds = await _db.Pacchi.Select(p => p.MerchOrderId).ToListAsync();
         var paidOrders = await _db.MerchOrders
             .Include(o => o.User)
             .Include(o => o.CinemaRitiro)
-            .Where(o => o.Stato == "Paid" && o.StatoSpedizione != "Consegnato")
+            .Where(o => o.Stato == "Paid" && o.StatoSpedizione != "Consegnato" && !paccoOrderIds.Contains(o.Id))
             .ToListAsync();
 
         foreach (var order in paidOrders)
@@ -250,9 +251,12 @@ public class ShippingService : IShippingService
 
     private static string GetStatusLabel(string s) => s switch
     {
-        "Preparazione" => "In preparazione",
+        "InAttesa" => "In attesa",
+        "DaPreparare" => "Da preparare",
+        "Pronto" => "Pronto",
         "Spedito" => "Spedito",
         "InTransito" => "In transito",
+        "InCarico" => "Preso in carico",
         "InConsegna" => "In consegna",
         "Consegnato" => "Consegnato",
         _ => s

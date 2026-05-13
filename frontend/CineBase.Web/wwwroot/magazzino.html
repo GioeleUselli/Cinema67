@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Magazzino</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  <script src="/js/route-guard.js?v=102"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
+<main>
+  <div class="mb-8">
+    <p class="text-xs uppercase tracking-[0.24em] text-brand-gold mb-1">Cinema67</p>
+    <h2 class="text-2xl font-bold text-brand-on-surface mb-4">Magazzino — Preparazione Pacchi</h2>
+    <div class="flex gap-3">
+      <button id="tab-da-preparare-btn" onclick="loadData()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-brand-gold/10 text-brand-gold border border-brand-gold/20 active-tab"><i class="fa-solid fa-boxes-packing mr-1"></i>Pacchi da Preparare</button>
+    </div>
+  </div>
+
+  <div id="loading-state" class="text-center py-8"><i class="fa-solid fa-spinner fa-spin text-2xl text-brand-gold"></i></div>
+  <div id="pacchi-list" class="space-y-4"></div>
+</main>
+
+<script src="/js/auth.js?v=100"></script>
+<script src="/js/navbar.js?v=100"></script>
+<script src="/js/admin-shell.js?v=103"></script>
+<script src="/js/template-loader.js?v=101"></script>
+<script src="/js/api-app.js?v=102"></script>
+<script>
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+async function loadData(){
+  document.getElementById('loading-state').classList.remove('hidden');
+  document.getElementById('pacchi-list').innerHTML='';
+  try{
+    var ordini=await apiFetch('/admin/pacchi/ordini-da-preparare');
+    document.getElementById('loading-state').classList.add('hidden');
+    if(!ordini||!ordini.length){
+      document.getElementById('pacchi-list').innerHTML='<div class="cine-premium-card p-8 text-center text-brand-on-surface-variant"><i class="fa-solid fa-circle-check text-4xl text-green-400 mb-3 block"></i>Tutti i pacchi sono stati preparati!</div>';
+      return;
+    }
+    document.getElementById('pacchi-list').innerHTML=ordini.map(function(o){
+      var items=(o.items||[]).map(function(i){return '<span class="text-xs text-brand-on-surface-variant">'+escapeHtml(i.nome)+' x'+i.quantita+'</span>';}).join(' &middot; ');
+      return '<div class="cine-premium-card p-4">'
+        +'<div class="flex items-center justify-between mb-3"><div><span class="text-xs font-mono text-brand-gold">'+escapeHtml(o.codiceOrdine||'')+'</span>'
+        +'<span class="text-xs text-brand-on-surface-variant">'+items+'</span></div>'
+        +'<p class="text-xs text-brand-on-surface-variant mb-2">'+escapeHtml(o.destinazione||'')+'</p>'
+        +'<button onclick="creaPacco('+o.id+')" class="btn-gold text-xs px-4 py-2"><i class="fa-solid fa-box mr-1"></i>Prepara Pacco</button>'
+        +'</div>';
+    }).join('');
+  }catch(e){document.getElementById('loading-state').classList.add('hidden');document.getElementById('pacchi-list').innerHTML='<p class="text-brand-red">Errore: '+(e.message||'')+'</p>';}
+}
+
+async function creaPacco(id){
+  try{
+    var result=await apiFetch('/admin/pacchi/crea-da-ordine/'+id,{method:'POST'});
+    window.open('/label-pacco.html?paccoId='+result.id,'_blank');
+    loadData();
+  }catch(e){alert('Errore: '+(e.message||''));}
+}
+
+document.addEventListener('DOMContentLoaded',loadData);
+</script>
+</body>
+</html>

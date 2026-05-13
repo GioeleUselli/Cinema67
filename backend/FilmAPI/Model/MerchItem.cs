@@ -69,7 +69,7 @@ public class MerchOrder
 
     // Shipping
     [Column(TypeName = "decimal(10,2)")] public decimal CostoSpedizione { get; set; }
-    [MaxLength(50)] public string StatoSpedizione { get; set; } = "Preparazione";
+    [MaxLength(50)] public string StatoSpedizione { get; set; } = "InAttesa";
     [MaxLength(30)] public string? TrackingNumber { get; set; }
     public DateTime? DataSpedizione { get; set; }
     public DateTime? DataConsegnaPrevista { get; set; }

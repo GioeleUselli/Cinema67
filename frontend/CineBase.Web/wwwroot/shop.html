@@ -14,7 +14,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
-  <script src="/js/route-guard.js?v=99"></script>
+  <script src="/js/route-guard.js?v=102"></script>
   <style>
     .cart-badge { animation: cartPop 0.3s ease; }
     @keyframes cartPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -141,10 +141,10 @@
   </div>
 
   <script src="/js/utils.js?v=99"></script>
-  <script src="/js/api-app.js?v=100"></script>
-  <script src="/js/auth.js?v=99"></script>
-  <script src="/js/template-loader.js?v=99"></script>
-  <script src="/js/navbar.js?v=99"></script>
+  <script src="/js/api-app.js?v=102"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script src="/js/template-loader.js?v=101"></script>
+  <script src="/js/navbar.js?v=100"></script>
 
   <script>
     let cart = [];
@@ -260,11 +260,13 @@
             </a>
             <div class="flex items-center justify-between mt-auto pt-3 border-t border-brand-outline-variant/10">
               <span class="text-lg font-bold text-brand-gold font-serif">€${p.prezzo.toFixed(2)}</span>
-              <button onclick="event.stopPropagation(); addToCart(${p.id}, '${escapeHtml(p.nome).replace(/'/g, "\\'")}', ${p.prezzo}, ${p.stock})" 
+              ${p.varianti && p.varianti.length > 0 
+                ? `<a href="/articolo.html?id=${p.id}" class="btn-outline-brand text-xs px-3 py-1.5"><i class="fa-solid fa-list-check mr-1"></i>Scegli</a>`
+                : `<button onclick="event.stopPropagation(); addToCart(${p.id}, '${escapeHtml(p.nome).replace(/'/g, "\\'")}', ${p.prezzo}, ${p.stock})" 
                 class="btn-outline-brand text-xs px-3 py-1.5 ${inCartQty >= p.stock ? 'opacity-50 pointer-events-none' : ''}"
                 ${inCartQty >= p.stock ? 'disabled' : ''}>
                 <i class="fa-solid fa-cart-plus mr-1"></i>Aggiungi
-              </button>
+              </button>`}
             </div>
           </div>`;
       }).join('');
@@ -422,13 +424,14 @@
           return;
         }
         section.classList.remove('hidden');
-        const statoColors = { 'Pending': 'text-yellow-400', 'Paid': 'text-green-400', 'Shipped': 'text-blue-400', 'Cancelled': 'text-red-400' };
+        const shippingLabels = { 'InAttesa': 'In attesa','Pronto':'Pronto','InCarico':'In carico','InConsegna':'In consegna','Consegnato':'Consegnato' };
         list.innerHTML = orders.map(o => `
-          <div class="p-4 rounded-xl bg-brand-surface-container-high border border-brand-outline-variant/10">
+          <div class="p-4 rounded-xl bg-brand-surface-container-high border border-brand-outline-variant/10 cursor-pointer hover:border-brand-gold/30" onclick="window.location.href='/tracking-merch.html?orderId=${o.id}'">
             <div class="flex items-center justify-between mb-2">
               <div>
                 <span class="text-xs font-mono text-brand-gold">${escapeHtml(o.codiceOrdine || '')}</span>
-                <span class="ml-2 text-[10px] uppercase tracking-widest ${statoColors[o.stato] || 'text-brand-on-surface-variant'}">${escapeHtml(o.stato)}</span>
+                <span class="ml-2 text-[10px] uppercase tracking-widest ${o.stato==='Paid'?'text-green-400':o.stato==='Cancelled'?'text-brand-red':'text-yellow-400'}">${escapeHtml(o.stato)}</span>
+                ${o.stato==='Paid' ? `<span class="ml-2 text-[10px] text-brand-gold">${shippingLabels[o.statoSpedizione]||o.statoSpedizione||''}</span>` : ''}
               </div>
               <span class="text-sm text-brand-on-surface-variant">${new Date(o.createdAtUtc).toLocaleDateString('it-IT')}</span>
             </div>

@@ -33,7 +33,10 @@ function isAdminAreaPath(pathname) {
     '/membership-admin.html',
     '/newsletter-admin.html',
     '/campaigns-admin.html',
-    '/merch-admin.html'
+    '/merch-admin.html',
+    '/corriere.html',
+    '/magazzino.html',
+    '/admin-pacchi.html'
   ]);
   return adminPaths.has((pathname || '').toLowerCase());
 }
@@ -49,11 +52,14 @@ function enforceAdminAreaAccess() {
     return false;
   }
 
-  var role = String(auth.getUserRole ? auth.getUserRole() : '').trim().toLowerCase();
-  if (role === '2' || role === 'admin') role = 'admin';
-  else if (role === '1' || role === 'poweruser') role = 'poweruser';
-  else if (role === '0' || role === 'user') role = 'user';
-  if (role === 'admin' || role === 'poweruser') {
+    var role = String(auth.getUserRole ? auth.getUserRole() : '').trim().toLowerCase();
+    if (role === '2' || role === 'admin') role = 'admin';
+    else if (role === '1' || role === 'poweruser') role = 'poweruser';
+    else if (role === '4' || role === 'corriere') role = 'corriere';
+    else if (role === '5' || role === 'magazziniere') role = 'magazziniere';
+    else if (role === '3' || role === 'cinemastaff') role = 'cinemastaff';
+    else if (role === '0' || role === 'user') role = 'user';
+    if (role === 'admin' || role === 'poweruser' || role === 'corriere' || role === 'magazziniere' || role === 'cinemastaff') {
     return true;
   }
 

@@ -10,7 +10,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
-  <script src="/js/route-guard.js?v=99"></script>
+  <script src="/js/route-guard.js?v=102"></script>
 </head>
 <body class="cine-velvet bg-brand-surface text-brand-on-surface font-sans">
   <div id="navbar-container"></div>
@@ -35,7 +35,7 @@
     <section class="cine-admin-slab mb-4 p-4">
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 items-end">
         <input id="filter-search" type="text" class="ghost-input w-full px-3 py-2" placeholder="Cerca nome, cognome o email...">
-        <select id="filter-role" class="ghost-input w-full px-3 py-2"><option value="">Tutti i ruoli</option><option value="User">User</option><option value="PowerUser">PowerUser</option><option value="Admin">Admin</option></select>
+        <select id="filter-role" class="ghost-input w-full px-3 py-2"><option value="">Tutti i ruoli</option><option value="User">User</option><option value="PowerUser">PowerUser</option><option value="Admin">Admin</option><option value="Corriere">Corriere</option><option value="Magazziniere">Magazziniere</option><option value="CinemaStaff">Cinema Staff</option></select>
         <div class="flex gap-2">
           <button id="btn-prev" class="btn-outline-brand px-3 py-2 text-xs">&lt;</button>
           <span id="page-indicator" class="text-sm text-brand-on-surface-variant self-center">Pag 1 di 1</span>
@@ -77,7 +77,7 @@
             <div><label class="block text-sm mb-1">Password</label><input name="password" type="password" minlength="8" required class="ghost-input w-full px-3 py-2" placeholder="Minimo 8 caratteri"></div>
             <div><label class="block text-sm mb-1">Telefono</label><input name="telefono" class="ghost-input w-full px-3 py-2"></div>
             <div class="grid grid-cols-2 gap-3">
-              <div><label class="block text-sm mb-1">Ruolo</label><select name="ruolo" class="ghost-input w-full px-3 py-2"><option value="User">User (base)</option><option value="PowerUser">PowerUser (staff)</option><option value="Admin">Admin</option></select></div>
+              <div><label class="block text-sm mb-1">Ruolo</label><select name="ruolo" class="ghost-input w-full px-3 py-2"><option value="User">User (base)</option><option value="PowerUser">PowerUser (staff)</option><option value="Admin">Admin</option><option value="Corriere">Corriere</option><option value="Magazziniere">Magazziniere</option><option value="CinemaStaff">Cinema Staff</option></select></div>
               <div><label class="block text-sm mb-1">Cinema</label><select name="cinemaId" class="ghost-input w-full px-3 py-2"><option value="">Nessuno</option></select></div>
             </div>
           </form></div>
@@ -91,10 +91,10 @@
   </div>
 
   <script src="/js/utils.js?v=99"></script>
-  <script src="/js/api-app.js?v=4"></script>
-  <script src="/js/auth.js?v=99"></script>
-  <script src="/js/template-loader.js?v=99"></script>
+  <script src="/js/api-app.js?v=6"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/admin-panel.js?v=6"></script>
-  <script src="/js/pages/admin-utenti.js?v=1778059348"></script>
+  <script src="/js/pages/admin-utenti.js?v=999"></script>
 </body>
 </html>

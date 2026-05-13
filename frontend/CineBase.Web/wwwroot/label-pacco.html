@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Etichetta Pacco — Cinema67</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <style>
+    @media print {
+      body { background: #fff !important; }
+      .no-print { display: none !important; }
+      .print-area { box-shadow: none !important; border: 2px dashed #000 !important; }
+    }
+    .print-area { max-width: 420px; margin: 0 auto; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="no-print max-w-lg mx-auto mb-4 text-center">
+    <button onclick="window.print()" class="btn-gold px-6 py-3 text-sm"><i class="fa-solid fa-print mr-2"></i>Stampa Etichetta</button>
+    <button onclick="window.close()" class="btn-ghost px-4 py-2 text-sm ml-2">Chiudi</button>
+  </div>
+
+  <div id="label-content" class="print-area bg-white rounded-xl shadow-lg p-6 font-sans text-sm">
+    <div class="text-center py-8"><i class="fa-solid fa-spinner fa-spin text-2xl text-brand-gold"></i></div>
+  </div>
+
+  <script src="/js/api-app.js?v=102"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script>
+    var paccoId = parseInt(new URLSearchParams(window.location.search).get('paccoId') || '0');
+
+    function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+    async function loadLabel() {
+      if (!paccoId) { showError('ID pacco mancante.'); return; }
+      try {
+        var data = await apiFetch('/admin/pacchi/tutti');
+        var pacco = (data || []).find(function(p) { return p.id === paccoId; });
+        if (!pacco) { showError('Pacco non trovato.'); return; }
+        renderLabel(pacco);
+      } catch(e) { showError('Errore: ' + (e.message || '')); }
+    }
+
+    function renderLabel(p) {
+      document.getElementById('label-content').innerHTML = ''
+        + '<div class="border-2 border-black rounded-lg p-5" style="font-family:monospace">'
+        + '<div class="text-center mb-4"><p class="text-lg font-black tracking-widest">CINEMA67</p><p class="text-xs">Magazzino Centrale — Milano</p></div>'
+        + '<div class="border-t-2 border-b-2 border-black py-3 mb-3">'
+        + '<div class="grid grid-cols-2 gap-3 text-xs">'
+        + '<div><p class="font-bold uppercase tracking-wide">Mittente</p><p>Cinema67 Magazzino</p><p>Via dei Magazzini 67</p><p>20100 Milano (MI)</p></div>'
+        + '<div><p class="font-bold uppercase tracking-wide">Destinatario</p><p class="text-sm font-semibold">' + escapeHtml(p.destinazione || 'N/D') + '</p></div>'
+        + '</div></div>'
+        + '<div class="flex items-center gap-4 mb-3">'
+        + '<div class="flex-1"><p class="text-[10px] font-bold uppercase tracking-widest">Codice Pacco</p><p class="text-lg font-black tracking-wider">' + escapeHtml(p.codicePacco) + '</p><p class="text-[10px] text-gray-500">Interno: ' + escapeHtml(p.codiceInterno) + '</p></div>'
+        + (p.qrCodeData ? '<img src="' + p.qrCodeData + '" alt="QR" class="w-28 h-28 border-2 border-black rounded" />' : '<div class="w-28 h-28 border-2 border-black rounded flex items-center justify-center text-xs text-gray-400">QR</div>')
+        + '</div>'
+        + '<div class="border-t border-black pt-2 text-[10px] text-center text-gray-500">'
+        + '<p>Ordine: ' + escapeHtml(p.codiceOrdine || '') + ' | Creato: ' + new Date(p.createdAtUtc).toLocaleString('it-IT') + '</p>'
+        + '</div></div>';
+      document.title = 'Etichetta — ' + escapeHtml(p.codicePacco);
+    }
+
+    function showError(msg) {
+      document.getElementById('label-content').innerHTML = '<div class="text-center py-8 text-red-500"><i class="fa-solid fa-triangle-exclamation text-3xl mb-2 block"></i>' + escapeHtml(msg) + '</div>';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadLabel);
+  </script>
+</body>
+</html>

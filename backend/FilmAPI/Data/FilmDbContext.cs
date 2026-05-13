@@ -51,6 +51,7 @@ public class FilmDbContext : DbContext
     public DbSet<MerchItemImage> MerchItemImages { get; set; }
     public DbSet<MerchItemVariant> MerchItemVariants { get; set; }
     public DbSet<MerchDiscountCode> MerchDiscountCodes { get; set; }
+    public DbSet<Pacco> Pacchi { get; set; }
     public DbSet<FoodItem> FoodItems { get; set; }
     public DbSet<FoodOrderItem> FoodOrderItems { get; set; }
     public DbSet<ReferralCode> ReferralCodes { get; set; }
