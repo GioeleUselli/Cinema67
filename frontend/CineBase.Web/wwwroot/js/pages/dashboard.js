@@ -27,73 +27,39 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
+  if (role !== 'admin' && role !== 'poweruser' && role !== 'cinemastaff') return;
+
   try {
-    if (role === 'cinemastaff') {
-      var staffCinemas = normalizeCollection(await API.getStaffMyCinemas());
-      var cinemaNames = [];
-      if (staffCinemas && staffCinemas.length) {
-        staffCinemas.forEach(function(a) { if (a && a.cinema) cinemaNames.push(a.cinema.nome); });
-      }
+    var results = await Promise.all([
+      API.getFilms(),
+      API.getRegisti(),
+      API.getCinemas(),
+      API.getShows(),
+      API.getSupportTickets({ status: 'Open', page: 1, pageSize: 100 }),
+      API.getSupportTickets({ status: 'InProgress', page: 1, pageSize: 100 })
+    ]);
 
-      // Fill KPI cards like admin but with staff data
-      document.getElementById('stat-movies').textContent = cinemaNames.length || '0';
-      document.getElementById('stat-directors').textContent = '—';
-      document.getElementById('stat-cinemas').textContent = cinemaNames.length || '0';
-      document.getElementById('stat-screenings').textContent = '—';
+    var films = normalizeCollection(results[0]);
+    var registi = normalizeCollection(results[1]);
+    var cinemas = normalizeCollection(results[2]);
+    var shows = normalizeCollection(results[3]);
+    var openTickets = normalizeCollection(results[4]);
+    var inProgressTickets = normalizeCollection(results[5]);
 
-      // Show cinema list in table
-      var tbody = document.getElementById('upcoming-screenings');
-      if (tbody) {
-        if (cinemaNames.length) {
-          tbody.innerHTML = cinemaNames.map(function (n) {
-            return '<tr class="row-hover"><td colspan="6" class="px-6 py-4 text-sm font-semibold text-brand-on-surface"><i class="fa-solid fa-location-dot text-brand-red mr-2"></i>' + escapeHtml(n) + '</td></tr>';
-          }).join('');
-        } else {
-          tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessun cinema assegnato</td></tr>';
-        }
-      }
+    cachedFilms = films;
+    cachedCinemas = cinemas;
+    cachedRegisti = registi;
 
-      // Hide bottom panels (can't access that data)
-      var el = document.getElementById('dashboard-registi');
-      if (el) el.style.display = 'none';
-      el = document.getElementById('dashboard-analytics-content');
-      if (el && el.parentElement) el.parentElement.style.display = 'none';
+    document.getElementById('stat-movies').textContent = films.length;
+    document.getElementById('stat-directors').textContent = registi.length;
+    document.getElementById('stat-cinemas').textContent = cinemas.length;
+    document.getElementById('stat-screenings').textContent = shows.length;
+    var supportCountEl = document.getElementById('support-open-count');
+    if (supportCountEl) supportCountEl.textContent = String(openTickets.length + inProgressTickets.length);
 
-      return;
-    }
-
-    if (role === 'admin' || role === 'poweruser') {
-      var results = await Promise.all([
-        API.getFilms(),
-        API.getRegisti(),
-        API.getCinemas(),
-        API.getShows(),
-        API.getSupportTickets({ status: 'Open', page: 1, pageSize: 100 }),
-        API.getSupportTickets({ status: 'InProgress', page: 1, pageSize: 100 })
-      ]);
-
-      var films = normalizeCollection(results[0]);
-      var registi = normalizeCollection(results[1]);
-      var cinemas = normalizeCollection(results[2]);
-      var shows = normalizeCollection(results[3]);
-      var openTickets = normalizeCollection(results[4]);
-      var inProgressTickets = normalizeCollection(results[5]);
-
-      cachedFilms = films;
-      cachedCinemas = cinemas;
-      cachedRegisti = registi;
-
-      document.getElementById('stat-movies').textContent = films.length;
-      document.getElementById('stat-directors').textContent = registi.length;
-      document.getElementById('stat-cinemas').textContent = cinemas.length;
-      document.getElementById('stat-screenings').textContent = shows.length;
-      var supportCountEl = document.getElementById('support-open-count');
-      if (supportCountEl) supportCountEl.textContent = String(openTickets.length + inProgressTickets.length);
-
-      renderUpcomingShows(shows);
-      renderTopRegisti(registi);
-      renderCinemaAnalytics(cinemas, shows);
-    }
+    renderUpcomingShows(shows);
+    renderTopRegisti(registi);
+    renderCinemaAnalytics(cinemas, shows);
   } catch (error) {
     console.error('Error loading dashboard:', error);
   }

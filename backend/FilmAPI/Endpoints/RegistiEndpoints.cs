@@ -9,7 +9,7 @@ public static class RegistiEndpoints
 {
     public static void MapRegistiEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/registi").RequireAuthorization("PowerUserOrAdmin");
+        var group = app.MapGroup("/registi").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         group.MapGet("", async (int? page, int? pageSize, string? search, IRegistaService service) =>
         {
