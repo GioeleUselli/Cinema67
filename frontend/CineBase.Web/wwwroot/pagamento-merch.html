@@ -102,7 +102,7 @@ async function loadPayment(){
     if(ordine.stato!=='Pending'&&ordine.stato!=='CheckoutInProgress'){showError('Ordine non pagabile: '+ordine.stato);return;}
     if(ordine.stato==='CheckoutInProgress'){ordine.stato='Pending';}
 
-    try{var creditoData=await API.getCreditoMe();credito=creditoData&&creditoData.saldoAttuale!=null?creditoData.saldoAttuale:0;}catch(e){credito=0;document.getElementById('credito-disponibile').textContent='Errore';}
+    try{var creditoData=await API.getCreditoMe();credito=creditoData&&creditoData.saldoAttuale!=null?creditoData.saldoAttuale:0;document.getElementById('credito-disponibile').textContent=formatCurrency(credito);}catch(e){credito=0;document.getElementById('credito-disponibile').textContent='Errore';}
 
     renderOrder();
     updateMethod();
