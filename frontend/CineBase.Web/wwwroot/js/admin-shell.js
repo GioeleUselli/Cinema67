@@ -85,7 +85,14 @@
       userAvatarEl.textContent = `${first}${second}`.toUpperCase();
     }
 
-    filterSidebarByRole(user);
+    // Update console label based on role but show ALL links
+    var consoleLabel = document.querySelector('#admin-shell-root .admin-console-label');
+    if (consoleLabel) {
+      var role = getNormalizedRole();
+      if (role === 'corriere') consoleLabel.textContent = 'Area Corriere';
+      else if (role === 'magazziniere') consoleLabel.textContent = 'Area Magazzino';
+      else if (role === 'cinemastaff') consoleLabel.textContent = 'Area Staff Cinema';
+    }
   }
 
   function getNormalizedRole() {
@@ -98,47 +105,6 @@
     if (r === 'magazziniere' || r === '5') return 'magazziniere';
     if (r === 'cinemastaff' || r === '3') return 'cinemastaff';
     return 'user';
-  }
-
-  function filterSidebarByRole(user) {
-    var role = getNormalizedRole();
-    var consoleLabel = document.querySelector('#admin-shell-root .admin-console-label');
-    if (consoleLabel) {
-      if (role === 'corriere') consoleLabel.textContent = 'Area Corriere';
-      else if (role === 'magazziniere') consoleLabel.textContent = 'Area Magazzino';
-      else if (role === 'cinemastaff') consoleLabel.textContent = 'Area Staff Cinema';
-      else consoleLabel.textContent = 'Admin console';
-    }
-
-    // Corriere: show only Corriere link + Profilo
-    // Magazziniere: show only Magazzino link + Profilo
-    // CinemaStaff: show only staff-allowed links + Profilo
-    var allowed = (role === 'corriere') ? ['corriere'] :
-                  (role === 'magazziniere') ? ['magazzino'] :
-                  (role === 'cinemastaff') ? ['dashboard', 'ricarica-credito', 'validazione-biglietti', 'support-tickets', 'promozioni', 'feste-admin', 'rimborsi-admin', 'food-admin', 'merch-admin'] : null;
-
-    if (!allowed) return; // Admin/PowerUser = tutto visibile
-
-    document.querySelectorAll('[data-admin-link]').forEach(function(el) {
-      var href = (el.getAttribute('href') || '').toLowerCase().replace('.html', '').replace('/', '');
-      var visible = allowed.some(function(a) { return href === a; });
-      if (!visible && href !== 'profilo') {
-        el.style.display = 'none';
-      }
-    });
-
-    // Hide separators between hidden groups
-    var rails = document.querySelectorAll('.admin-sidebar-rail > *');
-    var inGroup = false;
-    for (var i = 0; i < rails.length; i++) {
-      var el = rails[i];
-      if (el.tagName === 'DIV' && el.classList.contains('border-t')) {
-        el.style.display = inGroup ? '' : 'none';
-        inGroup = false;
-      } else if (el.style.display !== 'none') {
-        inGroup = true;
-      }
-    }
   }
 
   function bindActions() {
