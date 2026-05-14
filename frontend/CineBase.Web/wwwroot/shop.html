@@ -404,7 +404,7 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Creazione ordine...';
       try {
         var result = await API.createMerchOrder(dto);
-        cart = []; saveCart(); updateCartUI(); closeCart();
+        closeCart();
         window.location.href = '/pagamento-merch.html?orderId=' + result.id;
       } catch (e) {
         alert('Errore: ' + (e.message || 'Impossibile creare l\'ordine.'));
