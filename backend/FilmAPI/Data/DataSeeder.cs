@@ -21,7 +21,6 @@ public class DataSeeder
          await SeedCinemaStaffAsync();
          await SeedCategorieAsync();
          await SeedFoodItemsAsync();
-         await SeedMerchItemsAsync();
          await SeedDiscountCodesAsync();
          await SeedDevDataAsync();
          await SeedStaffCinemaAssignmentsAsync();
@@ -138,31 +137,6 @@ public class DataSeeder
         };
 
         _context.FoodItems.AddRange(foodItems);
-        await _context.SaveChangesAsync();
-    }
-
-    private async Task SeedMerchItemsAsync()
-    {
-        if (_context.MerchItems.Any())
-            return;
-
-        var merchItems = new[]
-        {
-            new MerchItem { Nome = "T-Shirt Cinema67", Descrizione = "T-shirt 100% cotone con logo Cinema67 stampato fronte/retro. Disponibile in varie taglie.", Prezzo = 24.99m, Categoria = "Abbigliamento", Attivo = true, Stock = 50, ImmaginePath = "/media/merch/maglie.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Felpa con Cappuccio", Descrizione = "Felpa premium con cappuccio, logo Cinema67 ricamato. Interno in pile morbido.", Prezzo = 49.99m, Categoria = "Abbigliamento", Attivo = true, Stock = 30, ImmaginePath = "/media/merch/felpe.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Cappellino Cinema67", Descrizione = "Cappellino snapback nero con logo dorato Cinema67.", Prezzo = 19.99m, Categoria = "Abbigliamento", Attivo = true, Stock = 40, ImmaginePath = "/media/merch/cappellini.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Poster The Classics", Descrizione = "Poster artistico 50x70cm della collezione classici Cinema67. Carta premium opaca.", Prezzo = 14.99m, Categoria = "Poster", Attivo = true, Stock = 100, ImmaginePath = "/media/merch/cover.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Poster Cinema67 Gold", Descrizione = "Poster esclusivo con dettagli dorati, logo Cinema67. Edizione limitata 50x70cm.", Prezzo = 29.99m, Categoria = "Poster", Attivo = true, Stock = 25, ImmaginePath = "/media/merch/cover.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Mug Cinema67", Descrizione = "Tazza in ceramica da 350ml con logo Cinema67. Lavabile in lavastoviglie.", Prezzo = 12.99m, Categoria = "Gadget", Attivo = true, Stock = 60, ImmaginePath = "/media/merch/tazze.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Portachiavi Cinema67", Descrizione = "Portachiavi metallico con logo Cinema67 in rilievo. Doppio anello.", Prezzo = 7.99m, Categoria = "Gadget", Attivo = true, Stock = 120, ImmaginePath = "/media/merch/portachiavi.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Borraccia Termica", Descrizione = "Borraccia in acciaio inox 500ml, mantiene caldo/freddo 12 ore. Logo Cinema67.", Prezzo = 22.99m, Categoria = "Gadget", Attivo = true, Stock = 45, ImmaginePath = "/media/merch/borracce.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Modellino Cinema67", Descrizione = "Modellino in metallo fuso di un cinema vintage Cinema67. Oggetto da collezione numerato.", Prezzo = 89.99m, Categoria = "Collezionabili", Attivo = true, Stock = 15, ImmaginePath = "/media/merch/cover.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Cofanetto Edizione Oro", Descrizione = "Cofanetto da collezione con t-shirt esclusiva, poster, spilla e certificato di autenticità.", Prezzo = 149.99m, Categoria = "Collezionabili", Attivo = true, Stock = 10, ImmaginePath = "/media/merch/cover.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Calamita Cinema67", Descrizione = "Set di 4 calamite con locandine iconiche dei film Cinema67.", Prezzo = 9.99m, Categoria = "Gadget", Attivo = true, Stock = 200, ImmaginePath = "/media/merch/adesivi.png", CreatedAtUtc = DateTime.UtcNow },
-            new MerchItem { Nome = "Tote Bag Cinema67", Descrizione = "Borsa in tela di cotone con stampa Cinema67. Perfetta per la spesa o il cinema.", Prezzo = 15.99m, Categoria = "Abbigliamento", Attivo = true, Stock = 75, ImmaginePath = "/media/merch/borse.png", CreatedAtUtc = DateTime.UtcNow }
-        };
-
-        _context.MerchItems.AddRange(merchItems);
         await _context.SaveChangesAsync();
     }
 
