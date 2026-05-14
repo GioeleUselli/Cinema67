@@ -237,7 +237,7 @@
     target.appendChild(main);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function renderAdminShell() {
     const pathname = window.location.pathname.toLowerCase();
     if (!ADMIN_PATHS.has(pathname)) return;
 
@@ -264,5 +264,11 @@
     bindActions();
     setActiveLinks();
     updateUserUI();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderAdminShell);
+  } else {
+    renderAdminShell();
+  }
 })();

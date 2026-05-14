@@ -182,7 +182,7 @@
     target.appendChild(main);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function renderStaffShell() {
     var pathname = window.location.pathname.toLowerCase();
     if (!STAFF_PATHS.has(pathname)) return;
 
@@ -206,5 +206,11 @@
     bindActions();
     setActiveLinks();
     updateUserUI();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderStaffShell);
+  } else {
+    renderStaffShell();
+  }
 })();
