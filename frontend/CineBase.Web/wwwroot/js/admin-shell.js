@@ -17,7 +17,10 @@
     '/merch-admin.html',
     '/corriere.html',
     '/magazzino.html',
-    '/admin-pacchi.html'
+    '/admin-pacchi.html',
+    '/feste-admin.html',
+    '/rimborsi-admin.html',
+    '/food-admin.html'
   ]);
 
   const PAGE_TITLES = {
@@ -37,7 +40,10 @@
     '/merch-admin.html': 'Merch Shop',
     '/corriere.html': 'Corriere',
     '/magazzino.html': 'Magazzino',
-    '/admin-pacchi.html': 'Gestione Pacchi'
+    '/admin-pacchi.html': 'Gestione Pacchi',
+    '/feste-admin.html': 'Gestione Feste',
+    '/rimborsi-admin.html': 'Gestione Rimborsi',
+    '/food-admin.html': 'Food & Beverage'
   };
 
   function getUser() {
@@ -100,13 +106,16 @@
     if (consoleLabel) {
       if (role === 'corriere') consoleLabel.textContent = 'Area Corriere';
       else if (role === 'magazziniere') consoleLabel.textContent = 'Area Magazzino';
+      else if (role === 'cinemastaff') consoleLabel.textContent = 'Area Staff Cinema';
       else consoleLabel.textContent = 'Admin console';
     }
 
     // Corriere: show only Corriere link + Profilo
     // Magazziniere: show only Magazzino link + Profilo
+    // CinemaStaff: show only staff-allowed links + Profilo
     var allowed = (role === 'corriere') ? ['corriere'] :
-                  (role === 'magazziniere') ? ['magazzino'] : null;
+                  (role === 'magazziniere') ? ['magazzino'] :
+                  (role === 'cinemastaff') ? ['dashboard', 'ricarica-credito', 'validazione-biglietti', 'support-tickets', 'promozioni', 'feste-admin', 'rimborsi-admin', 'food-admin', 'merch-admin'] : null;
 
     if (!allowed) return; // Admin/PowerUser = tutto visibile
 
@@ -194,15 +203,18 @@
             <a data-admin-link href="/sale.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-chair"></i>Sale</a>
             <a data-admin-link href="/ricarica-credito.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-coins"></i>Ricarica Credito</a>
             <a data-admin-link href="/validazione-biglietti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-qrcode"></i>Validazione</a>
-            <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-headset"></i>Support Tickets</a>
-            <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
-            <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
-            <a data-admin-link href="/membership-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-crown"></i>Membership</a>
-            <a data-admin-link href="/merch-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-store"></i>Merch Shop</a>
-            <div class="my-2 border-t border-brand-outline-variant/20"></div>
-            <a data-admin-link href="/magazzino.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-packing"></i>Magazzino</a>
-            <a data-admin-link href="/corriere.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-truck-fast"></i>Corriere</a>
-            <a data-admin-link href="/admin-pacchi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-stacked"></i>Gestione Pacchi</a>
+             <a data-admin-link href="/support-tickets.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-headset"></i>Support Tickets</a>
+             <a data-admin-link href="/promozioni.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullhorn"></i>Promozioni</a>
+             <a data-admin-link href="/feste-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-calendar-days"></i>Feste</a>
+             <a data-admin-link href="/rimborsi-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-undo"></i>Rimborsi</a>
+             <a data-admin-link href="/food-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-utensils"></i>Food & Beverage</a>
+             <a data-admin-link href="/merch-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-store"></i>Merch Shop</a>
+             <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
+             <a data-admin-link href="/membership-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-crown"></i>Membership</a>
+             <div class="my-2 border-t border-brand-outline-variant/20"></div>
+             <a data-admin-link href="/magazzino.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-packing"></i>Magazzino</a>
+             <a data-admin-link href="/corriere.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-truck-fast"></i>Corriere</a>
+             <a data-admin-link href="/admin-pacchi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-stacked"></i>Gestione Pacchi</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
@@ -262,6 +274,13 @@
   document.addEventListener('DOMContentLoaded', () => {
     const pathname = window.location.pathname.toLowerCase();
     if (!ADMIN_PATHS.has(pathname)) return;
+
+    // Don't render admin shell for CinemaStaff users
+    var u = getUser();
+    if (u && u.ruolo) {
+      var r = String(u.ruolo).trim().toLowerCase();
+      if (r === 'cinemastaff' || r === '3') return;
+    }
 
     const main = document.querySelector('main');
     if (!main) return;

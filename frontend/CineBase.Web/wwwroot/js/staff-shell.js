@@ -183,8 +183,14 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    const pathname = window.location.pathname.toLowerCase();
+    var pathname = window.location.pathname.toLowerCase();
     if (!STAFF_PATHS.has(pathname)) return;
+
+    // Only render for CinemaStaff users
+    var user = getUser();
+    if (!user || !user.ruolo) return;
+    var role = String(user.ruolo).trim().toLowerCase();
+    if (role !== 'cinemastaff' && role !== '3') return;
 
     const main = document.querySelector('main');
     if (!main) return;
