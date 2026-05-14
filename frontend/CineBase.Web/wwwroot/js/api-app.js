@@ -34,6 +34,10 @@ function isAdminAreaPath(pathname) {
     '/newsletter-admin.html',
     '/campaigns-admin.html',
     '/merch-admin.html',
+    '/food-admin.html',
+    '/feste-admin.html',
+    '/rimborsi-admin.html',
+    '/promozioni.html',
     '/corriere.html',
     '/magazzino.html',
     '/admin-pacchi.html'

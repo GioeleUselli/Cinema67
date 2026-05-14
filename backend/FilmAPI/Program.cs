@@ -185,13 +185,19 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser());
 
     options.AddPolicy("CinemaStaffOrPowerUserOrAdmin", policy =>
-        policy.RequireRole("Admin", "PowerUser", "CinemaStaff"));
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
+                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "CinemaStaff"))));
 
     options.AddPolicy("CorriereOrPowerUserOrAdmin", policy =>
-        policy.RequireRole("Admin", "PowerUser", "Corriere"));
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
+                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "Corriere"))));
 
     options.AddPolicy("MagazziniereOrPowerUserOrAdmin", policy =>
-        policy.RequireRole("Admin", "PowerUser", "Magazziniere"));
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
+                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "Magazziniere"))));
 
     options.AddPolicy("StaffOrPowerUserOrAdmin", policy =>
         policy.RequireAssertion(context =>
