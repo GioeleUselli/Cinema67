@@ -216,6 +216,11 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    // admin-shell.js replaces this — do not render if admin-shell is also loaded
+    if (document.getElementById('admin-shell-root')) return;
+    var hasAdminShell = document.querySelector('script[src*="admin-shell.js"]');
+    if (hasAdminShell) return;
+
     const pathname = window.location.pathname.toLowerCase();
     if (!ADMIN_PATHS.has(pathname)) return;
 
