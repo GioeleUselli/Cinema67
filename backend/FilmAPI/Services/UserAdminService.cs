@@ -16,7 +16,7 @@ public class UserAdminService : IUserAdminService
 
     public async Task<object> GetUsersPagedAsync(string? search, string? role, int page, int pageSize)
     {
-        var query = _context.Users.AsQueryable();
+        var query = _context.Users.Where(u => u.AnonymizedAtUtc == null).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -47,6 +47,7 @@ public class UserAdminService : IUserAdminService
     public async Task<List<UserAdminDTO>> GetAllUsersAsync()
     {
         return await _context.Users
+            .Where(u => u.AnonymizedAtUtc == null)
             .Select(u => new UserAdminDTO
             {
                 Id = u.Id,
