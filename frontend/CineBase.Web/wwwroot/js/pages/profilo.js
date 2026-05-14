@@ -387,10 +387,12 @@ async function requestDataExport() {
     msg.className = 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 px-4 py-3 rounded-xl text-sm';
     msg.textContent = res.message || 'Email di conferma inviata.';
     msg.classList.remove('hidden');
+    setTimeout(function() { msg.classList.add('hidden'); }, 5000);
   } catch(e) {
     msg.className = 'bg-brand-error-container border border-brand-error/30 text-brand-error px-4 py-3 rounded-xl text-sm';
     msg.textContent = e.message || 'Errore.';
     msg.classList.remove('hidden');
+    setTimeout(function() { msg.classList.add('hidden'); }, 8000);
   }
   btn.disabled = false;
   btnText.classList.remove('hidden');
@@ -423,10 +425,12 @@ document.getElementById('btn-delete-request')?.addEventListener('click', async f
     msg.className = 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 px-4 py-3 rounded-xl text-sm';
     msg.textContent = res.message || 'Email di conferma inviata. Controlla la tua casella di posta.';
     msg.classList.remove('hidden');
+    setTimeout(function() { msg.classList.add('hidden'); }, 5000);
   } catch(e) {
     msg.className = 'bg-brand-error-container border border-brand-error/30 text-brand-error px-4 py-3 rounded-xl text-sm';
     msg.textContent = e.message || 'Errore.';
     msg.classList.remove('hidden');
+    setTimeout(function() { msg.classList.add('hidden'); }, 8000);
   }
   this.disabled = false;
   btnText.classList.remove('hidden');
