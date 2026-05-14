@@ -6,24 +6,32 @@ function getUserRole() {
   try {
     if (typeof Auth !== 'undefined' && Auth && Auth.getUserRole) {
       var rawRole = String(Auth.getUserRole()).trim().toLowerCase();
+      if (!rawRole || rawRole === 'undefined' || rawRole === 'unknown') return null;
       if (rawRole === 'cinemastaff' || rawRole === '3') return 'cinemastaff';
       if (rawRole === 'admin' || rawRole === '2') return 'admin';
       if (rawRole === 'poweruser' || rawRole === '1') return 'poweruser';
     }
   } catch(e) {}
-  return 'unknown';
+  return null;
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
   if (window.__dashboardLoaded) return;
   window.__dashboardLoaded = true;
 
+  // Wait for auth to be ready
+  if (typeof RouteGuard !== 'undefined' && RouteGuard.whenReady) {
+    await RouteGuard.whenReady();
+  }
+  // Small delay to ensure shells have rendered
+  await new Promise(function(r) { setTimeout(r, 100); });
+
   try {
     var role = getUserRole();
 
     if (role === 'cinemastaff') {
       renderCinemaStaffDashboard();
-    } else {
+    } else if (role === 'admin' || role === 'poweruser') {
       var results = await Promise.all([
         API.getFilms(),
         API.getRegisti(),
