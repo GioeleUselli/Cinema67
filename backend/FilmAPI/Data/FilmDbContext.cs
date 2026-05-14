@@ -45,6 +45,7 @@ public class FilmDbContext : DbContext
     public DbSet<ManualRefundReview> ManualRefundReviews { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public DbSet<AccountActionToken> AccountActionTokens { get; set; }
+    public DbSet<UserCartItem> UserCartItems { get; set; }
     public DbSet<UserCinemaAssignment> UserCinemaAssignments { get; set; }
     public DbSet<MerchItem> MerchItems { get; set; }
     public DbSet<MerchOrder> MerchOrders { get; set; }

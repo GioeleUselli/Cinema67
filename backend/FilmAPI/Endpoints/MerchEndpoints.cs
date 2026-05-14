@@ -1,5 +1,6 @@
 using FilmAPI.Data;
 using FilmAPI.DTO;
+using FilmAPI.Model;
 using FilmAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -201,5 +202,64 @@ public static class MerchEndpoints
             var ok = await service.DeleteVariantAsync(variantId);
             return ok ? Results.Ok(new { message = "Variante eliminata." }) : Results.NotFound();
         });
+
+        // ── User Cart ──
+        var cartGroup = app.MapGroup("/merch/cart").RequireAuthorization("Authenticated");
+
+        cartGroup.MapGet("", async (ClaimsPrincipal user, FilmDbContext db) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+
+            var items = await db.UserCartItems
+                .Where(c => c.UserId == userId)
+                .Select(c => new { c.Id, c.MerchItemId, c.Quantita, c.VariantId })
+                .ToListAsync();
+            return Results.Ok(items);
+        });
+
+        cartGroup.MapPut("", async (ClaimsPrincipal user, FilmDbContext db, List<CartItemUpsertDTO> items) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+
+            var existing = await db.UserCartItems.Where(c => c.UserId == userId).ToListAsync();
+            db.UserCartItems.RemoveRange(existing);
+
+            if (items != null && items.Any())
+            {
+                foreach (var item in items)
+                {
+                    db.UserCartItems.Add(new UserCartItem
+                    {
+                        UserId = userId,
+                        MerchItemId = item.MerchItemId,
+                        Quantita = item.Quantita,
+                        VariantId = item.VariantId
+                    });
+                }
+            }
+
+            await db.SaveChangesAsync();
+            return Results.Ok(new { message = "Carrello salvato." });
+        });
+
+        cartGroup.MapDelete("", async (ClaimsPrincipal user, FilmDbContext db) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+
+            var items = await db.UserCartItems.Where(c => c.UserId == userId).ToListAsync();
+            db.UserCartItems.RemoveRange(items);
+            await db.SaveChangesAsync();
+            return Results.Ok(new { message = "Carrello svuotato." });
+        });
     }
+}
+
+public class CartItemUpsertDTO
+{
+    public int MerchItemId { get; set; }
+    public int Quantita { get; set; } = 1;
+    public int? VariantId { get; set; }
 }

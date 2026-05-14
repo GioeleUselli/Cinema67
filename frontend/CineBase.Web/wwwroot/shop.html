@@ -150,9 +150,35 @@
     let cart = [];
     let products = [];
     let discountState = { codice: null, percentuale: 0, totaleOriginale: 0 };
-    function saveCart() { localStorage.setItem('cinema67_merch_cart', JSON.stringify(cart)); }
+    function saveCart() { 
+      localStorage.setItem('cinema67_merch_cart', JSON.stringify(cart)); 
+      syncCartToBackend();
+    }
     function loadCart() {
       try { cart = JSON.parse(localStorage.getItem('cinema67_merch_cart') || '[]'); } catch (e) { cart = []; }
+    }
+    async function syncCartToBackend() {
+      if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) return;
+      try {
+        var backendItems = cart.map(function(c) { return { merchItemId: c.id, quantita: c.qty, variantId: c.variantId || null }; });
+        await API.saveCart(backendItems);
+      } catch(e) { /* silent */ }
+    }
+    async function loadCartFromBackend() {
+      if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) return;
+      try {
+        var backendItems = await API.getCart();
+        if (backendItems && backendItems.length > 0) {
+          var enriched = [];
+          for (var i = 0; i < backendItems.length; i++) {
+            var bi = backendItems[i];
+            var product = products.find(function(p) { return p.id === bi.merchItemId; });
+            enriched.push({ id: bi.merchItemId, name: product ? product.nome : ('Articolo #' + bi.merchItemId), price: product ? product.prezzo : 0, qty: bi.quantita, variantId: bi.variantId });
+          }
+          cart = enriched;
+          saveCart(); // persist to localStorage too
+        }
+      } catch(e) { /* silent */ }
     }
     function updateCartUI() {
       const count = cart.reduce((s, i) => s + i.qty, 0);
@@ -452,11 +478,13 @@
       } catch (e) { /* silent */ }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       loadCart();
       updateCartUI();
-      loadProducts();
-      loadMyOrders();
+      await loadProducts();
+      await loadCartFromBackend();
+      updateCartUI();
+      await loadMyOrders();
 
       document.getElementById('cart-toggle').addEventListener('click', openCart);
     });

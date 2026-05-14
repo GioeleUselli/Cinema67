@@ -87,6 +87,7 @@ async function checkOrder(){
 
 function renderSuccess(order){
   localStorage.removeItem('cinema67_merch_cart');
+  try { API.clearCart(); } catch(e) {}
   document.getElementById('loading-state').classList.add('hidden');
   document.getElementById('success-state').classList.remove('hidden');
   document.getElementById('success-code').textContent=order.codiceOrdine||'';
