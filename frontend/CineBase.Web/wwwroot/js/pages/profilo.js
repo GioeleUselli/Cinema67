@@ -374,6 +374,31 @@ document.getElementById('btn-set-password')?.addEventListener('click', async fun
   this.innerHTML = '<i class="fa-solid fa-key mr-2"></i>Imposta password locale';
 });
 
+async function requestDataExport() {
+  var btn = document.getElementById('btn-export');
+  var btnText = btn.querySelector('.btn-export-text');
+  var btnLoader = btn.querySelector('.btn-export-loader');
+  var msg = document.getElementById('export-msg');
+  btn.disabled = true;
+  btnText.classList.add('hidden');
+  btnLoader.classList.remove('hidden');
+  try {
+    var res = await apiFetch('/auth/me/export/request', { method: 'POST' });
+    msg.className = 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 px-4 py-3 rounded-xl text-sm';
+    msg.textContent = res.message || 'Email di conferma inviata.';
+    msg.classList.remove('hidden');
+  } catch(e) {
+    msg.className = 'bg-brand-error-container border border-brand-error/30 text-brand-error px-4 py-3 rounded-xl text-sm';
+    msg.textContent = e.message || 'Errore.';
+    msg.classList.remove('hidden');
+  }
+  btn.disabled = false;
+  btnText.classList.remove('hidden');
+  btnLoader.classList.add('hidden');
+}
+
+window.requestDataExport = requestDataExport;
+
 function getMovimentoLabel(tipo) {
   switch (tipo) {
     case 'TopUp': return 'Ricarica';

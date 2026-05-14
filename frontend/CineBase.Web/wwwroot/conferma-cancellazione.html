@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 - Conferma Cancellazione Account</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js?v=99"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+  </head>
+<body class="cine-velvet bg-brand-surface text-brand-on-surface font-sans min-h-screen flex flex-col">
+  <div id="navbar-container"></div>
+  <div class="flex-1 px-4 py-20">
+    <div class="mx-auto max-w-md cine-curtain-in">
+      <div class="cine-premium-card p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl bg-brand-red/5"></div>
+        <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full blur-3xl bg-brand-gold/5"></div>
+        <div class="relative z-10">
+          <div class="text-center mb-6">
+            <p class="cine-kicker text-center">Cancellazione account</p>
+            <h1 class="cine-headline text-brand-on-surface text-2xl mt-2">Conferma eliminazione</h1>
+          </div>
+          <div id="status-confirming" class="text-center">
+            <p class="text-sm text-brand-on-surface-variant mb-4"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Verifica in corso...</p>
+          </div>
+          <div id="status-expired" class="hidden text-center">
+            <div class="text-5xl mb-4">⏰</div>
+            <p class="text-brand-error font-semibold mb-2">Link scaduto o non valido</p>
+            <p class="text-sm text-brand-on-surface-variant mb-4">Il link di conferma è scaduto oppure è già stato utilizzato.</p>
+            <a href="/profilo.html" class="btn-outline-brand text-sm"><i class="fa-solid fa-user mr-1"></i>Torna al profilo</a>
+          </div>
+          <div id="status-confirm" class="hidden">
+            <p class="text-sm text-brand-on-surface-variant mb-4"><strong>Attenzione:</strong> questa operazione è <span class="text-brand-error">irreversibile</span>. I tuoi dati personali verranno anonimizzati. Ordini, biglietti e movimenti credito saranno conservati in forma anonima per obblighi fiscali.</p>
+            <div id="msg" class="hidden px-4 py-3 rounded-xl mb-4 text-sm"></div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm mb-1 text-brand-on-surface-variant">Scrivi <strong class="text-brand-gold">CANCELLA</strong> per confermare</label>
+                <input type="text" id="confirm-text" class="ghost-input w-full px-4 py-3 rounded-xl text-center text-lg tracking-widest" placeholder="CANCELLA" autocomplete="off">
+              </div>
+              <button id="confirm-btn" class="bg-red-600 hover:bg-red-700 text-white w-full py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <span id="btn-text"><i class="fa-solid fa-trash mr-2"></i>Conferma Cancellazione</span>
+                <span id="btn-loader" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Eliminazione...</span>
+              </button>
+            </div>
+          </div>
+          <div id="status-done" class="hidden text-center">
+            <div class="text-5xl mb-4">👋</div>
+            <p class="text-emerald-500 font-semibold text-lg mb-2">Account cancellato</p>
+            <p class="text-sm text-brand-on-surface-variant mb-4">Grazie per aver usato Cinema67. Sarai reindirizzato alla home page.</p>
+          </div>
+          <div id="status-error" class="hidden text-center">
+            <div class="text-5xl mb-4">⚠️</div>
+            <p id="error-text" class="text-brand-error font-semibold mb-2">Errore</p>
+            <p class="text-sm text-brand-on-surface-variant mb-4">Si è verificato un errore durante l'operazione.</p>
+            <a href="/index.html" class="btn-outline-brand text-sm"><i class="fa-solid fa-house mr-1"></i>Torna alla home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-container"></div>
+
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=102"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
+  <script src="/js/template-loader.js?v=101"></script>
+  <script src="/js/navbar.js?v=100"></script>
+  <script>
+    var token = new URLSearchParams(window.location.search).get('token');
+    if (!token) {
+      document.getElementById('status-confirming').classList.add('hidden');
+      document.getElementById('status-expired').classList.remove('hidden');
+    } else {
+      document.addEventListener('DOMContentLoaded', async function() {
+        var input = document.getElementById('confirm-text');
+        var btn = document.getElementById('confirm-btn');
+
+        document.getElementById('status-confirming').classList.add('hidden');
+        document.getElementById('status-confirm').classList.remove('hidden');
+
+        input.addEventListener('input', function() {
+          btn.disabled = (input.value.trim() !== 'CANCELLA');
+        });
+
+        btn.addEventListener('click', async function() {
+          if (input.value.trim() !== 'CANCELLA') return;
+          var btnText = document.getElementById('btn-text');
+          var loader = document.getElementById('btn-loader');
+          var msg = document.getElementById('msg');
+          btnText.classList.add('hidden');
+          loader.classList.remove('hidden');
+          btn.disabled = true;
+          input.disabled = true;
+
+          try {
+            var res = await apiFetch('/auth/me/delete/confirm', {
+              method: 'POST',
+              body: JSON.stringify({ token: token })
+            });
+            document.getElementById('status-confirm').classList.add('hidden');
+            document.getElementById('status-done').classList.remove('hidden');
+
+            if (typeof Auth !== 'undefined' && Auth && typeof Auth.clearAuth === 'function') {
+              Auth.clearAuth();
+            }
+
+            setTimeout(function() {
+              window.location.href = '/index.html';
+            }, 3000);
+          } catch (err) {
+            btnText.classList.remove('hidden');
+            loader.classList.add('hidden');
+            btn.disabled = false;
+            input.disabled = false;
+
+            var errorMsg = err.message || 'Token non valido, scaduto o già utilizzato.';
+            if (errorMsg.indexOf('Token') !== -1 || errorMsg.indexOf('scaduto') !== -1) {
+              document.getElementById('status-confirm').classList.add('hidden');
+              document.getElementById('status-expired').classList.remove('hidden');
+            } else {
+              msg.className = 'bg-brand-error-container border border-brand-error/30 text-brand-error px-4 py-3 rounded-xl mb-4 text-sm';
+              msg.textContent = errorMsg;
+              msg.classList.remove('hidden');
+            }
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

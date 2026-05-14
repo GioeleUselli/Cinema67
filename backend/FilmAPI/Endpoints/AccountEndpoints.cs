@@ -27,6 +27,39 @@ public static class AccountEndpoints
             }
         }).RequireAuthorization("Authenticated");
 
+        app.MapPost("/auth/me/export/request", async (HttpContext context, IAccountDeletionService service) =>
+        {
+            var userId = GetUserIdFromContext(context);
+            if (userId == null) return Results.Unauthorized();
+
+            try
+            {
+                await service.RequestDataExportAsync(userId.Value);
+                return Results.Ok(new { message = "Abbiamo inviato un'email di conferma. Clicca il link per ricevere i tuoi dati." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        }).RequireAuthorization("Authenticated");
+
+        app.MapPost("/auth/me/export/confirm", async (HttpContext context, IAccountDeletionService service) =>
+        {
+            var body = await context.Request.ReadFromJsonAsync<TokenRequest>();
+            if (body?.Token == null)
+                return Results.BadRequest(new { message = "Token mancante." });
+
+            try
+            {
+                var data = await service.ConfirmDataExportAsync(body.Token);
+                return Results.Ok(data);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        }).AllowAnonymous();
+
         app.MapPost("/auth/me/delete", async (HttpContext context, IAccountDeletionService service) =>
         {
             var userId = GetUserIdFromContext(context);
@@ -42,6 +75,39 @@ public static class AccountEndpoints
                 return Results.BadRequest(new { message = ex.Message });
             }
         }).RequireAuthorization("Authenticated");
+
+        app.MapPost("/auth/me/delete/request", async (HttpContext context, IAccountDeletionService service) =>
+        {
+            var userId = GetUserIdFromContext(context);
+            if (userId == null) return Results.Unauthorized();
+
+            try
+            {
+                await service.RequestDeletionAsync(userId.Value);
+                return Results.Ok(new { message = "Abbiamo inviato un'email di conferma. Clicca il link per completare la cancellazione." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        }).RequireAuthorization("Authenticated");
+
+        app.MapPost("/auth/me/delete/confirm", async (HttpContext context, IAccountDeletionService service) =>
+        {
+            var body = await context.Request.ReadFromJsonAsync<TokenRequest>();
+            if (body?.Token == null)
+                return Results.BadRequest(new { message = "Token mancante." });
+
+            try
+            {
+                await service.ConfirmDeletionAsync(body.Token);
+                return Results.Ok(new { message = "Account anonimizzato con successo. Grazie per aver usato Cinema67." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        }).AllowAnonymous();
 
         app.MapDelete("/admin/utenti/{id}", async (int id, HttpContext context, IAccountDeletionService service, FilmDbContext db) =>
         {
@@ -111,4 +177,9 @@ public static class AccountEndpoints
 
         return userId;
     }
+}
+
+public class TokenRequest
+{
+    public string Token { get; set; } = string.Empty;
 }

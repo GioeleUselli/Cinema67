@@ -130,6 +130,25 @@
       </div>
     </div>
 
+    <!-- Privacy e Dati (GDPR) -->
+    <div class="cine-premium-card p-6 mb-8 cine-curtain-in cine-curtain-delay-4">
+      <h2 class="text-lg font-bold text-brand-on-surface font-serif flex items-center gap-2 mb-4">
+        <span class="w-8 h-8 rounded-lg bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-database text-brand-red text-sm"></i></span>
+        Privacy e Dati
+      </h2>
+      <p class="text-sm text-brand-on-surface-variant mb-6">Gestisci i tuoi dati personali in conformità al GDPR (artt. 15-20).</p>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <button onclick="requestDataExport()" class="btn-outline-brand text-sm px-5 py-2.5" id="btn-export">
+          <span class="btn-export-text"><i class="fa-solid fa-file-export mr-2"></i>Esporta i miei dati</span>
+          <span class="btn-export-loader hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Invio email...</span>
+        </button>
+        <a href="/conferma-cancellazione.html" class="btn-outline-brand text-sm px-5 py-2.5 text-brand-error border-brand-error/30 hover:bg-brand-error/10">
+          <i class="fa-solid fa-trash mr-2"></i>Cancella il mio account
+        </a>
+      </div>
+      <div id="export-msg" class="hidden mt-4 px-4 py-3 rounded-xl text-sm"></div>
+    </div>
+
     <!-- Ordini -->
     <div class="cine-premium-card p-6 mb-8">
       <div class="flex items-center justify-between mb-6">

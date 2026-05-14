@@ -9,6 +9,8 @@ var RouteGuard = (function () {
     '/registrazione.html': { roles: ['anonimo'], authRequired: false, anonymousOnly: true },
     '/forgot-password.html': { roles: ['anonimo'], authRequired: false },
     '/reset-password.html': { roles: ['anonimo'], authRequired: false },
+    '/conferma-cancellazione.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/conferma-export.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
     '/shop.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
     '/articolo.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
     '/pagamento-merch.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },

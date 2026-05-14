@@ -767,5 +767,9 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   deleteMerchItemVariant: function (itemId, variantId) { return apiFetch('/admin/merch/items/' + itemId + '/variants/' + variantId, { method: 'DELETE' }); },
 
   // ── CinemaStaff ──
-  getStaffMyCinemas: function () { return apiFetch('/staff/me/cinemas'); }
+  getStaffMyCinemas: function () { return apiFetch('/staff/me/cinemas'); },
+
+  // ── GDPR / Account ──
+  requestDataExport: function () { return apiFetch('/auth/me/export/request', { method: 'POST' }); },
+  requestAccountDeletion: function () { return apiFetch('/auth/me/delete/request', { method: 'POST' }); }
 };
