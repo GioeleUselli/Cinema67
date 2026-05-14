@@ -760,5 +760,8 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
 
   addMerchItemVariant: function (itemId, data) { return apiFetch('/admin/merch/items/' + itemId + '/variants', { method: 'POST', body: JSON.stringify(data) }); },
   updateMerchItemVariant: function (itemId, variantId, data) { return apiFetch('/admin/merch/items/' + itemId + '/variants/' + variantId, { method: 'PUT', body: JSON.stringify(data) }); },
-  deleteMerchItemVariant: function (itemId, variantId) { return apiFetch('/admin/merch/items/' + itemId + '/variants/' + variantId, { method: 'DELETE' }); }
+  deleteMerchItemVariant: function (itemId, variantId) { return apiFetch('/admin/merch/items/' + itemId + '/variants/' + variantId, { method: 'DELETE' }); },
+
+  // ── CinemaStaff ──
+  getStaffMyCinemas: function () { return apiFetch('/staff/me/cinemas'); }
 };

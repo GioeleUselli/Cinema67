@@ -1,7 +1,21 @@
 var selectedUserId = null;
 var allUsers = [];
+var userRole = 'unknown';
+
+function getUserRole() {
+  try {
+    if (typeof Auth !== 'undefined' && Auth && Auth.getUserRole) {
+      var rawRole = String(Auth.getUserRole()).trim().toLowerCase();
+      if (rawRole === 'cinemastaff' || rawRole === '3') return 'cinemastaff';
+      if (rawRole === 'admin' || rawRole === '2') return 'admin';
+      if (rawRole === 'poweruser' || rawRole === '1') return 'poweruser';
+    }
+  } catch(e) {}
+  return 'unknown';
+}
 
 document.addEventListener('DOMContentLoaded', function () {
+  userRole = getUserRole();
   setupRicaricaForm();
   loadAllUsers();
   loadRicaricheHistory();

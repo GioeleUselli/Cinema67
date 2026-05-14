@@ -87,7 +87,28 @@ function updateModeUI() {
 
 async function loadCinemas() {
   try {
-    allCinemas = normalizeCollection(await API.getCinemas());
+    // Determine if user is CinemaStaff
+    let isCinemaStaff = false;
+    try {
+      if (typeof Auth !== 'undefined' && Auth && Auth.getUserRole) {
+        var rawRole = String(Auth.getUserRole()).trim().toLowerCase();
+        isCinemaStaff = (rawRole === 'cinemastaff' || rawRole === '3');
+      }
+    } catch(e) {}
+
+    // Load appropriate cinema list based on role
+    if (isCinemaStaff) {
+      // CinemaStaff: only load their assigned cinemas
+      // API returns UserCinemaAssignment objects with Cinema property
+      var assignments = normalizeCollection(await API.getStaffMyCinemas());
+      // Extract Cinema objects from assignments
+      allCinemas = assignments
+        .map(a => a.Cinema)
+        .filter(c => c && c.id); // Filter out null/invalid cinemas
+    } else {
+      // Admin/PowerUser: load all cinemas
+      allCinemas = normalizeCollection(await API.getCinemas());
+    }
   } catch (e) {
     console.error('Error loading cinemas:', e);
   }

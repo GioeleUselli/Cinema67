@@ -15,15 +15,16 @@ public class DataSeeder
         _context = context;
     }
 
-    public async Task SeedAsync()
-    {
-        await SeedAdminAsync();
-        await SeedCategorieAsync();
-        await SeedFoodItemsAsync();
-        await SeedMerchItemsAsync();
-        await SeedDiscountCodesAsync();
-        await SeedDevDataAsync();
-    }
+     public async Task SeedAsync()
+     {
+         await SeedAdminAsync();
+         await SeedCinemaStaffAsync();
+         await SeedCategorieAsync();
+         await SeedFoodItemsAsync();
+         await SeedMerchItemsAsync();
+         await SeedDiscountCodesAsync();
+         await SeedDevDataAsync();
+     }
 
     private async Task SeedAdminAsync()
     {
@@ -44,11 +45,35 @@ public class DataSeeder
             CreditoResiduo = 0
         };
 
-        _context.Users.Add(admin);
-        await _context.SaveChangesAsync();
-    }
+         _context.Users.Add(admin);
+         await _context.SaveChangesAsync();
+     }
 
-    private async Task SeedCategorieAsync()
+     private async Task SeedCinemaStaffAsync()
+     {
+         // Check if cinema staff user already exists
+         if (_context.Users.Any(u => u.Email == "cinema67staff@cinema67.it"))
+             return;
+
+         var staffEmail = "cinema67staff@cinema67.it";
+         var staffPassword = "Staff123!";
+
+         var staff = new User
+         {
+             Email = staffEmail,
+             PasswordHash = BCrypt.Net.BCrypt.HashPassword(staffPassword),
+             Nome = "Staff",
+             Cognome = "Cinema67",
+             Ruolo = UserRole.CinemaStaff,
+             DataRegistrazione = DateTime.UtcNow,
+             CreditoResiduo = 0
+         };
+
+         _context.Users.Add(staff);
+         await _context.SaveChangesAsync();
+     }
+
+     private async Task SeedCategorieAsync()
     {
         if (_context.Categorie.Any())
             return;
