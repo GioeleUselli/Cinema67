@@ -15,6 +15,9 @@ function getUserRole() {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
+  if (window.__dashboardLoaded) return;
+  window.__dashboardLoaded = true;
+
   try {
     var role = getUserRole();
 
