@@ -192,6 +192,8 @@
     var role = String(user.ruolo).trim().toLowerCase();
     if (role !== 'cinemastaff' && role !== '3') return;
 
+    if (document.getElementById('admin-shell-root')) return; // safety: admin-shell already rendered
+
     const main = document.querySelector('main');
     if (!main) return;
 

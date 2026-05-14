@@ -249,6 +249,8 @@
       if (r === 'cinemastaff' || r === '3') return; // CinemaStaff uses staff-shell
     }
 
+    if (document.getElementById('staff-shell-root')) return; // safety: staff-shell already rendered
+
     const main = document.querySelector('main');
     if (!main) return;
 
