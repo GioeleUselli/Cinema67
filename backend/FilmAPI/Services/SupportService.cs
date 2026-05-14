@@ -19,10 +19,12 @@ public interface ISupportService
 public class SupportService : ISupportService
 {
     private readonly FilmDbContext _db;
+    private readonly IEmailService _email;
 
-    public SupportService(FilmDbContext db)
+    public SupportService(FilmDbContext db, IEmailService email)
     {
         _db = db;
+        _email = email;
     }
 
     public async Task<SupportConversationDTO> GetOrCreateConversationAsync(int userId)
@@ -254,7 +256,12 @@ public class SupportService : ISupportService
             var previousStatus = ticket.Status;
             ticket.Status = parsedStatus;
             if (parsedStatus is SupportTicketStatus.Resolved or SupportTicketStatus.Closed)
+            {
                 ticket.ResolvedAtUtc = DateTime.UtcNow;
+                var resolutionNote = dto.AdminResolutionNote?.Trim();
+                // Fire-and-forget email (don't block the response)
+                _ = SendTicketResolvedEmailAsync(ticket, resolutionNote);
+            }
 
             if (previousStatus != parsedStatus)
             {
@@ -330,7 +337,36 @@ public class SupportService : ISupportService
         }
 
         await _db.SaveChangesAsync();
+
         return await GetAdminTicketByIdAsync(ticketId);
+    }
+
+    private async Task SendTicketResolvedEmailAsync(SupportTicket ticket, string? resolutionNote)
+    {
+        var ticketUser = await _db.Users.FindAsync(ticket.UserId);
+        if (ticketUser == null || string.IsNullOrWhiteSpace(ticketUser.Email)) return;
+
+        var statusLabel = ticket.Status == SupportTicketStatus.Resolved ? "risolto" : "chiuso";
+        var htmlBody = $@"<!DOCTYPE html><html><head><meta charset='utf-8'></head>
+<body style='margin:0;padding:0;background:#14100c;font-family:Arial,sans-serif'>
+<table width='100%' cellpadding='0' cellspacing='0' style='background:#14100c'>
+<tr><td align='center' style='padding:40px 16px'>
+<table width='600' cellpadding='0' cellspacing='0' style='background:#1e1b17;border-radius:16px;border:1px solid rgba(200,170,110,0.15);overflow:hidden'>
+<tr><td style='padding:32px 40px;text-align:center;border-bottom:1px solid rgba(200,170,110,0.1)'>
+  <p style='margin:0;font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#c8aa6e'>Cinema67 Support</p>
+  <h2 style='margin:12px 0 0;font-size:22px;color:#22c55e;font-weight:bold'>Ticket {statusLabel}</h2>
+</td></tr>
+<tr><td style='padding:32px 40px;color:#b8a89a;font-size:14px;line-height:1.7'>
+  <p style='margin:0 0 16px'>Ciao <strong style='color:#fff'>{ticketUser.Nome}</strong>,</p>
+  <p style='margin:0 0 16px'>Il tuo ticket <strong style='color:#c8aa6e'>#{ticket.Id}</strong> — <em>{ticket.Title}</em> è stato <strong style='color:#22c55e'>{statusLabel}</strong>.</p>
+  {(resolutionNote != null ? $"<div style='background:rgba(200,170,110,0.08);border:1px solid rgba(200,170,110,0.15);border-radius:10px;padding:16px;margin:16px 0'><p style='margin:0;font-size:13px;color:#c8aa6e'><strong>Nota dell'assistenza:</strong></p><p style='margin:8px 0 0;color:#b8a89a;font-size:13px'>{System.Net.WebUtility.HtmlEncode(resolutionNote)}</p></div>" : "")}
+  <p style='margin:16px 0 0'>Grazie per aver usato Cinema67.</p>
+</td></tr>
+<tr><td style='padding:20px 40px;background:rgba(0,0,0,0.2);border-top:1px solid rgba(200,170,110,0.08)'>
+  <p style='margin:0;font-size:11px;color:#665e55;text-align:center'>Cinema67 — Piattaforma di gestione cinema</p>
+</td></tr>
+</table></td></tr></table></body></html>";
+        await _email.SendHtmlEmailAsync(ticketUser.Email, $"Ticket #{ticket.Id} {statusLabel} - Cinema67", htmlBody);
     }
 
     private async Task<SupportConversation> EnsureConversationAsync(int userId)

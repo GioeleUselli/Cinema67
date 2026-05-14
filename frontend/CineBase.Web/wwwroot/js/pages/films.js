@@ -60,6 +60,26 @@ async function loadCategorieList() {
   }
 }
 
+async function loadFilms() {
+  try {
+    var params = {};
+    if (currentSearch) params.search = currentSearch;
+    if (currentGenre && currentGenre !== 'all') params.genre = currentGenre;
+    params.page = currentPage;
+    params.pageSize = pageSize;
+    var result = await API.getFilmsPaged ? API.getFilmsPaged(params) : { items: normalizeCollection(await API.getFilms()), total: 0 };
+    allFilms = result.items || [];
+    totalFilmsCount = result.total || allFilms.length;
+    totalPages = result.totalPages || Math.ceil(totalFilmsCount / pageSize) || 1;
+    renderFilms(allFilms);
+    updateStats(totalFilmsCount, allFilms);
+  } catch (e) {
+    console.error('Error loading films:', e);
+    var tbody = document.getElementById('films-table-body');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-brand-error">Errore caricamento film</td></tr>';
+  }
+}
+
 function populateRegistiSelect() {
   const select = document.getElementById('regista-select');
   if (!select) return;
