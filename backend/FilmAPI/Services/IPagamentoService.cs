@@ -10,4 +10,6 @@ public interface IPagamentoService
     Task<CreateCheckoutSessionResponseDTO> CreateCheckoutSessionAsync(int userId, int orderId, CreateCheckoutSessionRequestDTO dto, string? idempotencyKey);
     Task<CheckoutStatusDTO> GetCheckoutStatusAsync(int userId, int orderId);
     Task<CheckoutStatusDTO> ReconcileCheckoutSessionAsync(int userId, int orderId);
+    Task<PayPalOrderResponseDTO> CreatePayPalOrderAsync(int userId, int orderId);
+    Task CapturePayPalOrderAsync(int userId, int orderId);
 }

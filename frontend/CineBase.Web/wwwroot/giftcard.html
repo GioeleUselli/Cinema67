@@ -15,6 +15,7 @@
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=102"></script>
+  <script src="https://js.stripe.com/v3/"></script>
   <style>
     @media print {
       @page { margin: 15mm; size: auto; }
@@ -166,6 +167,8 @@
           <button id="buy-cart-misto" class="btn-gold w-full text-sm mb-2">
             <i class="fa-solid fa-circle-half-stroke mr-2"></i> Misto (Credito + Carta)
           </button>
+          <button onclick="payGiftCardPayPal()" class="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white mb-2" style="background:#0070ba"><i class="fa-brands fa-paypal"></i> Paga con PayPal</button>
+          <div id="payment-request-button" class="w-full mb-2"></div>
           <p class="text-xs text-center text-brand-on-surface-variant">Puoi aggiungere più gift card di valori diversi.</p>
         </div>
 
@@ -215,7 +218,7 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 no-print"></div>
 
   <script src="/js/utils.js?v=99"></script>
-  <script src="/js/api-app.js?v=5"></script>
+  <script src="/js/api-app.js?v=6"></script>
   <script src="/js/auth.js?v=100"></script>
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>`n
@@ -245,9 +248,16 @@
           var confirmResult = await API.confermaStripeGiftCard({ sessionId: stripeSession });
           showResult(confirmResult);
           showToast('Pagamento completato! Gift card create.', 'success');
-        } catch(e) {
-          showToast('Errore conferma pagamento: ' + (e.message || 'Riprova'), 'error');
-        }
+        } catch(e) { showToast('Errore conferma pagamento: ' + (e.message || 'Riprova'), 'error'); }
+      }
+      var paypalCart = params.get('paypal_cart');
+      if (paypalCart) {
+        window.history.replaceState({}, '', '/giftcard.html');
+        try {
+          var ppResult = await apiFetch('/giftcard/conferma-paypal/' + paypalCart, { method: 'POST' });
+          showResult(ppResult);
+          showToast('Pagamento PayPal completato!', 'success');
+        } catch(e) { showToast('Errore PayPal: ' + (e.message || 'Riprova'), 'error'); }
       }
 
       await loadBalance();
@@ -389,6 +399,8 @@
         document.getElementById('balance-display').textContent = '€' + balance.toFixed(2).replace('.', ',');
       } catch(e) { document.getElementById('balance-display').textContent = '€0,00'; }
     }
+
+    async function payGiftCardPayPal() { checkoutCart('paypal'); }
 
     async function checkoutCart(metodo) {
       if (cart.length === 0) { showToast('Carrello vuoto', 'warning'); return; }

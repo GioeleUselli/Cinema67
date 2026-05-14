@@ -1,5 +1,7 @@
+using FilmAPI.Data;
 using FilmAPI.DTO;
 using FilmAPI.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace FilmAPI.Endpoints;
@@ -54,7 +56,7 @@ public static class GiftCardEndpoints
             if (userId == 0) return Results.Unauthorized();
             try
             {
-                if (dto.MetodoPagamento == "carta" || dto.MetodoPagamento == "misto")
+                if (dto.MetodoPagamento == "carta" || dto.MetodoPagamento == "misto" || dto.MetodoPagamento == "paypal")
                 {
                     var stripeResult = await service.CreateStripeCheckoutCartAsync(userId, dto);
                     return Results.Ok(stripeResult);
@@ -114,6 +116,19 @@ public static class GiftCardEndpoints
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
+
+        authGroup.MapPost("/conferma-paypal/{pendingId:int}", async (int pendingId, ClaimsPrincipal user, IPayPalGateway paypal, FilmDbContext db, IGiftCardService service) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var pending = await db.GiftCards.FindAsync(pendingId);
+            if (pending is null || pending.AcquirenteUserId != userId || string.IsNullOrEmpty(pending.Note)) return Results.NotFound();
+            var ppId = pending.Note.Split("PAYPAL:")[1].Split("|")[0];
+            var capture = await paypal.CaptureOrderAsync(ppId);
+            if (capture.Status != "COMPLETED") return Results.BadRequest(new { message = "PayPal non completato" });
+            var result = await service.ConfermaPayPalCartAsync(userId, pendingId);
+            return Results.Ok(result);
+        });
+
         authGroup.MapPost("/riscatta", async (
             GiftCardRiscattoRequestDTO dto,
             ClaimsPrincipal user,

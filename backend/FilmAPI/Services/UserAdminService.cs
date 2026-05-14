@@ -77,8 +77,8 @@ public class UserAdminService : IUserAdminService
                 throw new InvalidOperationException("Non e possibile degradare l'ultimo admin");
         }
 
-        if ((newRole == UserRole.PowerUser || newRole == UserRole.Admin) && !user.LocalCredentialsEnabled)
-            throw new InvalidOperationException("Utente senza password locale. Deve prima impostare una password dal profilo.");
+        if (newRole != UserRole.User && !user.LocalCredentialsEnabled)
+            throw new InvalidOperationException("Utente senza password locale. Tutti i ruoli staff (Corriere, Magazziniere, Admin, PowerUser, CinemaStaff) richiedono una password locale. L'utente deve impostarla dal profilo.");
 
         user.Ruolo = newRole;
         user.AuthVersion++;

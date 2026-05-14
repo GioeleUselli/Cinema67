@@ -77,6 +77,7 @@ builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IValidazioneBigliettoService, ValidazioneBigliettoService>();
 builder.Services.AddScoped<IStripePaymentGateway, StripePaymentGateway>();
+builder.Services.AddScoped<IPayPalGateway, PayPalGateway>();
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 builder.Services.AddScoped<ISupportService, SupportService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();

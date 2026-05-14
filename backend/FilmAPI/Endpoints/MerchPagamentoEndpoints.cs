@@ -62,5 +62,26 @@ public static class MerchPagamentoEndpoints
             try { await service.HandleStripeWebhookAsync(payload, signature); return Results.Ok(); }
             catch (Exception ex) { return Results.BadRequest(new { message = ex.Message }); }
         }).AllowAnonymous();
+
+        // PayPal
+        group.MapPost("/{id:int}/paypal-create", async (int id, ClaimsPrincipal user, IMerchPagamentoService service) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            try { return Results.Ok(await service.CreatePayPalOrderAsync(userId, id)); }
+            catch (KeyNotFoundException) { return Results.NotFound(); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
+        });
+
+        group.MapPost("/{id:int}/paypal-capture", async (int id, ClaimsPrincipal user, IMerchPagamentoService service) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            try { await service.CapturePayPalOrderAsync(userId, id); return Results.Ok(); }
+            catch (KeyNotFoundException) { return Results.NotFound(); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
+        });
     }
 }

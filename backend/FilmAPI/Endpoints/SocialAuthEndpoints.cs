@@ -64,7 +64,7 @@ public static class SocialAuthEndpoints
                 await db.SaveChangesAsync();
             }
 
-            if (user.Ruolo == UserRole.Admin || user.Ruolo == UserRole.PowerUser)
+            if (user.Ruolo != UserRole.User)
             {
                 ctx.Response.Redirect($"{frontendBase}/login.html?error=admin_social");
                 return;

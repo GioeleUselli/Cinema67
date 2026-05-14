@@ -23,12 +23,11 @@ public class PartyBookingService : IPartyBookingService
     private readonly FilmDbContext _db;
     private readonly IStripePaymentGateway _stripe;
     private readonly IEmailService _emailService;
+    private readonly IPayPalGateway _paypal;
 
-    public PartyBookingService(FilmDbContext db, IStripePaymentGateway stripe, IEmailService emailService)
+    public PartyBookingService(FilmDbContext db, IStripePaymentGateway stripe, IEmailService emailService, IPayPalGateway paypal)
     {
-        _db = db;
-        _stripe = stripe;
-        _emailService = emailService;
+        _db = db; _stripe = stripe; _emailService = emailService; _paypal = paypal;
     }
 
     public decimal CalcolaPrezzo(PartyType tipo, PartyPackage pacchetto, int ospiti)
@@ -103,6 +102,20 @@ public class PartyBookingService : IPartyBookingService
             await _db.SaveChangesAsync();
             await SendConfirmationEmail(booking);
             return await GetBookingDTO(booking.Id);
+        }
+
+        // PayPal
+        if (dto.MetodoPagamento == "paypal")
+        {
+            var pp = await _paypal.CreateOrderAsync(new PayPalCreateOrderRequest
+            {
+                Amount = totale, Currency = "EUR", OrderCode = $"FESTA-{booking.Id}",
+                ReturnUrl = $"http://localhost:5001/feste.html?paypal_booking={booking.Id}",
+                CancelUrl = "http://localhost:5001/feste.html"
+            });
+            booking.StripePaymentIntentId = pp.Id;
+            await _db.SaveChangesAsync();
+            return new { checkoutUrl = pp.ApprovalUrl, bookingId = booking.Id };
         }
 
         // Stripe checkout

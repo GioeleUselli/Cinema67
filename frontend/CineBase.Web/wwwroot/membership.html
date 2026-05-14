@@ -15,6 +15,7 @@
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=102"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
@@ -163,7 +164,7 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
   <script src="/js/utils.js?v=99"></script>
-  <script src="/js/api-app.js?v=5"></script>
+  <script src="/js/api-app.js?v=6"></script>
   <script src="/js/auth.js?v=100"></script>
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>`n
@@ -199,9 +200,15 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
         try {
           await API.confermaStripeMembership({ sessionId: stripeMembership });
           showToast('Abbonamento attivato! Benvenuto in Cinema67 Membership', 'success');
-        } catch(e) {
-          showToast('Errore attivazione: ' + (e.message || 'riprova'), 'error');
-        }
+        } catch(e) { showToast('Errore attivazione: ' + (e.message || 'riprova'), 'error'); }
+      }
+      var paypalMembership = params.get('paypal_membership');
+      if (paypalMembership) {
+        window.history.replaceState({}, '', '/membership.html');
+        try {
+          await API.paypalMembershipConfirm();
+          showToast('Abbonamento attivato con PayPal!', 'success');
+        } catch(e) { showToast('Errore PayPal: ' + (e.message || 'riprova'), 'error'); }
       }
       await loadCard();
     });
@@ -342,6 +349,8 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
             '<button onclick="pagaMembership(\'credito\')" class="btn-gold-lg w-full text-sm"><i class="fa-solid fa-wallet mr-2"></i> Paga con Credito</button>' +
             '<button onclick="pagaMembership(\'carta\')" class="btn-outline-brand w-full text-sm"><i class="fa-solid fa-credit-card mr-2"></i> Paga con Carta</button>' +
             '<button onclick="pagaMembership(\'misto\')" class="btn-gold w-full text-sm"><i class="fa-solid fa-circle-half-stroke mr-2"></i> Misto (Credito + Carta)</button>' +
+            '<button onclick="pagaMembership(\'paypal\')" class="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white mt-2" style="background:#0070ba"><i class="fa-brands fa-paypal"></i> Paga con PayPal</button>' +
+            '<div id="payment-request-button" class="w-full mt-2"></div>' +
           '</div>' +
           '<button onclick="loadCard()" class="mt-3 text-xs text-brand-on-surface-variant hover:text-brand-gold"><i class="fa-solid fa-arrow-left mr-1"></i> Indietro</button>' +
         '</div>';
@@ -375,6 +384,10 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
           var result = await API.attivaMembership();
           showToast('Abbonamento attivato!', 'success');
           await loadCard();
+        } else if (metodo === 'paypal') {
+          var result = await API.paypalMembershipCheckout();
+          if (result.checkoutUrl) { window.location.href = result.checkoutUrl; }
+          else { showToast('Errore PayPal', 'error'); }
         } else {
           var result = await API.stripeMembershipCheckout();
           if (result.checkoutUrl) {

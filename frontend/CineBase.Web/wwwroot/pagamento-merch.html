@@ -12,6 +12,7 @@
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=102"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
 <div id="navbar-container"></div>
@@ -67,6 +68,13 @@
           </button>
         </form>
 
+        <div class="mt-4 space-y-2">
+          <button onclick="payWithPayPal()" id="btn-paypal" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90" style="background:#0070ba">
+            <i class="fa-brands fa-paypal text-lg"></i> Paga con PayPal
+          </button>
+          <div id="payment-request-button" class="w-full"></div>
+        </div>
+
         <button onclick="cancelOrder()" class="w-full text-xs text-brand-on-surface-variant hover:text-brand-red mt-3 text-center">Annulla ordine</button>
       </div>
     </div>
@@ -75,7 +83,7 @@
 <div id="footer-container"></div>
 
 <script src="/js/utils.js?v=99"></script>
-<script src="/js/api-app.js?v=102"></script>
+<script src="/js/api-app.js?v=103"></script>
 <script src="/js/auth.js?v=100"></script>
 <script src="/js/template-loader.js?v=101"></script>
 <script src="/js/navbar.js?v=100"></script>
@@ -91,16 +99,40 @@ async function loadPayment(){
     ordine=await API.getMerchOrder(id);
     if(!ordine){showError('Ordine non trovato.');return;}
     if(ordine.stato==='Paid'){window.location.href='/esito-acquisto-merch.html?orderId='+id;return;}
-    if(ordine.stato!=='Pending'){showError('Ordine non pagabile: '+ordine.stato);return;}
+    if(ordine.stato!=='Pending'&&ordine.stato!=='CheckoutInProgress'){showError('Ordine non pagabile: '+ordine.stato);return;}
+    if(ordine.stato==='CheckoutInProgress'){ordine.stato='Pending';}
 
-    try{var creditoData=await API.getCreditoMe();credito=creditoData?creditoData.saldoAttuale||0:0;}catch(e){credito=0;}
+    try{var creditoData=await API.getCreditoMe();credito=creditoData&&creditoData.saldoAttuale!=null?creditoData.saldoAttuale:0;}catch(e){credito=0;document.getElementById('credito-disponibile').textContent='Errore';}
 
     renderOrder();
     updateMethod();
     if(ordine.checkoutExpiresAtUtc)startCountdown(ordine.checkoutExpiresAtUtc);
     document.getElementById('loading-state').classList.add('hidden');
     document.getElementById('main-content').classList.remove('hidden');
+    initPaymentRequest();
   }catch(e){showError(e.message||'Errore caricamento ordine');}
+}
+
+async function initPaymentRequest(){
+  if(!window.Stripe)return;
+  try{
+    var r=await API.getFrontendConfig();
+    var stripe=Stripe(r.stripePublishableKey);
+    var paymentRequest=stripe.paymentRequest({
+      country:'IT',currency:'eur',total:{label:'Cinema67 Shop',amount:Math.round(ordine.totale*100)},
+      requestPayerName:true,requestPayerEmail:true
+    });
+    var canMake=await paymentRequest.canMakePayment();
+    if(!canMake){return;}
+    var elements=stripe.elements();
+    var prButton=elements.create('paymentRequestButton',{paymentRequest:paymentRequest});
+    prButton.mount('#payment-request-button');
+    paymentRequest.on('paymentmethod',async function(ev){
+      var session=await API.createMerchStripeCheckoutSession(ordine.id,{metodoPagamento:'Carta',paymentMethodId:ev.paymentMethod.id});
+      ev.complete('success');
+      window.location.href=session.stripeCheckoutUrl;
+    });
+  }catch(e){}
 }
 
 function renderOrder(){
@@ -185,6 +217,15 @@ async function cancelOrder(){
   if(!confirm('Annullare questo ordine?'))return;
   try{await API.cancelMerchOrder(ordine.id);window.location.href='/shop.html';}
   catch(e){alert('Errore: '+(e.message||''));}
+}
+
+async function payWithPayPal(){
+  var btn=document.getElementById('btn-paypal');
+  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-2"></i>Reindirizzamento a PayPal...';
+  try{
+    var result=await API.createMerchPayPalOrder(ordine.id);
+    window.location.href=result.approvalUrl;
+  }catch(ex){alert('Errore PayPal: '+(ex.message||''));btn.disabled=false;btn.innerHTML='<i class="fa-brands fa-paypal text-lg"></i> Paga con PayPal';}
 }
 
 function showError(msg){

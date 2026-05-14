@@ -211,6 +211,11 @@ function setupActions() {
     await handlePayment();
   });
 
+  var btnPayPal = document.getElementById('btn-paypal');
+  if (btnPayPal) btnPayPal.addEventListener('click', payWithPayPal);
+
+  initPaymentRequestButton();
+
   btnCancel.addEventListener('click', async () => {
     if (!confirm('Sei sicuro? I posti saranno rilasciati e potrai riprovare dalla programmazione.')) return;
 
@@ -303,6 +308,45 @@ async function handlePayment() {
     btnPay.innerHTML = '<i class="fa-solid fa-lock mr-2"></i><span id="pay-button-text">Riprova pagamento</span>';
     updatePayButtonText();
   }
+}
+
+async function payWithPayPal() {
+  var btn = document.getElementById('btn-paypal');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Reindirizzamento a PayPal...';
+  try {
+    var result = await API.createPayPalOrder(orderId);
+    window.location.href = result.approvalUrl;
+  } catch (ex) {
+    alert('Errore PayPal: ' + (ex.message || ''));
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-brands fa-paypal text-lg"></i> Paga con PayPal';
+  }
+}
+
+function initPaymentRequestButton() {
+  if (!window.Stripe || !ordine) return;
+  try {
+    var stripe = Stripe(getStripePublishableKey());
+    var paymentRequest = stripe.paymentRequest({
+      country: 'IT', currency: 'eur',
+      total: { label: 'Cinema67 Biglietti', amount: Math.round(ordine.totaleLordo * 100) },
+      requestPayerName: true, requestPayerEmail: true
+    });
+    paymentRequest.canMakePayment().then(function (result) {
+      if (!result) return;
+      var elements = stripe.elements();
+      var prButton = elements.create('paymentRequestButton', { paymentRequest: paymentRequest });
+      prButton.mount('#payment-request-button');
+    });
+    paymentRequest.on('paymentmethod', async function (ev) {
+      try {
+        var session = await API.createStripeCheckoutSession(orderId, { metodoPagamento: 'Carta', importoCreditoRichiesto: 0 }, null);
+        ev.complete('success');
+        window.location.href = session.stripeCheckoutUrl;
+      } catch (e) { ev.complete('fail'); }
+    });
+  } catch (e) {}
 }
 
 function getStripePublishableKey() {

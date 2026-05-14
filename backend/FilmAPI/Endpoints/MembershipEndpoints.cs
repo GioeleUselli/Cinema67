@@ -1,6 +1,8 @@
+using FilmAPI.Data;
 using FilmAPI.DTO;
 using FilmAPI.Model;
 using FilmAPI.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace FilmAPI.Endpoints;
@@ -51,6 +53,31 @@ public static class MembershipEndpoints
             }
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
+        authGroup.MapPost("/paypal-checkout", async (ClaimsPrincipal user, IMembershipService service) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            try { return Results.Ok(await service.CreatePayPalCheckoutMembershipAsync(userId)); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
+        authGroup.MapPost("/paypal-confirm", async (ClaimsPrincipal user, IMembershipService service, IPayPalGateway paypal, FilmDbContext db) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var pending = await db.GiftCards.FirstOrDefaultAsync(g => g.AcquirenteUserId == userId && g.Note!.StartsWith("MEMBERSHIP|PAYPAL:") && g.Stato == GiftCardStato.Disattivata);
+            if (pending is null) return Results.NotFound();
+            var ppId = pending.Note!.Split(":")[2];
+            try
+            {
+                var capture = await paypal.CaptureOrderAsync(ppId);
+                if (capture.Status != "COMPLETED") return Results.BadRequest(new { message = "PayPal non completato" });
+                db.GiftCards.Remove(pending);
+                await db.SaveChangesAsync();
+                return Results.Ok(await service.AttivaAbbonamentoAsync(userId));
+            }
+            catch (Exception ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
         authGroup.MapPost("/conferma-stripe", async (ConfermaStripeDTO dto, ClaimsPrincipal user, IMembershipService service) =>

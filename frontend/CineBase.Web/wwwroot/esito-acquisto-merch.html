@@ -46,7 +46,7 @@
 <div id="footer-container"></div>
 
 <script src="/js/utils.js?v=99"></script>
-<script src="/js/api-app.js?v=102"></script>
+<script src="/js/api-app.js?v=103"></script>
 <script src="/js/auth.js?v=100"></script>
 <script src="/js/template-loader.js?v=101"></script>
 <script src="/js/navbar.js?v=100"></script>
@@ -58,6 +58,15 @@ function escapeHtml(s){var d=document.createElement('div');d.textContent=s||'';r
 async function checkOrder(){
   if(!orderId){showError('ID ordine mancante.');return;}
   try{
+    var isPayPal=window.location.search.indexOf('paypal=true')!==-1;
+    if(isPayPal){
+      await API.captureMerchPayPalOrder(orderId);
+      var ps=await API.getMerchCheckoutStatus(orderId);
+      if(ps.stato==='Paid'){renderSuccess(ps.ordine);return;}
+      document.getElementById('loading-state').querySelector('p').textContent='In attesa del pagamento...';
+      setTimeout(checkOrder,3000);
+      return;
+    }
     var status=await API.getMerchCheckoutStatus(orderId);
     if(status.stato==='Paid'){renderSuccess(status.ordine);return;}
     if(status.stato==='Pending'||status.stato==='CheckoutInProgress'){

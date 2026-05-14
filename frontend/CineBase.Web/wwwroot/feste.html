@@ -15,6 +15,7 @@
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
   <script src="/js/route-guard.js?v=5"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
@@ -123,6 +124,8 @@
           <button id="btn-prenota-credito" class="btn-gold-lg w-full text-sm mt-4"><i class="fa-solid fa-wallet mr-2"></i> Prenota con Credito</button>
           <button id="btn-prenota-carta" class="btn-outline-brand w-full text-sm mt-2"><i class="fa-solid fa-credit-card mr-2"></i> Prenota con Carta</button>
           <button id="btn-prenota-misto" class="btn-gold w-full text-sm mt-2"><i class="fa-solid fa-circle-half-stroke mr-2"></i> Misto</button>
+          <button id="btn-prenota-paypal" class="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold text-white mt-2" style="background:#0070ba"><i class="fa-brands fa-paypal"></i> Paga con PayPal</button>
+          <div id="payment-request-button" class="w-full mt-2"></div>
           <p class="text-xs text-center text-brand-on-surface-variant mt-3">Max 2 feste contemporanee per cinema.</p>
         </div>
 
@@ -141,7 +144,7 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
 
   <script src="/js/utils.js?v=99"></script>
-  <script src="/js/api-app.js?v=6"></script>
+  <script src="/js/api-app.js?v=7"></script>
   <script src="/js/auth.js?v=100"></script>
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>`n
@@ -168,6 +171,15 @@
           await API.confirmPartyBooking(parseInt(stripeBooking));
           showToast('Festa confermata! Riceverai una email con il QR code.', 'success');
         } catch(e) { showToast('Errore conferma: ' + (e.message || 'riprova'), 'error'); }
+      }
+
+      var paypalBooking = params.get('paypal_booking');
+      if (paypalBooking) {
+        window.history.replaceState({}, '', '/feste.html');
+        try {
+          await apiFetch('/party/paypal-capture/' + paypalBooking, { method: 'POST' });
+          showToast('Festa confermata con PayPal!', 'success');
+        } catch(e) { showToast('Errore PayPal: ' + (e.message || 'riprova'), 'error'); }
       }
 
       var feedbackId = params.get('feedback');
@@ -202,6 +214,7 @@
       document.getElementById('btn-prenota-credito').addEventListener('click', function() { prenota('credito'); });
       document.getElementById('btn-prenota-carta').addEventListener('click', function() { prenota('carta'); });
       document.getElementById('btn-prenota-misto').addEventListener('click', function() { prenota('misto'); });
+      document.getElementById('btn-prenota-paypal').addEventListener('click', function() { prenota('paypal'); });
     });
 
     function updatePrezzo() {

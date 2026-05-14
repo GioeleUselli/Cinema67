@@ -15,11 +15,13 @@ public class PagamentoService : IPagamentoService
     private readonly IBigliettoService _bigliettoService;
     private readonly IPdfService _pdfService;
     private readonly IEmailService _emailService;
+    private readonly IPayPalGateway _paypalGateway;
     private readonly ILogger<PagamentoService> _logger;
 
     public PagamentoService(
         FilmDbContext db,
         IStripePaymentGateway stripeGateway,
+        IPayPalGateway paypalGateway,
         ICreditoService creditoService,
         ICheckoutService checkoutService,
         IBigliettoService bigliettoService,
@@ -34,6 +36,7 @@ public class PagamentoService : IPagamentoService
         _bigliettoService = bigliettoService;
         _pdfService = pdfService;
         _emailService = emailService;
+        _paypalGateway = paypalGateway;
         _logger = logger;
     }
 
@@ -851,5 +854,49 @@ public class PagamentoService : IPagamentoService
 
         var normalized = error.Trim();
         return normalized.Length <= 1000 ? normalized : normalized[..1000];
+    }
+
+    public async Task<PayPalOrderResponseDTO> CreatePayPalOrderAsync(int userId, int orderId)
+    {
+        var ordine = await LoadOrderAsync(orderId);
+        if (ordine is null || ordine.UserId != userId) throw new KeyNotFoundException("Ordine non trovato.");
+        if (ordine.Stato != OrdineState.Pending) throw new InvalidOperationException("Ordine non pagabile.");
+
+        var paypal = await _paypalGateway.CreateOrderAsync(new PayPalCreateOrderRequest
+        {
+            Amount = ordine.TotaleLordo,
+            Currency = "EUR",
+            OrderCode = ordine.CodiceOrdine ?? "",
+            ReturnUrl = $"http://localhost:5001/esito-acquisto.html?orderId={orderId}&paypal=true",
+            CancelUrl = $"http://localhost:5001/acquista.html"
+        });
+
+        ordine.ImportoCarta = ordine.TotaleLordo;
+        ordine.StripePaymentIntentId = paypal.Id;
+        ordine.Stato = OrdineState.CheckoutInProgress;
+        await _db.SaveChangesAsync();
+
+        return new PayPalOrderResponseDTO { PayPalOrderId = paypal.Id, ApprovalUrl = paypal.ApprovalUrl };
+    }
+
+    public async Task CapturePayPalOrderAsync(int userId, int orderId)
+    {
+        var ordine = await LoadOrderAsync(orderId);
+        if (ordine is null || ordine.UserId != userId) throw new KeyNotFoundException("Ordine non trovato.");
+        if (ordine.Stato == OrdineState.Paid) return;
+        if (string.IsNullOrEmpty(ordine.StripePaymentIntentId)) throw new InvalidOperationException("Nessun ordine PayPal associato.");
+
+        var capture = await _paypalGateway.CaptureOrderAsync(ordine.StripePaymentIntentId);
+        if (capture.Status != "COMPLETED")
+        {
+            ordine.Stato = OrdineState.Pending;
+            ordine.LastPaymentError = "PayPal: " + capture.Status;
+            await _db.SaveChangesAsync();
+            throw new InvalidOperationException("Pagamento PayPal non completato: " + capture.Status);
+        }
+
+        ordine.Stato = OrdineState.Paid;
+        ordine.PaidAtUtc = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
     }
 }

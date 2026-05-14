@@ -15,6 +15,7 @@ public interface IGiftCardService
     Task<GiftCardAcquistoResultDTO> ConfermaStripeAsync(int userId, string sessionId);
     Task<object> CreateStripeCheckoutCartAsync(int userId, GiftCardCartAcquistoRequestDTO dto);
     Task<GiftCardAcquistoResultDTO> ConfermaStripeCartAsync(int userId, string sessionId);
+    Task<GiftCardAcquistoResultDTO> ConfermaPayPalCartAsync(int userId, int pendingId);
     Task<GiftCardRiscattoResultDTO> RiscattaAsync(int userId, GiftCardRiscattoRequestDTO dto);
     Task<GiftCard> CreateGiftCardAsync(int? acquirenteUserId, decimal importo, string? destinatarioEmail, string? messaggio, DateTime? dataInvio, int? ordineId = null);
     Task<GiftCardDTO?> GetByCodiceAsync(string codice);
@@ -29,14 +30,12 @@ public class GiftCardService : IGiftCardService
     private readonly FilmDbContext _db;
     private readonly IEmailService _emailService;
     private readonly IStripePaymentGateway _stripeGateway;
+    private readonly IPayPalGateway _paypalGateway;
     private readonly IMembershipService _membershipService;
 
-    public GiftCardService(FilmDbContext db, IEmailService emailService, IStripePaymentGateway stripeGateway, IMembershipService membershipService)
+    public GiftCardService(FilmDbContext db, IEmailService emailService, IStripePaymentGateway stripeGateway, IPayPalGateway paypalGateway, IMembershipService membershipService)
     {
-        _db = db;
-        _emailService = emailService;
-        _stripeGateway = stripeGateway;
-        _membershipService = membershipService;
+        _db = db; _emailService = emailService; _stripeGateway = stripeGateway; _paypalGateway = paypalGateway; _membershipService = membershipService;
     }
 
     private async Task AccumulaPuntiAsync(int userId, decimal totale)
@@ -361,6 +360,19 @@ public class GiftCardService : IGiftCardService
         _db.GiftCards.Add(pending);
         await _db.SaveChangesAsync();
 
+        if (dto.MetodoPagamento == "paypal")
+        {
+            var pp = await _paypalGateway.CreateOrderAsync(new PayPalCreateOrderRequest
+            {
+                Amount = totale, Currency = "EUR", OrderCode = pending.Codice,
+                ReturnUrl = $"http://localhost:5001/giftcard.html?paypal_cart={pending.Id}",
+                CancelUrl = "http://localhost:5001/giftcard.html"
+            });
+            pending.Note = $"CART|PAYPAL:{pp.Id}|METODO:paypal|CREDITO:0|ITEMS:{itemsJson}";
+            await _db.SaveChangesAsync();
+            return new { checkoutUrl = pp.ApprovalUrl, paypalOrderId = pp.Id };
+        }
+
         var stripeRequest = new StripeCreateCheckoutSessionRequest
         {
             Amount = importoCarta,
@@ -552,5 +564,33 @@ public class GiftCardService : IGiftCardService
         DataScadenza = g.DataScadenza,
         CreatedAtUtc = g.CreatedAtUtc,
         Note = g.Note
-    };
+        };
+
+    public async Task<GiftCardAcquistoResultDTO> ConfermaPayPalCartAsync(int userId, int pendingId)
+    {
+        var pending = await _db.GiftCards.FindAsync(pendingId)
+            ?? throw new ArgumentException("Sessione non trovata.");
+        if (pending.AcquirenteUserId != userId) throw new InvalidOperationException("Non autorizzato.");
+
+        var noteParts = pending.Note?.Split('|') ?? Array.Empty<string>();
+        var itemsStr = noteParts.FirstOrDefault(p => p.StartsWith("ITEMS:"))?.Replace("ITEMS:", "");
+        var items = string.IsNullOrEmpty(itemsStr) ? new List<GiftCardCartItemDTO>()
+            : System.Text.Json.JsonSerializer.Deserialize<List<GiftCardCartItemDTO>>(itemsStr) ?? new();
+
+        _db.GiftCards.Remove(pending);
+        var user = await _db.Users.FindAsync(userId);
+        var cards = new List<GiftCardDTO>();
+        foreach (var item in items)
+        {
+            for (int i = 0; i < item.Quantita; i++)
+            {
+                var gc = await CreateGiftCardAsync(userId, item.Importo, item.DestinatarioEmail ?? pending.DestinatarioEmail, item.Messaggio ?? pending.Messaggio, item.DataInvioProgrammato ?? pending.DataInvioProgrammato);
+                cards.Add(MapDTO(gc));
+                if ((item.DataInvioProgrammato ?? pending.DataInvioProgrammato) == null || (item.DataInvioProgrammato ?? pending.DataInvioProgrammato) <= DateTime.UtcNow.AddMinutes(1))
+                    await InviaGiftCardEmailAsync(gc.Id);
+            }
+        }
+        await _db.SaveChangesAsync();
+        return new GiftCardAcquistoResultDTO { GiftCards = cards, TotaleSpeso = items.Sum(i => i.Importo * i.Quantita), NuovoSaldoCredito = user?.CreditoResiduo ?? 0 };
+    }
 }

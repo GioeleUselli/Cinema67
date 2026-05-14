@@ -152,3 +152,9 @@ public class MerchCheckoutStatusDTO
     public string Stato { get; set; } = "";
     public MerchOrderDTO? Ordine { get; set; }
 }
+
+public class PayPalOrderResponseDTO
+{
+    public string PayPalOrderId { get; set; } = "";
+    public string ApprovalUrl { get; set; } = "";
+}

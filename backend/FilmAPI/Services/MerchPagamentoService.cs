@@ -13,20 +13,23 @@ public interface IMerchPagamentoService
     Task<MerchCheckoutStatusDTO> GetCheckoutStatusAsync(int userId, int merchOrderId);
     Task ReconcileCheckoutSessionAsync(int userId, int merchOrderId);
     Task HandleStripeWebhookAsync(string payload, string? signature);
+    Task<PayPalOrderResponseDTO> CreatePayPalOrderAsync(int userId, int merchOrderId);
+    Task CapturePayPalOrderAsync(int userId, int merchOrderId);
 }
 
 public class MerchPagamentoService : IMerchPagamentoService
 {
     private readonly FilmDbContext _db;
     private readonly IStripePaymentGateway _stripe;
+    private readonly IPayPalGateway _paypal;
     private readonly ICreditoService _credito;
     private readonly IMerchService _merchService;
     private readonly IEmailService _emailService;
     private readonly ILogger<MerchPagamentoService> _logger;
 
-    public MerchPagamentoService(FilmDbContext db, IStripePaymentGateway stripe, ICreditoService credito, IMerchService merchService, IEmailService emailService, ILogger<MerchPagamentoService> logger)
+    public MerchPagamentoService(FilmDbContext db, IStripePaymentGateway stripe, IPayPalGateway paypal, ICreditoService credito, IMerchService merchService, IEmailService emailService, ILogger<MerchPagamentoService> logger)
     {
-        _db = db; _stripe = stripe; _credito = credito; _merchService = merchService; _emailService = emailService; _logger = logger;
+        _db = db; _stripe = stripe; _paypal = paypal; _credito = credito; _merchService = merchService; _emailService = emailService; _logger = logger;
     }
 
     public async Task<PayMerchOrderResponseDTO> PayMerchOrderAsync(int userId, int merchOrderId, PayMerchOrderRequestDTO dto, string? idempotencyKey)
@@ -298,5 +301,50 @@ public class MerchPagamentoService : IMerchPagamentoService
             await _emailService.SendHtmlEmailAsync(userEmail, $"Cinema67 Shop - Conferma Ordine {order.CodiceOrdine}", body);
         }
         catch (Exception ex) { _logger.LogWarning(ex, "Invio email ordine merch {OrderId} fallito", order.Id); }
+    }
+
+    public async Task<PayPalOrderResponseDTO> CreatePayPalOrderAsync(int userId, int merchOrderId)
+    {
+        var order = await LoadOrderAsync(merchOrderId);
+        if (order is null || order.UserId != userId) throw new KeyNotFoundException("Ordine non trovato.");
+        if (order.Stato != "Pending") throw new InvalidOperationException("Ordine non pagabile.");
+
+        var paypal = await _paypal.CreateOrderAsync(new PayPalCreateOrderRequest
+        {
+            Amount = order.Totale,
+            Currency = "EUR",
+            OrderCode = order.CodiceOrdine ?? "",
+            ReturnUrl = $"http://localhost:5001/esito-acquisto-merch.html?orderId={merchOrderId}&paypal=true",
+            CancelUrl = $"http://localhost:5001/shop.html"
+        });
+
+        order.ImportoCarta = order.Totale;
+        order.StripePaymentIntentId = paypal.Id;
+        order.Stato = "CheckoutInProgress";
+        await _db.SaveChangesAsync();
+
+        return new PayPalOrderResponseDTO { PayPalOrderId = paypal.Id, ApprovalUrl = paypal.ApprovalUrl };
+    }
+
+    public async Task CapturePayPalOrderAsync(int userId, int merchOrderId)
+    {
+        var order = await LoadOrderAsync(merchOrderId);
+        if (order is null || order.UserId != userId) throw new KeyNotFoundException("Ordine non trovato.");
+        if (order.Stato == "Paid") return;
+        if (string.IsNullOrEmpty(order.StripePaymentIntentId)) throw new InvalidOperationException("Nessun ordine PayPal associato.");
+
+        var capture = await _paypal.CaptureOrderAsync(order.StripePaymentIntentId);
+        if (capture.Status != "COMPLETED")
+        {
+            order.Stato = "Pending";
+            order.LastPaymentError = "PayPal non completato: " + capture.Status;
+            await _db.SaveChangesAsync();
+            throw new InvalidOperationException("Pagamento PayPal non completato: " + capture.Status);
+        }
+
+        order.Stato = "Paid";
+        order.PaidAtUtc = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        await TrySendOrderEmailAsync(order);
     }
 }

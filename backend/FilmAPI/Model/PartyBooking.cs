@@ -68,6 +68,8 @@ public class PartyBooking
     [MaxLength(500)]
     public string? QrCodeData { get; set; }
 
+    [MaxLength(100)] public string? StripePaymentIntentId { get; set; } // also used for PayPal order ID
+
     public DateTime? CompletatoIl { get; set; }
 
     [Required]

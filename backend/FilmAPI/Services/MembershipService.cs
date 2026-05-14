@@ -10,6 +10,7 @@ public interface IMembershipService
     Task<MembershipCardDTO> GetOrCreateCardAsync(int userId);
     Task<MembershipCardDTO> AttivaAbbonamentoAsync(int userId, string metodoPagamento = "credito");
     Task<object> CreateStripeCheckoutMembershipAsync(int userId);
+    Task<object> CreatePayPalCheckoutMembershipAsync(int userId);
     Task<MembershipCardDTO> ConfermaStripeMembershipAsync(int userId, string sessionId);
     Task<List<MembershipCardDTO>> GetAllCardsAsync();
     Task<MembershipCardDTO> ToggleAttivazioneAsync(int userId);
@@ -35,13 +36,12 @@ public class MembershipService : IMembershipService
 {
     private readonly FilmDbContext _db;
     private readonly IStripePaymentGateway _stripeGateway;
+    private readonly IPayPalGateway _paypalGateway;
     private readonly IEmailService _emailService;
 
-    public MembershipService(FilmDbContext db, IStripePaymentGateway stripeGateway, IEmailService emailService)
+    public MembershipService(FilmDbContext db, IStripePaymentGateway stripeGateway, IPayPalGateway paypalGateway, IEmailService emailService)
     {
-        _db = db;
-        _stripeGateway = stripeGateway;
-        _emailService = emailService;
+        _db = db; _stripeGateway = stripeGateway; _paypalGateway = paypalGateway; _emailService = emailService;
     }
 
     public string GeneraCardNumber()
@@ -148,6 +148,36 @@ public class MembershipService : IMembershipService
         await _db.SaveChangesAsync();
 
         return new { checkoutUrl = session.Url, importoCredito, importoCarta };
+    }
+
+    public async Task<object> CreatePayPalCheckoutMembershipAsync(int userId)
+    {
+        var card = await _db.MembershipCards.FirstOrDefaultAsync(c => c.UserId == userId);
+        if (card != null && card.IsAttiva) throw new InvalidOperationException("Abbonamento gia attivo.");
+
+        var paypal = await _paypalGateway.CreateOrderAsync(new PayPalCreateOrderRequest
+        {
+            Amount = 9.99m, Currency = "EUR",
+            OrderCode = $"MEM-{userId}",
+            ReturnUrl = $"http://localhost:5001/membership.html?paypal_membership=1",
+            CancelUrl = "http://localhost:5001/membership.html"
+        });
+
+        var pending = new GiftCard
+        {
+            Codice = $"MEM-{Guid.NewGuid().ToString()[..8].ToUpper()}",
+            ValoreIniziale = 9.99m, SaldoResiduo = 9.99m,
+            Stato = GiftCardStato.Disattivata,
+            AcquirenteUserId = userId,
+            DataAcquisto = DateTime.UtcNow,
+            DataScadenza = DateTime.UtcNow.AddYears(1),
+            CreatedAtUtc = DateTime.UtcNow,
+            Note = $"MEMBERSHIP|PAYPAL:{paypal.Id}"
+        };
+        _db.GiftCards.Add(pending);
+        await _db.SaveChangesAsync();
+
+        return new { checkoutUrl = paypal.ApprovalUrl, importoCredito = 0m, importoCarta = 9.99m, paypalOrderId = paypal.Id };
     }
 
     public async Task<MembershipCardDTO> ConfermaStripeMembershipAsync(int userId, string pendingId)

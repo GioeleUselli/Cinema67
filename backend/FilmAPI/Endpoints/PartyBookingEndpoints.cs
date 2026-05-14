@@ -1,3 +1,4 @@
+using FilmAPI.Data;
 using FilmAPI.DTO;
 using FilmAPI.Model;
 using FilmAPI.Services;
@@ -57,6 +58,23 @@ public static class PartyBookingEndpoints
             if (userId == 0) return Results.Unauthorized();
             try { return Results.Ok(await service.ConfermaPagamentoAsync(userId, bookingId)); }
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
+        authGroup.MapPost("/paypal-capture/{bookingId:int}", async (int bookingId, ClaimsPrincipal user, IPartyBookingService service, IPayPalGateway paypal, FilmDbContext db) =>
+        {
+            var b = await db.PartyBookings.FindAsync(bookingId);
+            if (b is null || string.IsNullOrEmpty(b.StripePaymentIntentId))
+                return Results.NotFound();
+            try
+            {
+                var capture = await paypal.CaptureOrderAsync(b.StripePaymentIntentId);
+                if (capture.Status != "COMPLETED")
+                    return Results.BadRequest(new { message = "Pagamento PayPal non completato: " + capture.Status });
+                var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+                await service.ConfermaPagamentoAsync(userId, bookingId);
+                return Results.Ok(new { success = true });
+            }
+            catch (Exception ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
         var adminGroup = app.MapGroup("/admin/party").RequireAuthorization("PowerUserOrAdmin");
