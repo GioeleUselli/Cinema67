@@ -29,7 +29,36 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   try {
     if (role === 'cinemastaff') {
-      await renderCinemaStaffDashboard();
+      var staffCinemas = normalizeCollection(await API.getStaffMyCinemas());
+      var cinemaNames = [];
+      if (staffCinemas && staffCinemas.length) {
+        staffCinemas.forEach(function(a) { if (a && a.cinema) cinemaNames.push(a.cinema.nome); });
+      }
+
+      // Fill KPI cards like admin but with staff data
+      document.getElementById('stat-movies').textContent = cinemaNames.length || '0';
+      document.getElementById('stat-directors').textContent = '—';
+      document.getElementById('stat-cinemas').textContent = cinemaNames.length || '0';
+      document.getElementById('stat-screenings').textContent = '—';
+
+      // Show cinema list in table
+      var tbody = document.getElementById('upcoming-screenings');
+      if (tbody) {
+        if (cinemaNames.length) {
+          tbody.innerHTML = cinemaNames.map(function (n) {
+            return '<tr class="row-hover"><td colspan="6" class="px-6 py-4 text-sm font-semibold text-brand-on-surface"><i class="fa-solid fa-location-dot text-brand-red mr-2"></i>' + escapeHtml(n) + '</td></tr>';
+          }).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessun cinema assegnato</td></tr>';
+        }
+      }
+
+      // Hide bottom panels (can't access that data)
+      var el = document.getElementById('dashboard-registi');
+      if (el) el.style.display = 'none';
+      el = document.getElementById('dashboard-analytics-content');
+      if (el && el.parentElement) el.parentElement.style.display = 'none';
+
       return;
     }
 
@@ -69,51 +98,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.error('Error loading dashboard:', error);
   }
 });
-
-async function renderCinemaStaffDashboard() {
-  try {
-    var staffCinemas = await API.getStaffMyCinemas();
-    var cinemaNames = [];
-    if (staffCinemas && staffCinemas.length) {
-      staffCinemas.forEach(function(a) {
-        if (a && a.cinema) cinemaNames.push(a.cinema.nome);
-      });
-    }
-
-    // Hide KPI cards and bottom panels (not useful for staff)
-    var kpiSection = document.querySelector('.cine-curtain-delay-1');
-    if (kpiSection) kpiSection.style.display = 'none';
-    var bottomSection = document.querySelector('#dashboard-registi');
-    if (bottomSection) bottomSection.style.display = 'none';
-    var analyticsSection = document.getElementById('dashboard-analytics-content');
-    if (analyticsSection && analyticsSection.closest('.grid')) {
-      analyticsSection.closest('.grid').style.display = 'none';
-    }
-
-    // Update heading
-    var heading = document.querySelector('.cine-curtain-delay-3 h2');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-building text-brand-gold"></i> I Miei Cinema Assegnati';
-
-    // Show cinema list
-    var tbody = document.getElementById('upcoming-screenings');
-    if (tbody) {
-      if (cinemaNames.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4"><div class="space-y-2">' +
-          '<p class="text-sm text-brand-on-surface-variant mb-3">Sei assegnato a <strong>' + cinemaNames.length + ' cinema</strong>. Puoi gestire ricariche, validazioni e biglietti per queste sedi.</p>' +
-          cinemaNames.map(function(n) {
-            return '<div class="cine-premium-card p-3 text-sm font-semibold text-brand-on-surface"><i class="fa-solid fa-location-dot text-brand-red mr-2"></i>' + escapeHtml(n) + '</div>';
-          }).join('') + '</div></td></tr>';
-      } else {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant"><i class="fa-solid fa-triangle-exclamation text-brand-gold text-2xl mb-2 block"></i>Nessun cinema assegnato. Contatta un amministratore.</td></tr>';
-      }
-    }
-
-  } catch(e) {
-    console.error('Error loading staff cinemas:', e);
-    var tbody = document.getElementById('upcoming-screenings');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-error">Errore caricamento cinema</td></tr>';
-  }
-}
 
 function getDashboardFilmTitle(filmId) {
   var film = cachedFilms.find(function (f) { return Number(f.id) === Number(filmId); });
