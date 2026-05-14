@@ -33,6 +33,7 @@ function isAdminAreaPath(pathname) {
     '/membership-admin.html',
     '/newsletter-admin.html',
     '/campaigns-admin.html',
+    '/analytics.html',
     '/merch-admin.html',
     '/food-admin.html',
     '/feste-admin.html',

@@ -14,6 +14,8 @@
     '/admin-utenti.html',
     '/membership-admin.html',
     '/newsletter-admin.html',
+    '/campaigns-admin.html',
+    '/analytics.html',
     '/merch-admin.html',
     '/corriere.html',
     '/magazzino.html',
@@ -37,6 +39,9 @@
     '/promozioni.html': 'Promozioni',
     '/admin-utenti.html': 'Gestione Utenti',
     '/membership-admin.html': 'Membership',
+    '/newsletter-admin.html': 'Newsletter',
+    '/campaigns-admin.html': 'Campagne',
+    '/analytics.html': 'Analytics',
     '/merch-admin.html': 'Merch Shop',
     '/corriere.html': 'Corriere',
     '/magazzino.html': 'Magazzino',
@@ -177,6 +182,9 @@
              <a data-admin-link href="/merch-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-store"></i>Merch Shop</a>
              <a data-admin-link href="/admin-utenti.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-users-gear"></i>Gestione Utenti</a>
              <a data-admin-link href="/membership-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-crown"></i>Membership</a>
+             <a data-admin-link href="/newsletter-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-envelope-open-text"></i>Newsletter</a>
+             <a data-admin-link href="/campaigns-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-bullseye"></i>Campagne</a>
+             <a data-admin-link href="/analytics.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-chart-line"></i>Analytics</a>
              <div class="my-2 border-t border-brand-outline-variant/20"></div>
              <a data-admin-link href="/magazzino.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-packing"></i>Magazzino</a>
              <a data-admin-link href="/corriere.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-truck-fast"></i>Corriere</a>
