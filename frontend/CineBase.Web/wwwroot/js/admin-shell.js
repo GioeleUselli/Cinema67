@@ -98,6 +98,8 @@
       else if (role === 'magazziniere') consoleLabel.textContent = 'Area Magazzino';
       else if (role === 'cinemastaff') consoleLabel.textContent = 'Area Staff Cinema';
     }
+
+    filterSidebarByRole();
   }
 
   function getNormalizedRole() {
@@ -110,6 +112,38 @@
     if (r === 'magazziniere' || r === '5') return 'magazziniere';
     if (r === 'cinemastaff' || r === '3') return 'cinemastaff';
     return 'user';
+  }
+
+  function filterSidebarByRole() {
+    var role = getNormalizedRole();
+    // Only filter for corriere and magazziniere; admin/poweruser see everything
+    var allowed = (role === 'corriere') ? ['corriere'] :
+                  (role === 'magazziniere') ? ['magazzino'] : null;
+
+    if (!allowed) return;
+
+    document.querySelectorAll('[data-admin-link]').forEach(function(el) {
+      var href = (el.getAttribute('href') || '').toLowerCase().replace('.html', '').replace('/', '');
+      var visible = allowed.some(function(a) { return href === a; });
+      if (!visible && href !== 'profilo') {
+        el.style.display = 'none';
+      }
+    });
+
+    // Hide dividers between hidden groups
+    var rail = document.querySelector('.admin-sidebar-rail');
+    if (!rail) return;
+    var children = rail.children;
+    var anyVisible = false;
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      if (child.tagName === 'DIV' && child.classList.contains('border-t')) {
+        child.style.display = anyVisible ? '' : 'none';
+        anyVisible = false;
+      } else if (child.style.display !== 'none') {
+        anyVisible = true;
+      }
+    }
   }
 
   function bindActions() {
