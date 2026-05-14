@@ -97,13 +97,14 @@ async function renderCinemaStaffDashboard() {
       }
     }
 
-    var registiEl = document.getElementById('dashboard-registi');
-    if (registiEl) registiEl.style.display = 'none';
-    var analyticsEl = document.getElementById('dashboard-analytics-content');
-    if (analyticsEl && analyticsEl.parentElement) analyticsEl.parentElement.style.display = 'none';
-
     var heading = document.querySelector('.cine-curtain-delay-3 h2');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-building text-brand-gold"></i> I Miei Cinema';
+    if (heading) heading.innerHTML = '<i class="fa-solid fa-building text-brand-gold"></i> I Miei Cinema Assegnati';
+
+    // Hide bottom panels
+    var el = document.querySelector('#dashboard-registi');
+    if (el) el.style.display = 'none';
+    el = document.getElementById('dashboard-analytics-content');
+    if (el && el.parentElement) el.parentElement.style.display = 'none';
 
   } catch(e) {
     console.error('Error loading staff cinemas:', e);
