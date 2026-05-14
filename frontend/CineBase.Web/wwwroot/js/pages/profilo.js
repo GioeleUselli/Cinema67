@@ -399,6 +399,40 @@ async function requestDataExport() {
 
 window.requestDataExport = requestDataExport;
 
+// Delete account flow
+document.getElementById('btn-delete-show')?.addEventListener('click', function() {
+  document.getElementById('delete-warning').classList.remove('hidden');
+  this.classList.add('hidden');
+});
+
+document.getElementById('btn-delete-cancel')?.addEventListener('click', function() {
+  document.getElementById('delete-warning').classList.add('hidden');
+  document.getElementById('btn-delete-show').classList.remove('hidden');
+});
+
+document.getElementById('btn-delete-request')?.addEventListener('click', async function() {
+  var btnText = this.querySelector('.btn-delete-text');
+  var loader = this.querySelector('.btn-delete-loader');
+  var msg = document.getElementById('delete-msg');
+  this.disabled = true;
+  btnText.classList.add('hidden');
+  loader.classList.remove('hidden');
+  try {
+    var res = await apiFetch('/auth/me/delete/request', { method: 'POST' });
+    document.getElementById('delete-warning').classList.add('hidden');
+    msg.className = 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 px-4 py-3 rounded-xl text-sm';
+    msg.textContent = res.message || 'Email di conferma inviata. Controlla la tua casella di posta.';
+    msg.classList.remove('hidden');
+  } catch(e) {
+    msg.className = 'bg-brand-error-container border border-brand-error/30 text-brand-error px-4 py-3 rounded-xl text-sm';
+    msg.textContent = e.message || 'Errore.';
+    msg.classList.remove('hidden');
+  }
+  this.disabled = false;
+  btnText.classList.remove('hidden');
+  loader.classList.add('hidden');
+});
+
 function getMovimentoLabel(tipo) {
   switch (tipo) {
     case 'TopUp': return 'Ricarica';
