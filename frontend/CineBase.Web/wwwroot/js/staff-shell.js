@@ -193,6 +193,7 @@
     if (role !== 'cinemastaff' && role !== '3') return;
 
     if (document.getElementById('admin-shell-root')) return; // safety: admin-shell already rendered
+    if (document.getElementById('staff-shell-root')) return; // safety: already rendered
 
     const main = document.querySelector('main');
     if (!main) return;
