@@ -14,103 +14,11 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
-  <script src="/js/route-guard.js?v=102"></script>
   <script src="https://js.stripe.com/v3/"></script>
 </head>
 
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet min-h-screen">
-  <nav class="sticky top-0 z-50 border-b border-brand-outline-variant/20 bg-brand-surface/90 backdrop-blur-xl">
-  <div class="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between px-4">
-    <div class="flex items-center gap-3">
-      <a href="/index.html" class="text-brand-gold hover:text-brand-gold-light text-xl" title="Home"><i class="fa-solid fa-house"></i></a>
-      <button onclick="Cinema67Theme.toggle()" class="theme-toggle-btn" title="Cambia tema">
-        <i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i>
-        <i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i>
-      </button>
-    </div>
-    <div class="flex items-center gap-3">
-      <div id="navbar-cinema-display" class="hidden items-center gap-2 rounded-full border border-brand-outline-variant/30 bg-brand-surface-container px-3 py-1.5">
-        <i class="fa-solid fa-location-dot text-brand-gold text-sm"></i>
-        <span id="navbar-selected-cinema" class="max-w-40 truncate text-xs uppercase tracking-widest text-brand-on-surface"></span>
-      </div>
-      <a href="/my-cinemas.html" class="btn-ghost text-xs uppercase tracking-[0.18em]">Cinema</a>
-      <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">Programmazione</a>
-      <a href="/membership.html" class="btn-ghost text-xs uppercase tracking-[0.18em]"><i class="fa-solid fa-crown mr-1"></i>Membership</a>
-      <div class="relative">
-        <button id="giftcard-dropdown-btn" class="btn-ghost text-xs uppercase tracking-[0.18em]"><i class="fa-solid fa-gift mr-1"></i>Gift Card <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i></button>
-        <div id="giftcard-dropdown" class="hidden absolute top-full left-0 mt-1 w-48 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container py-2 shadow-lg z-50">
-          <a href="/giftcard.html" class="block px-4 py-2 text-sm text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-cart-shopping mr-2"></i>Acquista</a>
-          <a href="/riscatta-giftcard.html" class="block px-4 py-2 text-sm text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-ticket mr-2"></i>Riscatta</a>
-        </div>
-      </div>
-    </div>
-    <div class="flex items-center gap-3">
-      <a href="/dashboard.html" id="admin-area-btn" class="hidden btn-gold text-xs tracking-[0.2em] admin-only">Area Admin</a>
-      <a href="/login.html?v=99" id="login-btn" class="btn-outline-brand text-xs">Login</a>
-      <a href="/registrazione.html" id="register-btn" class="btn-gold text-xs">Registrati</a>
-      <div id="user-dropdown" class="relative hidden">
-        <button id="user-menu-toggle" class="flex items-center gap-2 rounded-full border border-brand-outline-variant/30 bg-brand-surface-container px-3 py-2 text-sm text-brand-on-surface hover:text-brand-gold">
-          <span id="user-name" class="font-semibold"></span><i class="fa-solid fa-chevron-down text-xs"></i>
-        </button>
-        <div id="user-menu" class="absolute right-0 mt-2 hidden w-52 rounded-xl border border-brand-outline-variant/20 bg-brand-surface-container py-2 shadow-lg">
-          <a href="/profilo.html" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-user mr-2"></i>Profilo</a>
-          <a href="/membership.html" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-crown mr-2"></i>Membership</a>
-          <a href="/profilo.html#prenotazioni" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-ticket mr-2"></i>Prenotazioni</a>
-          <a href="/giftcard.html" class="block px-4 py-2 text-brand-on-surface hover:bg-brand-surface-container-high hover:text-brand-gold"><i class="fa-solid fa-gift mr-2"></i>Gift Card</a>
-          <hr class="my-2 border-brand-outline-variant/20">
-          <button id="logout-btn" class="nav-menu-danger w-full px-4 py-2 text-left"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button>
-        </div>
-      </div>
-    </div>
-    <button id="mobile-menu-toggle" class="p-2 text-brand-on-surface md:hidden"><i class="fa-solid fa-bars text-2xl"></i></button>
-  </div>
-  <div id="mobile-menu" class="hidden border-t border-brand-outline-variant/20 bg-brand-surface-container md:hidden">
-    <div class="space-y-4 px-4 py-4">
-      <div id="mobile-navbar-cinema-display" class="hidden items-center gap-2 rounded-xl border border-brand-outline-variant/30 bg-brand-surface-container-high px-3 py-2">
-        <i class="fa-solid fa-location-dot text-brand-gold"></i><div><p class="text-[10px] uppercase tracking-widest text-brand-on-surface-variant">Cinema</p><span id="mobile-navbar-selected-cinema" class="text-sm font-medium text-brand-on-surface"></span></div>
-      </div>
-      <div class="space-y-2">
-        <a href="/programmazione.html" class="block rounded-xl py-2 text-center btn-outline-brand">Programmazione</a>
-        <a href="/my-cinemas.html" class="block rounded-xl py-2 text-center btn-outline-brand">I nostri cinema</a>
-        <a href="/dashboard.html" id="mobile-admin-area-btn" class="hidden block rounded-xl py-2 text-center btn-gold admin-only">Area Admin</a>
-      </div>
-      <div class="border-t border-brand-outline-variant/20 pt-3">
-        <div id="mobile-auth-links" class="space-y-2">
-          <a href="/login.html?v=99" class="block rounded-xl py-2 text-center btn-outline-brand">Login</a>
-          <a href="/registrazione.html" class="block rounded-xl py-2 text-center btn-gold">Registrati</a>
-        </div>
-        <div id="mobile-user-menu" class="hidden space-y-1">
-          <p id="mobile-user-name" class="py-1 font-semibold text-brand-gold"></p>
-          <a href="/profilo.html" class="block py-2 text-brand-on-surface hover:text-brand-gold">Profilo</a>
-          <a href="/profilo.html#prenotazioni" class="block py-2 text-brand-on-surface hover:text-brand-gold">Prenotazioni</a>
-          <button id="mobile-logout-btn" class="nav-menu-danger mt-2 w-full rounded-xl py-3 text-left">Logout</button>
-        </div>
-      </div>
-      <div class="border-t border-brand-outline-variant/20 pt-3">
-        <button onclick="Cinema67Theme.toggle()" class="flex w-full items-center gap-3 py-2 text-brand-on-surface hover:text-brand-gold"><i class="fa-solid fa-moon theme-toggle-icon-moon text-lg"></i><i class="fa-solid fa-sun theme-toggle-icon-sun text-lg" style="display:none"></i><span>Tema</span></button>
-      </div>
-    </div>
-  </div>
-</nav>
-<script>
-(function(){var a=document.getElementById('login-btn'),b=document.getElementById('register-btn'),c=document.getElementById('user-dropdown'),d=document.getElementById('user-name'),e=document.getElementById('user-menu-toggle'),f=document.getElementById('user-menu'),g=document.getElementById('logout-btn'),h=document.getElementById('mobile-auth-links'),i=document.getElementById('mobile-user-menu'),j=document.getElementById('mobile-user-name'),k=document.getElementById('mobile-logout-btn');
-function l(){var t=!1,n='Account',o=!1;try{if(typeof Auth!=='undefined'&&Auth&&typeof Auth.getAccessToken==='function'){var p=Auth.getAccessToken();if(p&&typeof Auth.isLoggedIn==='function'&&Auth.isLoggedIn()){t=!0;try{var u=Auth.getUser();n=(u&&(u.nome||u.email))||'Account'}catch(e){}try{var r=String((Auth.getUserRole?Auth.getUserRole():'')||'').toLowerCase();o=r==='admin'||r==='poweruser'}catch(e){}}}}catch(e){}
-function q(el,s){if(el){if(s)el.classList.remove('hidden');else el.classList.add('hidden')}}
-q(a,!t);q(b,!t);q(h,!t);q(c,t);if(d)d.textContent=n;q(i,t);if(j)j.textContent=n;
-document.querySelectorAll('.admin-only').forEach(function(el){q(el,o)});
-var hl=document.getElementById('hero-login-btn'),hp=document.getElementById('hero-profile-btn');q(hl,!t);q(hp,t)}
-l();window.updateAuthUI=l;
-if(e)e.addEventListener('click',function(){if(f)f.classList.toggle('hidden')});
-function m(){if(window.Auth&&window.Auth.logout)window.Auth.logout().finally(function(){window.location.href='/index.html'});else window.location.href='/index.html'}
-if(g)g.addEventListener('click',m);if(k)k.addEventListener('click',m);
-var gc=document.getElementById('giftcard-dropdown-btn'),gm=document.getElementById('giftcard-dropdown');
-if(gc&&gm){gc.addEventListener('click',function(ev){ev.stopPropagation();gm.classList.toggle('hidden')})}
-document.addEventListener('click',function(ev){if(e&&f&&!e.contains(ev.target)&&!f.contains(ev.target))f.classList.add('hidden');if(gc&&gm&&!gc.contains(ev.target)&&!gm.contains(ev.target))gm.classList.add('hidden')});
-function ucn(nn){var d1=document.getElementById('navbar-cinema-display'),d2=document.getElementById('navbar-selected-cinema'),m1=document.getElementById('mobile-navbar-cinema-display'),m2=document.getElementById('mobile-navbar-selected-cinema');if(nn){if(d1){d1.classList.remove('hidden');d1.classList.add('flex')}if(d2)d2.textContent=nn;if(m1){m1.classList.remove('hidden');m1.classList.add('flex')}if(m2)m2.textContent=nn}else{if(d1){d1.classList.add('hidden');d1.classList.remove('flex')}if(m1){m1.classList.add('hidden');m1.classList.remove('flex')}}}
-window.updateNavbarCinema=ucn;
-if(typeof window.initializeNavbar==='function'){var orig=window.initializeNavbar;window.initializeNavbar=function(){orig()}}
-document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.cinemaName:null)});})();
-</script>
+  <div id="navbar-container"></div>
 
   <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
 
@@ -166,6 +74,7 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
   <script src="/js/utils.js?v=99"></script>
   <script src="/js/api-app.js?v=6"></script>
   <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>`n
   <script>
@@ -418,3 +327,4 @@ document.addEventListener('cinema:changed',function(ev){ucn(ev.detail?ev.detail.
   </script>
 </body>
 </html>
+
