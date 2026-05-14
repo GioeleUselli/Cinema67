@@ -9,7 +9,7 @@ public static class AdminUtentiEndpoints
 {
     public static void MapAdminUtentiEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/admin/utenti");
+        var group = app.MapGroup("/admin/utenti").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         group.MapGet("", async (string? search, string? role, int? page, int? pageSize, IUserAdminService service) =>
         {
@@ -17,7 +17,7 @@ public static class AdminUtentiEndpoints
             var ps = Math.Min(100, Math.Max(1, pageSize ?? 25));
             var result = await service.GetUsersPagedAsync(search, role, pg, ps);
             return Results.Ok(result);
-        }).RequireAuthorization("PowerUserOrAdmin");
+        });
 
         group.MapPut("/{id}/ruolo", async (int id, UpdateRuoloDTO dto, HttpContext context, IUserAdminService service) =>
         {
