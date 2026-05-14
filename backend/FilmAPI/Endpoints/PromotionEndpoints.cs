@@ -22,7 +22,7 @@ public static class PromotionEndpoints
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
         }).AllowAnonymous();
 
-        var admin = app.MapGroup("/admin/promotions").RequireAuthorization("PowerUserOrAdmin");
+        var admin = app.MapGroup("/admin/promotions").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         admin.MapGet("", async ([FromQuery] bool? active, IPromotionService service)
             => Results.Ok(await service.GetAllAsync(active)));

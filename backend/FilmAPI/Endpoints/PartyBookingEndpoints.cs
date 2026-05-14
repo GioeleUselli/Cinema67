@@ -77,7 +77,7 @@ public static class PartyBookingEndpoints
             catch (Exception ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
-        var adminGroup = app.MapGroup("/admin/party").RequireAuthorization("PowerUserOrAdmin");
+        var adminGroup = app.MapGroup("/admin/party").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminGroup.MapGet("/", async (IPartyBookingService service) =>
         {

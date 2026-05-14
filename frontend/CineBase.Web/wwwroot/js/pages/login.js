@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (accessToken && refreshToken) {
     Auth.saveTokens(accessToken, refreshToken);
     Auth.saveUser({ nome: params.get('name') || '', email: params.get('email') || '' });
+    // Clear redirect tracking when successfully logging in via social
+    sessionStorage.removeItem('_last_redirect');
+    sessionStorage.removeItem('_redirect_count');
+    localStorage.removeItem('_refresh_failed');
     window.location.href = '/index.html';
     return;
   }
@@ -107,9 +111,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await Auth.login(email, password, document.getElementById('remember-me')?.checked);
       
+      // Clear redirect tracking on successful login
+      sessionStorage.removeItem('_last_redirect');
+      sessionStorage.removeItem('_redirect_count');
+      localStorage.removeItem('_refresh_failed');
+      
       var user = Auth.getUser();
       if (user && user.ruolo === 'User' && (user.cinemaPreferitoId == null || user.cinemaPreferitoId === 0)) {
-        window.location.href = '/scegli-cinema.html';
+        var cinemaUrl = '/scegli-cinema.html';
+        if (redirect) cinemaUrl += '?redirect=' + encodeURIComponent(redirect);
+        window.location.href = cinemaUrl;
         return;
       }
 

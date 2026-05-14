@@ -18,7 +18,7 @@ public static class CreditoEndpoints
             return result is null ? Results.NotFound() : Results.Ok(result);
         }).RequireAuthorization("Authenticated");
 
-        var adminGroup = app.MapGroup("/admin/credito").RequireAuthorization("PowerUserOrAdmin");
+        var adminGroup = app.MapGroup("/admin/credito").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminGroup.MapGet("/users", async (string? email, ICreditoService service) =>
         {

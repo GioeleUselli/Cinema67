@@ -10,7 +10,6 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js?v=99"></script>
-  <script src="/js/route-guard.js?v=102"></script>
 </head>
 <body class="cine-velvet bg-brand-surface text-brand-on-surface font-sans min-h-screen flex flex-col">
   <div id="navbar-container"></div>
@@ -36,6 +35,7 @@
   <script src="/js/utils.js?v=99"></script>
   <script src="/js/api-app.js?v=102"></script>
   <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>`n
   <script>
@@ -43,8 +43,17 @@
       var Auth = window.Auth;
       if (!Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) { window.location.href = '/login.html'; return; }
 
+      var apiCallAttempted = false;
+
       async function load() {
         try {
+          if (apiCallAttempted) {
+            // API already failed once, don't retry infinitely
+            window.location.href = '/index.html';
+            return;
+          }
+          apiCallAttempted = true;
+          
           var cinemas = await API.getCinemas();
           var items = normalizeCollection(cinemas);
           var h = document.getElementById('cinema-list');
@@ -52,14 +61,27 @@
           h.innerHTML = items.map(function(c){
             return '<button onclick="selectCinema(' + c.id + ')" class="cine-admin-slab p-5 text-left hover:ring-2 hover:ring-brand-gold/30 transition-all"><div class="flex items-start gap-3"><span class="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-gold text-white text-xl"><i class="fa-solid fa-location-dot"></i></span><div><p class="text-lg font-bold">' + escapeHtml(c.nome) + '</p><p class="text-sm text-brand-on-surface-variant">' + escapeHtml(c.indirizzo || '') + ', ' + escapeHtml(c.citta || '') + '</p></div></div></button>';
           }).join('');
-        } catch(e) { document.getElementById('cinema-list').innerHTML = '<p class="col-span-full text-center text-brand-error">Errore caricamento.</p>'; }
+        } catch(e) { 
+          console.error('Errore caricamento cinema:', e);
+          // If API fails, still allow user to continue (they can set preference later)
+          document.getElementById('cinema-list').innerHTML = '<p class="col-span-full text-center text-brand-error">Errore caricamento. <a href="/index.html" class="text-brand-gold underline">Continua comunque</a></p>'; 
+        }
       }
 
       window.selectCinema = async function(id){
         try {
           await API.updateUserCinema(Auth.getUser().id, { cinemaId: id });
-          window.location.href = '/index.html';
-        } catch(e) { window.location.href = '/index.html'; }
+          var params = new URLSearchParams(window.location.search);
+          var redirect = params.get('redirect');
+          // Clear the session storage redirect tracking to prevent loops
+          sessionStorage.removeItem('_last_redirect');
+          sessionStorage.removeItem('_redirect_count');
+          window.location.href = redirect || '/index.html';
+        } catch(e) { 
+          console.error('Errore aggiornamento cinema:', e);
+          // If update fails, still go to home (preference can be set later)
+          window.location.href = '/index.html'; 
+        }
       };
 
       document.addEventListener('DOMContentLoaded', load);
@@ -67,3 +89,4 @@
   </script>
 </body>
 </html>
+

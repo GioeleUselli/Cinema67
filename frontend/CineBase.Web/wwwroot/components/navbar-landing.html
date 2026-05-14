@@ -156,14 +156,15 @@
       if (admin) { el.style.display = ''; el.classList.remove('hidden'); }
     });
 
-    if (admin) {
-      var role = (Auth.getUserRole ? Auth.getUserRole() : '') + '';
-      var label = 'Area Admin', link = '/dashboard.html';
-      if (role === 'Corriere' || role === '4') { label = 'Area Corriere'; link = '/corriere.html'; }
-      else if (role === 'Magazziniere' || role === '5') { label = 'Area Magazzino'; link = '/magazzino.html'; }
-      var db = document.getElementById('admin-area-btn'); if (db) { db.textContent = label; db.href = link; }
-      var mb = document.getElementById('mobile-admin-area-btn'); if (mb) { mb.textContent = label; mb.href = link; }
-    }
+     if (admin) {
+       var role = (Auth.getUserRole ? Auth.getUserRole() : '') + '';
+       var label = 'Area Admin', link = '/dashboard.html';
+       if (role === 'Corriere' || role === '4') { label = 'Area Corriere'; link = '/corriere.html'; }
+       else if (role === 'Magazziniere' || role === '5') { label = 'Area Magazzino'; link = '/magazzino.html'; }
+       else if (role === 'CinemaStaff' || role === '3') { label = 'Area Staff'; link = '/dashboard.html'; }
+       var db = document.getElementById('admin-area-btn'); if (db) { db.textContent = label; db.href = link; }
+       var mb = document.getElementById('mobile-admin-area-btn'); if (mb) { mb.textContent = label; mb.href = link; }
+     }
 
     var hl = document.getElementById('hero-login-btn');
     var hp = document.getElementById('hero-profile-btn');

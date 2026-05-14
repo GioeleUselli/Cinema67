@@ -14,6 +14,8 @@ public interface IFoodService
     Task<FoodItemDTO> CreateFoodItemAsync(FoodItemDTO dto);
     Task<FoodItemDTO?> UpdateFoodItemAsync(int id, FoodItemDTO dto);
     Task<bool> DeleteFoodItemAsync(int id);
+    Task<object?> GetReceiptByCodeAsync(string code);
+    Task<bool> MarkServedAsync(int itemId);
 }
 
 public class FoodService : IFoodService
@@ -205,6 +207,47 @@ public class FoodService : IFoodService
         Categoria = foi.FoodItem?.Categoria ?? "",
         Quantita = foi.Quantita,
         PrezzoUnitario = foi.PrezzoUnitario,
-        SubTotale = foi.PrezzoUnitario * foi.Quantita
+        SubTotale = foi.PrezzoUnitario * foi.Quantita,
+        Servito = foi.Servito
     };
+
+    public async Task<object?> GetReceiptByCodeAsync(string code)
+    {
+        var parts = code.Split('-');
+        if (parts.Length < 3 || !int.TryParse(parts[2], out var orderId)) return null;
+
+        var ordine = await _db.Ordini
+            .Include(o => o.FoodOrderItems).ThenInclude(f => f.FoodItem)
+            .Include(o => o.Show!).ThenInclude(s => s!.Film)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (ordine is null || ordine.FoodOrderItems.Count == 0) return null;
+
+        return new
+        {
+            ordineId = ordine.Id,
+            codiceOrdine = ordine.CodiceOrdine,
+            film = ordine.Show?.Film?.Titolo ?? "",
+            items = ordine.FoodOrderItems.Select(f => new FoodOrderItemDetailDTO
+            {
+                Id = f.Id, FoodItemId = f.FoodItemId,
+                Nome = f.FoodItem?.Nome ?? "",
+                Categoria = f.FoodItem?.Categoria ?? "",
+                Quantita = f.Quantita, PrezzoUnitario = f.PrezzoUnitario,
+                SubTotale = f.PrezzoUnitario * f.Quantita,
+                Servito = f.Servito
+            }).ToList(),
+            foodTotal = ordine.FoodOrderItems.Sum(f => f.PrezzoUnitario * f.Quantita),
+            allServed = ordine.FoodOrderItems.All(f => f.Servito)
+        };
+    }
+
+    public async Task<bool> MarkServedAsync(int itemId)
+    {
+        var item = await _db.FoodOrderItems.FindAsync(itemId);
+        if (item is null) return false;
+        item.Servito = true;
+        await _db.SaveChangesAsync();
+        return true;
+    }
 }

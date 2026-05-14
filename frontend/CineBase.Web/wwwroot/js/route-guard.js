@@ -1,30 +1,30 @@
 var RouteGuard = (function () {
   var PAGE_PERMISSIONS = {
-    '/index.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/programmazione.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/scheda-film.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/my-cinemas.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/scegli-cinema.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
+    '/index.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/programmazione.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/scheda-film.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/my-cinemas.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/scegli-cinema.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
     '/login.html': { roles: ['anonimo'], authRequired: false, anonymousOnly: true },
     '/registrazione.html': { roles: ['anonimo'], authRequired: false, anonymousOnly: true },
     '/forgot-password.html': { roles: ['anonimo'], authRequired: false },
     '/reset-password.html': { roles: ['anonimo'], authRequired: false },
-    '/shop.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/articolo.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/pagamento-merch.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
-    '/esito-acquisto-merch.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
-    '/tracking-merch.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/dashboard.html': { roles: ['poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
+    '/shop.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/articolo.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/pagamento-merch.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },
+    '/esito-acquisto-merch.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },
+    '/tracking-merch.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/dashboard.html': { roles: ['poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },
     '/films.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/registi.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/cinemas.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/proiezioni.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/categorie.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/sale.html': { roles: ['poweruser', 'admin'], authRequired: true },
-    '/ricarica-credito.html': { roles: ['poweruser', 'admin'], authRequired: true },
-    '/validazione-biglietti.html': { roles: ['poweruser', 'admin'], authRequired: true },
-    '/support-tickets.html': { roles: ['poweruser', 'admin'], authRequired: true },
-    '/promozioni.html': { roles: ['poweruser', 'admin'], authRequired: true },
+    '/ricarica-credito.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
+    '/validazione-biglietti.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
+    '/support-tickets.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
+    '/promozioni.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
     '/admin-utenti.html': { roles: ['admin'], authRequired: true },
     '/membership-admin.html': { roles: ['poweruser', 'admin'], authRequired: true },
     '/newsletter-admin.html': { roles: ['poweruser', 'admin'], authRequired: true },
@@ -32,17 +32,21 @@ var RouteGuard = (function () {
     '/magazzino.html': { roles: ['magazziniere', 'poweruser', 'admin'], authRequired: true },
     '/label-pacco.html': { roles: ['corriere', 'magazziniere', 'poweruser', 'admin'], authRequired: true },
     '/admin-pacchi.html': { roles: ['poweruser', 'admin'], authRequired: true },
-    '/profilo.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
+    '/profilo.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },
     '/acquista.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
     '/pagamento.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
     '/esito-acquisto.html': { roles: ['user', 'poweruser', 'admin'], authRequired: true },
-    '/feste.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/membership.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
-    '/giftcard.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
-    '/riscatta-giftcard.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: true },
-    '/privacy.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/cookie.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false },
-    '/termini-condizioni.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere'], authRequired: false }
+    '/feste.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/feste-admin.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
+    '/membership.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },
+    '/giftcard.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },
+    '/riscatta-giftcard.html': { roles: ['user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: true },
+    '/rimborsi-admin.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
+    '/food-admin.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
+    '/merch-admin.html': { roles: ['poweruser', 'admin', 'cinemastaff'], authRequired: true },
+    '/privacy.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/cookie.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false },
+    '/termini-condizioni.html': { roles: ['anonimo', 'user', 'poweruser', 'admin', 'corriere', 'magazziniere', 'cinemastaff'], authRequired: false }
   };
 
   var ACCESS_TOKEN_KEY = 'cb_access_token';
@@ -98,15 +102,23 @@ var RouteGuard = (function () {
     return window.Auth || null;
   }
 
+  var refreshAttempted = false;
+  
   async function tryProactiveRefresh() {
+    // Prevent infinite refresh loops
+    if (refreshAttempted) return false;
+    
     var auth = getAuthSafe();
     if (!auth || typeof auth.refreshAccessToken !== 'function') return false;
     if (!getRefreshToken()) return false;
 
+    refreshAttempted = true;
     try {
       await auth.refreshAccessToken();
       return true;
     } catch (e) {
+      // Mark this as a failed refresh attempt to prevent retries
+      localStorage.setItem('_refresh_failed', 'true');
       return false;
     }
   }
@@ -133,8 +145,20 @@ var RouteGuard = (function () {
     var permission = PAGE_PERMISSIONS[pageKey];
     if (!permission) return true;
 
+    // Detect and prevent redirect loops
+    var lastRedirect = sessionStorage.getItem('_last_redirect');
+    var lastRedirectCount = parseInt(sessionStorage.getItem('_redirect_count') || '0', 10);
+    
+    if (lastRedirect === pathname && lastRedirectCount > 2) {
+      // We're in a redirect loop - clear auth and go to login
+      localStorage.removeItem('_refresh_failed');
+      localStorage.removeItem('_check_attempted');
+      window.location.replace('/login.html?error=' + encodeURIComponent('Errore di sessione, rieffettua l\'accesso'));
+      return false;
+    }
+
     var isLoggedIn = isTokenValid();
-    if (!isLoggedIn) {
+    if (!isLoggedIn && !localStorage.getItem('_refresh_failed')) {
       var refreshed = await tryProactiveRefresh();
       if (refreshed) {
         isLoggedIn = isTokenValid();
@@ -147,8 +171,12 @@ var RouteGuard = (function () {
       var params = new URLSearchParams(window.location.search);
       var redirect = params.get('redirect');
       if (redirect && redirect.indexOf('/') === 0 && redirect.indexOf('//') !== 0) {
+        sessionStorage.setItem('_last_redirect', pathname);
+        sessionStorage.setItem('_redirect_count', String(lastRedirectCount + 1));
         window.location.replace(redirect);
       } else {
+        sessionStorage.setItem('_last_redirect', pathname);
+        sessionStorage.setItem('_redirect_count', String(lastRedirectCount + 1));
         window.location.replace('/index.html');
       }
       return false;
@@ -156,11 +184,15 @@ var RouteGuard = (function () {
 
     if (permission.authRequired && !isLoggedIn) {
       var redirectUrl = pathname + window.location.search;
+      sessionStorage.setItem('_last_redirect', pathname);
+      sessionStorage.setItem('_redirect_count', String(lastRedirectCount + 1));
       window.location.replace('/login.html?redirect=' + encodeURIComponent(redirectUrl));
       return false;
     }
 
     if (!permission.roles.includes(role)) {
+      sessionStorage.setItem('_last_redirect', pathname);
+      sessionStorage.setItem('_redirect_count', String(lastRedirectCount + 1));
       window.location.replace('/index.html?forbidden=true');
       return false;
     }

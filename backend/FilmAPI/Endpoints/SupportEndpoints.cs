@@ -60,7 +60,7 @@ public static class SupportEndpoints
             return Results.Ok(new { message = "Conversazione resettata." });
         });
 
-        var adminGroup = app.MapGroup("/admin/support").RequireAuthorization("PowerUserOrAdmin");
+        var adminGroup = app.MapGroup("/admin/support").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminGroup.MapGet("/tickets", async (
             [FromQuery] string? status,

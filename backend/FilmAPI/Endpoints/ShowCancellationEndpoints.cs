@@ -11,7 +11,7 @@ public static class ShowCancellationEndpoints
 {
     public static void MapShowCancellationEndpoints(this WebApplication app)
     {
-        var adminGroup = app.MapGroup("/admin/shows").RequireAuthorization("PowerUserOrAdmin");
+        var adminGroup = app.MapGroup("/admin/shows").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminGroup.MapGet("/{showId:int}/cancel/preview", async (int showId, IShowCancellationService service) =>
         {
@@ -35,7 +35,7 @@ public static class ShowCancellationEndpoints
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
-        var cancelGroup = app.MapGroup("/admin/cancellations").RequireAuthorization("PowerUserOrAdmin");
+        var cancelGroup = app.MapGroup("/admin/cancellations").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         cancelGroup.MapPost("/{id:int}/process-refunds", async (int id, IShowCancellationService service) =>
         {

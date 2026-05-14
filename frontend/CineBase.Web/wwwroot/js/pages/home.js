@@ -9,10 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get("forbidden") === "true") {
     showToast("Non hai i permessi per accedere all'area admin", "warning");
-    params.delete("forbidden");
-    const newQuery = params.toString();
-    const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
-    window.history.replaceState({}, "", newUrl);
   }
   await loadFeaturedFilms();
   loadPromotionsBanners();

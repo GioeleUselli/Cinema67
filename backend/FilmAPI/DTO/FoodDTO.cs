@@ -33,6 +33,7 @@ public class FoodOrderItemDetailDTO
     public int Quantita { get; set; }
     public decimal PrezzoUnitario { get; set; }
     public decimal SubTotale { get; set; }
+    public bool Servito { get; set; }
 }
 
 public class FoodMenuDTO

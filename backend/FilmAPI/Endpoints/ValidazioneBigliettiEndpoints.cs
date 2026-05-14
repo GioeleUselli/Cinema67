@@ -9,7 +9,7 @@ public static class ValidazioneBigliettiEndpoints
     public static void MapValidazioneBigliettiEndpoints(this WebApplication app)
     {
         var validationGroup = app.MapGroup("/admin/tickets/validate")
-            .RequireAuthorization("PowerUserOrAdmin");
+            .RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         validationGroup.MapGet("/{code}", async (string code, IValidazioneBigliettoService service) =>
         {

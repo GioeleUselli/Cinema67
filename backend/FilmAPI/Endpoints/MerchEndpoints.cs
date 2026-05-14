@@ -90,7 +90,7 @@ public static class MerchEndpoints
         });
 
         // Admin
-        var adminGroup = app.MapGroup("/admin/merch").RequireAuthorization("PowerUserOrAdmin");
+        var adminGroup = app.MapGroup("/admin/merch").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminGroup.MapGet("/orders", async (IMerchService service) =>
         {

@@ -53,4 +53,6 @@ public class FoodOrderItem
     [Required]
     [Column(TypeName = "decimal(10,2)")]
     public decimal PrezzoUnitario { get; set; }
+
+    public bool Servito { get; set; }
 }
