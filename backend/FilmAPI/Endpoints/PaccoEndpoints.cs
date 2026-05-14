@@ -8,7 +8,7 @@ public static class PaccoEndpoints
 {
     public static void MapPaccoEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/admin/pacchi").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
+        var group = app.MapGroup("/admin/pacchi").RequireAuthorization("StaffOrPowerUserOrAdmin");
 
         group.MapGet("/tutti", async (IPaccoService service) =>
             Results.Ok(await service.GetAllPacchiAsync()));
