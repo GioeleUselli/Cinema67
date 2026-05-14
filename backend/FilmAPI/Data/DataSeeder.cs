@@ -24,6 +24,7 @@ public class DataSeeder
          await SeedMerchItemsAsync();
          await SeedDiscountCodesAsync();
          await SeedDevDataAsync();
+         await SeedStaffCinemaAssignmentsAsync();
      }
 
     private async Task SeedAdminAsync()
@@ -70,6 +71,31 @@ public class DataSeeder
          };
 
          _context.Users.Add(staff);
+         await _context.SaveChangesAsync();
+     }
+
+     private async Task SeedStaffCinemaAssignmentsAsync()
+     {
+         var staffUser = _context.Users.FirstOrDefault(u => u.Email == "cinema67staff@cinema67.it");
+         if (staffUser == null)
+             return;
+
+         if (_context.UserCinemaAssignments.Any(a => a.UserId == staffUser.Id))
+             return;
+
+         var cinemas = _context.Cinemas.Take(3).ToList();
+         if (!cinemas.Any())
+             return;
+
+         foreach (var cinema in cinemas)
+         {
+             _context.UserCinemaAssignments.Add(new UserCinemaAssignment
+             {
+                 UserId = staffUser.Id,
+                 CinemaId = cinema.Id
+             });
+         }
+
          await _context.SaveChangesAsync();
      }
 

@@ -17,15 +17,10 @@ function getUserRole() {
 document.addEventListener('DOMContentLoaded', async function () {
   try {
     var role = getUserRole();
-    
+
     if (role === 'cinemastaff') {
-      // CinemaStaff dashboard: minimal content, no API calls
-      // Hide admin-only sections
-      var adminOnlySections = document.querySelectorAll('[data-admin-only]');
-      adminOnlySections.forEach(function(el) { el.style.display = 'none'; });
-      
+      renderCinemaStaffDashboard();
     } else {
-      // Admin/PowerUser dashboard: load all data
       var results = await Promise.all([
         API.getFilms(),
         API.getRegisti(),
@@ -61,6 +56,57 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.error('Error loading dashboard:', error);
   }
 });
+
+async function renderCinemaStaffDashboard() {
+  // Hide sections that would show broken content for CinemaStaff
+  var els = document.querySelectorAll('#upcoming-screenings, #dashboard-registi, #dashboard-analytics-content');
+  els.forEach(function(el) { 
+    if (el && el.parentElement) el.parentElement.style.display = 'none'; 
+  });
+
+  // Remove loading spinners from keep sections
+  var tbody = document.getElementById('upcoming-screenings');
+  if (tbody) tbody.innerHTML = '';
+
+  // Update KPI stats for staff - show cinema count
+  try {
+    var staffCinemas = await API.getStaffMyCinemas();
+    var cinemaNames = [];
+    if (staffCinemas && staffCinemas.length) {
+      staffCinemas.forEach(function(a) {
+        if (a && a.cinema) cinemaNames.push(a.cinema.nome);
+      });
+    }
+
+    document.getElementById('stat-movies').textContent = cinemaNames.length || '0';
+    document.getElementById('stat-directors').textContent = '—';
+    document.getElementById('stat-cinemas').textContent = cinemaNames.length || '0';
+    document.getElementById('stat-screenings').textContent = '—';
+
+    // Show assigned cinemas list in upcoming shows area
+    var upcomingSection = document.querySelector('.cine-curtain-delay-3');
+    if (upcomingSection) {
+      var heading = upcomingSection.querySelector('h2');
+      if (heading) heading.innerHTML = '<i class="fa-solid fa-building text-brand-gold"></i> I Miei Cinema';
+      var tbody2 = document.getElementById('upcoming-screenings');
+      if (tbody2) {
+        if (cinemaNames.length) {
+          tbody2.innerHTML = '<tr><td colspan="6" class="px-6 py-4"><div class="space-y-2">' +
+            cinemaNames.map(function(n) {
+              return '<div class="cine-premium-card p-3 text-sm font-semibold text-brand-on-surface"><i class="fa-solid fa-location-dot text-brand-red mr-2"></i>' + escapeHtml(n) + '</div>';
+            }).join('') +
+            '</div></td></tr>';
+        } else {
+          tbody2.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-brand-on-surface-variant">Nessun cinema assegnato</td></tr>';
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error loading staff cinemas:', e);
+    document.getElementById('stat-movies').textContent = '—';
+    document.getElementById('stat-cinemas').textContent = '—';
+  }
+}
 
 function getDashboardFilmTitle(filmId) {
   var film = cachedFilms.find(function (f) { return Number(f.id) === Number(filmId); });
