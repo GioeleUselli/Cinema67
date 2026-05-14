@@ -158,7 +158,7 @@
             </a>
           </div>
           <p class="admin-console-label px-6 pb-2 text-[10px] uppercase tracking-[0.24em] text-brand-gold">Admin console</p>
-          <nav class="admin-sidebar-rail flex-1 px-4 space-y-1">
+           <nav class="admin-sidebar-rail flex-1 px-4 space-y-1 overflow-y-auto min-h-0">
             <a data-admin-link href="/dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
             <a data-admin-link href="/films.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-film"></i>Film</a>
             <a data-admin-link href="/registi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-user"></i>Registi</a>
