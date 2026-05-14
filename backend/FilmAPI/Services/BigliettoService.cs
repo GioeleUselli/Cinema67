@@ -84,6 +84,8 @@ public class BigliettoService : IBigliettoService
             .ThenInclude(s => s!.Sala)
             .Include(o => o.Biglietti)
             .ThenInclude(b => b.SalaPosto)
+            .Include(o => o.FoodOrderItems)
+            .ThenInclude(f => f.FoodItem)
             .FirstOrDefaultAsync(o => o.Id == orderId);
 
         if (ordine is null)
@@ -117,7 +119,17 @@ public class BigliettoService : IBigliettoService
                 .ThenBy(b => b.SalaPosto?.Fila)
                 .ThenBy(b => b.SalaPosto?.Numero)
                 .Select(b => MapToTicketPdfModel(ordine, b))
-                .ToList()
+                .ToList(),
+            Cibo = ordine.FoodOrderItems?.Select(f => new FoodOrderItemDetailDTO
+            {
+                Id = f.Id, FoodItemId = f.FoodItemId, Nome = f.FoodItem?.Nome ?? "",
+                Quantita = f.Quantita, PrezzoUnitario = f.PrezzoUnitario,
+                SubTotale = f.PrezzoUnitario * f.Quantita
+            }).ToList() ?? new(),
+            CodiceCibo = ordine.FoodOrderItems?.Count > 0 ? $"C67-FOOD-{ordine.Id}-{Guid.NewGuid().ToString("N")[..6].ToUpper()}" : null,
+            QrCodeCibo = ordine.FoodOrderItems?.Count > 0
+                ? "data:image/png;base64," + System.Convert.ToBase64String(new QRCoder.PngByteQRCode(new QRCoder.QRCodeGenerator().CreateQrCode($"C67-FOOD-{ordine.Id}", QRCoder.QRCodeGenerator.ECCLevel.Q)).GetGraphic(8))
+                : null
         };
     }
 

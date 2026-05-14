@@ -121,4 +121,7 @@ public class OrdineTicketDocumentDTO
     public decimal TotaleLordo { get; set; }
     public DateTime? PaidAtUtc { get; set; }
     public List<TicketPdfModel> Tickets { get; set; } = new();
+    public List<FoodOrderItemDetailDTO> Cibo { get; set; } = new();
+    public string? CodiceCibo { get; set; }
+    public string? QrCodeCibo { get; set; }
 }

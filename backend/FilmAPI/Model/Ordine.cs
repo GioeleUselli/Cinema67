@@ -99,6 +99,7 @@ public class Ordine
     public string? DiscountCode { get; set; }
 
     public ICollection<Biglietto> Biglietti { get; set; } = new List<Biglietto>();
+    public ICollection<FoodOrderItem> FoodOrderItems { get; set; } = new List<FoodOrderItem>();
 
     [Timestamp]
     public DateTime RowVersion { get; set; }

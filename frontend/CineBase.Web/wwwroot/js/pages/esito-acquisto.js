@@ -61,6 +61,7 @@ function renderEsito() {
   renderHeader();
   renderOrderDetails();
   renderTickets();
+  renderFoodReceipt();
   renderEmailStatus();
   setupActions();
 }
@@ -200,6 +201,30 @@ function renderTickets() {
       </div>
     </div>
   `).join('');
+}
+
+function renderFoodReceipt() {
+  var cibo = ordine.cibo || [];
+  var card = document.getElementById('food-receipt-card');
+  if (!cibo.length) { card.classList.add('hidden'); return; }
+
+  card.classList.remove('hidden');
+  var foodTotal = cibo.reduce(function(s,i){return s + (i.subTotale||0);},0);
+  document.getElementById('food-total-items').textContent = cibo.length + ' articoli';
+  document.getElementById('food-total-price').textContent = '€' + foodTotal.toFixed(2);
+  document.getElementById('food-receipt-code').textContent = ordine.codiceCibo || '';
+
+  var list = document.getElementById('food-receipt-list');
+  list.innerHTML = cibo.map(function(f){
+    return '<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-brand-surface-container">'
+      + '<div class="flex-1 min-w-0"><p class="text-sm font-semibold text-brand-on-surface">' + (f.nome||'') + '</p>'
+      + '<p class="text-xs text-brand-on-surface-variant">' + (f.categoria||'') + ' x' + f.quantita + '</p></div>'
+      + '<div class="text-right ml-3"><p class="text-sm font-bold text-brand-on-surface">€' + f.subTotale.toFixed(2) + '</p>'
+      + '<p class="text-xs text-brand-on-surface-variant">€' + f.prezzoUnitario.toFixed(2) + ' cad.</p></div></div>';
+  }).join('');
+
+  var qrImg = document.getElementById('food-qr-img');
+  if (ordine.qrCodeCibo) { qrImg.src = ordine.qrCodeCibo; qrImg.classList.remove('hidden'); }
 }
 
 function renderEmailStatus() {

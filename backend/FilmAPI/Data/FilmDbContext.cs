@@ -533,7 +533,7 @@ public class FilmDbContext : DbContext
         modelBuilder.Entity<FoodOrderItem>(entity =>
         {
             entity.HasOne(foi => foi.Ordine)
-                  .WithMany()
+                  .WithMany(o => o.FoodOrderItems)
                   .HasForeignKey(foi => foi.OrdineId)
                   .OnDelete(DeleteBehavior.Cascade);
 

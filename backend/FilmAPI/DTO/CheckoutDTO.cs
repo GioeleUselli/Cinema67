@@ -83,4 +83,7 @@ public class OrdineSummaryDTO
     public string? DiscountCode { get; set; }
     public decimal TotaleScontato { get; set; }
     public List<OrdineTicketSummaryDTO> Biglietti { get; set; } = new();
+    public List<FoodOrderItemDetailDTO> Cibo { get; set; } = new();
+    public string? CodiceCibo { get; set; }
+    public string? QrCodeCibo { get; set; }
 }

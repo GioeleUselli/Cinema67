@@ -179,6 +179,8 @@ public class CheckoutService : ICheckoutService
             .ThenInclude(s => s!.Sala)
             .Include(o => o.Biglietti)
             .ThenInclude(b => b.SalaPosto)
+            .Include(o => o.FoodOrderItems)
+            .ThenInclude(f => f.FoodItem)
             .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
 
         if (ordine == null)
@@ -271,7 +273,18 @@ public class CheckoutService : ICheckoutService
                     TipoBiglietto = b.TipoBiglietto.ToString(),
                     ValidatoAtUtc = b.ValidatoAtUtc
                 })
-                .ToList()
+                .ToList(),
+            Cibo = ordine.FoodOrderItems?.Select(f => new FoodOrderItemDetailDTO
+            {
+                Id = f.Id, FoodItemId = f.FoodItemId, Nome = f.FoodItem?.Nome ?? "",
+                Descrizione = f.FoodItem?.Descrizione, Categoria = f.FoodItem?.Categoria ?? "",
+                Quantita = f.Quantita, PrezzoUnitario = f.PrezzoUnitario,
+                SubTotale = f.PrezzoUnitario * f.Quantita
+            }).ToList() ?? new(),
+            CodiceCibo = ordine.FoodOrderItems?.Count > 0 ? $"C67-FOOD-{ordine.Id}-{Guid.NewGuid().ToString("N")[..6].ToUpper()}" : null,
+            QrCodeCibo = ordine.FoodOrderItems?.Count > 0
+                ? "data:image/png;base64," + Convert.ToBase64String(new QRCoder.PngByteQRCode(new QRCoder.QRCodeGenerator().CreateQrCode($"C67-FOOD-{ordine.Id}", QRCoder.QRCodeGenerator.ECCLevel.Q)).GetGraphic(8))
+                : null
         };
     }
 

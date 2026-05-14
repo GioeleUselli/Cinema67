@@ -121,6 +121,29 @@
         <div id="tickets-list" class="space-y-3"></div>
       </div>
 
+      <!-- Food Receipt Card -->
+      <div id="food-receipt-card" class="hidden cine-premium-card cine-curtain-in cine-curtain-delay-3 p-6 mb-6 relative overflow-hidden">
+        <div class="absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-amber-500/5 blur-3xl pointer-events-none"></div>
+        <div class="relative flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-brand-on-surface"><i class="fa-solid fa-utensils text-brand-gold mr-2"></i>Cibo e Bevande</h2>
+          <span id="food-total-items" class="text-sm text-brand-on-surface-variant"></span>
+        </div>
+        <div id="food-receipt-list" class="space-y-3"></div>
+        <div class="border-t border-brand-outline-variant/20 pt-4 mt-4 space-y-3">
+          <div class="flex justify-between text-lg font-bold text-brand-on-surface">
+            <span>Totale Cibo</span><span id="food-total-price"></span>
+          </div>
+          <div id="food-qr-section" class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-brand-on-surface-variant">Codice ritiro</p>
+              <p id="food-receipt-code" class="text-sm font-mono font-bold text-brand-gold"></p>
+            </div>
+            <img id="food-qr-img" src="" alt="QR Cibo" class="w-20 h-20 rounded-lg border border-brand-outline-variant/20 hidden">
+          </div>
+          <p class="text-[10px] text-brand-on-surface-variant text-center">Mostra questo codice in cassa per ritirare il tuo ordine</p>
+        </div>
+      </div>
+
       <!-- Email Status -->
       <div id="email-status-card" class="hidden cine-premium-card p-4 mb-6">
         <div class="flex items-center gap-3">

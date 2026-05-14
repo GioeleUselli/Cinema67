@@ -175,6 +175,23 @@ public class EmailService : IEmailService
         var ticketsHtml = string.Join(string.Empty, orderDocument.Tickets.Select(ticket =>
             $"<li><strong>{WebUtility.HtmlEncode(ticket.CodiceBiglietto)}</strong> - {WebUtility.HtmlEncode(ticket.Settore)} fila {ticket.Fila} posto {ticket.Numero}</li>"));
 
+        var foodHtml = "";
+        if (orderDocument.Cibo.Count > 0)
+        {
+            var foodItems = string.Join(string.Empty, orderDocument.Cibo.Select(f =>
+                $"<li>{WebUtility.HtmlEncode(f.Nome)} x{f.Quantita} - {FormatAmount(f.SubTotale)} EUR</li>"));
+            var foodTotal = orderDocument.Cibo.Sum(f => f.SubTotale);
+            foodHtml = $"""
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;border:1px solid #334155;border-radius:10px;overflow:hidden">
+<tr><td style="padding:14px 18px;background:rgba(0,0,0,0.2);border-bottom:1px solid #334155;font-size:12px;font-weight:700;color:#f59e0b">CIBO E BEVANDE - Codice: {orderDocument.CodiceCibo}</td></tr>
+<tr><td style="padding:16px 18px"><ul style="margin:0;padding:0;list-style:none">{foodItems}</ul>
+<p style="margin:8px 0 0;color:#f59e0b;font-weight:700">Totale cibo: {FormatAmount(foodTotal)} EUR</p>
+<p style="color:#64748b;font-size:11px;margin:4px 0 0">Mostra questo codice in cassa per ritirare il tuo ordine</p>
+</td></tr>
+</table>
+""";
+        }
+
         return $"""
 <html>
 <body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#0f172a">
@@ -205,7 +222,7 @@ public class EmailService : IEmailService
 {ticketsHtml}
 </ul></td></tr>
 </table>
-
+{foodHtml}
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px">
 <tr><td align="right"><span style="color:#f59e0b;font-size:20px;font-weight:900">{FormatAmount(orderDocument.TotaleLordo)} EUR</span></td></tr>
 </table>
