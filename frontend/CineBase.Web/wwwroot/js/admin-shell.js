@@ -275,11 +275,11 @@
     const pathname = window.location.pathname.toLowerCase();
     if (!ADMIN_PATHS.has(pathname)) return;
 
-    // Don't render admin shell for CinemaStaff users
+    // Only render admin shell for Admin and PowerUser roles
     var u = getUser();
     if (u && u.ruolo) {
       var r = String(u.ruolo).trim().toLowerCase();
-      if (r === 'cinemastaff' || r === '3') return;
+      if (r !== 'admin' && r !== 'poweruser' && r !== '2' && r !== '1') return;
     }
 
     const main = document.querySelector('main');
