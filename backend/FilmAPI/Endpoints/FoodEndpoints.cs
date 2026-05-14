@@ -72,7 +72,7 @@ public static class FoodEndpoints
         {
             var items = await service.GetAllFoodItemsAsync();
             return Results.Ok(items);
-        }).RequireAuthorization("PowerUserOrAdmin");
+        }).RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminFoodGroup.MapPost("/", async (
             FoodItemDTO dto,
@@ -87,7 +87,7 @@ public static class FoodEndpoints
             {
                 return Results.BadRequest(ex.Message);
             }
-        }).RequireAuthorization("PowerUserOrAdmin");
+        }).RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminFoodGroup.MapPut("/{id}", async (
             int id,
@@ -96,7 +96,7 @@ public static class FoodEndpoints
         {
             var result = await service.UpdateFoodItemAsync(id, dto);
             return result is null ? Results.NotFound() : Results.Ok(result);
-        }).RequireAuthorization("PowerUserOrAdmin");
+        }).RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminFoodGroup.MapDelete("/{id}", async (
             int id,
@@ -104,6 +104,19 @@ public static class FoodEndpoints
         {
             var result = await service.DeleteFoodItemAsync(id);
             return result ? Results.NoContent() : Results.NotFound();
-        }).RequireAuthorization("PowerUserOrAdmin");
+        }).RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
+
+         // Receipt lookup (cashier/kitchen)
+         adminFoodGroup.MapGet("/receipt/{code}", async (string code, IFoodService service) =>
+         {
+             var result = await service.GetReceiptByCodeAsync(code);
+             return result is null ? Results.NotFound(new { message = "Codice non trovato" }) : Results.Ok(result);
+         }).RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
+
+         adminFoodGroup.MapPost("/serve/{itemId:int}", async (int itemId, IFoodService service) =>
+         {
+             var ok = await service.MarkServedAsync(itemId);
+             return ok ? Results.Ok(new { message = "Servito!" }) : Results.NotFound();
+         }).RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
     }
 }
