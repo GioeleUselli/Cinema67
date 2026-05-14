@@ -11,7 +11,10 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
   <script src="/js/theme.js"></script>
-  <script src="/js/route-guard.js?v=6"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    #qr-reader { width: 100%; max-width: 400px; margin: 0 auto; border-radius: 12px; overflow: hidden; }
+  </style>
 </head>
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
   <main class="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
@@ -25,6 +28,21 @@
         </div>
         <button onclick="openAddModal()" class="btn-gold text-sm"><i class="fa-solid fa-plus mr-2"></i> Aggiungi Prodotto</button>
       </div>
+    </section>
+
+    <!-- Scanner Cassa -->
+    <section class="cine-premium-card p-6 mb-8">
+      <h3 class="text-sm font-bold uppercase tracking-[0.15em] text-brand-gold mb-4"><i class="fa-solid fa-qrcode mr-1"></i>Cassa — Scannerizza codice ritiro cibo</h3>
+      <div class="flex gap-2 mb-3">
+        <button id="btn-start-scan" onclick="startScanner()" class="btn-gold text-xs px-4 py-2"><i class="fa-solid fa-camera mr-1"></i>Scansiona QR</button>
+        <button id="btn-stop-scan" onclick="stopScanner()" class="btn-outline-brand text-xs px-4 py-2 hidden"><i class="fa-solid fa-stop mr-1"></i>Ferma</button>
+      </div>
+      <div id="qr-reader" class="hidden mb-3"></div>
+      <div class="flex gap-2">
+        <input type="text" id="receipt-input" placeholder="Oppure scrivi codice (C67-FOOD-...)" class="flex-1 ghost-input px-4 py-2 text-sm uppercase" style="letter-spacing:1px" autocomplete="off">
+        <button onclick="lookupReceipt()" class="btn-gold text-sm px-4 py-2"><i class="fa-solid fa-search mr-1"></i>Cerca</button>
+      </div>
+      <div id="receipt-result" class="mt-4"></div>
     </section>
 
     <div class="cine-premium-card overflow-x-auto">
@@ -81,70 +99,12 @@
   <script src="/js/utils.js?v=99"></script>
   <script src="/js/api-app.js?v=103"></script>
   <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
   <script src="/js/admin-panel.js?v=6"></script>
-  <script>
-    var editingId = null;
-    document.addEventListener('DOMContentLoaded', loadFood);
-
-    async function loadFood() {
-      var tbody = document.getElementById('food-table');
-      try {
-        var data = await API.getAllFoodItems();
-        if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center">Nessun prodotto</td></tr>'; return; }
-        tbody.innerHTML = data.map(function(f) {
-          return '<tr class="row-hover"><td class="px-4 py-3"><span class="text-2xl">' + getFoodEmoji(f.categoria) + '</span></td><td class="px-4 py-3 text-sm font-bold text-brand-on-surface">' + f.nome + '</td><td class="px-4 py-3 text-sm text-brand-on-surface-variant">' + f.categoria + '</td><td class="px-4 py-3 text-sm text-brand-gold font-bold">€' + f.prezzo.toFixed(2) + '</td><td class="px-4 py-3"><span class="text-xs font-semibold px-2 py-0.5 rounded-full ' + (f.attivo ? 'bg-emerald-500/10 text-emerald-500' : 'bg-brand-on-surface-variant/10 text-brand-on-surface-variant') + '">' + (f.attivo ? 'Sì' : 'No') + '</span></td><td class="px-4 py-3"><button onclick="editFood(' + f.id + ')" class="text-brand-gold mr-3"><i class="fa-solid fa-pencil"></i></button><button onclick="deleteFood(' + f.id + ')" class="text-brand-red"><i class="fa-solid fa-trash"></i></button></td></tr>';
-        }).join('');
-      } catch(e) { tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-brand-error">Errore</td></tr>'; }
-    }
-
-    function getFoodEmoji(cat) { var m = { Popcorn: '🍿', Bevande: '🥤', Snack: '🌮', Dolci: '🍪' }; return m[cat] || '🍽️'; }
-
-    window.openAddModal = function() {
-      editingId = null;
-      document.getElementById('modal-title').textContent = 'Nuovo Prodotto';
-      document.getElementById('food-form').reset();
-      document.getElementById('food-modal').classList.remove('hidden');
-    };
-
-    window.editFood = function(id) {
-      editingId = id;
-      document.getElementById('modal-title').textContent = 'Modifica Prodotto';
-      document.getElementById('food-modal').classList.remove('hidden');
-      API.getAllFoodItems().then(function(data) {
-        var f = data.find(function(x) { return x.id === id; });
-        if (f) {
-          var form = document.getElementById('food-form');
-          form.querySelector('[name="id"]').value = f.id;
-          form.querySelector('[name="nome"]').value = f.nome;
-          form.querySelector('[name="descrizione"]').value = f.descrizione || '';
-          form.querySelector('[name="categoria"]').value = f.categoria;
-          form.querySelector('[name="prezzo"]').value = f.prezzo;
-          form.querySelector('[name="immagine"]').value = f.immaginePath || '';
-          form.querySelector('[name="attivo"]').checked = f.attivo;
-        }
-      });
-    };
-
-    window.saveFood = async function() {
-      var f = document.getElementById('food-form');
-      var data = {
-        nome: f.querySelector('[name="nome"]').value,
-        descrizione: f.querySelector('[name="descrizione"]').value || null,
-        categoria: f.querySelector('[name="categoria"]').value,
-        prezzo: parseFloat(f.querySelector('[name="prezzo"]').value),
-        immaginePath: f.querySelector('[name="immagine"]').value || null,
-        attivo: f.querySelector('[name="attivo"]').checked
-      };
-      try {
-        if (editingId) { await API.updateFoodItem(editingId, data); showToast('Aggiornato', 'success'); }
-        else { await API.createFoodItem(data); showToast('Creato', 'success'); }
-        closeFoodModal();
-        await loadFood();
-      } catch(e) { showToast('Errore', 'error'); }
-    };
-
-    window.deleteFood = async function(id) { if (confirm('Eliminare?')) { await API.deleteFoodItem(id); showToast('Eliminato'); await loadFood(); } };
-    window.closeFoodModal = function() { document.getElementById('food-modal').classList.add('hidden'); };
-  </script>
+  <script src="/js/admin-shell.js?v=100"></script>
+  <script src="/js/staff-shell.js?v=1"></script>
+  <script src="/js/pages/food-admin.js?v=1"></script>
 </body>
 </html>
+
+
