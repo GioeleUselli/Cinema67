@@ -494,6 +494,20 @@ public class MembershipService : IMembershipService
             riscatto.GiftCardId = gc.Id;
         }
 
+        if (premio.Tipo == TipoPremio.Sconto)
+        {
+            _db.MerchDiscountCodes.Add(new MerchDiscountCode
+            {
+                Codice = codice,
+                PercentualeSconto = premio.PercentualeSconto ?? 0,
+                Attivo = true,
+                ScadeIl = scadenza,
+                MaxUtilizzi = 1,
+                Utilizzi = 0,
+                CreatedAtUtc = DateTime.UtcNow
+            });
+        }
+
         _db.PremiRiscatti.Add(riscatto);
         _db.PuntiMovimenti.Add(new PuntiMovimento
         {

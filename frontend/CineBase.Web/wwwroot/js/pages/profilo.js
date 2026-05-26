@@ -551,7 +551,8 @@ async function loadMerchOrders() {
       var date = new Date(o.createdAtUtc).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
       var items = o.items || [];
       var itemsText = items.map(function(i) { return i.quantita + 'x ' + (i.nome || 'Articolo'); }).join(', ');
-      return '<div class="border border-brand-outline-variant/20 rounded-xl p-4 mb-3 hover:bg-brand-surface-container-high/50 transition-colors">' +
+      var trackingLink = o.statoSpedizione && o.statoSpedizione !== 'InAttesa' ? '<a href="/tracking-merch.html?orderId=' + o.id + '" class="text-xs text-brand-gold hover:underline mt-1 inline-block"><i class="fa-solid fa-truck mr-1"></i>Traccia spedizione</a>' : '';
+      return '<a href="/tracking-merch.html?orderId=' + o.id + '" class="block border border-brand-outline-variant/20 rounded-xl p-4 mb-3 hover:bg-brand-surface-container-high/50 transition-colors">' +
         '<div class="flex justify-between items-start">' +
           '<div class="flex-1 min-w-0">' +
             '<div class="flex items-center gap-2 mb-1">' +
@@ -562,9 +563,10 @@ async function loadMerchOrders() {
             (itemsText ? '<p class="text-sm text-brand-on-surface-variant mt-1">' + itemsText + '</p>' : '') +
             '<p class="text-brand-gold font-semibold text-sm mt-1">' + formatCurrency(o.totale) + '</p>' +
             (o.statoSpedizione && o.statoSpedizione !== 'InAttesa' ? '<p class="text-xs text-brand-on-surface-variant mt-1">Spedizione: ' + o.statoSpedizione + (o.trackingNumber ? ' — ' + o.trackingNumber : '') + '</p>' : '') +
+            trackingLink +
           '</div>' +
         '</div>' +
-      '</div>';
+      '</a>';
     }).join('');
   } catch(e) {
     console.error('loadMerchOrders error:', e);
@@ -642,6 +644,12 @@ async function loadPremi() {
     }
     container.innerHTML = riscatti.map(function(r) {
       var statoLabel = r.stato === '0' || r.stato === 'Attivo' ? '<span class="text-emerald-500 text-xs font-semibold">Attivo</span>' : (r.stato === '1' ? '<span class="text-blue-500 text-xs font-semibold">Usato</span>' : '<span class="text-brand-on-surface-variant text-xs">Scaduto</span>');
+      var extra = '';
+      if (r.codiceVoucher) extra += '<p class="text-xs text-brand-gold mt-1"><i class="fa-solid fa-ticket mr-1"></i>Voucher: <strong>' + r.codiceVoucher + '</strong></p>';
+      if (r.giftCardId) extra += '<p class="text-xs text-brand-gold mt-1"><i class="fa-solid fa-gift mr-1"></i>Gift Card attiva — <a href="/giftcard.html" class="underline">Vai alle gift card</a></p>';
+      if (r.codice && !r.codiceVoucher && !r.giftCardId) extra += '<p class="font-mono text-xs text-brand-gold mt-1">Codice: ' + r.codice + '</p>';
+      if (r.dataScadenza) extra += '<p class="text-xs text-brand-on-surface-variant mt-1"><i class="fa-regular fa-clock mr-1"></i>Scade il ' + new Date(r.dataScadenza).toLocaleDateString('it-IT') + '</p>';
+      if (r.premioTipo === 'Sconto' && r.codice) extra += '<p class="text-xs text-brand-on-surface-variant mt-1"><i class="fa-solid fa-tag mr-1"></i>Usa il codice <strong>' + r.codice + '</strong> al momento del pagamento</p>';
       return '<div class="border border-brand-outline-variant/20 rounded-xl p-4 mb-3">' +
         '<div class="flex justify-between items-start">' +
           '<div class="flex-1 min-w-0">' +
@@ -649,7 +657,7 @@ async function loadPremi() {
               '<span class="font-semibold text-brand-on-surface">' + (r.premioNome || 'Premio #' + r.id) + '</span>' +
               statoLabel +
             '</div>' +
-            (r.codice ? '<p class="font-mono text-sm text-brand-gold">Codice: ' + r.codice + '</p>' : '') +
+            extra +
             '<div class="flex gap-4 mt-2 text-sm">' +
               '<span class="text-brand-on-surface-variant">Punti spesi: <strong class="text-brand-on-surface">' + (r.puntiSpesi || 0) + '</strong></span>' +
             '</div>' +
