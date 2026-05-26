@@ -27,6 +27,10 @@ public interface IMembershipService
     Task<List<PremioDTO>> GetPremiDisponibiliAsync(int userId);
     Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId);
     Task<List<PremioRiscattoDTO>> GetMieiRiscattiAsync(int userId);
+    Task<List<PremioDTO>> GetAllPremiAdminAsync();
+    Task<PremioDTO> CreatePremioAsync(CreatePremioDTO dto);
+    Task<PremioDTO> UpdatePremioAsync(int id, UpdatePremioDTO dto);
+    Task DeletePremioAsync(int id);
     Task AccumulaPuntiAcquistoAsync(int userId, decimal importoSpeso, int? ordineId = null);
     string GeneraCardNumber();
     TierMembership CalcolaTier(decimal puntiTotali);
@@ -729,6 +733,84 @@ public class MembershipService : IMembershipService
                 config.UltimaEsecuzione = DateTime.UtcNow;
             }
         }
+        await _db.SaveChangesAsync();
+    }
+
+    // ── Admin CRUD Premi ──
+    public async Task<List<PremioDTO>> GetAllPremiAdminAsync()
+    {
+        return await _db.Premi
+            .OrderByDescending(p => p.CreatedAtUtc)
+            .Select(p => new PremioDTO
+            {
+                Id = p.Id, Nome = p.Nome, Descrizione = p.Descrizione,
+                CostoPunti = p.CostoPunti, Tipo = p.Tipo.ToString(),
+                Valore = p.Valore, Attivo = p.Attivo,
+                QuantitaDisponibile = p.QuantitaDisponibile, ImmaginePath = p.ImmaginePath
+            })
+            .ToListAsync();
+    }
+
+    public async Task<PremioDTO> CreatePremioAsync(CreatePremioDTO dto)
+    {
+        if (!Enum.TryParse<TipoPremio>(dto.Tipo, out var tipo))
+            throw new ArgumentException($"Tipo premio non valido: {dto.Tipo}");
+
+        var premio = new Premio
+        {
+            Nome = dto.Nome.Trim(),
+            Descrizione = dto.Descrizione?.Trim(),
+            CostoPunti = dto.CostoPunti,
+            Tipo = tipo,
+            Valore = dto.Valore,
+            Attivo = dto.Attivo,
+            QuantitaDisponibile = dto.QuantitaDisponibile,
+            ImmaginePath = dto.ImmaginePath?.Trim(),
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        _db.Premi.Add(premio);
+        await _db.SaveChangesAsync();
+
+        return new PremioDTO
+        {
+            Id = premio.Id, Nome = premio.Nome, Descrizione = premio.Descrizione,
+            CostoPunti = premio.CostoPunti, Tipo = premio.Tipo.ToString(),
+            Valore = premio.Valore, Attivo = premio.Attivo,
+            QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath
+        };
+    }
+
+    public async Task<PremioDTO> UpdatePremioAsync(int id, UpdatePremioDTO dto)
+    {
+        var premio = await _db.Premi.FindAsync(id)
+            ?? throw new ArgumentException("Premio non trovato.");
+
+        if (dto.Nome != null) premio.Nome = dto.Nome.Trim();
+        if (dto.Descrizione != null) premio.Descrizione = dto.Descrizione.Trim();
+        if (dto.CostoPunti.HasValue) premio.CostoPunti = dto.CostoPunti.Value;
+        if (dto.Tipo != null && Enum.TryParse<TipoPremio>(dto.Tipo, out var tipo)) premio.Tipo = tipo;
+        if (dto.Valore.HasValue) premio.Valore = dto.Valore.Value;
+        if (dto.Attivo.HasValue) premio.Attivo = dto.Attivo.Value;
+        if (dto.QuantitaDisponibile.HasValue) premio.QuantitaDisponibile = dto.QuantitaDisponibile.Value;
+        if (dto.ImmaginePath != null) premio.ImmaginePath = dto.ImmaginePath.Trim();
+
+        await _db.SaveChangesAsync();
+
+        return new PremioDTO
+        {
+            Id = premio.Id, Nome = premio.Nome, Descrizione = premio.Descrizione,
+            CostoPunti = premio.CostoPunti, Tipo = premio.Tipo.ToString(),
+            Valore = premio.Valore, Attivo = premio.Attivo,
+            QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath
+        };
+    }
+
+    public async Task DeletePremioAsync(int id)
+    {
+        var premio = await _db.Premi.FindAsync(id)
+            ?? throw new ArgumentException("Premio non trovato.");
+        _db.Premi.Remove(premio);
         await _db.SaveChangesAsync();
     }
 }

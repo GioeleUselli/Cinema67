@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FilmAPI.DTO;
 
 public class MembershipCardDTO
@@ -69,6 +71,31 @@ public class PremioRiscattoDTO
     public decimal Valore { get; set; }
     public DateTime DataRiscatto { get; set; }
     public DateTime? DataScadenza { get; set; }
+}
+
+public class CreatePremioDTO
+{
+    [Required][MaxLength(150)]
+    public string Nome { get; set; } = string.Empty;
+    [MaxLength(500)] public string? Descrizione { get; set; }
+    [Required][Range(1, 99999)] public decimal CostoPunti { get; set; }
+    [Required] public string Tipo { get; set; } = "Sconto";
+    [Required][Range(0, 99999)] public decimal Valore { get; set; }
+    public bool Attivo { get; set; } = true;
+    public int QuantitaDisponibile { get; set; } = -1;
+    [MaxLength(500)] public string? ImmaginePath { get; set; }
+}
+
+public class UpdatePremioDTO
+{
+    [MaxLength(150)] public string? Nome { get; set; }
+    [MaxLength(500)] public string? Descrizione { get; set; }
+    [Range(1, 99999)] public decimal? CostoPunti { get; set; }
+    public string? Tipo { get; set; }
+    [Range(0, 99999)] public decimal? Valore { get; set; }
+    public bool? Attivo { get; set; }
+    public int? QuantitaDisponibile { get; set; }
+    [MaxLength(500)] public string? ImmaginePath { get; set; }
 }
 
 public class RiscattaPremioRequestDTO

@@ -41,7 +41,9 @@ function isAdminAreaPath(pathname) {
     '/promozioni.html',
     '/corriere.html',
     '/magazzino.html',
-    '/admin-pacchi.html'
+    '/admin-pacchi.html',
+    '/recensioni-admin.html',
+    '/premi-admin.html'
   ]);
   return adminPaths.has((pathname || '').toLowerCase());
 }
@@ -623,6 +625,11 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   getPremiMembership: function () { return apiFetch('/membership/premi'); },
   riscattaPremio: function (premioId) { return apiFetch('/membership/premi/' + premioId + '/riscatta', { method: 'POST' }); },
   getMieiRiscatti: function () { return apiFetch('/membership/riscatti'); },
+  // Admin premi
+  getAllPremiAdmin: function () { return apiFetch('/admin/membership/premi'); },
+  createPremioAdmin: function (data) { return apiFetch('/admin/membership/premi', { method: 'POST', body: JSON.stringify(data) }); },
+  updatePremioAdmin: function (id, data) { return apiFetch('/admin/membership/premi/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
+  deletePremioAdmin: function (id) { return apiFetch('/admin/membership/premi/' + id, { method: 'DELETE' }); },
   attivaMembership: function () { return apiFetch('/membership/attiva', { method: 'POST' }); },
   stripeMembershipCheckout: function () { return apiFetch('/membership/stripe-checkout', { method: 'POST' }); },
   confermaStripeMembership: function (data) { return apiFetch('/membership/conferma-stripe', { method: 'POST', body: JSON.stringify(data) }); },

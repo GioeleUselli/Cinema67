@@ -163,6 +163,43 @@ public static class MembershipEndpoints
             return Results.Ok(result);
         });
 
+        // Admin CRUD premi
+        adminGroup.MapGet("/premi", async (IMembershipService service) =>
+        {
+            var result = await service.GetAllPremiAdminAsync();
+            return Results.Ok(result);
+        });
+
+        adminGroup.MapPost("/premi", async (CreatePremioDTO dto, IMembershipService service) =>
+        {
+            try
+            {
+                var result = await service.CreatePremioAsync(dto);
+                return Results.Created($"/admin/membership/premi/{result.Id}", result);
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
+        adminGroup.MapPut("/premi/{id:int}", async (int id, UpdatePremioDTO dto, IMembershipService service) =>
+        {
+            try
+            {
+                var result = await service.UpdatePremioAsync(id, dto);
+                return Results.Ok(result);
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
+        adminGroup.MapDelete("/premi/{id:int}", async (int id, IMembershipService service) =>
+        {
+            try
+            {
+                await service.DeletePremioAsync(id);
+                return Results.Ok(new { message = "Premio eliminato." });
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
         authGroup.MapGet("/premi", async (ClaimsPrincipal user, IMembershipService service) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
