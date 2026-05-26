@@ -241,6 +241,7 @@ public static class MembershipEndpoints
             }
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.BadRequest(new { message = ex.InnerException?.Message ?? ex.Message }); }
         });
 
         authGroup.MapPost("/premi/completa-merch", async (CompletaMerchPremioDTO dto, ClaimsPrincipal user, IMembershipService service) =>
