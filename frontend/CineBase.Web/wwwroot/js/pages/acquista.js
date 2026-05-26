@@ -14,6 +14,7 @@ let keepAliveInterval = null;
 let pollInterval = null;
 let zoomIndex = DEFAULT_ZOOM_INDEX;
 let appliedDiscount = 0;
+let appliedDiscountFisso = 0;
 let discountCodeApplied = null;
 let seatTicketTypes = {};
 let pricingOptions = [];
@@ -503,6 +504,12 @@ function updateSummary() {
     discountPct.textContent = appliedDiscount + '%';
     discountAmt.textContent = '-' + formatCurrency(discountVal);
     total = total - discountVal;
+  } else if (appliedDiscountFisso > 0) {
+    var discountVal = Math.min(appliedDiscountFisso, total);
+    discountRow.classList.remove('hidden');
+    discountPct.textContent = '€' + appliedDiscountFisso.toFixed(2);
+    discountAmt.textContent = '-' + formatCurrency(discountVal);
+    total = total - discountVal;
   } else {
     discountRow.classList.add('hidden');
   }
@@ -730,6 +737,33 @@ function setupActions() {
       if (!code) return;
       discountMsg.classList.add('hidden');
       try {
+        // Try standard discount codes first
+        var discResult = await API.validateDiscount(code);
+        if (discResult && discResult.valido) {
+          var perc = discResult.percentualeSconto || 0;
+          var fisso = discResult.valoreScontoFisso || 0;
+          if (perc > 0) {
+            appliedDiscount = perc;
+            appliedDiscountFisso = 0;
+            discountCodeApplied = code;
+            discountMsg.textContent = 'Codice applicato: -' + perc + '%' + (fisso > 0 ? ' (max €' + fisso.toFixed(2) + ')' : '');
+          } else if (fisso > 0) {
+            appliedDiscount = 0;
+            appliedDiscountFisso = fisso;
+            discountCodeApplied = code;
+            discountMsg.textContent = 'Sconto di €' + fisso.toFixed(2) + ' applicato!';
+          } else {
+            discountMsg.textContent = 'Codice non valido';
+            discountMsg.className = 'text-xs mt-1 text-brand-error';
+            discountMsg.classList.remove('hidden');
+            return;
+          }
+          discountMsg.className = 'text-xs mt-1 text-emerald-500';
+          discountMsg.classList.remove('hidden');
+          updateSummary();
+          return;
+        }
+        // Fallback to promotions
         var promos = await API.getPromotionsActive();
         var promo = promos.find(function(p) { return p.discountCode === code && p.discountPercent; });
         if (promo) {

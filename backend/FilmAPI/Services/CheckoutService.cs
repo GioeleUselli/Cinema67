@@ -78,28 +78,48 @@ public class CheckoutService : ICheckoutService
 
         // Discount code validation
         int? scontoPercent = null;
+        decimal? scontoFisso = null;
         string? discountCode = null;
         if (!string.IsNullOrWhiteSpace(dto.DiscountCode))
         {
             var code = dto.DiscountCode.Trim().ToUpper();
-            var promo = await _db.Promotions
-                .FirstOrDefaultAsync(p => p.DiscountCode == code && p.Active
-                    && (p.StartDate == null || p.StartDate <= DateTime.UtcNow)
-                    && (p.EndDate == null || p.EndDate >= DateTime.UtcNow));
-            if (promo == null)
+
+            // Check MerchDiscountCode first (premi sconto codes)
+            var merchDisc = await _db.MerchDiscountCodes
+                .FirstOrDefaultAsync(d => d.Codice == code && d.Attivo
+                    && (!d.ScadeIl.HasValue || d.ScadeIl.Value > DateTime.UtcNow)
+                    && d.Utilizzi < d.MaxUtilizzi);
+            if (merchDisc != null)
             {
-                var newsletterSub = await _db.NewsletterSubscribers
-                    .FirstOrDefaultAsync(s => s.CodiceSconto == code && !s.ScontoUsato);
-                if (newsletterSub != null)
+                if (merchDisc.PercentualeSconto > 0)
                 {
-                    scontoPercent = 15; // Default newsletter discount
-                    discountCode = code;
-                    newsletterSub.ScontoUsato = true;
+                    scontoPercent = (int)merchDisc.PercentualeSconto;
                 }
+                else if (merchDisc.ValoreScontoFisso > 0)
+                {
+                    scontoFisso = merchDisc.ValoreScontoFisso;
+                }
+                discountCode = code;
+                merchDisc.Utilizzi++;
             }
             else
             {
-                if (promo.DiscountPercent.HasValue)
+                var promo = await _db.Promotions
+                    .FirstOrDefaultAsync(p => p.DiscountCode == code && p.Active
+                        && (p.StartDate == null || p.StartDate <= DateTime.UtcNow)
+                        && (p.EndDate == null || p.EndDate >= DateTime.UtcNow));
+                if (promo == null)
+                {
+                    var newsletterSub = await _db.NewsletterSubscribers
+                        .FirstOrDefaultAsync(s => s.CodiceSconto == code && !s.ScontoUsato);
+                    if (newsletterSub != null)
+                    {
+                        scontoPercent = 15;
+                        discountCode = code;
+                        newsletterSub.ScontoUsato = true;
+                    }
+                }
+                else if (promo.DiscountPercent.HasValue)
                 {
                     if (promo.MaxUsage.HasValue && promo.UsageCount >= promo.MaxUsage.Value)
                         throw new InvalidOperationException("Codice sconto esaurito.");
@@ -108,7 +128,7 @@ public class CheckoutService : ICheckoutService
                     promo.UsageCount++;
                 }
             }
-            if (scontoPercent == null)
+            if (scontoPercent == null && scontoFisso == null)
                 throw new ArgumentException("Codice sconto non valido o già usato.");
         }
 
@@ -126,7 +146,7 @@ public class CheckoutService : ICheckoutService
             NumeroBiglietti = numeroBiglietti,
             TotaleLordo = totaleLordo,
             ImportoCredito = 0,
-            ImportoCarta = scontoPercent.HasValue ? totaleLordo * (1 - scontoPercent.Value / 100m) : totaleLordo,
+            ImportoCarta = scontoPercent.HasValue ? Math.Round(totaleLordo * (1 - scontoPercent.Value / 100m), 2) : (scontoFisso.HasValue ? Math.Max(0, totaleLordo - scontoFisso.Value) : totaleLordo),
             ScontoPercent = scontoPercent,
             DiscountCode = discountCode,
             IdempotencyKey = dto.IdempotencyKey,
