@@ -50,25 +50,59 @@ public static class GiftCardEndpoints
         authGroup.MapPost("/acquista-carrello", async (
             GiftCardCartAcquistoRequestDTO dto,
             ClaimsPrincipal user,
-            IGiftCardService service) =>
+            IGiftCardService service,
+            FilmDbContext db) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             if (userId == 0) return Results.Unauthorized();
             try
             {
+                // Apply discount code if provided
+                decimal sconto = 0;
+                if (!string.IsNullOrWhiteSpace(dto.CodiceSconto))
+                {
+                    var disc = await db.MerchDiscountCodes
+                        .FirstOrDefaultAsync(d => d.Codice == dto.CodiceSconto.Trim().ToUpper() && d.Attivo
+                            && (!d.ScadeIl.HasValue || d.ScadeIl.Value > DateTime.UtcNow)
+                            && d.Utilizzi < d.MaxUtilizzi);
+                    if (disc != null)
+                    {
+                        var tot = dto.Items.Sum(i => i.Importo * i.Quantita);
+                        if (disc.PercentualeSconto > 0)
+                        {
+                            sconto = Math.Round(tot * disc.PercentualeSconto / 100m, 2);
+                            if (disc.ValoreScontoFisso > 0) sconto = Math.Min(sconto, disc.ValoreScontoFisso);
+                        }
+                        else if (disc.ValoreScontoFisso > 0)
+                            sconto = Math.Min(disc.ValoreScontoFisso, tot);
+                        disc.Utilizzi++;
+                        await db.SaveChangesAsync();
+                    }
+                }
+
                 if (dto.MetodoPagamento == "carta" || dto.MetodoPagamento == "misto" || dto.MetodoPagamento == "paypal")
                 {
                     var stripeResult = await service.CreateStripeCheckoutCartAsync(userId, dto);
                     return Results.Ok(stripeResult);
                 }
-                // For credito with cart, create individual purchases with per-card details
+
+                // For credito, reduce first item's amount by the discount
                 var allCards = new List<GiftCardDTO>();
                 decimal totaleSpeso = 0;
+                var first = true;
                 foreach (var item in dto.Items)
                 {
+                    var importo = item.Importo;
+                    if (first && sconto > 0)
+                    {
+                        var scontoSuQuesto = Math.Min(sconto, importo * item.Quantita);
+                        importo = Math.Max(0, importo - (scontoSuQuesto / item.Quantita));
+                        sconto -= scontoSuQuesto;
+                        first = false;
+                    }
                     var single = new GiftCardAcquistoRequestDTO
                     {
-                        Importo = item.Importo,
+                        Importo = importo,
                         Quantita = item.Quantita,
                         DestinatarioEmail = item.DestinatarioEmail ?? dto.DestinatarioEmail,
                         Messaggio = item.Messaggio ?? dto.Messaggio,
