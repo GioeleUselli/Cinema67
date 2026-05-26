@@ -26,6 +26,7 @@ public class GiftCardCartAcquistoRequestDTO
     public string? Messaggio { get; set; }
     public DateTime? DataInvioProgrammato { get; set; }
     public string MetodoPagamento { get; set; } = "credito";
+    public string? CodiceSconto { get; set; }
 }
 
 public class GiftCardRiscattoRequestDTO

@@ -93,7 +93,8 @@ public class MerchDiscountCode
 {
     [Key] public int Id { get; set; }
     [Required][MaxLength(50)] public string Codice { get; set; } = "";
-    [Column(TypeName = "decimal(5,2)")] public decimal PercentualeSconto { get; set; } = 10;
+    [Column(TypeName = "decimal(5,2)")] public decimal PercentualeSconto { get; set; } = 0;
+    [Column(TypeName = "decimal(10,2)")] public decimal ValoreScontoFisso { get; set; } = 0;
     public bool Attivo { get; set; } = true;
     public DateTime? ScadeIl { get; set; }
     public int MaxUtilizzi { get; set; } = 100;

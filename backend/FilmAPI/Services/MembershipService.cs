@@ -501,6 +501,7 @@ public class MembershipService : IMembershipService
             {
                 Codice = codice,
                 PercentualeSconto = premio.PercentualeSconto ?? 0,
+                ValoreScontoFisso = premio.PercentualeSconto.HasValue && premio.PercentualeSconto > 0 ? 0 : premio.Valore,
                 Attivo = true,
                 ScadeIl = scadenza,
                 MaxUtilizzi = 1,

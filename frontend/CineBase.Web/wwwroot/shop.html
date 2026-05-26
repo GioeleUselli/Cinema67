@@ -149,7 +149,7 @@
   <script>
     let cart = [];
     let products = [];
-    let discountState = { codice: null, percentuale: 0, totaleOriginale: 0 };
+    let discountState = { codice: null, percentuale: 0, valoreFisso: 0, totaleOriginale: 0 };
     function saveCart() { 
       localStorage.setItem('cinema67_merch_cart', JSON.stringify(cart)); 
       syncCartToBackend();
@@ -192,12 +192,13 @@
       discountState.totaleOriginale = totale;
       var discounted = totale;
       if (discountState.percentuale > 0) discounted = Math.round((totale * (1 - discountState.percentuale / 100)) * 100) / 100;
+      else if (discountState.valoreFisso > 0) discounted = Math.max(0, totale - discountState.valoreFisso);
       document.getElementById('cart-totale-amount').textContent = '€' + discounted.toFixed(2);
       document.getElementById('btn-acquista').disabled = cart.length === 0;
 
       var discSection = document.getElementById('discount-section');
       if (cart.length > 0) { discSection.classList.remove('hidden'); }
-      else { discSection.classList.add('hidden'); discountState.codice = null; discountState.percentuale = 0; }
+      else { discSection.classList.add('hidden'); discountState.codice = null; discountState.percentuale = 0; discountState.valoreFisso = 0; }
 
       itemsContainer.innerHTML = cart.length === 0
         ? `<p class="text-center text-brand-on-surface-variant py-8"><i class="fa-solid fa-cart-shopping text-3xl mb-3 block"></i>Il carrello è vuoto</p>`
@@ -313,12 +314,13 @@
 
     async function applyDiscount() {
       var code = document.getElementById('discount-input').value.trim();
-      if (!code) { document.getElementById('discount-msg').innerHTML = ''; discountState.codice = null; discountState.percentuale = 0; updateCartUI(); return; }
+      if (!code) { document.getElementById('discount-msg').innerHTML = ''; discountState.codice = null; discountState.percentuale = 0; discountState.valoreFisso = 0; updateCartUI(); return; }
       try {
         var r = await API.validateDiscount(code);
         if (r.valido) {
           discountState.codice = r.codice;
-          discountState.percentuale = r.percentualeSconto;
+          discountState.percentuale = r.percentualeSconto || 0;
+          discountState.valoreFisso = r.valoreScontoFisso || 0;
           document.getElementById('discount-msg').innerHTML = '<span class="text-green-400">' + r.messaggio + '</span>';
         } else {
           discountState.codice = null; discountState.percentuale = 0;

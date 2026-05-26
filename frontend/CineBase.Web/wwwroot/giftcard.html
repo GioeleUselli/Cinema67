@@ -448,9 +448,11 @@
         if (!confirm(msg)) return;
       }
 
+      var scontoCodice = document.getElementById('gift-sconto-input').value.trim() || null;
       var dto = {
         items: cart,
-        metodoPagamento: metodo
+        metodoPagamento: metodo,
+        codiceSconto: scontoCodice
       };
 
       try {

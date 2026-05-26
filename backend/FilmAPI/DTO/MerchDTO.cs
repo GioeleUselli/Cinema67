@@ -49,6 +49,7 @@ public class MerchDiscountValidateDTO
 {
     public string Codice { get; set; } = "";
     public decimal PercentualeSconto { get; set; }
+    public decimal ValoreScontoFisso { get; set; }
     public bool Valido { get; set; }
     public string? Messaggio { get; set; }
     public decimal TotaleScontato { get; set; }

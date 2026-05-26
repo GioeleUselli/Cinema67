@@ -111,7 +111,23 @@ public class MerchService : IMerchService
             }
         }
 
-        var sconto = Math.Round(totale * scontoPercent / 100m, 2);
+        decimal sconto = 0;
+        if (scontoPercent > 0)
+        {
+            sconto = Math.Round(totale * scontoPercent / 100m, 2);
+        }
+        else if (!string.IsNullOrWhiteSpace(dto.DiscountCode))
+        {
+            var discountFisso = await _db.MerchDiscountCodes
+                .FirstOrDefaultAsync(d => d.Codice == dto.DiscountCode.Trim().ToUpper() && d.Attivo
+                    && (!d.ScadeIl.HasValue || d.ScadeIl.Value > DateTime.UtcNow)
+                    && d.Utilizzi < d.MaxUtilizzi);
+            if (discountFisso != null && discountFisso.ValoreScontoFisso > 0)
+            {
+                sconto = Math.Min(discountFisso.ValoreScontoFisso, totale);
+                discountFisso.Utilizzi++;
+            }
+        }
         totale -= sconto;
 
         var costoShip = _shipping.CalcolaCostoSpedizione(dto.TipoConsegna ?? "RitiroCinema", dto.CinemaRitiroId, dto.CAP);

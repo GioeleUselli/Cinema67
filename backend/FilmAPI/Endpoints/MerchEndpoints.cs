@@ -38,12 +38,16 @@ public static class MerchEndpoints
                     && d.Utilizzi < d.MaxUtilizzi);
             if (discount is null)
                 return Results.Ok(new MerchDiscountValidateDTO { Valido = false, Messaggio = "Codice non valido o scaduto." });
+            var msg = discount.PercentualeSconto > 0
+                ? $"Sconto del {discount.PercentualeSconto}% applicato!" + (discount.ValoreScontoFisso > 0 ? $" (max €{discount.ValoreScontoFisso:F2})" : "")
+                : $"Sconto di €{discount.ValoreScontoFisso:F2} applicato!";
             return Results.Ok(new MerchDiscountValidateDTO
             {
                 Valido = true,
                 Codice = discount.Codice,
                 PercentualeSconto = discount.PercentualeSconto,
-                Messaggio = $"Sconto del {discount.PercentualeSconto}% applicato!"
+                ValoreScontoFisso = discount.ValoreScontoFisso,
+                Messaggio = msg
             });
         }).AllowAnonymous();
 
