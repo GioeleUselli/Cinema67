@@ -551,22 +551,27 @@ async function loadMerchOrders() {
       var date = new Date(o.createdAtUtc).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
       var items = o.items || [];
       var itemsText = items.map(function(i) { return i.quantita + 'x ' + (i.nome || 'Articolo'); }).join(', ');
-      var trackingLink = o.statoSpedizione && o.statoSpedizione !== 'InAttesa' ? '<a href="/tracking-merch.html?orderId=' + o.id + '" class="text-xs text-brand-gold hover:underline mt-1 inline-block"><i class="fa-solid fa-truck mr-1"></i>Traccia spedizione</a>' : '';
-      return '<a href="/tracking-merch.html?orderId=' + o.id + '" class="block border border-brand-outline-variant/20 rounded-xl p-4 mb-3 hover:bg-brand-surface-container-high/50 transition-colors">' +
-        '<div class="flex justify-between items-start">' +
+      var link = o.id ? '/tracking-merch.html?orderId=' + o.id : '#';
+      var tipoConsegnaIcon = o.tipoConsegna === 'Spedizione' ? 'fa-truck' : 'fa-store';
+      var tipoConsegnaLabel = o.tipoConsegna === 'Spedizione' ? 'Spedizione' : 'Ritiro in cinema';
+      return '<div class="border border-brand-outline-variant/20 rounded-xl p-4 mb-3 hover:bg-brand-surface-container-high/50 transition-colors">' +
+        '<div class="flex items-start justify-between">' +
           '<div class="flex-1 min-w-0">' +
             '<div class="flex items-center gap-2 mb-1">' +
               '<h3 class="font-semibold text-brand-on-surface truncate">' + (o.codiceOrdine || 'Ordine #' + o.id) + '</h3>' +
               statoBadge +
             '</div>' +
-            '<p class="text-sm text-brand-on-surface-variant">' + date + '</p>' +
-            (itemsText ? '<p class="text-sm text-brand-on-surface-variant mt-1">' + itemsText + '</p>' : '') +
-            '<p class="text-brand-gold font-semibold text-sm mt-1">' + formatCurrency(o.totale) + '</p>' +
-            (o.statoSpedizione && o.statoSpedizione !== 'InAttesa' ? '<p class="text-xs text-brand-on-surface-variant mt-1">Spedizione: ' + o.statoSpedizione + (o.trackingNumber ? ' — ' + o.trackingNumber : '') + '</p>' : '') +
-            trackingLink +
+            '<p class="text-sm text-brand-on-surface-variant"><i class="fa-regular fa-calendar mr-1"></i>' + date + '</p>' +
+            (itemsText ? '<p class="text-sm text-brand-on-surface-variant mt-1 flex items-center gap-1"><i class="fa-solid fa-store mr-1"></i>' + itemsText + '</p>' : '') +
+            '<div class="flex items-center gap-3 mt-2">' +
+              '<span class="text-brand-gold font-semibold text-base">' + formatCurrency(o.totale) + '</span>' +
+              '<span class="text-xs text-brand-on-surface-variant"><i class="fa-solid ' + tipoConsegnaIcon + ' mr-1"></i>' + tipoConsegnaLabel + '</span>' +
+            '</div>' +
+            (o.statoSpedizione && o.statoSpedizione !== 'InAttesa' ? '<p class="text-xs text-brand-on-surface-variant mt-1"><i class="fa-solid fa-rotate mr-1"></i>' + o.statoSpedizione + (o.trackingNumber ? ' — ' + o.trackingNumber : '') + '</p>' : '') +
           '</div>' +
+          '<a href="' + link + '" class="flex-shrink-0 ml-3 btn-outline-brand text-xs px-3 py-2 rounded-lg" title="Dettagli ordine"><i class="fa-solid fa-eye mr-1"></i>Dettagli</a>' +
         '</div>' +
-      '</a>';
+      '</div>';
     }).join('');
   } catch(e) {
     console.error('loadMerchOrders error:', e);
