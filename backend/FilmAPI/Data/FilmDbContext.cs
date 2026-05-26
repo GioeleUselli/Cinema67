@@ -57,6 +57,7 @@ public class FilmDbContext : DbContext
     public DbSet<FoodItem> FoodItems { get; set; }
     public DbSet<FoodOrderItem> FoodOrderItems { get; set; }
     public DbSet<ReferralCode> ReferralCodes { get; set; }
+    public DbSet<Recensione> Recensioni { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -553,6 +554,27 @@ public class FilmDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(r => r.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Recensione>(entity =>
+        {
+            entity.HasIndex(e => new { e.FilmId, e.Stato });
+            entity.HasIndex(e => e.Stato);
+
+            entity.HasOne(r => r.Film)
+                  .WithMany(f => f.Recensioni)
+                  .HasForeignKey(r => r.FilmId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(r => r.User)
+                  .WithMany()
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.ApprovataDa)
+                  .WithMany()
+                  .HasForeignKey(r => r.ApprovataDaUserId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

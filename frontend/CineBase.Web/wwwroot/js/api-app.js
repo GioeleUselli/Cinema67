@@ -777,5 +777,12 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
 
   // ── GDPR / Account ──
   requestDataExport: function () { return apiFetch('/auth/me/export/request', { method: 'POST' }); },
-  requestAccountDeletion: function () { return apiFetch('/auth/me/delete/request', { method: 'POST' }); }
+  requestAccountDeletion: function () { return apiFetch('/auth/me/delete/request', { method: 'POST' }); },
+
+  // ── Recensioni ──
+  getRecensioni: function (filmId) { return apiFetch(`/reviews/film/${filmId}`); },
+  createRecensione: function (filmId, data) { return apiFetch(`/reviews/film/${filmId}`, { method: 'POST', body: JSON.stringify(data) }); },
+  getRecensioniPending: function () { return apiFetch('/reviews/admin/pending'); },
+  approvaRecensione: function (id) { return apiFetch(`/reviews/admin/${id}/approve`, { method: 'PUT' }); },
+  eliminaRecensione: function (id) { return apiFetch(`/reviews/admin/${id}`, { method: 'DELETE' }); }
 };

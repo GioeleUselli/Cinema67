@@ -240,6 +240,7 @@ internal static class Program
             film.Durata = details.Runtime!.Value;
             film.DescrizioneLunga = Truncate(details.Overview, 2000);
             film.CastText = BuildCastText(details.Credits.Cast);
+            film.TmdbId = details.Id;
             film.CopertinaPath = details.PosterFullUrl;
             film.FilmatoPath = null;
 

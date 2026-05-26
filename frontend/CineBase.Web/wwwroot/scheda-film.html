@@ -131,6 +131,69 @@
         <p class="text-brand-on-surface-variant">Non ci sono spettacoli per la data selezionata</p>
       </div>
 
+      <!-- TMDB Reviews -->
+      <div id="tmdb-reviews-section" class="hidden mt-6">
+        <div class="cine-premium-card p-5">
+          <h3 class="text-sm font-semibold text-brand-on-surface mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-star text-brand-gold"></i>Recensioni dalla community
+          </h3>
+          <div id="tmdb-reviews-list" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <!-- User Reviews (approved) -->
+      <div id="user-reviews-section" class="hidden mt-6">
+        <div class="cine-premium-card p-5">
+          <h3 class="text-sm font-semibold text-brand-on-surface mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-pen text-brand-gold"></i>Recensioni degli utenti
+          </h3>
+          <div id="user-reviews-list" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <!-- Review Form (authenticated users) -->
+      <div id="review-form-section" class="hidden mt-6">
+        <div class="cine-premium-card p-5">
+          <h3 class="text-sm font-semibold text-brand-on-surface mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-brand-gold"></i>Scrivi una recensione
+          </h3>
+          <form id="review-form" class="space-y-4">
+            <div>
+              <label class="block text-sm text-brand-on-surface-variant mb-1">Voto (1-10)</label>
+              <div id="star-rating" class="flex gap-1 text-2xl">
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="1">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="2">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="3">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="4">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="5">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="6">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="7">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="8">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="9">★</span>
+                <span class="star cursor-pointer text-brand-outline-variant" data-value="10">★</span>
+              </div>
+              <input type="hidden" id="review-voto" value="0">
+            </div>
+            <div>
+              <label for="review-testo" class="block text-sm text-brand-on-surface-variant mb-1">La tua recensione</label>
+              <textarea id="review-testo" rows="4" maxlength="2000" placeholder="Condividi la tua opinione su questo film..."
+                class="ghost-input w-full p-3 resize-none"></textarea>
+              <p class="text-xs text-brand-on-surface-variant mt-1 text-right"><span id="review-char-count">0</span>/2000</p>
+            </div>
+            <div id="review-form-error" class="hidden text-sm text-red-500"></div>
+            <button type="submit" class="btn-gold">
+              <i class="fa-solid fa-paper-plane mr-1"></i>Invia recensione
+            </button>
+            <p id="review-login-prompt" class="hidden text-sm text-brand-on-surface-variant">
+              <a href="/login.html" class="text-brand-gold hover:underline" id="review-login-link">Accedi</a> per scrivere una recensione.
+            </p>
+            <p id="review-pending-msg" class="hidden text-sm text-brand-gold">
+              <i class="fa-solid fa-hourglass-half mr-1"></i>La tua recensione è stata inviata ed è in attesa di approvazione.
+            </p>
+          </form>
+        </div>
+      </div>
+
       <!-- Social Sharing -->
       <div id="social-sharing" class="hidden mt-6">
         <div class="cine-premium-card p-5">
@@ -216,7 +279,7 @@
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>`n
   <script src="/js/date-rail.js"></script>
-  <script src="/js/pages/scheda-film.js?v=2"></script>
+  <script src="/js/pages/scheda-film.js?v=8"></script>
   <script>
     if (typeof Auth === 'undefined' || !Auth || !Auth.isLoggedIn || !Auth.isLoggedIn()) {
       localStorage.removeItem('cb_selected_cinema');

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 - Gestione Recensioni</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans">
+  <div id="navbar-container"></div>
+  <main>
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-brand-on-surface">Gestione Recensioni</h1>
+      </div>
+      <div id="review-admin-content">
+        <div id="review-loading" class="text-center py-8">
+          <i class="fa-solid fa-spinner fa-spin text-2xl text-brand-gold"></i>
+          <p class="mt-2 text-brand-on-surface-variant">Caricamento recensioni in attesa...</p>
+        </div>
+        <div id="review-empty" class="hidden text-center py-12">
+          <i class="fa-solid fa-check-circle text-5xl text-brand-gold mb-4"></i>
+          <h3 class="text-lg font-semibold text-brand-on-surface mb-2">Nessuna recensione in attesa</h3>
+          <p class="text-brand-on-surface-variant">Tutte le recensioni sono state approvate o non ce ne sono ancora.</p>
+        </div>
+        <div id="review-table-container" class="hidden overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-brand-outline-variant/20 text-left">
+                <th class="pb-3 pr-4 text-brand-on-surface-variant font-medium">Film</th>
+                <th class="pb-3 pr-4 text-brand-on-surface-variant font-medium">Utente</th>
+                <th class="pb-3 pr-4 text-brand-on-surface-variant font-medium">Voto</th>
+                <th class="pb-3 pr-4 text-brand-on-surface-variant font-medium">Recensione</th>
+                <th class="pb-3 pr-4 text-brand-on-surface-variant font-medium">Data</th>
+                <th class="pb-3 text-brand-on-surface-variant font-medium">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="review-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="footer-container"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=102"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
+  <script src="/js/admin-shell.js?v=100"></script>
+  <script src="/js/template-loader.js?v=101"></script>
+  <script src="/js/pages/recensioni-admin.js?v=1"></script>
+</body>
+</html>

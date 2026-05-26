@@ -102,6 +102,14 @@ async function loadLayoutComponents() {
     newsletterScript.setAttribute('data-newsletter', 'true');
     document.body.appendChild(newsletterScript);
   }
+
+  // Cookie consent banner
+  if (!document.querySelector('script[data-cookie-banner="true"]')) {
+    var cookieScript = document.createElement('script');
+    cookieScript.src = '/js/cookie-banner.js?v=2';
+    cookieScript.setAttribute('data-cookie-banner', 'true');
+    document.body.appendChild(cookieScript);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', loadLayoutComponents);

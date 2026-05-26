@@ -492,4 +492,11 @@ public class ProgrammazioneService : IProgrammazioneService
     }
 
     private static double ToRadians(double degrees) => degrees * Math.PI / 180.0;
+
+    public async Task<List<TmdbReviewDTO>> GetTmdbReviewsForFilmAsync(int filmId, ITmdbService tmdbSvc)
+    {
+        var film = await _context.Films.FindAsync(filmId);
+        if (film?.TmdbId == null) return new List<TmdbReviewDTO>();
+        return await tmdbSvc.GetMovieReviewsAsync(film.TmdbId.Value);
+    }
 }

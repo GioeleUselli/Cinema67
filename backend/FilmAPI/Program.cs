@@ -1,4 +1,5 @@
- using DotNetEnv;
+ using System.Security.Claims;
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,6 +95,18 @@ builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<IPaccoService, PaccoService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ITmdbService>(sp =>
+{
+    var token = Environment.GetEnvironmentVariable("TMDB_BEARER_TOKEN");
+    if (string.IsNullOrWhiteSpace(token))
+    {
+        return new TmdbService(new HttpClient(), sp.GetRequiredService<ILogger<TmdbService>>());
+    }
+    var client = new HttpClient();
+    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+    return new TmdbService(client, sp.GetRequiredService<ILogger<TmdbService>>());
+});
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();
 
@@ -175,34 +188,27 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
+    bool HasRole(ClaimsPrincipal user, params string[] roles) =>
+        user.HasClaim(c => (c.Type == "role" || c.Type == ClaimTypes.Role) && roles.Contains(c.Value));
+
     options.AddPolicy("AdminOnly", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) && c.Value == "Admin")));
+        policy.RequireAssertion(ctx => HasRole(ctx.User, "Admin", "2")));
     options.AddPolicy("PowerUserOrAdmin", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) && (c.Value == "PowerUser" || c.Value == "Admin"))));
+        policy.RequireAssertion(ctx => HasRole(ctx.User, "PowerUser", "1", "Admin", "2")));
     options.AddPolicy("Authenticated", policy =>
         policy.RequireAuthenticatedUser());
 
     options.AddPolicy("CinemaStaffOrPowerUserOrAdmin", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
-                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "CinemaStaff"))));
+        policy.RequireAssertion(ctx => HasRole(ctx.User, "Admin", "2", "PowerUser", "1", "CinemaStaff", "3")));
 
     options.AddPolicy("CorriereOrPowerUserOrAdmin", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
-                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "Corriere"))));
+        policy.RequireAssertion(ctx => HasRole(ctx.User, "Admin", "2", "PowerUser", "1", "Corriere", "4")));
 
     options.AddPolicy("MagazziniereOrPowerUserOrAdmin", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
-                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "Magazziniere"))));
+        policy.RequireAssertion(ctx => HasRole(ctx.User, "Admin", "2", "PowerUser", "1", "Magazziniere", "5")));
 
     options.AddPolicy("StaffOrPowerUserOrAdmin", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => (c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role) &&
-                (c.Value == "Admin" || c.Value == "PowerUser" || c.Value == "CinemaStaff" || c.Value == "Corriere" || c.Value == "Magazziniere"))));
+        policy.RequireAssertion(ctx => HasRole(ctx.User, "Admin", "2", "PowerUser", "1", "CinemaStaff", "3", "Corriere", "4", "Magazziniere", "5")));
 });
 
 builder.Services.AddOpenApiDocument(config =>
@@ -312,6 +318,7 @@ app.MapAnalyticsEndpoints();
 app.MapMerchEndpoints();
 app.MapMerchPagamentoEndpoints();
 app.MapPaccoEndpoints();
+app.MapReviewEndpoints();
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {

@@ -42,6 +42,7 @@ public class FilmSchedaDTO
     public string? RegistaCognome { get; set; }
     public CinemaSintesiDTO? CinemaSelezionato { get; set; }
     public List<FilmSchedaShowGroupDTO> ShowCalendar { get; set; } = new();
+    public List<TmdbReviewDTO> RecensioniTmdb { get; set; } = new();
 }
 
 public class FilmSchedaShowGroupDTO

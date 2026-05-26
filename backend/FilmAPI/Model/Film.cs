@@ -38,6 +38,9 @@ public class Film
 
     public DateOnly? DataRilascio { get; set; }
 
+    public int? TmdbId { get; set; }
+
+    public ICollection<Recensione> Recensioni { get; set; } = new List<Recensione>();
     public ICollection<Proiezione> Proiezioni { get; set; } = new List<Proiezione>();
     public ICollection<FilmCategoria> FilmCategorie { get; set; } = new List<FilmCategoria>();
     public ICollection<Show> Shows { get; set; } = new List<Show>();

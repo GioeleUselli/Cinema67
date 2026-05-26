@@ -255,6 +255,12 @@ function renderFilm() {
 
   // Setup social sharing
   setupSocialSharing();
+
+  // Load reviews
+  loadReviews();
+
+  // Setup review form
+  setupReviewForm();
 }
 
 function renderCinemaInfo() {
@@ -741,6 +747,217 @@ function fallbackCopy(text) {
 }
 
 var referralData = null;
+
+// ── Recensioni ──
+async function loadReviews() {
+  if (!filmId) return;
+  try {
+    var data = await API.getRecensioni(filmId);
+    renderTmdbReviews(data.recensioniTmdb);
+    renderUserReviews(data.recensioni);
+  } catch (e) {
+    console.error('Errore caricamento recensioni:', e);
+  }
+}
+
+function renderTmdbReviews(reviews) {
+  var section = document.getElementById('tmdb-reviews-section');
+  var list = document.getElementById('tmdb-reviews-list');
+  if (!section || !list) return;
+  if (!reviews || reviews.length === 0) return;
+  section.classList.remove('hidden');
+  list.innerHTML = reviews.map(function (r) {
+    var stars = '';
+    if (r.voto) {
+      var full = Math.round(r.voto / 2);
+      for (var i = 0; i < 5; i++) {
+        stars += '<span class="' + (i < full ? 'text-brand-gold' : 'text-brand-outline-variant') + '">★</span>';
+      }
+    }
+    var date = r.dataCreazione ? new Date(r.dataCreazione).toLocaleDateString('it-IT') : '';
+    return '<div class="p-4 bg-brand-surface-container rounded-xl">' +
+      '<div class="flex items-center justify-between mb-2">' +
+        '<div><span class="font-medium text-brand-on-surface text-sm">' + escapeHtml(r.autore) + '</span>' +
+        (date ? '<span class="text-xs text-brand-on-surface-variant ml-2">' + date + '</span>' : '') + '</div>' +
+        (stars ? '<div class="text-sm">' + stars + '</div>' : '') +
+      '</div>' +
+      '<p class="text-sm text-brand-on-surface leading-relaxed">' + escapeHtml(r.contenuto || '') + '</p>' +
+    '</div>';
+  }).join('');
+}
+
+function renderUserReviews(reviews) {
+  var section = document.getElementById('user-reviews-section');
+  var list = document.getElementById('user-reviews-list');
+  if (!section || !list) return;
+  if (!reviews || reviews.length === 0) {
+    list.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessuna recensione ancora. Sarai il primo?</p>';
+    section.classList.remove('hidden');
+    return;
+  }
+  section.classList.remove('hidden');
+  list.innerHTML = reviews.map(function (r) {
+    var stars = '';
+    for (var i = 0; i < r.voto; i++) {
+      stars += '<span class="text-brand-gold">★</span>';
+    }
+    for (var i = r.voto; i < 10; i++) {
+      stars += '<span class="text-brand-outline-variant">★</span>';
+    }
+    var date = new Date(r.createdAtUtc).toLocaleDateString('it-IT');
+    return '<div class="p-4 bg-brand-surface-container rounded-xl">' +
+      '<div class="flex items-center justify-between mb-2">' +
+        '<div><span class="font-medium text-brand-on-surface text-sm">' + escapeHtml(r.userNome) + '</span>' +
+        '<span class="text-xs text-brand-on-surface-variant ml-2">' + date + '</span></div>' +
+        '<div class="text-sm">' + stars + '</div>' +
+      '</div>' +
+      '<p class="text-sm text-brand-on-surface leading-relaxed">' + escapeHtml(r.testo) + '</p>' +
+    '</div>';
+  }).join('');
+}
+
+function setupReviewForm() {
+  var section = document.getElementById('review-form-section');
+  var form = document.getElementById('review-form');
+  var loginPrompt = document.getElementById('review-login-prompt');
+  var pendingMsg = document.getElementById('review-pending-msg');
+  if (!section || !form) return;
+
+  section.classList.remove('hidden');
+
+  var auth = getAuthSafe();
+  if (!auth || !auth.isLoggedIn()) {
+    form.querySelector('button[type="submit"]').classList.add('hidden');
+    document.getElementById('star-rating').classList.add('hidden');
+    document.getElementById('review-testo').classList.add('hidden');
+    if (loginPrompt) {
+      loginPrompt.classList.remove('hidden');
+      var loginLink = document.getElementById('review-login-link');
+      if (loginLink) {
+        loginLink.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+      }
+    }
+    return;
+  }
+
+  // Star rating
+  var stars = document.querySelectorAll('#star-rating .star');
+  var votoInput = document.getElementById('review-voto');
+  stars.forEach(function (star) {
+    star.addEventListener('click', function () {
+      var val = parseInt(this.dataset.value, 10);
+      votoInput.value = val;
+      stars.forEach(function (s) {
+        var sv = parseInt(s.dataset.value, 10);
+        s.classList.toggle('text-brand-gold', sv <= val);
+        s.classList.toggle('text-brand-outline-variant', sv > val);
+      });
+    });
+    star.addEventListener('mouseenter', function () {
+      var val = parseInt(this.dataset.value, 10);
+      stars.forEach(function (s) {
+        var sv = parseInt(s.dataset.value, 10);
+        s.classList.toggle('text-brand-gold/50', sv <= val);
+        s.classList.toggle('text-brand-outline-variant', sv > val);
+      });
+    });
+    star.addEventListener('mouseleave', function () {
+      var selected = parseInt(votoInput.value, 10);
+      stars.forEach(function (s) {
+        var sv = parseInt(s.dataset.value, 10);
+        s.classList.toggle('text-brand-gold', sv <= selected);
+        s.classList.toggle('text-brand-outline-variant', sv > selected);
+        s.classList.remove('text-brand-gold/50');
+      });
+    });
+  });
+
+  // Char count
+  var testo = document.getElementById('review-testo');
+  var charCount = document.getElementById('review-char-count');
+  if (testo && charCount) {
+    testo.addEventListener('input', function () {
+      charCount.textContent = this.value.length;
+    });
+  }
+
+  // Submit
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var errorEl = document.getElementById('review-form-error');
+    var voto = parseInt(votoInput.value, 10);
+    var testoVal = testo ? testo.value.trim() : '';
+
+    if (voto < 1 || voto > 10) {
+      errorEl.textContent = 'Seleziona un voto tra 1 e 10.';
+      errorEl.classList.remove('hidden');
+      return;
+    }
+    if (!testoVal) {
+      errorEl.textContent = 'Scrivi il testo della recensione.';
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
+    errorEl.classList.add('hidden');
+    try {
+      var auth = getAuthSafe();
+      if (!auth || typeof auth.refreshAccessToken !== 'function') {
+        errorEl.textContent = 'Devi aver effettuato l\'accesso per scrivere una recensione.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      try { await auth.refreshAccessToken(); } catch (e) { /* refresh fallback */ }
+      var token = auth.getAccessToken();
+      var payload = token ? auth.parseJwt(token) : null;
+      if (!token || !payload || payload.exp <= Math.ceil(Date.now() / 1000)) {
+        errorEl.textContent = 'Sessione scaduta. Ricarica la pagina ed effettua di nuovo l\'accesso.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      var resp = await fetch('http://localhost:5000/reviews/film/' + filmId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ voto: voto, testo: testoVal })
+      });
+      if (resp.ok) {
+        var successMsg = document.getElementById('review-success-msg');
+        if (!successMsg) {
+          successMsg = document.createElement('p');
+          successMsg.id = 'review-success-msg';
+          successMsg.className = 'text-sm text-green-500 mb-2';
+          successMsg.textContent = 'Recensione inviata! In attesa di approvazione.';
+          form.insertBefore(successMsg, form.firstChild);
+        }
+        votoInput.value = '0';
+        if (testo) { testo.value = ''; testo.disabled = false; charCount.textContent = '0'; }
+        document.querySelectorAll('#star-rating .star').forEach(function(s) {
+          s.classList.add('text-brand-outline-variant');
+          s.classList.remove('text-brand-gold');
+        });
+        setTimeout(function() { if (successMsg) successMsg.remove(); }, 4000);
+        loadReviews();
+      } else if (resp.status === 401) {
+        errorEl.textContent = 'Sessione scaduta. Ricarica la pagina ed effettua di nuovo l\'accesso.';
+        errorEl.classList.remove('hidden');
+      } else {
+        var errData = await resp.json().catch(function() { return {}; });
+        errorEl.textContent = errData.message || 'Errore nell\'invio della recensione.';
+        errorEl.classList.remove('hidden');
+      }
+    } catch (err) {
+      errorEl.textContent = err.message || 'Errore di connessione.';
+      errorEl.classList.remove('hidden');
+    }
+  });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
 
 async function generateReferralLink() {
   var auth = getAuthSafe();
