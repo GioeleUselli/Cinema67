@@ -242,6 +242,7 @@
     var balance = 0;
     var pendingValue = 0;
     var pendingQty = 1;
+    var giftSconto = { codice: null, percentuale: 0, valoreFisso: 0 };
 
     document.addEventListener('components:loaded', function() {
       setTimeout(function() { if (typeof window.updateAuthUI === 'function') window.updateAuthUI(); }, 200);
@@ -326,15 +327,29 @@
         var input = document.getElementById('gift-sconto-input');
         var msg = document.getElementById('gift-sconto-msg');
         var codice = input.value.trim();
-        if (!codice) { msg.className = 'mt-1 text-xs text-red-500'; msg.textContent = 'Inserisci un codice.'; msg.classList.remove('hidden'); return; }
+        if (!codice) { msg.className = 'mt-1 text-xs text-red-500'; msg.textContent = 'Inserisci un codice.'; msg.classList.remove('hidden'); giftSconto.codice = null; giftSconto.percentuale = 0; giftSconto.valoreFisso = 0; renderCart(); return; }
         API.validateDiscount(codice).then(function(r) {
-          msg.className = 'mt-1 text-xs text-emerald-500';
-          msg.textContent = r && r.percentualeSconto ? 'Sconto ' + r.percentualeSconto + '% valido!' : 'Codice valido!';
-          msg.classList.remove('hidden');
+          if (r && r.valido) {
+            giftSconto.codice = r.codice;
+            giftSconto.percentuale = r.percentualeSconto || 0;
+            giftSconto.valoreFisso = r.valoreScontoFisso || 0;
+            msg.className = 'mt-1 text-xs text-emerald-500';
+            msg.textContent = r.messaggio || 'Codice valido!';
+            msg.classList.remove('hidden');
+            renderCart();
+          } else {
+            giftSconto.codice = null; giftSconto.percentuale = 0; giftSconto.valoreFisso = 0;
+            msg.className = 'mt-1 text-xs text-red-500';
+            msg.textContent = (r && r.messaggio) || 'Codice non valido.';
+            msg.classList.remove('hidden');
+            renderCart();
+          }
         }).catch(function(e) {
+          giftSconto.codice = null; giftSconto.percentuale = 0; giftSconto.valoreFisso = 0;
           msg.className = 'mt-1 text-xs text-red-500';
           msg.textContent = e.message || 'Codice non valido.';
           msg.classList.remove('hidden');
+          renderCart();
         });
       });
     }
@@ -412,7 +427,19 @@
       }).join('');
 
       countEl.textContent = cart.reduce(function(s, i) { return s + i.quantita; }, 0);
-      totalEl.textContent = '€' + total.toFixed(2).replace('.', ',');
+      if (giftSconto.codice) {
+        var scontoValore = 0;
+        if (giftSconto.percentuale > 0) {
+          scontoValore = Math.round(total * giftSconto.percentuale / 100 * 100) / 100;
+          if (giftSconto.valoreFisso > 0) scontoValore = Math.min(scontoValore, giftSconto.valoreFisso);
+        } else if (giftSconto.valoreFisso > 0) {
+          scontoValore = Math.min(giftSconto.valoreFisso, total);
+        }
+        var scontato = total - scontoValore;
+        totalEl.innerHTML = '<span class="text-xs text-brand-on-surface-variant line-through">€' + total.toFixed(2).replace('.', ',') + '</span> <span class="text-emerald-500">€' + scontato.toFixed(2).replace('.', ',') + '</span>';
+      } else {
+        totalEl.textContent = '€' + total.toFixed(2).replace('.', ',');
+      }
 
       var btns = ['buy-cart-credito', 'buy-cart-carta', 'buy-cart-misto'];
       btns.forEach(function(id) {
