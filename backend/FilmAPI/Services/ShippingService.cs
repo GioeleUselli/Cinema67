@@ -9,23 +9,20 @@ public interface IShippingService
 {
     decimal CalcolaCostoSpedizione(string tipoConsegna, int? cinemaRitiroId, string? capDestinazione);
     (decimal Costo, int GiorniLavorativi, DateTime DataPrevista) CalcolaSpedizioneCompleta(string tipoConsegna, int? cinemaRitiroId, string? capDestinazione);
-    Task ProcessShipmentsAsync();
     Task<ShipmentTrackingDTO> GetTrackingAsync(int merchOrderId);
 }
 
 public class ShippingService : IShippingService
 {
     private readonly FilmDbContext _db;
-    private readonly IEmailService _emailService;
-    private readonly ILogger<ShippingService> _logger;
 
     private static readonly (double Lat, double Lon) MilanWarehouse = (45.4642, 9.1900);
 
     private static readonly string[] StatusFlow = PaccoStati.FlussoTracking;
 
-    public ShippingService(FilmDbContext db, IEmailService emailService, ILogger<ShippingService> logger)
+    public ShippingService(FilmDbContext db)
     {
-        _db = db; _emailService = emailService; _logger = logger;
+        _db = db;
     }
 
     public decimal CalcolaCostoSpedizione(string tipoConsegna, int? cinemaRitiroId, string? capDestinazione)
@@ -161,60 +158,6 @@ public class ShippingService : IShippingService
         return TimeZoneInfo.ConvertTimeToUtc(local, italianTz);
     }
 
-    public async Task ProcessShipmentsAsync()
-    {
-        var paccoOrderIds = await _db.Pacchi.Select(p => p.MerchOrderId).ToListAsync();
-        var paidOrders = await _db.MerchOrders
-            .Include(o => o.User)
-            .Include(o => o.CinemaRitiro)
-            .Where(o => o.Stato == "Paid" && o.StatoSpedizione != "Consegnato" && !paccoOrderIds.Contains(o.Id))
-            .ToListAsync();
-
-        foreach (var order in paidOrders)
-        {
-            var idx = Array.IndexOf(StatusFlow, order.StatoSpedizione);
-            if (idx < 0 || idx >= StatusFlow.Length - 1) continue;
-
-            var nextStatus = StatusFlow[idx + 1];
-            order.StatoSpedizione = nextStatus;
-            order.TrackingNumber ??= $"C67-{order.Id:D6}-{Guid.NewGuid().ToString("N")[..6].ToUpper()}";
-
-            if (nextStatus == "Spedito")
-                order.DataSpedizione = DateTime.UtcNow;
-            if (nextStatus == "Consegnato")
-                order.DataConsegnaEffettiva = DateTime.UtcNow;
-            if (order.DataConsegnaPrevista == null)
-                order.DataConsegnaPrevista = DateTime.UtcNow.AddDays(3);
-
-            await _db.SaveChangesAsync();
-
-            try
-            {
-                var userEmail = order.User?.Email;
-                if (!string.IsNullOrWhiteSpace(userEmail))
-                {
-                    var statusLabel = GetStatusLabel(nextStatus);
-                    var cinemaNome = order.CinemaRitiro?.Nome ?? "N/D";
-                    var dest = order.TipoConsegna == "Spedizione"
-                        ? $"{order.Indirizzo}, {order.CAP} {order.Citta}"
-                        : $"Cinema {cinemaNome}";
-
-                    var body = $@"<div style='max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#1a1614;color:#e0d8cc;padding:24px;border-radius:12px'>
-<h2 style='color:#d4af37'>Cinema67 — Aggiornamento Spedizione</h2>
-<p>Il tuo ordine <b>{order.CodiceOrdine}</b> è: <b style='color:#d4af37'>{statusLabel}</b></p>
-<p>Destinazione: {dest}</p>
-<p>Tracking: <b>{order.TrackingNumber}</b></p>
-<p style='margin-top:16px'><a href='{GetFrontendUrl()}/tracking-merch.html?orderId={order.Id}' style='color:#d4af37;text-decoration:underline'>Segui la tua spedizione</a></p>
-<p style='margin-top:24px;color:#8a8078;font-size:12px'>Cinema67 — L'Arte del Cinema</p></div>";
-
-                    await _emailService.SendHtmlEmailAsync(userEmail,
-                        $"Cinema67 — Spedizione: {statusLabel} — {order.CodiceOrdine}", body);
-                }
-            }
-            catch (Exception ex) { _logger.LogWarning(ex, "Email spedizione fallita per ordine {Id}", order.Id); }
-        }
-    }
-
     public async Task<ShipmentTrackingDTO> GetTrackingAsync(int merchOrderId)
     {
         var order = await _db.MerchOrders.Include(o => o.Items).ThenInclude(i => i.MerchItem).Include(o => o.CinemaRitiro).FirstOrDefaultAsync(o => o.Id == merchOrderId);
@@ -262,5 +205,4 @@ public class ShippingService : IShippingService
         _ => s
     };
 
-    private static string GetFrontendUrl() => "http://localhost:5001";
 }

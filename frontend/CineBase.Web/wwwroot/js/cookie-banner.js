@@ -37,7 +37,7 @@
   }
 
   function bindButton() {
-    var btn = document.getElementById('cookie-accept-btn');
+    var btn = banner.querySelector('#cookie-accept-btn');
     if (btn) {
       btn.addEventListener('click', function () {
         localStorage.setItem('cb_cookies_accepted', 'true');

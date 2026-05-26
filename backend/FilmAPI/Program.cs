@@ -96,7 +96,7 @@ builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();
-builder.Services.AddHostedService<ShippingBackgroundService>();
+
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
