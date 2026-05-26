@@ -418,7 +418,8 @@ public class MembershipService : IMembershipService
                 Valore = p.Valore,
                 Attivo = p.Attivo,
                 QuantitaDisponibile = p.QuantitaDisponibile,
-                ImmaginePath = p.ImmaginePath
+                ImmaginePath = p.ImmaginePath,
+                MerchItemId = p.MerchItemId
             })
             .ToListAsync();
     }
