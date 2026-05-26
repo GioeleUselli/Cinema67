@@ -214,6 +214,23 @@ function setupActions() {
   var btnPayPal = document.getElementById('btn-paypal');
   if (btnPayPal) btnPayPal.addEventListener('click', payWithPayPal);
 
+  var scontoBtn = document.getElementById('pagamento-sconto-btn');
+  if (scontoBtn) scontoBtn.addEventListener('click', function() {
+    var input = document.getElementById('pagamento-sconto-input');
+    var msg = document.getElementById('pagamento-sconto-msg');
+    var codice = input.value.trim();
+    if (!codice) { msg.className = 'hidden mt-2 text-sm text-red-500'; msg.textContent = 'Inserisci un codice.'; msg.classList.remove('hidden'); return; }
+    API.validateDiscount(codice).then(function(r) {
+      msg.className = 'hidden mt-2 text-sm text-emerald-500';
+      msg.textContent = r && r.percentualeSconto ? 'Sconto ' + r.percentualeSconto + '% valido!' : 'Codice valido!';
+      msg.classList.remove('hidden');
+    }).catch(function(e) {
+      msg.className = 'hidden mt-2 text-sm text-red-500';
+      msg.textContent = e.message || 'Codice non valido.';
+      msg.classList.remove('hidden');
+    });
+  });
+
   initPaymentRequestButton();
 
   btnCancel.addEventListener('click', async () => {

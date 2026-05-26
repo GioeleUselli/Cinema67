@@ -157,6 +157,14 @@
             </div>
           </div>
 
+          <div class="mb-3">
+            <p class="text-xs text-brand-on-surface-variant mb-2"><i class="fa-solid fa-tag mr-1"></i>Codice sconto</p>
+            <div class="flex gap-2">
+              <input id="gift-sconto-input" type="text" placeholder="Inserisci codice" class="ghost-input flex-1 px-4 py-2 rounded-xl text-sm">
+              <button id="gift-sconto-btn" class="btn-outline-brand px-3 py-2 text-xs whitespace-nowrap">Applica</button>
+            </div>
+            <div id="gift-sconto-msg" class="hidden mt-1 text-xs"></div>
+          </div>
           <button id="buy-cart-credito" class="btn-gold-lg w-full text-sm mb-2">
             <i class="fa-solid fa-wallet mr-2"></i> Paga con Credito
           </button>
@@ -310,6 +318,22 @@
       document.getElementById('buy-cart-credito').addEventListener('click', function() { checkoutCart('credito'); });
       document.getElementById('buy-cart-carta').addEventListener('click', function() { checkoutCart('carta'); });
       document.getElementById('buy-cart-misto').addEventListener('click', function() { checkoutCart('misto'); });
+
+      document.getElementById('gift-sconto-btn').addEventListener('click', function() {
+        var input = document.getElementById('gift-sconto-input');
+        var msg = document.getElementById('gift-sconto-msg');
+        var codice = input.value.trim();
+        if (!codice) { msg.className = 'mt-1 text-xs text-red-500'; msg.textContent = 'Inserisci un codice.'; msg.classList.remove('hidden'); return; }
+        API.validateDiscount(codice).then(function(r) {
+          msg.className = 'mt-1 text-xs text-emerald-500';
+          msg.textContent = r && r.percentualeSconto ? 'Sconto ' + r.percentualeSconto + '% valido!' : 'Codice valido!';
+          msg.classList.remove('hidden');
+        }).catch(function(e) {
+          msg.className = 'mt-1 text-xs text-red-500';
+          msg.textContent = e.message || 'Codice non valido.';
+          msg.classList.remove('hidden');
+        });
+      });
     }
 
     function updateAddButton() {
