@@ -226,8 +226,13 @@ public static class MembershipEndpoints
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             if (userId == 0) return Results.Unauthorized();
-            var body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, string>>();
-            var taglia = body?.GetValueOrDefault("taglia");
+            string? taglia = null;
+            try
+            {
+                var body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+                taglia = body?.GetValueOrDefault("taglia");
+            }
+            catch { /* body opzionale */ }
             try
             {
                 var result = await service.RiscattaPremioAsync(userId, premioId, taglia);
