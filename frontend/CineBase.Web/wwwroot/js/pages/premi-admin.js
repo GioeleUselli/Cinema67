@@ -16,14 +16,15 @@
 
   var merchItems = [];
   document.getElementById('premio-tipo')?.addEventListener('change', function() {
-    var container = document.getElementById('premio-merch-container');
-    if (this.value === 'Merch') {
-      container.classList.remove('hidden');
-      loadMerchItems();
-    } else {
-      container.classList.add('hidden');
-    }
+    document.getElementById('premio-merch-container').classList.toggle('hidden', this.value !== 'Merch');
+    document.getElementById('sconto-opzioni').classList.toggle('hidden', this.value !== 'Sconto');
   });
+
+  window.toggleScontoTipo = function() {
+    var isPerc = document.querySelector('input[name="tipoSconto"]:checked')?.value === 'percentuale';
+    document.getElementById('sconto-fisso').classList.toggle('hidden', isPerc);
+    document.getElementById('sconto-percentuale').classList.toggle('hidden', !isPerc);
+  };
 
   async function loadMerchItems() {
     try {
@@ -49,15 +50,29 @@
     var tipo = document.getElementById('premio-tipo').value;
     var merchItemId = tipo === 'Merch' ? parseInt(document.getElementById('premio-merch-item').value, 10) : null;
     if (tipo === 'Merch' && !merchItemId) { showFormError('Seleziona un articolo merch.'); return; }
+    var valore = parseFloat(document.getElementById('premio-valore').value) || 0;
+    var percentualeSconto = null;
+    if (tipo === 'Sconto') {
+      var tipoSconto = document.querySelector('input[name="tipoSconto"]:checked')?.value;
+      if (tipoSconto === 'fisso') {
+        valore = parseFloat(document.getElementById('sconto-valore').value) || 0;
+        if (!valore) { showFormError('Inserisci l\'importo dello sconto.'); return; }
+      } else {
+        percentualeSconto = parseInt(document.getElementById('sconto-perc').value, 10) || 0;
+        if (!percentualeSconto) { showFormError('Inserisci la percentuale di sconto.'); return; }
+        valore = parseFloat(document.getElementById('sconto-max').value) || 0;
+      }
+    }
     var data = {
       nome: document.getElementById('premio-nome').value.trim(),
       descrizione: document.getElementById('premio-descrizione').value.trim() || null,
       tipo: tipo,
       costoPunti: parseFloat(document.getElementById('premio-costo').value),
-      valore: parseFloat(document.getElementById('premio-valore').value) || 0,
+      valore: valore,
       quantitaDisponibile: parseInt(document.getElementById('premio-qty').value, 10),
       attivo: document.getElementById('premio-attivo').checked,
-      merchItemId: merchItemId
+      merchItemId: merchItemId,
+      percentualeSconto: percentualeSconto
     };
     if (!data.nome) { showFormError('Il nome è obbligatorio.'); return; }
     if (!data.costoPunti || data.costoPunti < 1) { showFormError('Il costo in punti deve essere almeno 1.'); return; }
@@ -128,7 +143,7 @@
         '<td class="py-3 pr-4"><div class="font-medium text-brand-on-surface">' + escapeHtml(p.nome) + '</div>' + (p.descrizione ? '<div class="text-xs text-brand-on-surface-variant">' + escapeHtml(p.descrizione) + '</div>' : '') + '</td>' +
         '<td class="py-3 pr-4 text-brand-on-surface text-xs">' + tipoLabel + '</td>' +
         '<td class="py-3 pr-4 text-brand-gold font-semibold">' + p.costoPunti + '</td>' +
-        '<td class="py-3 pr-4 text-brand-on-surface">€' + (p.valore || '0').toFixed(2) + '</td>' +
+        '<td class="py-3 pr-4 text-brand-on-surface">€' + parseFloat(p.valore || 0).toFixed(2) + '</td>' +
         '<td class="py-3 pr-4 text-brand-on-surface-variant">' + disp + '</td>' +
         '<td class="py-3 pr-4">' + stato + '</td>' +
         '<td class="py-3 whitespace-nowrap">' +
