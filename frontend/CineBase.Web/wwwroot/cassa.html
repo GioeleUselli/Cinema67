@@ -31,8 +31,11 @@
       <div class="flex gap-3">
         <input id="scan-input" type="text" placeholder="Inserisci codice carta o inquadra barcode..." class="ghost-input flex-1 px-4 py-3 rounded-xl text-lg tracking-wider font-mono" autofocus>
         <button id="scan-btn" class="btn-gold px-6 py-3"><i class="fa-solid fa-search mr-1"></i>Cerca</button>
+        <button id="camera-btn" class="btn-outline-brand px-4 py-3" title="Inquadra con fotocamera"><i class="fa-solid fa-camera"></i></button>
       </div>
-      <p class="text-xs text-brand-on-surface-variant mt-2"><i class="fa-solid fa-info-circle mr-1"></i>Puoi usare un lettore di barcode USB o digitare manualmente il numero della carta</p>
+      <p class="text-xs text-brand-on-surface-variant mt-2"><i class="fa-solid fa-info-circle mr-1"></i>Usa il lettore di barcode USB, digita il numero, o clicca la fotocamera per inquadrare il codice QR/barcode</p>
+      <video id="camera-preview" class="hidden w-full max-w-sm mx-auto mt-3 rounded-xl" autoplay playsinline></video>
+      <canvas id="camera-canvas" class="hidden"></canvas>
     </div>
 
     <!-- Step 2: Dati Cliente (inizialmente nascosto) -->
@@ -49,10 +52,14 @@
       </div>
 
       <h3 class="text-sm font-bold text-brand-on-surface mb-3 flex items-center gap-2"><i class="fa-solid fa-cart-plus text-brand-gold"></i> Aggiungi acquisto</h3>
-      <div class="flex gap-3 mb-4">
+      <div class="flex gap-3 mb-2">
         <input id="importo-input" type="number" step="0.01" min="0.01" placeholder="Importo €" class="ghost-input flex-1 px-4 py-3 rounded-xl text-lg">
         <input id="note-input" type="text" placeholder="Note (opzionale)" class="ghost-input flex-1 px-4 py-3 rounded-xl">
         <button id="add-acquisto-btn" class="btn-gold px-5 py-3 whitespace-nowrap"><i class="fa-solid fa-plus mr-1"></i>Aggiungi</button>
+      </div>
+      <div class="flex gap-3 mb-4">
+        <input id="sconto-input" type="text" placeholder="Codice sconto (opzionale)" class="ghost-input flex-1 px-4 py-3 rounded-xl">
+        <button id="sconto-camera-btn" class="btn-outline-brand px-4 py-3" title="Inquadra codice sconto"><i class="fa-solid fa-camera"></i></button>
       </div>
 
       <!-- Tabella acquisti -->
@@ -109,17 +116,28 @@
     (function () {
       var cardData = null;
       var acquisti = [];
+      var cameraStream = null;
       var scanBtn = document.getElementById('scan-btn');
       var scanInput = document.getElementById('scan-input');
       var stepScan = document.getElementById('step-scan');
       var stepCliente = document.getElementById('step-cliente');
       var stepRiepilogo = document.getElementById('step-riepilogo');
       var cassaError = document.getElementById('cassa-error');
+      var cameraPreview = document.getElementById('camera-preview');
+      var cameraCanvas = document.getElementById('camera-canvas');
+      var scanningInterval = null;
 
       scanBtn.addEventListener('click', cercaCarta);
       scanInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') cercaCarta(); });
 
+      document.getElementById('camera-btn').addEventListener('click', toggleCamera);
+      document.getElementById('sconto-camera-btn').addEventListener('click', function() {
+        var input = document.getElementById('sconto-input');
+        input.value = prompt('Inserisci codice sconto manualmente:') || input.value;
+      });
+
       document.getElementById('change-card-btn').addEventListener('click', function () {
+        fermaCamera();
         stepCliente.classList.add('hidden');
         stepScan.classList.remove('hidden');
         scanInput.value = '';
@@ -141,6 +159,7 @@
 
       document.getElementById('conferma-btn').addEventListener('click', confermaAcquisti);
       document.getElementById('nuovo-btn').addEventListener('click', function () {
+        fermaCamera();
         stepRiepilogo.classList.add('hidden');
         stepScan.classList.remove('hidden');
         scanInput.value = '';
@@ -148,6 +167,70 @@
         acquisti = [];
         renderAcquisti();
       });
+
+      function fermaCamera() {
+        if (scanningInterval) { clearInterval(scanningInterval); scanningInterval = null; }
+        if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); cameraStream = null; }
+        cameraPreview.classList.add('hidden');
+      }
+
+      async function toggleCamera() {
+        if (cameraStream) { fermaCamera(); return; }
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          cameraPreview.srcObject = cameraStream;
+          cameraPreview.classList.remove('hidden');
+          scanningInterval = setInterval(scanFrame, 500);
+        } catch(e) {
+          showError('Fotocamera non disponibile: ' + e.message);
+        }
+      }
+
+      function scanFrame() {
+        if (!cameraStream || cameraPreview.videoWidth === 0) return;
+        cameraCanvas.width = cameraPreview.videoWidth;
+        cameraCanvas.height = cameraPreview.videoHeight;
+        var ctx = cameraCanvas.getContext('2d');
+        ctx.drawImage(cameraPreview, 0, 0);
+        var imageData = ctx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height);
+        var code = detectBarcodeFromCanvas(imageData, cameraCanvas.width, cameraCanvas.height);
+        if (code) {
+          scanInput.value = code;
+          fermaCamera();
+          cercaCarta();
+        }
+      }
+
+      function detectBarcodeFromCanvas(imageData, w, h) {
+        var data = imageData.data;
+        var centerY = Math.floor(h / 2);
+        var line = [];
+        for (var x = 0; x < w; x++) {
+          var idx = (centerY * w + x) * 4;
+          var lum = 0.2126 * data[idx] + 0.7152 * data[idx + 1] + 0.0722 * data[idx + 2];
+          line.push(lum);
+        }
+        var threshold = 0;
+        var sum = 0;
+        for (var i = 0; i < line.length; i++) sum += line[i];
+        threshold = sum / line.length;
+        var bits = line.map(function(l) { return l < threshold ? 1 : 0; });
+        var str = '';
+        for (var i = 0; i < bits.length; i += 8) {
+          var byte = 0;
+          for (var j = 0; j < 8 && (i + j) < bits.length; j++) byte = (byte << 1) | bits[i + j];
+          var c = String.fromCharCode(byte);
+          if (c.match(/[A-Z0-9\-]/i)) str += c;
+        }
+        if (str.length > 6 && str.length < 30) {
+          return str;
+        }
+        if (str.length > 4) {
+          var nums = str.replace(/[^0-9]/g, '');
+          if (nums.length > 4 && nums.length < 20) return nums;
+        }
+        return null;
+      }
 
       function showError(msg) {
         cassaError.textContent = msg;
@@ -220,6 +303,8 @@
         if (acquisti.length === 0) { showError('Aggiungi almeno un acquisto.'); return; }
         var totale = acquisti.reduce(function (sum, a) { return sum + a.importo; }, 0);
         var note = acquisti.map(function (a) { return a.note ? a.note + ' (€' + a.importo.toFixed(2) + ')' : '€' + a.importo.toFixed(2); }).join('; ');
+        var sconto = document.getElementById('sconto-input').value.trim();
+        if (sconto) note = (note ? note + ' | ' : '') + 'Sconto: ' + sconto;
         try {
           cassaError.classList.add('hidden');
           var result = await apiFetch('/admin/membership/scan-acquisto', {

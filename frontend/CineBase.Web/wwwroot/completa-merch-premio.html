@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Completa Premio</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <div id="navbar-container"></div>
+  <main class="mx-auto w-full max-w-[960px] px-4 py-8">
+    <div id="loading-state" class="text-center py-16"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4 text-brand-gold"></i><p class="text-brand-on-surface-variant">Caricamento...</p></div>
+    <div id="error-state" class="hidden text-center py-16"><i class="fa-solid fa-circle-exclamation text-5xl text-brand-error mb-4"></i><p class="text-brand-on-surface-variant" id="error-message"></p></div>
+
+    <div id="content" class="hidden">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-brand-gold/15 flex items-center justify-center"><i class="fa-solid fa-gift text-brand-gold"></i></div>
+        <div>
+          <p class="text-xs text-brand-on-surface-variant uppercase tracking-wider">Riscatta il tuo premio</p>
+          <h1 class="text-xl font-bold text-brand-on-surface font-serif" id="premio-nome">—</h1>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div>
+          <div id="item-image" class="w-full aspect-square rounded-2xl bg-brand-surface-container flex items-center justify-center overflow-hidden mb-4">
+            <i class="fa-solid fa-store text-6xl text-brand-on-surface-variant/30"></i>
+          </div>
+          <p class="text-sm text-brand-on-surface-variant" id="premio-descrizione"></p>
+        </div>
+
+        <div class="space-y-6">
+          <div class="cine-premium-card p-5">
+            <h3 class="text-sm font-bold text-brand-on-surface mb-3">Scegli taglia</h3>
+            <div id="taglie-container" class="flex flex-wrap gap-2">
+              <p class="text-sm text-brand-on-surface-variant">Nessuna variante disponibile</p>
+            </div>
+          </div>
+
+          <div class="cine-premium-card p-5">
+            <h3 class="text-sm font-bold text-brand-on-surface mb-3">Consegna</h3>
+            <div class="space-y-3">
+              <label class="flex items-center gap-3 p-3 rounded-xl border border-brand-outline-variant/20 cursor-pointer hover:bg-brand-surface-container-high/50">
+                <input type="radio" name="tipoConsegna" value="RitiroCinema" checked class="text-brand-gold">
+                <div><p class="text-sm font-medium text-brand-on-surface">Ritiro in cinema</p><p class="text-xs text-brand-on-surface-variant">Ritira presso il cinema più vicino</p></div>
+              </label>
+              <label class="flex items-center gap-3 p-3 rounded-xl border border-brand-outline-variant/20 cursor-pointer hover:bg-brand-surface-container-high/50">
+                <input type="radio" name="tipoConsegna" value="Spedizione" class="text-brand-gold">
+                <div><p class="text-sm font-medium text-brand-on-surface">Spedizione a domicilio</p><p class="text-xs text-brand-on-surface-variant">Ricevi direttamente a casa</p></div>
+              </label>
+            </div>
+            <div id="consegna-dettagli" class="hidden mt-4 space-y-3">
+              <input id="indirizzo" placeholder="Indirizzo" class="ghost-input w-full px-4 py-2.5 rounded-xl">
+              <div class="grid grid-cols-3 gap-2">
+                <input id="citta" placeholder="Città" class="ghost-input w-full px-4 py-2.5 rounded-xl col-span-2">
+                <input id="cap" placeholder="CAP" class="ghost-input w-full px-4 py-2.5 rounded-xl">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="provincia" placeholder="Provincia" class="ghost-input w-full px-4 py-2.5 rounded-xl">
+                <input id="telefono" placeholder="Telefono" class="ghost-input w-full px-4 py-2.5 rounded-xl">
+              </div>
+            </div>
+          </div>
+
+          <button id="conferma-btn" class="btn-gold w-full py-3 text-base"><i class="fa-solid fa-check mr-2"></i>Conferma e ricevi</button>
+          <div id="form-error" class="hidden text-sm text-red-500 text-center"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="success-state" class="hidden text-center py-16">
+      <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/15 flex items-center justify-center"><i class="fa-solid fa-check text-emerald-500 text-4xl"></i></div>
+      <h2 class="text-2xl font-bold text-brand-on-surface font-serif mb-2">Premio completato!</h2>
+      <p class="text-brand-on-surface-variant mb-6" id="success-message"></p>
+      <a href="/profilo.html" class="btn-gold px-8 py-3"><i class="fa-solid fa-user mr-2"></i>Vai al profilo</a>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=104"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
+  <script src="/js/template-loader.js?v=101"></script>
+  <script src="/js/navbar.js?v=100"></script>
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var riscattoId = params.get('riscattoId');
+      var merchItemId = params.get('merchItemId');
+      var premioNome = params.get('premioNome') || 'Premio';
+      var riscattoData = null;
+      var merchData = null;
+
+      if (!riscattoId) { showError('ID riscatto mancante'); return; }
+
+      document.getElementById('premio-nome').textContent = decodeURIComponent(premioNome);
+      loadPage();
+
+      document.querySelectorAll('input[name="tipoConsegna"]').forEach(function(r) {
+        r.addEventListener('change', function() {
+          document.getElementById('consegna-dettagli').classList.toggle('hidden', this.value !== 'Spedizione');
+        });
+      });
+
+      document.getElementById('conferma-btn').addEventListener('click', conferma);
+
+      async function loadPage() {
+        try {
+          var premi = await API.getPremiMembership();
+          var premio = premi.find(function(p) { return p.merchItemId == merchItemId; });
+          if (premio) {
+            document.getElementById('premio-descrizione').textContent = premio.descrizione || '';
+          }
+          if (merchItemId) {
+            merchData = await API.getMerchItemById(merchItemId);
+            renderMerch(merchData);
+          }
+          document.getElementById('loading-state').classList.add('hidden');
+          document.getElementById('content').classList.remove('hidden');
+        } catch(e) {
+          showError('Errore caricamento dati: ' + (e.message || ''));
+        }
+      }
+
+      function renderMerch(item) {
+        if (!item) return;
+        var imgContainer = document.getElementById('item-image');
+        var imgUrl = item.copertinaPath || item.immagini?.[0]?.path || '';
+        if (imgUrl) {
+          imgContainer.innerHTML = '<img src="' + (imgUrl.startsWith('http') ? imgUrl : 'http://localhost:5000' + imgUrl) + '" alt="' + item.nome + '" class="w-full h-full object-cover">';
+        }
+        var varContainer = document.getElementById('taglie-container');
+        var varianti = item.varianti || [];
+        if (varianti.length > 0) {
+          varContainer.innerHTML = varianti.map(function(v, i) {
+            var selected = i === 0 ? ' checked' : '';
+            return '<label class="cursor-pointer"><input type="radio" name="taglia" value="' + escapeHtml(v.nome || v.taglia || v.id) + '"' + selected + ' class="sr-only peer">' +
+              '<span class="inline-flex items-center justify-center w-12 h-12 rounded-xl border border-brand-outline-variant/20 peer-checked:border-brand-gold peer-checked:bg-brand-gold/10 peer-checked:text-brand-gold font-medium text-sm transition-all">' + escapeHtml(v.nome || v.taglia || 'Taglia ' + (i+1)) + '</span></label>';
+          }).join('');
+        } else {
+          varContainer.innerHTML = '<p class="text-sm text-brand-on-surface-variant">Nessuna taglia richiesta</p>';
+        }
+      }
+
+      async function conferma() {
+        var tagliaEl = document.querySelector('input[name="taglia"]:checked');
+        var tipoConsegna = document.querySelector('input[name="tipoConsegna"]:checked');
+        var errorEl = document.getElementById('form-error');
+        errorEl.classList.add('hidden');
+
+        var data = {
+          riscattoId: parseInt(riscattoId, 10),
+          taglia: tagliaEl ? tagliaEl.value : null,
+          tipoConsegna: tipoConsegna ? tipoConsegna.value : 'RitiroCinema'
+        };
+
+        if (data.tipoConsegna === 'Spedizione') {
+          data.indirizzo = document.getElementById('indirizzo').value.trim();
+          data.citta = document.getElementById('citta').value.trim();
+          data.cap = document.getElementById('cap').value.trim();
+          data.provincia = document.getElementById('provincia').value.trim();
+          data.telefono = document.getElementById('telefono').value.trim();
+          if (!data.indirizzo || !data.citta || !data.cap) {
+            errorEl.textContent = 'Compila tutti i campi di spedizione.';
+            errorEl.classList.remove('hidden'); return;
+          }
+        }
+
+        try {
+          document.getElementById('conferma-btn').disabled = true;
+          document.getElementById('conferma-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Elaborazione...';
+          var result = await API.completaMerchPremio(data);
+          document.getElementById('content').classList.add('hidden');
+          document.getElementById('success-message').textContent = 'Ordine ' + result.codiceOrdine + ' creato con successo!';
+          document.getElementById('success-state').classList.remove('hidden');
+        } catch(e) {
+          errorEl.textContent = e.message || 'Errore durante il completamento.';
+          errorEl.classList.remove('hidden');
+          document.getElementById('conferma-btn').disabled = false;
+          document.getElementById('conferma-btn').innerHTML = '<i class="fa-solid fa-check mr-2"></i>Conferma e ricevi';
+        }
+      }
+
+      function showError(msg) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('error-message').textContent = msg;
+        document.getElementById('error-state').classList.remove('hidden');
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(String(str)));
+        return div.innerHTML;
+      }
+    })();
+  </script>
+</body>
+</html>
