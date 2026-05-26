@@ -202,7 +202,10 @@ public class GiftCardService : IGiftCardService
     public async Task<GiftCardRiscattoResultDTO> RiscattaAsync(int userId, GiftCardRiscattoRequestDTO dto)
     {
         var codice = dto.Codice.Trim().ToUpper();
-        var giftCard = await _db.GiftCards.FirstOrDefaultAsync(g => g.Codice == codice)
+        var giftCard = await _db.GiftCards
+            .Include(g => g.AcquirenteUser)
+            .Include(g => g.RiscattataDaUser)
+            .FirstOrDefaultAsync(g => g.Codice == codice)
             ?? throw new ArgumentException("Codice gift card non valido.");
 
         if (giftCard.Stato != GiftCardStato.Attiva)
