@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadProfilo(),
     loadCredito(),
     loadCinemaPreferito(),
-    loadOrdini(),
     loadBiglietti(),
     loadMembership(),
     loadMerchOrders(),
@@ -216,62 +215,6 @@ async function loadCredito() {
   }
 }
 
-async function loadOrdini() {
-  const container = document.getElementById('ordini-list');
-  try {
-    const data = await API.getOrdini();
-    const ordini = normalizeCollection(data);
-
-    if (!ordini.length) {
-      container.innerHTML = `
-        <div class="text-center py-8 text-brand-on-surface-variant">
-          <i class="fa-solid fa-receipt text-4xl mb-3 opacity-40"></i>
-          <p class="font-medium">Nessun ordine</p>
-          <p class="text-sm mt-1">I tuoi ordini appariranno qui</p>
-        </div>`;
-      return;
-    }
-
-    container.innerHTML = ordini.map(o => {
-      const startDate = new Date(o.startAtUtc);
-      const dateStr = startDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const statoBadge = getStatoBadge(o.stato);
-
-      return `
-        <div class="border border-brand-outline-variant/20 rounded-xl p-4 mb-3 hover:bg-brand-surface-container-high/50 transition-colors">
-          <div class="flex justify-between items-start">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <h3 class="font-semibold text-brand-on-surface truncate">${o.filmTitolo}</h3>
-                ${statoBadge}
-              </div>
-              <p class="text-sm text-brand-on-surface-variant">
-                <i class="fa-solid fa-location-dot mr-1"></i>${o.cinemaNome} - ${o.salaNome}
-              </p>
-              <p class="text-sm text-brand-on-surface-variant">
-                <i class="fa-regular fa-calendar mr-1"></i>${dateStr}
-              </p>
-              <div class="flex flex-wrap gap-3 mt-2 text-sm">
-                <span class="text-brand-on-surface-variant">
-                  <i class="fa-solid fa-ticket mr-1"></i>${o.numeroBiglietti} bigliett${o.numeroBiglietti === 1 ? 'o' : 'i'}
-                </span>
-                <span class="text-brand-gold font-semibold">${formatCurrency(o.totaleLordo)}</span>
-              </div>
-              <p class="text-xs text-brand-on-surface-variant mt-1 font-mono">${o.codiceOrdine}</p>
-            </div>
-            <div class="flex flex-col gap-1 ml-2 flex-shrink-0">
-              ${o.stato === 'Pending' ? `<a href="/pagamento.html?orderId=${o.id}" class="btn-gold-sm text-xs" title="Completa pagamento"><i class="fa-solid fa-credit-card mr-1"></i>Paga ora</a>` : ''}
-              ${o.stato === 'Paid' ? `<button onclick="downloadPdf(${o.id})" class="btn-ghost text-xs" title="Scarica PDF"><i class="fa-solid fa-file-pdf mr-1"></i>PDF</button>` : ''}
-              <a href="/esito-acquisto.html?orderId=${o.id}" class="btn-ghost text-xs" title="Dettagli"><i class="fa-solid fa-eye mr-1"></i>Dettagli</a>
-            </div>
-          </div>
-        </div>`;
-    }).join('');
-  } catch {
-    container.innerHTML = `<p class="text-sm text-brand-error text-center py-4">Errore caricamento ordini</p>`;
-  }
-}
-
 async function loadBiglietti() {
   const container = document.getElementById('biglietti-list');
   try {
@@ -350,21 +293,6 @@ function normalizeCollection(data) {
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(amount);
-}
-
-function getStatoBadge(stato) {
-  switch (stato) {
-    case 'Paid':
-      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-500"><i class="fa-solid fa-check text-[10px]"></i>Pagato</span>';
-    case 'Pending':
-      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-500"><i class="fa-solid fa-clock text-[10px]"></i>In attesa</span>';
-    case 'Failed':
-      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-500"><i class="fa-solid fa-xmark text-[10px]"></i>Fallito</span>';
-    case 'Cancelled':
-      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-500"><i class="fa-solid fa-xmark text-[10px]"></i>Cancellato</span>';
-    default:
-      return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-surface-container-high text-brand-on-surface-variant">' + stato + '</span>';
-  }
 }
 
 document.getElementById('password-form')?.addEventListener('submit', async function (e) {
