@@ -347,6 +347,19 @@ public class MembershipService : IMembershipService
         if (!card.IsAttiva)
             throw new InvalidOperationException("Carta fedeltà non attiva.");
 
+        // Se importo è 0 o molto piccolo, è solo una verifica carta (nessun punto)
+        if (dto.Importo < 0.50m)
+        {
+            return new ScanAcquistoResultDTO
+            {
+                UserNome = card.User != null ? $"{card.User.Nome} {card.User.Cognome}" : "",
+                CardNumber = card.CardNumber,
+                PuntiAccumulati = 0,
+                PuntiTotali = card.PuntiTotali,
+                PuntiDisponibili = card.PuntiDisponibili
+            };
+        }
+
         var moltiplicatore = card.Tier switch
         {
             TierMembership.Platinum => 2.0m,

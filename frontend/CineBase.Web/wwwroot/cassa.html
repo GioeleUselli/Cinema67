@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema67 — Cassa</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+</head>
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <div id="navbar-container"></div>
+  <main class="mx-auto w-full max-w-[800px] px-4 py-8">
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center shadow-lg">
+        <i class="fa-solid fa-cash-register text-white text-2xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold text-brand-on-surface font-serif">Cassa</h1>
+      <p class="text-brand-on-surface-variant text-sm mt-1">Registra acquisti e accumula punti fedeltà</p>
+    </div>
+
+    <!-- Step 1: Scansione Carta -->
+    <div id="step-scan" class="cine-premium-card p-6 mb-6">
+      <h2 class="text-lg font-bold text-brand-on-surface mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-camera text-brand-gold"></i> Scansiona Carta Fedeltà
+      </h2>
+      <div class="flex gap-3">
+        <input id="scan-input" type="text" placeholder="Inserisci codice carta o inquadra barcode..." class="ghost-input flex-1 px-4 py-3 rounded-xl text-lg tracking-wider font-mono" autofocus>
+        <button id="scan-btn" class="btn-gold px-6 py-3"><i class="fa-solid fa-search mr-1"></i>Cerca</button>
+      </div>
+      <p class="text-xs text-brand-on-surface-variant mt-2"><i class="fa-solid fa-info-circle mr-1"></i>Puoi usare un lettore di barcode USB o digitare manualmente il numero della carta</p>
+    </div>
+
+    <!-- Step 2: Dati Cliente (inizialmente nascosto) -->
+    <div id="step-cliente" class="hidden cine-premium-card p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-brand-on-surface flex items-center gap-2">
+          <i class="fa-solid fa-user text-brand-gold"></i> <span id="cliente-nome">—</span>
+        </h2>
+        <button id="change-card-btn" class="text-xs text-brand-gold hover:underline"><i class="fa-solid fa-rotate mr-1"></i>Cambia carta</button>
+      </div>
+      <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+        <div class="bg-brand-surface-container rounded-xl p-3"><span class="text-brand-on-surface-variant">Carta</span><p class="font-mono font-bold text-brand-on-surface" id="cliente-carta">—</p></div>
+        <div class="bg-brand-surface-container rounded-xl p-3"><span class="text-brand-on-surface-variant">Punti disponibili</span><p class="text-xl font-bold text-brand-gold" id="cliente-punti">0</p></div>
+      </div>
+
+      <h3 class="text-sm font-bold text-brand-on-surface mb-3 flex items-center gap-2"><i class="fa-solid fa-cart-plus text-brand-gold"></i> Aggiungi acquisto</h3>
+      <div class="flex gap-3 mb-4">
+        <input id="importo-input" type="number" step="0.01" min="0.01" placeholder="Importo €" class="ghost-input flex-1 px-4 py-3 rounded-xl text-lg">
+        <input id="note-input" type="text" placeholder="Note (opzionale)" class="ghost-input flex-1 px-4 py-3 rounded-xl">
+        <button id="add-acquisto-btn" class="btn-gold px-5 py-3 whitespace-nowrap"><i class="fa-solid fa-plus mr-1"></i>Aggiungi</button>
+      </div>
+
+      <!-- Tabella acquisti -->
+      <div id="acquisti-container" class="hidden mb-4">
+        <table class="w-full text-sm">
+          <thead><tr class="border-b border-brand-outline-variant/20 text-left">
+            <th class="pb-2 pr-3 text-brand-on-surface-variant font-medium">Importo</th>
+            <th class="pb-2 pr-3 text-brand-on-surface-variant font-medium">Note</th>
+            <th class="pb-2 text-brand-on-surface-variant font-medium"></th>
+          </tr></thead>
+          <tbody id="acquisti-table"></tbody>
+        </table>
+      </div>
+      <div id="acquisti-empty" class="text-center py-6 text-brand-on-surface-variant text-sm">
+        <i class="fa-solid fa-receipt text-2xl mb-2 opacity-40"></i>
+        <p>Nessun acquisto aggiunto</p>
+      </div>
+
+      <div id="totale-container" class="hidden flex items-center justify-between border-t border-brand-outline-variant/20 pt-4 mt-4">
+        <div>
+          <p class="text-sm text-brand-on-surface-variant">Totale acquisti</p>
+          <p id="totale-importo" class="text-2xl font-bold text-brand-on-surface font-serif">€0.00</p>
+        </div>
+        <button id="conferma-btn" class="btn-gold px-8 py-3 text-base"><i class="fa-solid fa-check mr-2"></i>Conferma e accredita punti</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Riepilogo (inizialmente nascosto) -->
+    <div id="step-riepilogo" class="hidden cine-premium-card p-6 text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/15 flex items-center justify-center">
+        <i class="fa-solid fa-check text-emerald-500 text-3xl"></i>
+      </div>
+      <h2 class="text-xl font-bold text-brand-on-surface mb-2">Punti accreditati!</h2>
+      <p class="text-brand-on-surface-variant mb-4" id="riepilogo-msg"></p>
+      <div class="grid grid-cols-2 gap-4 max-w-xs mx-auto mb-6">
+        <div class="bg-brand-surface-container rounded-xl p-3"><span class="text-xs text-brand-on-surface-variant">Punti accumulati</span><p class="text-2xl font-bold text-brand-gold" id="riepilogo-punti">0</p></div>
+        <div class="bg-brand-surface-container rounded-xl p-3"><span class="text-xs text-brand-on-surface-variant">Punti totali</span><p class="text-2xl font-bold text-brand-on-surface" id="riepilogo-totali">0</p></div>
+      </div>
+      <button id="nuovo-btn" class="btn-gold px-6 py-3"><i class="fa-solid fa-plus mr-1"></i>Nuovo acquisto</button>
+    </div>
+
+    <div id="cassa-error" class="hidden mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm"></div>
+  </main>
+
+  <div id="footer-container"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=103"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
+  <script src="/js/template-loader.js?v=101"></script>
+  <script src="/js/navbar.js?v=100"></script>
+  <script>
+    (function () {
+      var cardData = null;
+      var acquisti = [];
+      var scanBtn = document.getElementById('scan-btn');
+      var scanInput = document.getElementById('scan-input');
+      var stepScan = document.getElementById('step-scan');
+      var stepCliente = document.getElementById('step-cliente');
+      var stepRiepilogo = document.getElementById('step-riepilogo');
+      var cassaError = document.getElementById('cassa-error');
+
+      scanBtn.addEventListener('click', cercaCarta);
+      scanInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') cercaCarta(); });
+
+      document.getElementById('change-card-btn').addEventListener('click', function () {
+        stepCliente.classList.add('hidden');
+        stepScan.classList.remove('hidden');
+        scanInput.value = '';
+        scanInput.focus();
+        acquisti = [];
+        renderAcquisti();
+      });
+
+      document.getElementById('add-acquisto-btn').addEventListener('click', function () {
+        var importo = parseFloat(document.getElementById('importo-input').value);
+        var note = document.getElementById('note-input').value.trim();
+        if (!importo || importo <= 0) { showError('Inserisci un importo valido.'); return; }
+        acquisti.push({ importo: importo, note: note || '' });
+        document.getElementById('importo-input').value = '';
+        document.getElementById('note-input').value = '';
+        renderAcquisti();
+        document.getElementById('importo-input').focus();
+      });
+
+      document.getElementById('conferma-btn').addEventListener('click', confermaAcquisti);
+      document.getElementById('nuovo-btn').addEventListener('click', function () {
+        stepRiepilogo.classList.add('hidden');
+        stepScan.classList.remove('hidden');
+        scanInput.value = '';
+        scanInput.focus();
+        acquisti = [];
+        renderAcquisti();
+      });
+
+      function showError(msg) {
+        cassaError.textContent = msg;
+        cassaError.classList.remove('hidden');
+        setTimeout(function () { cassaError.classList.add('hidden'); }, 5000);
+      }
+
+      async function cercaCarta() {
+        var codice = scanInput.value.trim();
+        if (!codice) { showError('Inserisci il codice della carta.'); return; }
+        try {
+          cassaError.classList.add('hidden');
+          var result = await apiFetch('/admin/membership/scan-acquisto', {
+            method: 'POST',
+            body: JSON.stringify({ codiceCarta: codice, importo: 0.01 })
+          });
+          if (result && result.cardNumber) {
+            cardData = result;
+            stepScan.classList.add('hidden');
+            document.getElementById('cliente-nome').textContent = result.userNome || 'Cliente';
+            document.getElementById('cliente-carta').textContent = result.cardNumber;
+            document.getElementById('cliente-punti').textContent = result.puntiDisponibili || 0;
+            stepCliente.classList.remove('hidden');
+          } else {
+            showError('Carta non trovata.');
+          }
+        } catch (e) {
+          showError(e.message || 'Carta non trovata. Verifica il codice.');
+        }
+      }
+
+      function renderAcquisti() {
+        var table = document.getElementById('acquisti-table');
+        var container = document.getElementById('acquisti-container');
+        var empty = document.getElementById('acquisti-empty');
+        var totaleContainer = document.getElementById('totale-container');
+        var totaleEl = document.getElementById('totale-importo');
+
+        if (acquisti.length === 0) {
+          container.classList.add('hidden');
+          empty.classList.remove('hidden');
+          totaleContainer.classList.add('hidden');
+          return;
+        }
+        container.classList.remove('hidden');
+        empty.classList.add('hidden');
+        totaleContainer.classList.remove('hidden');
+
+        var totale = 0;
+        table.innerHTML = acquisti.map(function (a, idx) {
+          totale += a.importo;
+          return '<tr class="border-b border-brand-outline-variant/10">' +
+            '<td class="py-2 pr-3 font-semibold text-brand-on-surface">€' + a.importo.toFixed(2) + '</td>' +
+            '<td class="py-2 pr-3 text-brand-on-surface-variant text-sm">' + (a.note || '—') + '</td>' +
+            '<td class="py-2 text-right"><button class="remove-btn text-red-500 hover:text-red-400 text-sm" data-idx="' + idx + '"><i class="fa-solid fa-xmark"></i></button></td>' +
+          '</tr>';
+        }).join('');
+        totaleEl.textContent = '€' + totale.toFixed(2);
+
+        table.querySelectorAll('.remove-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var idx = parseInt(this.dataset.idx, 10);
+            acquisti.splice(idx, 1);
+            renderAcquisti();
+          });
+        });
+      }
+
+      async function confermaAcquisti() {
+        if (acquisti.length === 0) { showError('Aggiungi almeno un acquisto.'); return; }
+        var totale = acquisti.reduce(function (sum, a) { return sum + a.importo; }, 0);
+        var note = acquisti.map(function (a) { return a.note ? a.note + ' (€' + a.importo.toFixed(2) + ')' : '€' + a.importo.toFixed(2); }).join('; ');
+        try {
+          cassaError.classList.add('hidden');
+          var result = await apiFetch('/admin/membership/scan-acquisto', {
+            method: 'POST',
+            body: JSON.stringify({ codiceCarta: cardData.cardNumber, importo: totale, note: note })
+          });
+          stepCliente.classList.add('hidden');
+          document.getElementById('riepilogo-msg').textContent = 'Accreditati ' + result.puntiAccumulati + ' punti per ' + cardData.userNome;
+          document.getElementById('riepilogo-punti').textContent = result.puntiAccumulati || 0;
+          document.getElementById('riepilogo-totali').textContent = result.puntiDisponibili || 0;
+          stepRiepilogo.classList.remove('hidden');
+          acquisti = [];
+        } catch (e) {
+          showError(e.message || 'Errore durante l\'accredito punti.');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
