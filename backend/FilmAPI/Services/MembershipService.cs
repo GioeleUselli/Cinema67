@@ -488,6 +488,7 @@ public class MembershipService : IMembershipService
                 AcquirenteUserId = userId,
                 DataAcquisto = DateTime.UtcNow,
                 DataScadenza = DateTime.UtcNow.AddYears(1),
+                CreatedAtUtc = DateTime.UtcNow,
                 Messaggio = "Premio riscattato con punti membership"
             };
             _db.GiftCards.Add(gc);
