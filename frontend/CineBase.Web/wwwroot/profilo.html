@@ -42,6 +42,16 @@
       </div>
     </section>
 
+    <!-- Membership Card (in alto, prima di tutto) -->
+    <div class="mb-8 profile-section" data-section="membership">
+      <div id="membership-content">
+        <div class="text-center py-10 text-brand-on-surface-variant">
+          <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+          <p>Caricamento carta fedeltà...</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Personal Data + Cinema + Credito -->
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-8">
       <!-- Dati Personali -->
@@ -161,33 +171,117 @@
     </div>
 
     <!-- Ordini -->
-    <div class="cine-premium-card p-6 mb-8">
-      <div class="flex items-center justify-between mb-6">
+    <div class="cine-premium-card p-6 mb-8 profile-section" data-section="ordini">
+      <div class="flex items-center justify-between mb-6 cursor-pointer profile-section-header">
         <h2 class="text-lg font-bold text-brand-on-surface font-serif flex items-center gap-2">
           <span class="w-8 h-8 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-receipt text-brand-gold text-sm"></i></span>
           I Miei Ordini
         </h2>
+        <i class="fa-solid fa-chevron-down text-brand-on-surface-variant transition-transform duration-300 profile-section-chevron"></i>
       </div>
-      <div id="ordini-list">
-        <div class="text-center py-10 text-brand-on-surface-variant">
-          <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
-          <p>Caricamento ordini...</p>
+      <div class="profile-section-body overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+        <div id="ordini-list">
+          <div class="text-center py-10 text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Caricamento ordini...</p>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Biglietti -->
-    <div class="cine-premium-card p-6 mb-8">
-      <div class="flex items-center justify-between mb-6">
+    <div class="cine-premium-card p-6 mb-8 profile-section" data-section="biglietti">
+      <div class="flex items-center justify-between mb-6 cursor-pointer profile-section-header">
         <h2 class="text-lg font-bold text-brand-on-surface font-serif flex items-center gap-2">
           <span class="w-8 h-8 rounded-lg bg-brand-red/10 flex items-center justify-center"><i class="fa-solid fa-ticket text-brand-red text-sm"></i></span>
           I Miei Biglietti
         </h2>
+        <i class="fa-solid fa-chevron-down text-brand-on-surface-variant transition-transform duration-300 profile-section-chevron"></i>
       </div>
-      <div id="biglietti-list">
-        <div class="text-center py-10 text-brand-on-surface-variant">
-          <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
-          <p>Caricamento biglietti...</p>
+      <div class="profile-section-body overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+        <div id="biglietti-list">
+          <div class="text-center py-10 text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Caricamento biglietti...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Ordini Shop -->
+    <div class="cine-premium-card p-6 mb-8 profile-section" data-section="merch">
+      <div class="flex items-center justify-between mb-6 cursor-pointer profile-section-header">
+        <h2 class="text-lg font-bold text-brand-on-surface font-serif flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-store text-brand-gold text-sm"></i></span>
+          I Miei Acquisti Shop
+        </h2>
+        <i class="fa-solid fa-chevron-down text-brand-on-surface-variant transition-transform duration-300 profile-section-chevron"></i>
+      </div>
+      <div class="profile-section-body overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+        <div id="merch-orders-list">
+          <div class="text-center py-10 text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Caricamento ordini shop...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gift Card -->
+    <div class="cine-premium-card p-6 mb-8 profile-section" data-section="giftcard">
+      <div class="flex items-center justify-between mb-6 cursor-pointer profile-section-header">
+        <h2 class="text-lg font-bold text-brand-on-surface font-serif flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-gift text-brand-gold text-sm"></i></span>
+          Le Mie Gift Card
+        </h2>
+        <i class="fa-solid fa-chevron-down text-brand-on-surface-variant transition-transform duration-300 profile-section-chevron"></i>
+      </div>
+      <div class="profile-section-body overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+        <div id="giftcard-list">
+          <div class="text-center py-10 text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Caricamento gift card...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Premi Riscattati -->
+    <div class="cine-premium-card p-6 mb-8 profile-section" data-section="premi">
+      <div class="flex items-center justify-between mb-6 cursor-pointer profile-section-header">
+        <h2 class="text-lg font-bold text-brand-on-surface font-serif flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-award text-brand-gold text-sm"></i></span>
+          I Miei Premi Riscattati
+        </h2>
+        <i class="fa-solid fa-chevron-down text-brand-on-surface-variant transition-transform duration-300 profile-section-chevron"></i>
+      </div>
+      <div class="profile-section-body overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+        <div id="premi-list">
+          <div class="text-center py-10 text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Caricamento premi riscattati...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feste Prenotate -->
+    <div class="cine-premium-card p-6 mb-8 profile-section" data-section="feste">
+      <div class="flex items-center justify-between mb-6 cursor-pointer profile-section-header">
+        <h2 class="text-lg font-bold text-brand-on-surface font-serif flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-calendar-days text-brand-gold text-sm"></i></span>
+          Le Mie Feste Prenotate
+        </h2>
+        <i class="fa-solid fa-chevron-down text-brand-on-surface-variant transition-transform duration-300 profile-section-chevron"></i>
+      </div>
+      <div class="profile-section-body overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+        <div id="party-list">
+          <div class="text-center py-10 text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Caricamento feste prenotate...</p>
+          </div>
         </div>
       </div>
     </div>
@@ -203,7 +297,7 @@
   <script src="/js/route-guard.js?v=103"></script>
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>`n
-  <script src="/js/pages/profilo.js?v=2"></script>
+  <script src="/js/pages/profilo.js?v=7"></script>
 </body>
 
 </html>
