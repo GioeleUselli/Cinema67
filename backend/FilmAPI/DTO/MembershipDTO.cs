@@ -60,6 +60,7 @@ public class PremioDTO
     public string? ImmaginePath { get; set; }
     public int? MerchItemId { get; set; }
     public string? MerchItemNome { get; set; }
+    public int? PercentualeSconto { get; set; }
 }
 
 public class PremioRiscattoDTO
@@ -95,6 +96,7 @@ public class CreatePremioDTO
     public int QuantitaDisponibile { get; set; } = -1;
     [MaxLength(500)] public string? ImmaginePath { get; set; }
     public int? MerchItemId { get; set; }
+    public int? PercentualeSconto { get; set; }
 }
 
 public class UpdatePremioDTO
@@ -108,6 +110,7 @@ public class UpdatePremioDTO
     public int? QuantitaDisponibile { get; set; }
     [MaxLength(500)] public string? ImmaginePath { get; set; }
     public int? MerchItemId { get; set; }
+    public int? PercentualeSconto { get; set; }
 }
 
 public class RiscattaPremioRequestDTO

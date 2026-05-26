@@ -133,9 +133,9 @@
       function renderMerch(item) {
         if (!item) return;
         var imgContainer = document.getElementById('item-image');
-        var imgUrl = item.copertinaPath || item.immagini?.[0]?.path || '';
+        var imgUrl = item.immaginePath || (item.immagini && item.immagini.length > 0 ? item.immagini[0] : '') || '';
         if (imgUrl) {
-          imgContainer.innerHTML = '<img src="' + (imgUrl.startsWith('http') ? imgUrl : 'http://localhost:5000' + imgUrl) + '" alt="' + item.nome + '" class="w-full h-full object-cover">';
+          imgContainer.innerHTML = '<img src="' + (imgUrl.startsWith('http') ? imgUrl : 'http://localhost:5000' + imgUrl) + '" alt="' + escapeHtml(item.nome) + '" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML=\'<i class=\\\\\'fa-solid fa-store text-6xl text-brand-on-surface-variant/30\\\\\'></i>\'">';
         }
         var varContainer = document.getElementById('taglie-container');
         var varianti = item.varianti || [];

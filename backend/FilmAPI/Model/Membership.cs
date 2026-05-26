@@ -140,6 +140,8 @@ public class Premio
 
     [ForeignKey(nameof(MerchItemId))]
     public MerchItem? MerchItem { get; set; }
+
+    public int? PercentualeSconto { get; set; }
 }
 
 public class PremioRiscatto

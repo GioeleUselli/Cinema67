@@ -419,7 +419,8 @@ public class MembershipService : IMembershipService
                 Attivo = p.Attivo,
                 QuantitaDisponibile = p.QuantitaDisponibile,
                 ImmaginePath = p.ImmaginePath,
-                MerchItemId = p.MerchItemId
+                MerchItemId = p.MerchItemId,
+                PercentualeSconto = p.PercentualeSconto
             })
             .ToListAsync();
     }
@@ -956,7 +957,8 @@ public class MembershipService : IMembershipService
                 Valore = p.Valore, Attivo = p.Attivo,
                 QuantitaDisponibile = p.QuantitaDisponibile, ImmaginePath = p.ImmaginePath,
                 MerchItemId = p.MerchItemId,
-                MerchItemNome = p.MerchItem != null ? p.MerchItem.Nome : null
+                MerchItemNome = p.MerchItem != null ? p.MerchItem.Nome : null,
+                PercentualeSconto = p.PercentualeSconto
             })
             .ToListAsync();
     }
@@ -986,6 +988,7 @@ public class MembershipService : IMembershipService
             QuantitaDisponibile = dto.QuantitaDisponibile,
             ImmaginePath = dto.ImmaginePath?.Trim(),
             MerchItemId = dto.MerchItemId,
+            PercentualeSconto = dto.PercentualeSconto,
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -998,7 +1001,7 @@ public class MembershipService : IMembershipService
             CostoPunti = premio.CostoPunti, Tipo = premio.Tipo.ToString(),
             Valore = premio.Valore, Attivo = premio.Attivo,
             QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath,
-            MerchItemId = premio.MerchItemId
+            MerchItemId = premio.MerchItemId, PercentualeSconto = premio.PercentualeSconto
         };
     }
 
@@ -1016,6 +1019,7 @@ public class MembershipService : IMembershipService
         if (dto.QuantitaDisponibile.HasValue) premio.QuantitaDisponibile = dto.QuantitaDisponibile.Value;
         if (dto.ImmaginePath != null) premio.ImmaginePath = dto.ImmaginePath.Trim();
         if (dto.MerchItemId.HasValue) premio.MerchItemId = dto.MerchItemId.Value;
+        if (dto.PercentualeSconto.HasValue) premio.PercentualeSconto = dto.PercentualeSconto.Value;
 
         await _db.SaveChangesAsync();
 
@@ -1025,7 +1029,7 @@ public class MembershipService : IMembershipService
             CostoPunti = premio.CostoPunti, Tipo = premio.Tipo.ToString(),
             Valore = premio.Valore, Attivo = premio.Attivo,
             QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath,
-            MerchItemId = premio.MerchItemId
+            MerchItemId = premio.MerchItemId, PercentualeSconto = premio.PercentualeSconto
         };
     }
 
