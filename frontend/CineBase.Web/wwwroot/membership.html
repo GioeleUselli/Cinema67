@@ -224,7 +224,7 @@
         if (!data || !data.length) { c.innerHTML = '<p class="text-sm text-brand-on-surface-variant text-center py-4">Nessun premio disponibile</p>'; return; }
         c.innerHTML = data.map(function(p) {
           var dis = !cardData || !cardData.isAttiva || cardData.puntiDisponibili < p.costoPunti || p.quantitaDisponibile === 0;
-          return '<div class="flex items-center justify-between p-4 rounded-xl bg-brand-surface-container/50"><div><p class="text-sm font-bold text-brand-on-surface">' + p.nome + '</p><p class="text-xs text-brand-on-surface-variant">' + (p.descrizione || '') + '</p><p class="text-xs text-brand-gold font-bold mt-1">' + p.costoPunti + ' punti</p></div><button onclick="riscattaPremio(' + p.id + ')" class="btn-gold text-xs px-4 py-2 whitespace-nowrap" ' + (dis ? 'disabled style="opacity:0.5"' : '') + '><i class="fa-solid fa-gift mr-1"></i> Riscatta</button></div>';
+          return '<div class="flex items-center justify-between p-4 rounded-xl bg-brand-surface-container/50"><div><p class="text-sm font-bold text-brand-on-surface">' + p.nome + '</p><p class="text-xs text-brand-on-surface-variant">' + (p.descrizione || '') + '</p><p class="text-xs text-brand-gold font-bold mt-1">' + p.costoPunti + ' punti</p></div><button onclick="riscattaPremio(' + p.id + ',\'' + p.tipo + '\',' + (p.merchItemId || 'null') + ',\'' + escapeHtml(p.nome).replace(/'/g, "\\'") + '\')" class="btn-gold text-xs px-4 py-2 whitespace-nowrap" ' + (dis ? 'disabled style="opacity:0.5"' : '') + '><i class="fa-solid fa-gift mr-1"></i> Riscatta</button></div>';
         }).join('');
       } catch(e) { c.innerHTML = '<p class="text-sm text-brand-error text-center py-4">Errore</p>'; }
     }
@@ -345,11 +345,27 @@
       vaiAlCheckout();
     };
 
-    window.riscattaPremio = async function(id) {
+    window.riscattaPremio = async function(id, tipo, merchItemId, nome) {
       try {
         var result = await API.riscattaPremio(id);
-        showToast('Premio riscattato! Codice: ' + result.codice, 'success');
+        if (tipo === 'Merch' && merchItemId) {
+          window.location.href = '/completa-merch-premio.html?riscattoId=' + result.id + '&merchItemId=' + merchItemId + '&premioNome=' + encodeURIComponent(nome || 'Premio');
+          return;
+        }
+        var msg = '';
+        if (tipo === 'Biglietto' || tipo === 'Food') {
+          msg = 'Codice voucher: ' + (result.codiceVoucher || result.codice) + ' — Scade il ' + (result.dataScadenza ? new Date(result.dataScadenza).toLocaleDateString('it-IT') : 'tra 1 anno');
+        } else if (tipo === 'Sconto') {
+          msg = 'Codice sconto: ' + result.codice + ' — Usalo al momento del pagamento!';
+        } else if (tipo === 'GiftCard') {
+          msg = 'Gift Card attivata! La trovi nel tuo profilo.';
+        } else {
+          msg = 'Premio riscattato! Codice: ' + result.codice;
+        }
+        showToast(msg, 'success');
         await loadCard();
+        await loadPremi();
+        await loadRiscatti();
       } catch(e) {
         showToast(e.message || 'Errore', 'error');
       }

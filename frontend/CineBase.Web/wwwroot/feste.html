@@ -120,6 +120,14 @@
             <p class="text-3xl font-bold text-brand-gold font-serif mt-2" id="prezzo-display">—</p>
             <p class="text-xs text-brand-on-surface-variant mt-1" id="prezzo-dettaglio"></p>
           </div>
+          <div class="mt-4">
+            <p class="text-xs text-brand-on-surface-variant mb-2"><i class="fa-solid fa-tag mr-1"></i>Codice sconto</p>
+            <div class="flex gap-2">
+              <input id="feste-sconto-input" type="text" placeholder="Inserisci codice" class="ghost-input flex-1 px-4 py-2 rounded-xl text-sm">
+              <button id="feste-sconto-btn" class="btn-outline-brand px-3 py-2 text-xs whitespace-nowrap">Applica</button>
+            </div>
+            <div id="feste-sconto-msg" class="hidden mt-1 text-xs"></div>
+          </div>
           <button id="btn-prenota-credito" class="btn-gold-lg w-full text-sm mt-4"><i class="fa-solid fa-wallet mr-2"></i> Prenota con Credito</button>
           <button id="btn-prenota-carta" class="btn-outline-brand w-full text-sm mt-2"><i class="fa-solid fa-credit-card mr-2"></i> Prenota con Carta</button>
           <button id="btn-prenota-misto" class="btn-gold w-full text-sm mt-2"><i class="fa-solid fa-circle-half-stroke mr-2"></i> Misto</button>
@@ -215,6 +223,21 @@
       document.getElementById('btn-prenota-carta').addEventListener('click', function() { prenota('carta'); });
       document.getElementById('btn-prenota-misto').addEventListener('click', function() { prenota('misto'); });
       document.getElementById('btn-prenota-paypal').addEventListener('click', function() { prenota('paypal'); });
+      document.getElementById('feste-sconto-btn').addEventListener('click', function() {
+        var input = document.getElementById('feste-sconto-input');
+        var msg = document.getElementById('feste-sconto-msg');
+        var codice = input.value.trim();
+        if (!codice) { msg.className = 'mt-1 text-xs text-red-500'; msg.textContent = 'Inserisci un codice.'; msg.classList.remove('hidden'); return; }
+        API.validateDiscount(codice).then(function(r) {
+          msg.className = 'mt-1 text-xs text-emerald-500';
+          msg.textContent = r && r.percentualeSconto ? 'Sconto ' + r.percentualeSconto + '% valido!' : 'Codice valido!';
+          msg.classList.remove('hidden');
+        }).catch(function(e) {
+          msg.className = 'mt-1 text-xs text-red-500';
+          msg.textContent = e.message || 'Codice non valido.';
+          msg.classList.remove('hidden');
+        });
+      });
     });
 
     function updatePrezzo() {
