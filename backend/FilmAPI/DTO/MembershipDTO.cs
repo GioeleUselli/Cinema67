@@ -58,6 +58,8 @@ public class PremioDTO
     public bool Attivo { get; set; }
     public int QuantitaDisponibile { get; set; }
     public string? ImmaginePath { get; set; }
+    public int? MerchItemId { get; set; }
+    public string? MerchItemNome { get; set; }
 }
 
 public class PremioRiscattoDTO
@@ -71,6 +73,14 @@ public class PremioRiscattoDTO
     public decimal Valore { get; set; }
     public DateTime DataRiscatto { get; set; }
     public DateTime? DataScadenza { get; set; }
+    public string? Taglia { get; set; }
+    public string? CodiceVoucher { get; set; }
+    public int? MerchOrderId { get; set; }
+    public int? GiftCardId { get; set; }
+    public string? GiftCardCodice { get; set; }
+    public string? PremioDescrizione { get; set; }
+    public int? MerchItemId { get; set; }
+    public string? MerchItemNome { get; set; }
 }
 
 public class CreatePremioDTO
@@ -84,6 +94,7 @@ public class CreatePremioDTO
     public bool Attivo { get; set; } = true;
     public int QuantitaDisponibile { get; set; } = -1;
     [MaxLength(500)] public string? ImmaginePath { get; set; }
+    public int? MerchItemId { get; set; }
 }
 
 public class UpdatePremioDTO
@@ -96,6 +107,7 @@ public class UpdatePremioDTO
     public bool? Attivo { get; set; }
     public int? QuantitaDisponibile { get; set; }
     [MaxLength(500)] public string? ImmaginePath { get; set; }
+    public int? MerchItemId { get; set; }
 }
 
 public class RiscattaPremioRequestDTO

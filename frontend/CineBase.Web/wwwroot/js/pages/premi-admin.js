@@ -14,18 +14,50 @@
   document.getElementById('premio-modal-cancel')?.addEventListener('click', closeModal);
   modal?.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
 
+  var merchItems = [];
+  document.getElementById('premio-tipo')?.addEventListener('change', function() {
+    var container = document.getElementById('premio-merch-container');
+    if (this.value === 'Merch') {
+      container.classList.remove('hidden');
+      loadMerchItems();
+    } else {
+      container.classList.add('hidden');
+    }
+  });
+
+  async function loadMerchItems() {
+    try {
+      merchItems = normalizeCollection(await API.getMerchItems());
+      var select = document.getElementById('premio-merch-item');
+      select.innerHTML = '<option value="">Seleziona un articolo...</option>' + merchItems.map(function(m){
+        return '<option value="' + m.id + '">' + escapeHtml(m.nome) + ' — €' + (m.prezzo || '0') + '</option>';
+      }).join('');
+    } catch(e) { console.error('Errore caricamento merch:', e); }
+  }
+
+  function normalizeCollection(data) {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.$values)) return data.$values;
+    if (Array.isArray(data?.items)) return data.items;
+    return [];
+  }
+
   form?.addEventListener('submit', async function (e) {
     e.preventDefault();
     formError.classList.add('hidden');
     var id = document.getElementById('premio-id').value;
+    var tipo = document.getElementById('premio-tipo').value;
+    var merchItemId = tipo === 'Merch' ? parseInt(document.getElementById('premio-merch-item').value, 10) : null;
+    if (tipo === 'Merch' && !merchItemId) { showFormError('Seleziona un articolo merch.'); return; }
     var data = {
       nome: document.getElementById('premio-nome').value.trim(),
       descrizione: document.getElementById('premio-descrizione').value.trim() || null,
-      tipo: document.getElementById('premio-tipo').value,
+      tipo: tipo,
       costoPunti: parseFloat(document.getElementById('premio-costo').value),
       valore: parseFloat(document.getElementById('premio-valore').value) || 0,
       quantitaDisponibile: parseInt(document.getElementById('premio-qty').value, 10),
-      attivo: document.getElementById('premio-attivo').checked
+      attivo: document.getElementById('premio-attivo').checked,
+      merchItemId: merchItemId
     };
     if (!data.nome) { showFormError('Il nome è obbligatorio.'); return; }
     if (!data.costoPunti || data.costoPunti < 1) { showFormError('Il costo in punti deve essere almeno 1.'); return; }

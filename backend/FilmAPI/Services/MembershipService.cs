@@ -25,7 +25,7 @@ public interface IMembershipService
     Task<List<MembershipCardDTO>> GetCompleanniOggiAsync();
     Task<List<PuntiMovimentoDTO>> GetPuntiStoricoAsync(int userId);
     Task<List<PremioDTO>> GetPremiDisponibiliAsync(int userId);
-    Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId);
+    Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId, string? taglia = null);
     Task<List<PremioRiscattoDTO>> GetMieiRiscattiAsync(int userId);
     Task<List<PremioDTO>> GetAllPremiAdminAsync();
     Task<PremioDTO> CreatePremioAsync(CreatePremioDTO dto);
@@ -356,9 +356,9 @@ public class MembershipService : IMembershipService
             .ToListAsync();
     }
 
-    public async Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId)
+    public async Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId, string? taglia = null)
     {
-        var premio = await _db.Premi.FindAsync(premioId)
+        var premio = await _db.Premi.Include(p => p.MerchItem).FirstOrDefaultAsync(p => p.Id == premioId)
             ?? throw new ArgumentException("Premio non trovato.");
 
         if (!premio.Attivo)
@@ -367,19 +367,29 @@ public class MembershipService : IMembershipService
         if (premio.QuantitaDisponibile == 0)
             throw new InvalidOperationException("Premio esaurito.");
 
+        if (premio.Tipo == TipoPremio.Merch && premio.MerchItemId.HasValue && string.IsNullOrWhiteSpace(taglia))
+            throw new ArgumentException("Per i premi merch è richiesta la taglia.");
+
         var card = await _db.MembershipCards.FirstOrDefaultAsync(c => c.UserId == userId)
-            ?? throw new InvalidOperationException("Tessera membership non trovata. Fai un primo acquisto per attivarla.");
+            ?? throw new InvalidOperationException("Tessera membership non trovata.");
 
         if (card.PuntiDisponibili < premio.CostoPunti)
             throw new InvalidOperationException($"Punti insufficienti. Hai {card.PuntiDisponibili} punti, ti servono {premio.CostoPunti}.");
 
         var codice = $"C67-R-{Guid.NewGuid().ToString()[..8].ToUpper()}";
-
         var saldoPre = card.PuntiDisponibili;
         card.PuntiDisponibili -= premio.CostoPunti;
 
         if (premio.QuantitaDisponibile > 0)
             premio.QuantitaDisponibile--;
+
+        var scadenza = premio.Tipo switch
+        {
+            TipoPremio.Biglietto => DateTime.UtcNow.AddYears(1),
+            TipoPremio.Food => DateTime.UtcNow.AddYears(1),
+            TipoPremio.Sconto => DateTime.UtcNow.AddMonths(6),
+            _ => (DateTime?)null
+        };
 
         var riscatto = new PremioRiscatto
         {
@@ -387,13 +397,36 @@ public class MembershipService : IMembershipService
             PremioId = premioId,
             PuntiSpesi = premio.CostoPunti,
             Codice = codice,
+            Taglia = taglia?.Trim(),
             Stato = StatoRiscatto.Attivo,
             DataRiscatto = DateTime.UtcNow,
-            DataScadenza = DateTime.UtcNow.AddMonths(6),
+            DataScadenza = scadenza,
             CreatedAtUtc = DateTime.UtcNow
         };
-        _db.PremiRiscatti.Add(riscatto);
 
+        if (premio.Tipo == TipoPremio.Biglietto || premio.Tipo == TipoPremio.Food)
+        {
+            riscatto.CodiceVoucher = $"VCH-{Guid.NewGuid().ToString()[..10].ToUpper()}";
+        }
+
+        if (premio.Tipo == TipoPremio.GiftCard && premio.Valore > 0)
+        {
+            var gc = new GiftCard
+            {
+                Codice = $"GIFT-{Guid.NewGuid().ToString()[..8].ToUpper()}",
+                ValoreIniziale = premio.Valore,
+                SaldoResiduo = premio.Valore,
+                Stato = GiftCardStato.Attiva,
+                AcquirenteUserId = userId,
+                DataAcquisto = DateTime.UtcNow,
+                DataScadenza = DateTime.UtcNow.AddYears(1),
+                Messaggio = "Premio riscattato con punti membership"
+            };
+            _db.GiftCards.Add(gc);
+            riscatto.GiftCardId = gc.Id;
+        }
+
+        _db.PremiRiscatti.Add(riscatto);
         _db.PuntiMovimenti.Add(new PuntiMovimento
         {
             UserId = userId,
@@ -410,6 +443,12 @@ public class MembershipService : IMembershipService
 
         await _db.SaveChangesAsync();
 
+        try
+        {
+            await InviaEmailRiscattoAsync(userId, premio, riscatto, card.PuntiDisponibili);
+        }
+        catch { /* email non bloccante */ }
+
         return new PremioRiscattoDTO
         {
             Id = riscatto.Id,
@@ -420,8 +459,48 @@ public class MembershipService : IMembershipService
             Stato = riscatto.Stato.ToString(),
             Valore = premio.Valore,
             DataRiscatto = riscatto.DataRiscatto,
-            DataScadenza = riscatto.DataScadenza
+            DataScadenza = riscatto.DataScadenza,
+            Taglia = riscatto.Taglia,
+            CodiceVoucher = riscatto.CodiceVoucher,
+            GiftCardId = riscatto.GiftCardId
         };
+    }
+
+    private async Task InviaEmailRiscattoAsync(int userId, Premio premio, PremioRiscatto riscatto, decimal puntiResidui)
+    {
+        var user = await _db.Users.FindAsync(userId);
+        if (user?.Email == null) return;
+
+        var tipoLabel = premio.Tipo switch
+        {
+            TipoPremio.Sconto => "Sconto",
+            TipoPremio.Biglietto => "Biglietto omaggio",
+            TipoPremio.GiftCard => "Gift Card",
+            TipoPremio.Merch => "Merch",
+            TipoPremio.Food => "Cibo/Bevanda",
+            _ => premio.Tipo.ToString()
+        };
+
+        var dettagli = "";
+        if (riscatto.CodiceVoucher != null)
+            dettagli += $"<p><b>Codice voucher:</b> {riscatto.CodiceVoucher}</p>";
+        if (riscatto.Taglia != null)
+            dettagli += $"<p><b>Taglia:</b> {riscatto.Taglia}</p>";
+        if (premio.MerchItem?.Nome != null)
+            dettagli += $"<p><b>Articolo:</b> {premio.MerchItem.Nome}</p>";
+
+        var body = $@"<div style='max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#1a1614;color:#e0d8cc;padding:24px;border-radius:12px'>
+<h2 style='color:#d4af37'>Cinema67 — Riscatto Premio</h2>
+<p>Hai riscattato <b style='color:#d4af37'>{premio.Nome}</b></p>
+<p>Tipo: {tipoLabel}</p>
+{dettagli}
+<p><b>Punti spesi:</b> {premio.CostoPunti}</p>
+<p><b>Punti residui:</b> {puntiResidui}</p>
+<p><b>Codice riscatto:</b> {riscatto.Codice}</p>
+{(riscatto.DataScadenza.HasValue ? $"<p><b>Scade il:</b> {riscatto.DataScadenza.Value:dd/MM/yyyy}</p>" : "")}
+<p style='margin-top:24px;color:#8a8078;font-size:12px'>Cinema67 — L'Arte del Cinema</p></div>";
+
+        await _emailService.SendHtmlEmailAsync(user.Email, $"Cinema67 — Premio riscattato: {premio.Nome}", body);
     }
 
     public async Task<List<PremioRiscattoDTO>> GetMieiRiscattiAsync(int userId)
@@ -440,7 +519,13 @@ public class MembershipService : IMembershipService
                 Stato = r.Stato.ToString(),
                 Valore = r.Premio.Valore,
                 DataRiscatto = r.DataRiscatto,
-                DataScadenza = r.DataScadenza
+                DataScadenza = r.DataScadenza,
+                Taglia = r.Taglia,
+                CodiceVoucher = r.CodiceVoucher,
+                MerchOrderId = r.MerchOrderId,
+                GiftCardId = r.GiftCardId,
+                PremioDescrizione = r.Premio.Descrizione,
+                MerchItemId = r.Premio.MerchItemId
             })
             .ToListAsync();
     }
@@ -740,13 +825,16 @@ public class MembershipService : IMembershipService
     public async Task<List<PremioDTO>> GetAllPremiAdminAsync()
     {
         return await _db.Premi
+            .Include(p => p.MerchItem)
             .OrderByDescending(p => p.CreatedAtUtc)
             .Select(p => new PremioDTO
             {
                 Id = p.Id, Nome = p.Nome, Descrizione = p.Descrizione,
                 CostoPunti = p.CostoPunti, Tipo = p.Tipo.ToString(),
                 Valore = p.Valore, Attivo = p.Attivo,
-                QuantitaDisponibile = p.QuantitaDisponibile, ImmaginePath = p.ImmaginePath
+                QuantitaDisponibile = p.QuantitaDisponibile, ImmaginePath = p.ImmaginePath,
+                MerchItemId = p.MerchItemId,
+                MerchItemNome = p.MerchItem != null ? p.MerchItem.Nome : null
             })
             .ToListAsync();
     }
@@ -755,6 +843,15 @@ public class MembershipService : IMembershipService
     {
         if (!Enum.TryParse<TipoPremio>(dto.Tipo, out var tipo))
             throw new ArgumentException($"Tipo premio non valido: {dto.Tipo}");
+
+        if (tipo == TipoPremio.Merch && dto.MerchItemId == null)
+            throw new ArgumentException("Per i premi Merch devi selezionare un articolo.");
+
+        if (dto.MerchItemId.HasValue)
+        {
+            var itemExists = await _db.MerchItems.AnyAsync(m => m.Id == dto.MerchItemId.Value);
+            if (!itemExists) throw new ArgumentException("Articolo merch non trovato.");
+        }
 
         var premio = new Premio
         {
@@ -766,6 +863,7 @@ public class MembershipService : IMembershipService
             Attivo = dto.Attivo,
             QuantitaDisponibile = dto.QuantitaDisponibile,
             ImmaginePath = dto.ImmaginePath?.Trim(),
+            MerchItemId = dto.MerchItemId,
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -777,7 +875,8 @@ public class MembershipService : IMembershipService
             Id = premio.Id, Nome = premio.Nome, Descrizione = premio.Descrizione,
             CostoPunti = premio.CostoPunti, Tipo = premio.Tipo.ToString(),
             Valore = premio.Valore, Attivo = premio.Attivo,
-            QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath
+            QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath,
+            MerchItemId = premio.MerchItemId
         };
     }
 
@@ -794,6 +893,7 @@ public class MembershipService : IMembershipService
         if (dto.Attivo.HasValue) premio.Attivo = dto.Attivo.Value;
         if (dto.QuantitaDisponibile.HasValue) premio.QuantitaDisponibile = dto.QuantitaDisponibile.Value;
         if (dto.ImmaginePath != null) premio.ImmaginePath = dto.ImmaginePath.Trim();
+        if (dto.MerchItemId.HasValue) premio.MerchItemId = dto.MerchItemId.Value;
 
         await _db.SaveChangesAsync();
 
@@ -802,7 +902,8 @@ public class MembershipService : IMembershipService
             Id = premio.Id, Nome = premio.Nome, Descrizione = premio.Descrizione,
             CostoPunti = premio.CostoPunti, Tipo = premio.Tipo.ToString(),
             Valore = premio.Valore, Attivo = premio.Attivo,
-            QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath
+            QuantitaDisponibile = premio.QuantitaDisponibile, ImmaginePath = premio.ImmaginePath,
+            MerchItemId = premio.MerchItemId
         };
     }
 

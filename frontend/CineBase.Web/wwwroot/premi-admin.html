@@ -55,13 +55,16 @@
             <select id="premio-tipo" class="ghost-input w-full px-4 py-2.5 rounded-xl">
               <option value="Sconto">Sconto</option>
               <option value="Biglietto">Biglietto</option>
-              <option value="Upgrade">Upgrade</option>
               <option value="GiftCard">Gift Card</option>
               <option value="Merch">Merch</option>
               <option value="Food">Cibo/Bevanda</option>
             </select>
           </div>
           <div><label class="block text-xs text-brand-on-surface-variant mb-1">Costo Punti *</label><input id="premio-costo" type="number" min="1" class="ghost-input w-full px-4 py-2.5 rounded-xl" required></div>
+        </div>
+        <div id="premio-merch-container" class="hidden">
+          <label class="block text-xs text-brand-on-surface-variant mb-1">Articolo Merch *</label>
+          <select id="premio-merch-item" class="ghost-input w-full px-4 py-2.5 rounded-xl"></select>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block text-xs text-brand-on-surface-variant mb-1">Valore (€)</label><input id="premio-valore" type="number" min="0" step="0.01" class="ghost-input w-full px-4 py-2.5 rounded-xl"></div>

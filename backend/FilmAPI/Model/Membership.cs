@@ -7,7 +7,7 @@ public enum TierMembership { Base = 0, Silver = 1, Gold = 2, Platinum = 3 }
 
 public enum TipoPuntiMovimento { Acquisto = 0, Bonus = 1, Riscatto = 2, Scaduti = 3, Regalo = 4, Adjust = 5 }
 
-public enum TipoPremio { Sconto = 0, Biglietto = 1, Upgrade = 2, GiftCard = 3 }
+public enum TipoPremio { Sconto = 0, Biglietto = 1, GiftCard = 3, Merch = 4, Food = 5 }
 
 public enum StatoRiscatto { Attivo = 0, Usato = 1, Scaduto = 2 }
 
@@ -135,6 +135,11 @@ public class Premio
 
     [Required]
     public DateTime CreatedAtUtc { get; set; }
+
+    public int? MerchItemId { get; set; }
+
+    [ForeignKey(nameof(MerchItemId))]
+    public MerchItem? MerchItem { get; set; }
 }
 
 public class PremioRiscatto
@@ -172,6 +177,22 @@ public class PremioRiscatto
 
     [MaxLength(500)]
     public string? Note { get; set; }
+
+    [MaxLength(20)]
+    public string? Taglia { get; set; }
+
+    [MaxLength(50)]
+    public string? CodiceVoucher { get; set; }
+
+    public int? MerchOrderId { get; set; }
+
+    [ForeignKey(nameof(MerchOrderId))]
+    public MerchOrder? MerchOrder { get; set; }
+
+    public int? GiftCardId { get; set; }
+
+    [ForeignKey(nameof(GiftCardId))]
+    public GiftCard? GiftCard { get; set; }
 
     [Required]
     public DateTime CreatedAtUtc { get; set; }

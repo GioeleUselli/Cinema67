@@ -210,13 +210,16 @@ public static class MembershipEndpoints
         authGroup.MapPost("/premi/{premioId:int}/riscatta", async (
             int premioId,
             ClaimsPrincipal user,
-            IMembershipService service) =>
+            IMembershipService service,
+            HttpContext ctx) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             if (userId == 0) return Results.Unauthorized();
+            var body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+            var taglia = body?.GetValueOrDefault("taglia");
             try
             {
-                var result = await service.RiscattaPremioAsync(userId, premioId);
+                var result = await service.RiscattaPremioAsync(userId, premioId, taglia);
                 return Results.Ok(result);
             }
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
