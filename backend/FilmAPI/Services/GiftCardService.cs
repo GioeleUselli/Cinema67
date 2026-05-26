@@ -171,23 +171,23 @@ public class GiftCardService : IGiftCardService
 
     public async Task<List<GiftCardDTO>> GetMieGiftCardAsync(int userId)
     {
-        return await _db.GiftCards
+        var cards = await _db.GiftCards
             .Include(g => g.AcquirenteUser)
             .Include(g => g.RiscattataDaUser)
             .Where(g => g.AcquirenteUserId == userId || g.RiscattataDaUserId == userId)
             .OrderByDescending(g => g.CreatedAtUtc)
-            .Select(g => MapDTO(g))
             .ToListAsync();
+        return cards.Select(MapDTO).ToList();
     }
 
     public async Task<List<GiftCardDTO>> GetAllGiftCardAsync()
     {
-        return await _db.GiftCards
+        var cards = await _db.GiftCards
             .Include(g => g.AcquirenteUser)
             .Include(g => g.RiscattataDaUser)
             .OrderByDescending(g => g.CreatedAtUtc)
-            .Select(g => MapDTO(g))
             .ToListAsync();
+        return cards.Select(MapDTO).ToList();
     }
 
     public async Task<GiftCardDTO?> GetByCodiceAsync(string codice)
