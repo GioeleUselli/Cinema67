@@ -235,7 +235,10 @@
       window.location.href = '/login.html?v=99&redirect=' + encodeURIComponent('/giftcard.html');
     }
 
-    var cart = [];
+    var CART_KEY = 'cb_giftcard_cart';
+    function loadCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
+    function saveCart(c) { try { localStorage.setItem(CART_KEY, JSON.stringify(c)); } catch(e) {} }
+    var cart = loadCart();
     var balance = 0;
     var pendingValue = 0;
     var pendingQty = 1;
@@ -356,6 +359,7 @@
         messaggio: itemMsg,
         dataInvioProgrammato: itemData ? new Date(itemData).toISOString() : null
       });
+      saveCart(cart);
       pendingValue = 0;
       pendingQty = 1;
       document.getElementById('item-email').value = '';
@@ -371,6 +375,7 @@
 
     function removeFromCart(index) {
       cart.splice(index, 1);
+      saveCart(cart);
       renderCart();
     }
 
@@ -452,6 +457,7 @@
         var result = await API.acquistaCarrelloGiftCard(dto);
         if (result.checkoutUrl) { window.location.href = result.checkoutUrl; return; }
         cart = [];
+        saveCart(cart);
         renderCart();
         showResult(result);
         await loadBalance();
