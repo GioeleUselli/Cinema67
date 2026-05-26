@@ -115,6 +115,22 @@ public class RiscattaPremioRequestDTO
     public int PremioId { get; set; }
 }
 
+public class ScanAcquistoDTO
+{
+    [Required] public string CodiceCarta { get; set; } = "";
+    [Required][Range(0.01, 99999)] public decimal Importo { get; set; }
+    public string? Note { get; set; }
+}
+
+public class ScanAcquistoResultDTO
+{
+    public string UserNome { get; set; } = "";
+    public string CardNumber { get; set; } = "";
+    public decimal PuntiAccumulati { get; set; }
+    public decimal PuntiTotali { get; set; }
+    public decimal PuntiDisponibili { get; set; }
+}
+
 public class ProcessaFestivitaDTO
 {
     public string NomeFesta { get; set; } = string.Empty;

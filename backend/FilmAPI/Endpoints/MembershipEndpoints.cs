@@ -200,6 +200,17 @@ public static class MembershipEndpoints
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
+        // Cassa fisica — scansione carta fedeltà per accumulo punti
+        adminGroup.MapPost("/scan-acquisto", async (ScanAcquistoDTO dto, IMembershipService service) =>
+        {
+            try
+            {
+                var result = await service.ScanAcquistoCassaAsync(dto);
+                return Results.Ok(result);
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
         authGroup.MapGet("/premi", async (ClaimsPrincipal user, IMembershipService service) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");

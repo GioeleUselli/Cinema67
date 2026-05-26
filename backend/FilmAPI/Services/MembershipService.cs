@@ -24,6 +24,7 @@ public interface IMembershipService
     Task DeleteCampaignAsync(int id);
     Task<List<MembershipCardDTO>> GetCompleanniOggiAsync();
     Task<List<PuntiMovimentoDTO>> GetPuntiStoricoAsync(int userId);
+    Task<ScanAcquistoResultDTO> ScanAcquistoCassaAsync(ScanAcquistoDTO dto);
     Task<List<PremioDTO>> GetPremiDisponibiliAsync(int userId);
     Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId, string? taglia = null);
     Task<List<PremioRiscattoDTO>> GetMieiRiscattiAsync(int userId);
@@ -334,6 +335,58 @@ public class MembershipService : IMembershipService
                 CreatedAtUtc = p.CreatedAtUtc
             })
             .ToListAsync();
+    }
+
+    public async Task<ScanAcquistoResultDTO> ScanAcquistoCassaAsync(ScanAcquistoDTO dto)
+    {
+        var card = await _db.MembershipCards
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.CardNumber == dto.CodiceCarta.Trim())
+            ?? throw new ArgumentException("Carta fedeltà non trovata. Scansiona il codice a barre della carta.");
+
+        if (!card.IsAttiva)
+            throw new InvalidOperationException("Carta fedeltà non attiva.");
+
+        var moltiplicatore = card.Tier switch
+        {
+            TierMembership.Platinum => 2.0m,
+            TierMembership.Gold => 1.5m,
+            TierMembership.Silver => 1.2m,
+            _ => 1.0m
+        };
+
+        var punti = Math.Floor(dto.Importo * moltiplicatore);
+        if (punti <= 0)
+            throw new ArgumentException("Importo troppo basso per accumulare punti.");
+
+        var saldoPre = card.PuntiDisponibili;
+        card.PuntiTotali += punti;
+        card.PuntiDisponibili += punti;
+
+        _db.PuntiMovimenti.Add(new PuntiMovimento
+        {
+            UserId = card.UserId,
+            MembershipCardId = card.Id,
+            Tipo = TipoPuntiMovimento.Acquisto,
+            Punti = punti,
+            SaldoPre = saldoPre,
+            SaldoPost = card.PuntiDisponibili,
+            RiferimentoTipo = "AcquistoCassa",
+            Note = $"Acquisto in cassa: €{dto.Importo:F2}" + (string.IsNullOrWhiteSpace(dto.Note) ? "" : $" — {dto.Note}"),
+            CreatedAtUtc = DateTime.UtcNow
+        });
+
+        card.Tier = CalcolaTier(card.PuntiTotali);
+        await _db.SaveChangesAsync();
+
+        return new ScanAcquistoResultDTO
+        {
+            UserNome = card.User != null ? $"{card.User.Nome} {card.User.Cognome}" : "",
+            CardNumber = card.CardNumber,
+            PuntiAccumulati = punti,
+            PuntiTotali = card.PuntiTotali,
+            PuntiDisponibili = card.PuntiDisponibili
+        };
     }
 
     public async Task<List<PremioDTO>> GetPremiDisponibiliAsync(int userId = 0)

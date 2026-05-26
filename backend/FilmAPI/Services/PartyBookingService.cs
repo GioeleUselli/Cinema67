@@ -24,10 +24,11 @@ public class PartyBookingService : IPartyBookingService
     private readonly IStripePaymentGateway _stripe;
     private readonly IEmailService _emailService;
     private readonly IPayPalGateway _paypal;
+    private readonly IMembershipService _membershipService;
 
-    public PartyBookingService(FilmDbContext db, IStripePaymentGateway stripe, IEmailService emailService, IPayPalGateway paypal)
+    public PartyBookingService(FilmDbContext db, IStripePaymentGateway stripe, IEmailService emailService, IPayPalGateway paypal, IMembershipService membershipService)
     {
-        _db = db; _stripe = stripe; _emailService = emailService; _paypal = paypal;
+        _db = db; _stripe = stripe; _emailService = emailService; _paypal = paypal; _membershipService = membershipService;
     }
 
     public decimal CalcolaPrezzo(PartyType tipo, PartyPackage pacchetto, int ospiti)
@@ -143,6 +144,7 @@ public class PartyBookingService : IPartyBookingService
         b.QrCodeData = $"FESTA-{b.Id}-{Guid.NewGuid().ToString("N")[..8]}";
         await _db.SaveChangesAsync();
         await SendConfirmationEmail(b);
+        try { await _membershipService.AccumulaPuntiAcquistoAsync(userId, b.Totale, b.Id); } catch { }
         return Map(b);
     }
 
