@@ -12,6 +12,7 @@ public class PartyBookingCreateDTO
     public DateTime OraFine { get; set; }
     public string? RichiesteSpeciali { get; set; }
     public string MetodoPagamento { get; set; } = "credito";
+    public string? CodiceSconto { get; set; }
 }
 
 public class PartyBookingDTO

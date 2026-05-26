@@ -79,6 +79,28 @@ public class PartyBookingService : IPartyBookingService
 
         var totale = CalcolaPrezzo(tipo, pacchetto, dto.NumeroOspiti);
 
+        // Apply discount code
+        decimal sconto = 0;
+        if (!string.IsNullOrWhiteSpace(dto.CodiceSconto))
+        {
+            var disc = await _db.MerchDiscountCodes
+                .FirstOrDefaultAsync(d => d.Codice == dto.CodiceSconto.Trim().ToUpper() && d.Attivo
+                    && (!d.ScadeIl.HasValue || d.ScadeIl.Value > DateTime.UtcNow)
+                    && d.Utilizzi < d.MaxUtilizzi);
+            if (disc != null)
+            {
+                if (disc.PercentualeSconto > 0)
+                {
+                    sconto = Math.Round(totale * disc.PercentualeSconto / 100m, 2);
+                    if (disc.ValoreScontoFisso > 0) sconto = Math.Min(sconto, disc.ValoreScontoFisso);
+                }
+                else if (disc.ValoreScontoFisso > 0)
+                    sconto = Math.Min(disc.ValoreScontoFisso, totale);
+                disc.Utilizzi++;
+            }
+        }
+        totale -= sconto;
+
         var booking = new PartyBooking
         {
             UserId = userId, CinemaId = dto.CinemaId, NomeFesta = dto.NomeFesta,
