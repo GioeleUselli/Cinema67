@@ -17,6 +17,7 @@ public class PagamentoService : IPagamentoService
     private readonly IEmailService _emailService;
     private readonly IPayPalGateway _paypalGateway;
     private readonly ILogger<PagamentoService> _logger;
+    private readonly IMembershipService _membershipService;
 
     public PagamentoService(
         FilmDbContext db,
@@ -27,7 +28,8 @@ public class PagamentoService : IPagamentoService
         IBigliettoService bigliettoService,
         IPdfService pdfService,
         IEmailService emailService,
-        ILogger<PagamentoService> logger)
+        ILogger<PagamentoService> logger,
+        IMembershipService membershipService)
     {
         _db = db;
         _stripeGateway = stripeGateway;
@@ -38,6 +40,7 @@ public class PagamentoService : IPagamentoService
         _emailService = emailService;
         _paypalGateway = paypalGateway;
         _logger = logger;
+        _membershipService = membershipService;
     }
 
     public async Task<PayOrdineResponseDTO> PayOrdineAsync(int userId, int orderId, PayOrdineRequestDTO dto, string? idempotencyKey)
@@ -426,6 +429,8 @@ public class PagamentoService : IPagamentoService
 
         await _db.SaveChangesAsync();
         await transaction.CommitAsync();
+
+        try { await _membershipService.AccumulaPuntiAcquistoAsync(ordine.UserId, ordine.TotaleLordo, ordine.Id); } catch { }
     }
 
     private async Task TrySendOrderTicketsEmailAsync(int orderId)
@@ -898,5 +903,7 @@ public class PagamentoService : IPagamentoService
         ordine.Stato = OrdineState.Paid;
         ordine.PaidAtUtc = DateTime.UtcNow;
         await _db.SaveChangesAsync();
+
+        try { await _membershipService.AccumulaPuntiAcquistoAsync(ordine.UserId, ordine.TotaleLordo, ordine.Id); } catch { }
     }
 }

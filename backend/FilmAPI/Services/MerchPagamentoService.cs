@@ -26,10 +26,11 @@ public class MerchPagamentoService : IMerchPagamentoService
     private readonly IMerchService _merchService;
     private readonly IEmailService _emailService;
     private readonly ILogger<MerchPagamentoService> _logger;
+    private readonly IMembershipService _membershipService;
 
-    public MerchPagamentoService(FilmDbContext db, IStripePaymentGateway stripe, IPayPalGateway paypal, ICreditoService credito, IMerchService merchService, IEmailService emailService, ILogger<MerchPagamentoService> logger)
+    public MerchPagamentoService(FilmDbContext db, IStripePaymentGateway stripe, IPayPalGateway paypal, ICreditoService credito, IMerchService merchService, IEmailService emailService, ILogger<MerchPagamentoService> logger, IMembershipService membershipService)
     {
-        _db = db; _stripe = stripe; _paypal = paypal; _credito = credito; _merchService = merchService; _emailService = emailService; _logger = logger;
+        _db = db; _stripe = stripe; _paypal = paypal; _credito = credito; _merchService = merchService; _emailService = emailService; _logger = logger; _membershipService = membershipService;
     }
 
     public async Task<PayMerchOrderResponseDTO> PayMerchOrderAsync(int userId, int merchOrderId, PayMerchOrderRequestDTO dto, string? idempotencyKey)
@@ -54,6 +55,7 @@ public class MerchPagamentoService : IMerchPagamentoService
             order.PaidAtUtc = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             await TrySendOrderEmailAsync(order);
+            await TryAccumulaPuntiAsync(order);
             return new PayMerchOrderResponseDTO { StatoPagamento = "Paid", Ordine = MapDTO(order) };
         }
 
@@ -78,6 +80,7 @@ public class MerchPagamentoService : IMerchPagamentoService
             order.Stato = "Paid";
             order.PaidAtUtc = DateTime.UtcNow;
             await _db.SaveChangesAsync();
+            await TryAccumulaPuntiAsync(order);
             return new PayMerchOrderResponseDTO { StatoPagamento = "Paid", Ordine = MapDTO(order), StripePaymentIntentId = pi.Id };
         }
 
@@ -173,6 +176,7 @@ public class MerchPagamentoService : IMerchPagamentoService
                         order.PaidAtUtc = DateTime.UtcNow;
                         await _db.SaveChangesAsync();
                         await TrySendOrderEmailAsync(order);
+                        await TryAccumulaPuntiAsync(order);
                         return;
                     }
                 }
@@ -221,6 +225,7 @@ public class MerchPagamentoService : IMerchPagamentoService
             order.PaidAtUtc = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             await TrySendOrderEmailAsync(order);
+            await TryAccumulaPuntiAsync(order);
         }
         else if (session.Status == "expired")
         {
@@ -346,5 +351,11 @@ public class MerchPagamentoService : IMerchPagamentoService
         order.PaidAtUtc = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         await TrySendOrderEmailAsync(order);
+        await TryAccumulaPuntiAsync(order);
+    }
+
+    private async Task TryAccumulaPuntiAsync(MerchOrder order)
+    {
+        try { await _membershipService.AccumulaPuntiAcquistoAsync(order.UserId, order.Totale, order.Id); } catch { }
     }
 }
