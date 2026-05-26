@@ -25,6 +25,7 @@ public interface IMembershipService
     Task<List<MembershipCardDTO>> GetCompleanniOggiAsync();
     Task<List<PuntiMovimentoDTO>> GetPuntiStoricoAsync(int userId);
     Task<ScanAcquistoResultDTO> ScanAcquistoCassaAsync(ScanAcquistoDTO dto);
+    Task<object> CompletaMerchPremioAsync(int userId, CompletaMerchPremioDTO dto);
     Task<List<PremioDTO>> GetPremiDisponibiliAsync(int userId);
     Task<PremioRiscattoDTO> RiscattaPremioAsync(int userId, int premioId, string? taglia = null);
     Task<List<PremioRiscattoDTO>> GetMieiRiscattiAsync(int userId);
@@ -433,8 +434,7 @@ public class MembershipService : IMembershipService
         if (premio.QuantitaDisponibile == 0)
             throw new InvalidOperationException("Premio esaurito.");
 
-        if (premio.Tipo == TipoPremio.Merch && premio.MerchItemId.HasValue && string.IsNullOrWhiteSpace(taglia))
-            throw new ArgumentException("Per i premi merch è richiesta la taglia.");
+        // Merch: la taglia viene scelta dopo, nel completamento ordine
 
         var card = await _db.MembershipCards.FirstOrDefaultAsync(c => c.UserId == userId)
             ?? throw new InvalidOperationException("Tessera membership non trovata.");
@@ -530,6 +530,61 @@ public class MembershipService : IMembershipService
             CodiceVoucher = riscatto.CodiceVoucher,
             GiftCardId = riscatto.GiftCardId
         };
+    }
+
+    public async Task<object> CompletaMerchPremioAsync(int userId, CompletaMerchPremioDTO dto)
+    {
+        var riscatto = await _db.PremiRiscatti
+            .Include(r => r.Premio)
+            .ThenInclude(p => p!.MerchItem)
+            .FirstOrDefaultAsync(r => r.Id == dto.RiscattoId && r.UserId == userId)
+            ?? throw new ArgumentException("Riscatto non trovato.");
+
+        if (riscatto.Premio?.Tipo != TipoPremio.Merch || riscatto.Premio.MerchItemId == null)
+            throw new ArgumentException("Questo premio non è un articolo merch.");
+
+        if (riscatto.MerchOrderId.HasValue)
+            throw new InvalidOperationException("Ordine già creato per questo premio.");
+
+        var item = riscatto.Premio.MerchItem;
+        if (item == null) throw new ArgumentException("Articolo merch non trovato.");
+
+        var order = new MerchOrder
+        {
+            UserId = userId,
+            Stato = "Pending",
+            CodiceOrdine = $"PRM-{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
+            Totale = 0,
+            ImportoCarta = 0,
+            ImportoCredito = 0,
+            TipoConsegna = dto.TipoConsegna ?? "RitiroCinema",
+            Indirizzo = dto.Indirizzo,
+            Citta = dto.Citta,
+            CAP = dto.CAP,
+            Provincia = dto.Provincia,
+            Telefono = dto.Telefono,
+            CinemaRitiroId = dto.CinemaRitiroId,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+        _db.MerchOrders.Add(order);
+        await _db.SaveChangesAsync();
+
+        _db.MerchOrderItems.Add(new MerchOrderItem
+        {
+            MerchOrderId = order.Id,
+            MerchItemId = item.Id,
+            Quantita = 1,
+            PrezzoUnitario = 0
+        });
+
+        riscatto.MerchOrderId = order.Id;
+        riscatto.Taglia = dto.Taglia?.Trim();
+        riscatto.Stato = StatoRiscatto.Usato;
+        riscatto.DataUtilizzo = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return new { message = "Ordine creato con successo.", orderId = order.Id, codiceOrdine = order.CodiceOrdine };
     }
 
     private async Task InviaEmailRiscattoAsync(int userId, Premio premio, PremioRiscatto riscatto, decimal puntiResidui)

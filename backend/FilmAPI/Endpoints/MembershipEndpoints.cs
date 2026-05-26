@@ -242,6 +242,19 @@ public static class MembershipEndpoints
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
+        authGroup.MapPost("/premi/completa-merch", async (CompletaMerchPremioDTO dto, ClaimsPrincipal user, IMembershipService service) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            try
+            {
+                var result = await service.CompletaMerchPremioAsync(userId, dto);
+                return Results.Ok(result);
+            }
+            catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
+        });
+
         authGroup.MapGet("/riscatti", async (ClaimsPrincipal user, IMembershipService service) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");

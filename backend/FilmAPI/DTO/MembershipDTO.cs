@@ -122,6 +122,20 @@ public class ScanAcquistoDTO
     public string? Note { get; set; }
 }
 
+public class CompletaMerchPremioDTO
+{
+    [Required] public int RiscattoId { get; set; }
+    public string? Taglia { get; set; }
+    public int? IndirizzoId { get; set; }
+    public string TipoConsegna { get; set; } = "RitiroCinema";
+    public int? CinemaRitiroId { get; set; }
+    public string? Indirizzo { get; set; }
+    public string? Citta { get; set; }
+    public string? CAP { get; set; }
+    public string? Provincia { get; set; }
+    public string? Telefono { get; set; }
+}
+
 public class ScanAcquistoResultDTO
 {
     public string UserNome { get; set; } = "";
