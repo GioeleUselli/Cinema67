@@ -329,7 +329,9 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = Dat
 
 using (var scope = app.Services.CreateScope())
 {
-    var seeder = new DataSeeder(scope.ServiceProvider.GetRequiredService<FilmDbContext>());
+    var db = scope.ServiceProvider.GetRequiredService<FilmDbContext>();
+    await db.Database.MigrateAsync();
+    var seeder = new DataSeeder(db);
     await seeder.SeedAsync();
 }
 
