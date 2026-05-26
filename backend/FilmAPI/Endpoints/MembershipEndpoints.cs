@@ -198,6 +198,7 @@ public static class MembershipEndpoints
                 return Results.Ok(new { message = "Premio eliminato." });
             }
             catch (ArgumentException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
         // Cassa fisica — scansione carta fedeltà per accumulo punti

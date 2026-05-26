@@ -1037,6 +1037,9 @@ public class MembershipService : IMembershipService
     {
         var premio = await _db.Premi.FindAsync(id)
             ?? throw new ArgumentException("Premio non trovato.");
+        var hasRiscatti = await _db.PremiRiscatti.AnyAsync(r => r.PremioId == id);
+        if (hasRiscatti)
+            throw new InvalidOperationException("Impossibile eliminare: ci sono riscatti associati a questo premio. Disattivalo invece.");
         _db.Premi.Remove(premio);
         await _db.SaveChangesAsync();
     }
