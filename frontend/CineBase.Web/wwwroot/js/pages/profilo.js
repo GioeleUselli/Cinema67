@@ -544,35 +544,37 @@ async function loadMembership() {
     var barcode = generateBarcodeSvg(card.cardNumber || 'C67' + card.id);
     var userName = ((profiloData && profiloData.nome) || '').toUpperCase() + ' ' + ((profiloData && profiloData.cognome) || '').toUpperCase();
     var html =
-      '<div class="cine-premium-card p-0 overflow-hidden" style="background:linear-gradient(135deg, #0d0a08, #1a1511);border:2px solid rgba(212,175,55,0.25);">' +
-        '<div class="p-5 sm:p-6" style="background:linear-gradient(135deg, rgba(212,175,55,0.08), rgba(185,28,28,0.05));">' +
+      '<div class="cine-premium-card p-0 overflow-hidden relative" style="border:2px solid var(--brand-gold);">' +
+        '<div class="absolute inset-0 opacity-[0.04] pointer-events-none" style="background:linear-gradient(135deg, var(--brand-gold), var(--brand-red));"></div>' +
+        '<div class="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-[0.06] pointer-events-none" style="background:var(--brand-gold);filter:blur(24px);"></div>' +
+        '<div class="p-5 sm:p-6 relative z-10">' +
           '<div class="flex items-start justify-between mb-4">' +
             '<div>' +
-              '<p class="text-[10px] uppercase tracking-[0.25em] text-brand-gold/70 font-semibold">Cinema67</p>' +
-              '<p class="text-xs text-brand-on-surface-variant mt-0.5">L\'Arte del Cinema</p>' +
+              '<p class="text-[10px] uppercase tracking-[0.25em] font-semibold" style="color:var(--brand-gold);">Cinema67</p>' +
+              '<p class="text-xs mt-0.5" style="color:var(--brand-on-surface-variant);">L\'Arte del Cinema</p>' +
             '</div>' +
             '<div class="flex items-center gap-2">' +
-              '<span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-brand-gold/30 text-brand-gold font-bold">' + tier + '</span>' +
-              (isAbbonato ? '<span class="text-[10px] text-emerald-500"><i class="fa-solid fa-circle text-[6px] mr-1"></i>Premium</span>' : '') +
+              '<span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold" style="border:1px solid var(--brand-gold);color:var(--brand-gold);">' + tier + '</span>' +
+              (isAbbonato ? '<span class="text-[10px]" style="color:var(--color-success, #10b981);"><i class="fa-solid fa-circle text-[6px] mr-1"></i>Premium</span>' : '') +
             '</div>' +
           '</div>' +
           '<div class="mb-4">' +
-            '<p class="font-mono text-lg sm:text-xl tracking-[0.2em] text-brand-on-surface font-bold">' + (card.cardNumber || 'C67-' + String(card.id).padStart(8, '0')) + '</p>' +
-            '<p class="text-xs text-brand-on-surface-variant mt-1 font-medium tracking-wider">' + userName + '</p>' +
+            '<p class="font-mono text-lg sm:text-xl tracking-[0.2em] font-bold" style="color:var(--brand-on-surface);">' + (card.cardNumber || 'C67-' + String(card.id).padStart(8, '0')) + '</p>' +
+            '<p class="text-xs mt-1 font-medium tracking-wider" style="color:var(--brand-on-surface-variant);">' + userName + '</p>' +
           '</div>' +
           '<div class="flex items-end justify-between">' +
             '<div>' +
-              '<p class="text-2xl font-bold text-brand-gold font-serif">' + (card.puntiDisponibili || 0) + '</p>' +
-              '<p class="text-[10px] text-brand-on-surface-variant uppercase tracking-wider">Punti disponibili</p>' +
+              '<p class="text-2xl font-bold font-serif" style="color:var(--brand-gold);">' + (card.puntiDisponibili || 0) + '</p>' +
+              '<p class="text-[10px] uppercase tracking-wider" style="color:var(--brand-on-surface-variant);">Punti disponibili</p>' +
             '</div>' +
             '<div class="text-right">' +
-              '<p class="text-xs text-brand-on-surface-variant">Accumulati</p>' +
-              '<p class="text-sm font-semibold text-brand-on-surface">' + (card.puntiTotali || 0) + '</p>' +
+              '<p class="text-xs" style="color:var(--brand-on-surface-variant);">Accumulati</p>' +
+              '<p class="text-sm font-semibold" style="color:var(--brand-on-surface);">' + (card.puntiTotali || 0) + '</p>' +
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="px-5 sm:px-6 pb-4 pt-3 flex justify-center" style="border-top:1px dashed rgba(212,175,55,0.15);">' +
-          '<div class="text-brand-on-surface/80">' + barcode + '</div>' +
+        '<div class="px-5 sm:px-6 pb-4 pt-3 flex justify-center" style="border-top:1px dashed var(--brand-gold);">' +
+          '<div style="color:var(--brand-on-surface);">' + barcode + '</div>' +
         '</div>' +
       '</div>';
 
