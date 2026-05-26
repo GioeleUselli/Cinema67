@@ -492,7 +492,7 @@ public class MembershipService : IMembershipService
                 Messaggio = "Premio riscattato con punti membership"
             };
             _db.GiftCards.Add(gc);
-            riscatto.GiftCardId = gc.Id;
+            riscatto.GiftCard = gc;
         }
 
         if (premio.Tipo == TipoPremio.Sconto)
