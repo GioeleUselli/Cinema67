@@ -43,7 +43,8 @@ function isAdminAreaPath(pathname) {
     '/magazzino.html',
     '/admin-pacchi.html',
     '/recensioni-admin.html',
-    '/premi-admin.html'
+    '/premi-admin.html',
+    '/cassa.html'
   ]);
   return adminPaths.has((pathname || '').toLowerCase());
 }

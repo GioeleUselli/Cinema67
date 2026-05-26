@@ -24,7 +24,8 @@
     '/rimborsi-admin.html',
     '/food-admin.html',
     '/recensioni-admin.html',
-    '/premi-admin.html'
+    '/premi-admin.html',
+    '/cassa.html'
   ]);
 
   const PAGE_TITLES = {
@@ -52,7 +53,8 @@
     '/rimborsi-admin.html': 'Gestione Rimborsi',
     '/food-admin.html': 'Food & Beverage',
     '/recensioni-admin.html': 'Recensioni',
-    '/premi-admin.html': 'Premi'
+    '/premi-admin.html': 'Premi',
+    '/cassa.html': 'Cassa'
   };
 
   function getUser() {
@@ -229,6 +231,7 @@
              <a data-admin-link href="/admin-pacchi.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-boxes-stacked"></i>Gestione Pacchi</a>
              <a data-admin-link href="/recensioni-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-star"></i>Recensioni</a>
              <a data-admin-link href="/premi-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-award"></i>Premi</a>
+             <a data-admin-link href="/cassa.html" class="flex items-center gap-3 px-4 py-3 rounded-xl"><i class="fa-solid fa-cash-register"></i>Cassa</a>
           </nav>
           <div class="p-4 border-t border-brand-outline-variant/20 space-y-1">
             <button onclick="Cinema67Theme.toggle()" class="sidebar-theme-toggle w-full px-4 py-3 rounded-xl text-left">
