@@ -211,7 +211,7 @@ async function loadRecommendedFilms() {
   if (!recommendedSection || !recommendedGrid) return;
 
   try {
-    const token = Auth?.getToken?.() || localStorage.getItem('accessToken');
+    const token = Auth?.getAccessToken?.() || localStorage.getItem('cb_access_token');
     console.log('Loading recommended films with token:', token ? 'present' : 'missing');
     
     // Fetch recommended films from backend endpoint
