@@ -242,6 +242,19 @@ public class GiftCardService : IGiftCardService
 
         await _db.SaveChangesAsync();
 
+        // Mark associated prize redemption as used
+        try
+        {
+            var riscatto = await _db.PremiRiscatti.FirstOrDefaultAsync(r => r.GiftCardId == giftCard.Id);
+            if (riscatto != null && riscatto.Stato == Model.StatoRiscatto.Attivo)
+            {
+                riscatto.Stato = Model.StatoRiscatto.Usato;
+                riscatto.DataUtilizzo = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+            }
+        }
+        catch { /* non bloccante */ }
+
         return new GiftCardRiscattoResultDTO
         {
             GiftCard = MapDTO(giftCard),
