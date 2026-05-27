@@ -82,6 +82,7 @@ public class OrdineSummaryDTO
     public string? LastPaymentError { get; set; }
     public int? ScontoPercent { get; set; }
     public string? DiscountCode { get; set; }
+    public string? VoucherCode { get; set; }
     public decimal TotaleScontato { get; set; }
     public List<OrdineTicketSummaryDTO> Biglietti { get; set; } = new();
     public List<FoodOrderItemDetailDTO> Cibo { get; set; } = new();

@@ -186,6 +186,7 @@ public class CheckoutService : ICheckoutService
             ImportoCarta = scontoPercent.HasValue ? Math.Round(totaleLordo * (1 - scontoPercent.Value / 100m), 2) : (scontoFisso.HasValue ? Math.Max(0, totaleLordo - scontoFisso.Value) : totaleLordo),
             ScontoPercent = scontoPercent,
             DiscountCode = discountCode,
+            VoucherCode = voucherCode,
             IdempotencyKey = dto.IdempotencyKey,
             Stato = OrdineState.Pending,
             CreatedAtUtc = now,
@@ -312,6 +313,7 @@ public class CheckoutService : ICheckoutService
             LastPaymentError = ordine.LastPaymentError,
             ScontoPercent = ordine.ScontoPercent,
             DiscountCode = ordine.DiscountCode,
+            VoucherCode = ordine.VoucherCode,
             TotaleScontato = ordine.ScontoPercent.HasValue ? ordine.TotaleLordo * (1 - ordine.ScontoPercent.Value / 100m) : ordine.TotaleLordo,
             Biglietti = ordine.Biglietti
                 .OrderBy(b => b.SalaPosto?.Settore)

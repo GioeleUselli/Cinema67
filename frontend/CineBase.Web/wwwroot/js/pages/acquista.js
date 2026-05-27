@@ -514,6 +514,15 @@ function updateSummary() {
   } else {
     discountRow.classList.add('hidden');
   }
+  // Voucher display
+  var voucherRow = document.getElementById('voucher-row');
+  var voucherLabel = document.getElementById('voucher-label');
+  if (voucherCodeApplied) {
+    voucherRow.classList.remove('hidden');
+    voucherLabel.textContent = voucherCodeApplied;
+  } else {
+    voucherRow.classList.add('hidden');
+  }
   totalEl.textContent = formatCurrency(total);
 
   if (selected.length > 0) {

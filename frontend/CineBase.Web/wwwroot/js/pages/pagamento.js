@@ -103,6 +103,9 @@ function renderOrderSummary() {
   if (ordine.scontoPercent) {
     document.getElementById('order-total').insertAdjacentHTML('beforebegin', '<div class="flex justify-between text-sm text-emerald-500"><span>Sconto ' + ordine.scontoPercent + '%</span><span></span></div><div class="flex justify-between text-sm text-brand-on-surface-variant line-through"><span>Prezzo pieno</span><span>' + formatCurrency(ordine.totaleLordo) + '</span></div>');
   }
+  if (ordine.voucherCode) {
+    document.getElementById('order-total').insertAdjacentHTML('beforebegin', '<div class="flex justify-between text-sm text-amber-500"><span>Voucher: ' + ordine.voucherCode + '</span><span>-1 biglietto</span></div>');
+  }
   updatePayButtonText();
 }
 

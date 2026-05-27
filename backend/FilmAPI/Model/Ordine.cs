@@ -98,6 +98,9 @@ public class Ordine
     [MaxLength(30)]
     public string? DiscountCode { get; set; }
 
+    [MaxLength(50)]
+    public string? VoucherCode { get; set; }
+
     public ICollection<Biglietto> Biglietti { get; set; } = new List<Biglietto>();
     public ICollection<FoodOrderItem> FoodOrderItems { get; set; } = new List<FoodOrderItem>();
 
