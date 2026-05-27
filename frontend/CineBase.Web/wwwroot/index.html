@@ -108,6 +108,28 @@
     </section>
 
     <!-- ════════════════════════════════════════════
+         FILM CONSIGLIATI — Personalized recommendations
+         ════════════════════════════════════════════ -->
+    <section id="recommended-section" class="py-16 hidden cine-velvet border-t border-brand-outline-variant/15">
+      <div class="mx-auto w-full max-w-[1280px] px-4">
+        <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <div>
+            <p class="cine-section-kicker">Scelti per Te</p>
+            <h2 class="cine-section-title">Film Consigliati</h2>
+          </div>
+          <a href="/programmazione.html" class="btn-outline-brand text-xs tracking-[0.2em]">TUTTI I FILM <i class="fa-solid fa-arrow-right ml-1"></i></a>
+        </div>
+
+        <div id="recommended-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div class="col-span-full py-16 text-center text-brand-on-surface-variant">
+            <i class="fa-solid fa-spinner fa-spin text-4xl mb-4"></i>
+            <p>Caricamento film consigliati...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
          CINEMA NETWORK — Static showcase
          ════════════════════════════════════════════ -->
     <section class="py-16 cine-velvet border-y border-brand-outline-variant/15">

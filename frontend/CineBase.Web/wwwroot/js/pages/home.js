@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   await loadFeaturedFilms();
   loadPromotionsBanners();
+  
+  // Load recommended films if user is logged in
+  if (typeof Auth !== 'undefined' && Auth?.isLoggedIn?.()) {
+    loadRecommendedFilms();
+  }
 });
 
 async function loadPromotionsBanners() {
@@ -198,4 +203,72 @@ function setupScrollReveal() {
   var sections = document.querySelectorAll('#promo-section, #featured .cine-section-kicker, #featured .cine-section-title, #featured .cine-info-card, #featured-grid');
   var observer = new IntersectionObserver(function(entries) { entries.forEach(function(entry) { if (entry.isIntersecting) { entry.target.style.opacity = '1'; entry.target.style.transform = 'translateY(0)'; observer.unobserve(entry.target); } }); }, { threshold: 0.1 });
   sections.forEach(function(el) { el.style.opacity = '0'; el.style.transform = 'translateY(30px)'; el.style.transition = 'opacity 0.6s ease, transform 0.6s ease'; observer.observe(el); });
+}
+
+async function loadRecommendedFilms() {
+  const recommendedSection = document.getElementById('recommended-section');
+  const recommendedGrid = document.getElementById('recommended-grid');
+  if (!recommendedSection || !recommendedGrid) return;
+
+  try {
+    // Fetch recommended films from backend endpoint
+    const response = await fetch('/profilo/raccomandati', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${Auth?.getToken?.() || localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // User not logged in or session expired
+        recommendedSection.classList.add('hidden');
+        return;
+      }
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const films = await response.json();
+
+    if (!films || films.length === 0) {
+      // No recommendations available
+      recommendedSection.classList.add('hidden');
+      return;
+    }
+
+    // Show the recommended section
+    recommendedSection.classList.remove('hidden');
+
+    // Render the recommended films
+    recommendedGrid.innerHTML = films.map(film => renderRecommendedCard(film)).join('');
+  } catch (error) {
+    console.error('Error loading recommended films:', error);
+    recommendedSection.classList.add('hidden');
+  }
+}
+
+function renderRecommendedCard(film) {
+  const categorie = film.categorie || [];
+  const badgeHtml = categorie.length 
+    ? categorie.slice(0, 2).map(c => `<span class="text-[10px] uppercase tracking-wider text-brand-gold font-bold">${c.nome}</span>`).join('')
+    : '<span class="text-[10px] uppercase tracking-wider text-brand-gold font-bold">Film</span>';
+  
+  return `
+    <a href="/programmazione.html" class="card-elevated overflow-hidden group transition-all hover:ring-2 hover:ring-brand-gold/70 cursor-pointer animate-fade-in bg-brand-surface">
+      <div class="relative overflow-hidden bg-slate-800 aspect-[2/3]">
+        <img src="${getCoverImage(film.copertinaPath)}" alt="${film.titolo}" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+          <p class="text-white text-xs font-medium truncate"><i class="fa-solid fa-video mr-1 text-brand-gold"></i> ${getDirectorName(film)}</p>
+        </div>
+      </div>
+      <div class="p-3">
+        <div class="flex flex-wrap gap-1 mb-2">
+          ${badgeHtml}
+        </div>
+        <h3 class="text-brand-on-surface font-bold text-sm mb-1 line-clamp-2 group-hover:text-brand-gold transition-colors">${film.titolo}</h3>
+        <p class="text-brand-on-surface-variant text-xs truncate">${film.durata ? film.durata + ' min' : 'Film'}</p>
+      </div>
+    </a>
+  `;
 }

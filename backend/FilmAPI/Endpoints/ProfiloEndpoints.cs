@@ -77,6 +77,15 @@ public static class ProfiloEndpoints
                 return Results.NotFound(ex.Message);
             }
         }).RequireAuthorization("Authenticated");
+
+        group.MapGet("/raccomandati", async (HttpContext context, IProfiloService service) =>
+        {
+            var userId = GetUserIdFromContext(context);
+            if (userId == null) return Results.Unauthorized();
+
+            var films = await service.GetRecommendedFilmsAsync(userId.Value, 10);
+            return Results.Ok(films);
+        }).RequireAuthorization("Authenticated");
     }
 
     private static int? GetUserIdFromContext(HttpContext context)
