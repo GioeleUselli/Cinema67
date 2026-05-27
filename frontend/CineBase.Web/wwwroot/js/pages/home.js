@@ -211,18 +211,23 @@ async function loadRecommendedFilms() {
   if (!recommendedSection || !recommendedGrid) return;
 
   try {
+    const token = Auth?.getToken?.() || localStorage.getItem('accessToken');
+    console.log('Loading recommended films with token:', token ? 'present' : 'missing');
+    
     // Fetch recommended films from backend endpoint
     const response = await fetch('/profilo/raccomandati', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${Auth?.getToken?.() || localStorage.getItem('accessToken')}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
 
+    console.log('Recommendations API response:', response.status);
+
     if (!response.ok) {
       if (response.status === 401) {
-        // User not logged in or session expired
+        console.log('User not authenticated');
         recommendedSection.classList.add('hidden');
         return;
       }
@@ -230,9 +235,11 @@ async function loadRecommendedFilms() {
     }
 
     const films = await response.json();
+    console.log('Recommended films received:', films?.length || 0);
 
     if (!films || films.length === 0) {
       // No recommendations available
+      console.log('No recommendations available');
       recommendedSection.classList.add('hidden');
       return;
     }
@@ -242,6 +249,7 @@ async function loadRecommendedFilms() {
 
     // Render the recommended films
     recommendedGrid.innerHTML = films.map(film => renderRecommendedCard(film)).join('');
+    console.log('Recommendations rendered successfully');
   } catch (error) {
     console.error('Error loading recommended films:', error);
     recommendedSection.classList.add('hidden');
