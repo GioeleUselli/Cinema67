@@ -412,13 +412,13 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   }),
 
   // Checkout - Crea ordine pendente
-  createOrdine: (holdToken, idempotencyKey, discountCode) => {
+  createOrdine: (holdToken, idempotencyKey, discountCode, voucherCode) => {
     const headers = {};
     if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
     return apiFetch('/checkout/orders', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ holdToken, idempotencyKey: idempotencyKey || undefined, discountCode: discountCode || undefined })
+      body: JSON.stringify({ holdToken, idempotencyKey: idempotencyKey || undefined, discountCode: discountCode || undefined, voucherCode: voucherCode || undefined })
     });
   },
 

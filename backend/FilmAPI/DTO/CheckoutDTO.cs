@@ -53,6 +53,7 @@ public class CreateOrdineRequestDTO
     public string HoldToken { get; set; } = string.Empty;
     public string? IdempotencyKey { get; set; }
     public string? DiscountCode { get; set; }
+    public string? VoucherCode { get; set; }
 }
 
 public class OrdineSummaryDTO

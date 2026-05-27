@@ -16,6 +16,7 @@ let zoomIndex = DEFAULT_ZOOM_INDEX;
 let appliedDiscount = 0;
 let appliedDiscountFisso = 0;
 let discountCodeApplied = null;
+let voucherCodeApplied = null;
 let seatTicketTypes = {};
 let pricingOptions = [];
 let baseUnitPrice = 0;
@@ -730,6 +731,27 @@ function setupActions() {
   const btnDiscount = document.getElementById('btn-apply-discount');
   const discountInput = document.getElementById('discount-code-input');
   const discountMsg = document.getElementById('discount-message');
+  const btnVoucher = document.getElementById('btn-apply-voucher');
+  const voucherInput = document.getElementById('voucher-code-input');
+  const voucherMsg = document.getElementById('voucher-message');
+
+  if (btnVoucher) {
+    btnVoucher.addEventListener('click', function() {
+      var code = voucherInput.value.trim().toUpperCase();
+      if (!code) { voucherMsg.textContent = 'Inserisci un codice.'; voucherMsg.className = 'text-xs mt-1 text-brand-error'; voucherMsg.classList.remove('hidden'); return; }
+      if (code.startsWith('VCH-')) {
+        voucherCodeApplied = code;
+        voucherMsg.textContent = 'Voucher applicato! Verrà usato al momento dell\'acquisto.';
+        voucherMsg.className = 'text-xs mt-1 text-emerald-500';
+        voucherMsg.classList.remove('hidden');
+      } else {
+        voucherCodeApplied = null;
+        voucherMsg.textContent = 'Codice voucher non valido. Deve iniziare con VCH-';
+        voucherMsg.className = 'text-xs mt-1 text-brand-error';
+        voucherMsg.classList.remove('hidden');
+      }
+    });
+  }
 
   if (btnDiscount) {
     btnDiscount.addEventListener('click', async function() {
@@ -797,7 +819,7 @@ function setupActions() {
 
     try {
       const idempotencyKey = `order-${holdToken}-${Date.now()}`;
-      const ordine = await API.createOrdine(holdToken, idempotencyKey, discountCodeApplied || undefined);
+      const ordine = await API.createOrdine(holdToken, idempotencyKey, discountCodeApplied || undefined, voucherCodeApplied || undefined);
 
       var foodItemIds = Object.keys(selectedFoodItems);
       if (foodItemIds.length > 0 && ordine.id) {

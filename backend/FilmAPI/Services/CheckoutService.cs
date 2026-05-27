@@ -76,6 +76,37 @@ public class CheckoutService : ICheckoutService
             return pricingService.CalcolaPrezzo(tipo, prezzoBase);
         });
 
+        // Voucher code validation (biglietto/food from prize redemption)
+        int? voucherBigliettiDaRimuovere = null;
+        string? voucherCode = null;
+        if (!string.IsNullOrWhiteSpace(dto.VoucherCode))
+        {
+            var vc = dto.VoucherCode.Trim().ToUpper();
+            var riscatto = await _db.PremiRiscatti
+                .Include(r => r.Premio)
+                .FirstOrDefaultAsync(r => r.CodiceVoucher == vc && r.Stato == Model.StatoRiscatto.Attivo
+                    && (!r.DataScadenza.HasValue || r.DataScadenza.Value > DateTime.UtcNow));
+            if (riscatto?.Premio?.Tipo == TipoPremio.Biglietto)
+            {
+                // Remove the cheapest non-VIP ticket
+                var postiOrdinati = statiHold
+                    .Select(sps => new { sps, prezzo = pricingService.CalcolaPrezzo(sps.TicketType ?? TicketType.Intero, prezzoBase) })
+                    .OrderBy(x => x.prezzo)
+                    .ToList();
+                if (postiOrdinati.Count > 0)
+                {
+                    var daRimuovere = postiOrdinati[0];
+                    statiHold.Remove(daRimuovere.sps);
+                    numeroBiglietti--;
+                    var prezzoRimosso = daRimuovere.prezzo;
+                    totaleLordo -= prezzoRimosso;
+                    voucherCode = vc;
+                    riscatto.Stato = Model.StatoRiscatto.Usato;
+                    riscatto.DataUtilizzo = DateTime.UtcNow;
+                }
+            }
+        }
+
         // Discount code validation
         int? scontoPercent = null;
         decimal? scontoFisso = null;
