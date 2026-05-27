@@ -257,6 +257,28 @@ public static class MembershipEndpoints
             catch (InvalidOperationException ex) { return Results.BadRequest(new { message = ex.Message }); }
         });
 
+        authGroup.MapGet("/premi/valida-voucher", async (string codice, FilmDbContext db) =>
+        {
+            if (string.IsNullOrWhiteSpace(codice)) return Results.BadRequest(new { message = "Codice mancante." });
+            var vc = codice.Trim().ToUpper();
+            var riscatto = await db.PremiRiscatti.Include(r => r.Premio)
+                .FirstOrDefaultAsync(r => r.CodiceVoucher == vc && r.Stato == Model.StatoRiscatto.Attivo
+                    && (!r.DataScadenza.HasValue || r.DataScadenza.Value > DateTime.UtcNow));
+            if (riscatto?.Premio == null)
+                return Results.Ok(new { valido = false, message = "Voucher non valido o già usato." });
+            return Results.Ok(new
+            {
+                valido = true,
+                tipo = riscatto.Premio.Tipo.ToString(),
+                codice = riscatto.CodiceVoucher,
+                message = riscatto.Premio.Tipo == TipoPremio.Biglietto
+                    ? "Voucher biglietto valido! Verrà rimosso il biglietto meno costoso."
+                    : riscatto.Premio.Tipo == TipoPremio.Food
+                        ? "Voucher cibo/bevanda valido! Verrà rimosso l'articolo meno costoso."
+                        : "Voucher valido!"
+            });
+        }).AllowAnonymous();
+
         authGroup.MapGet("/riscatti", async (ClaimsPrincipal user, IMembershipService service) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");

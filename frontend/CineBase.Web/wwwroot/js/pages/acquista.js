@@ -745,17 +745,43 @@ function setupActions() {
   const voucherMsg = document.getElementById('voucher-message');
 
   if (btnVoucher) {
-    btnVoucher.addEventListener('click', function() {
+    btnVoucher.addEventListener('click', async function() {
       var code = voucherInput.value.trim().toUpperCase();
       if (!code) { voucherMsg.textContent = 'Inserisci un codice.'; voucherMsg.className = 'text-xs mt-1 text-brand-error'; voucherMsg.classList.remove('hidden'); return; }
-      if (code.startsWith('VCH-')) {
-        voucherCodeApplied = code;
-        voucherMsg.textContent = 'Voucher applicato! Verrà usato al momento dell\'acquisto.';
-        voucherMsg.className = 'text-xs mt-1 text-emerald-500';
-        voucherMsg.classList.remove('hidden');
-      } else {
+      try {
+        var r = await apiFetch('/membership/premi/valida-voucher?codice=' + encodeURIComponent(code));
+        if (r && r.valido) {
+          voucherCodeApplied = code;
+          voucherMsg.textContent = r.message || 'Voucher valido!';
+          voucherMsg.className = 'text-xs mt-1 text-emerald-500';
+          voucherMsg.classList.remove('hidden');
+          // If food voucher, remove cheapest food item from selection
+          if (r.tipo === 'Food') {
+            var foodIds = Object.keys(selectedFoodItems);
+            if (foodIds.length > 0) {
+              var cheapest = foodIds.reduce(function(min, id) {
+                return (selectedFoodItems[id].price || 0) < (selectedFoodItems[min].price || 0) ? id : min;
+              });
+              if (selectedFoodItems[cheapest].qty > 1) {
+                selectedFoodItems[cheapest].qty--;
+              } else {
+                delete selectedFoodItems[cheapest];
+              }
+              updateFoodQtyDisplay(parseInt(cheapest));
+              renderFoodMenu();
+              showToast('Rimosso l\'articolo più economico dal cibo.', 'success');
+            }
+          }
+          updateSummary();
+        } else {
+          voucherCodeApplied = null;
+          voucherMsg.textContent = (r && r.message) || 'Voucher non valido.';
+          voucherMsg.className = 'text-xs mt-1 text-brand-error';
+          voucherMsg.classList.remove('hidden');
+        }
+      } catch(e) {
         voucherCodeApplied = null;
-        voucherMsg.textContent = 'Codice voucher non valido. Deve iniziare con VCH-';
+        voucherMsg.textContent = 'Errore verifica voucher.';
         voucherMsg.className = 'text-xs mt-1 text-brand-error';
         voucherMsg.classList.remove('hidden');
       }
