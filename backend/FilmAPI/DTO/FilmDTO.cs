@@ -53,3 +53,34 @@ public class FilmUpdateDTO
     public DateOnly? DataRilascio { get; set; }
     public List<int>? CategorieIds { get; set; }
 }
+
+public class TmdbFilmDTO
+{
+    public int Id { get; set; }
+    public string? Title { get; set; }
+    public string? PosterPath { get; set; }
+    public string? ReleaseDate { get; set; }
+    public string? Overview { get; set; }
+}
+
+public class TmdbFilmDetailDTO
+{
+    public int Id { get; set; }
+    public string? Title { get; set; }
+    public string? PosterPath { get; set; }
+    public string? ReleaseDate { get; set; }
+    public string? Overview { get; set; }
+    public int Runtime { get; set; }
+    public string? DirectorName { get; set; }
+    public List<string> Genres { get; set; } = new();
+    public List<string> Cast { get; set; } = new();
+}
+
+public class TmdbImportDTO
+{
+    public int TmdbId { get; set; }
+    public int RegistaId { get; set; }
+    public List<int>? CategorieIds { get; set; }
+    public string Posizione { get; set; } = "evidenza"; // "evidenza" o "uscita"
+    public DateOnly? DataRilascio { get; set; }
+}

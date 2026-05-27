@@ -13,7 +13,7 @@ public class FilmService : IFilmService
     public FilmService(FilmDbContext context)
     {
         _context = context;
-        _defaultCoverPath = Environment.GetEnvironmentVariable("DEFAULT_COVER_IMAGE_PATH") ?? "/media/defaults/cover-default.jpg";
+        _defaultCoverPath = Environment.GetEnvironmentVariable("DEFAULT_COVER_IMAGE_PATH") ?? "/media/defaults/cover-default.svg";
     }
 
     public async Task<List<FilmDTO>> GetAllAsync()
@@ -150,13 +150,13 @@ public class FilmService : IFilmService
             DataRilascio = dto.DataRilascio
         };
 
+        _context.Films.Add(film);
+        await _context.SaveChangesAsync();
+
         if (dto.CategorieIds != null && dto.CategorieIds.Count > 0)
         {
             await SyncFilmCategorieAsync(film, dto.CategorieIds);
         }
-
-        _context.Films.Add(film);
-        await _context.SaveChangesAsync();
 
         return await MapToDTOAsync(film, regista);
     }
@@ -291,11 +291,13 @@ public class FilmService : IFilmService
             DescrizioneLunga = film.DescrizioneLunga,
             CastText = film.CastText,
             DataRilascio = film.DataRilascio,
-            Categorie = filmWithCategories?.FilmCategorie.Select(fc => new CategoriaDTO
-            {
-                Id = fc.Categoria!.Id,
-                Nome = fc.Categoria.Nome
-            }).ToList() ?? new List<CategoriaDTO>()
+            Categorie = filmWithCategories?.FilmCategorie
+                .Where(fc => fc.Categoria != null)
+                .Select(fc => new CategoriaDTO
+                {
+                    Id = fc.Categoria!.Id,
+                    Nome = fc.Categoria.Nome
+                }).ToList() ?? new List<CategoriaDTO>()
         };
     }
 }

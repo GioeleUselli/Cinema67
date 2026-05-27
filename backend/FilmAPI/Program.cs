@@ -101,11 +101,11 @@ builder.Services.AddScoped<ITmdbService>(sp =>
     var token = Environment.GetEnvironmentVariable("TMDB_BEARER_TOKEN");
     if (string.IsNullOrWhiteSpace(token))
     {
-        return new TmdbService(new HttpClient(), sp.GetRequiredService<ILogger<TmdbService>>());
+        return new TmdbService(new HttpClient());
     }
     var client = new HttpClient();
     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-    return new TmdbService(client, sp.GetRequiredService<ILogger<TmdbService>>());
+    return new TmdbService(client);
 });
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<ExpiredHoldCleanupService>();

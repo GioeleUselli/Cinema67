@@ -270,6 +270,14 @@ const API = {
   }),
 deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
 
+  // TMDB Integration
+  searchTmdbFilms: (query) => apiFetch(`/films/tmdb/search?query=${encodeURIComponent(query)}`),
+  getTmdbFilmDetail: (tmdbId) => apiFetch(`/films/tmdb/${tmdbId}`),
+  importTmdbFilm: (data) => apiFetch('/films/tmdb/import', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+
     uploadCover: async (file) => {
         const formData = new FormData();
         formData.append('file', file);
