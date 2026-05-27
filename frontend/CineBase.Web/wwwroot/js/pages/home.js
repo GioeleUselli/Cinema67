@@ -211,30 +211,16 @@ async function loadRecommendedFilms() {
   if (!recommendedSection || !recommendedGrid) return;
 
   try {
-    const token = Auth?.getAccessToken?.() || localStorage.getItem('cb_access_token');
-    console.log('Loading recommended films with token:', token ? 'present' : 'missing');
+    console.log('Loading recommended films...');
     
-    // Fetch recommended films from backend endpoint
-    const response = await fetch('/profilo/raccomandati', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+    // Use apiFetch which handles auth and base URL automatically
+    const response = await apiFetch('/profilo/raccomandati', {
+      method: 'GET'
     });
 
-    console.log('Recommendations API response:', response.status);
+    console.log('Recommendations API response received');
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        console.log('User not authenticated');
-        recommendedSection.classList.add('hidden');
-        return;
-      }
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const films = await response.json();
+    const films = response || [];
     console.log('Recommended films received:', films?.length || 0);
 
     if (!films || films.length === 0) {
