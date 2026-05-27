@@ -97,6 +97,8 @@ public class PartyBookingService : IPartyBookingService
                 else if (disc.ValoreScontoFisso > 0)
                     sconto = Math.Min(disc.ValoreScontoFisso, totale);
                 disc.Utilizzi++;
+                var ris = await _db.PremiRiscatti.FirstOrDefaultAsync(x => x.Codice == dto.CodiceSconto.Trim().ToUpper() && x.Stato == Model.StatoRiscatto.Attivo);
+                if (ris != null) { ris.Stato = Model.StatoRiscatto.Usato; ris.DataUtilizzo = DateTime.UtcNow; }
             }
         }
         totale -= sconto;

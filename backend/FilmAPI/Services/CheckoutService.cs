@@ -130,6 +130,12 @@ public class CheckoutService : ICheckoutService
             }
             if (scontoPercent == null && scontoFisso == null)
                 throw new ArgumentException("Codice sconto non valido o già usato.");
+            // Mark associated prize redemption as used
+            if (discountCode != null)
+            {
+                var r = await _db.PremiRiscatti.FirstOrDefaultAsync(x => x.Codice == discountCode && x.Stato == Model.StatoRiscatto.Attivo);
+                if (r != null) { r.Stato = Model.StatoRiscatto.Usato; r.DataUtilizzo = DateTime.UtcNow; }
+            }
         }
 
         var codiceOrdine = $"ORD-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..8]}";

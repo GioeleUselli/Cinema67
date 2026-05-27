@@ -24,6 +24,7 @@ public interface IMembershipService
     Task DeleteCampaignAsync(int id);
     Task<List<MembershipCardDTO>> GetCompleanniOggiAsync();
     Task<List<PuntiMovimentoDTO>> GetPuntiStoricoAsync(int userId);
+    Task SegnaRiscattoUsatoDaCodiceAsync(string codice);
     Task<ScanAcquistoResultDTO> ScanAcquistoCassaAsync(ScanAcquistoDTO dto);
     Task<object> CompletaMerchPremioAsync(int userId, CompletaMerchPremioDTO dto);
     Task<List<PremioDTO>> GetPremiDisponibiliAsync(int userId);
@@ -1058,5 +1059,17 @@ public class MembershipService : IMembershipService
             throw new InvalidOperationException("Impossibile eliminare: ci sono riscatti associati a questo premio. Disattivalo invece.");
         _db.Premi.Remove(premio);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task SegnaRiscattoUsatoDaCodiceAsync(string codice)
+    {
+        if (string.IsNullOrWhiteSpace(codice)) return;
+        var riscatto = await _db.PremiRiscatti.FirstOrDefaultAsync(r => r.Codice == codice.Trim() && r.Stato == StatoRiscatto.Attivo);
+        if (riscatto != null)
+        {
+            riscatto.Stato = StatoRiscatto.Usato;
+            riscatto.DataUtilizzo = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
     }
 }

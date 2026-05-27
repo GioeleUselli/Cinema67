@@ -108,6 +108,8 @@ public class MerchService : IMerchService
             {
                 scontoPercent = discount.PercentualeSconto;
                 discount.Utilizzi++;
+                var r = await _db.PremiRiscatti.FirstOrDefaultAsync(x => x.Codice == dto.DiscountCode.Trim().ToUpper() && x.Stato == Model.StatoRiscatto.Attivo);
+                if (r != null) { r.Stato = Model.StatoRiscatto.Usato; r.DataUtilizzo = DateTime.UtcNow; }
             }
         }
 
@@ -126,6 +128,8 @@ public class MerchService : IMerchService
             {
                 sconto = Math.Min(discountFisso.ValoreScontoFisso, totale);
                 discountFisso.Utilizzi++;
+                var r = await _db.PremiRiscatti.FirstOrDefaultAsync(x => x.Codice == dto.DiscountCode.Trim().ToUpper() && x.Stato == Model.StatoRiscatto.Attivo);
+                if (r != null) { r.Stato = Model.StatoRiscatto.Usato; r.DataUtilizzo = DateTime.UtcNow; }
             }
         }
         totale -= sconto;
