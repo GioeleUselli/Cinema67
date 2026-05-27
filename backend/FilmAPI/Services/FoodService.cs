@@ -84,7 +84,7 @@ public class FoodService : IFoodService
                     OrdineId = ordineId,
                     FoodItemId = itemDto.FoodItemId,
                     Quantita = itemDto.Quantita,
-                    PrezzoUnitario = foodItem.Prezzo
+                    PrezzoUnitario = itemDto.PrezzoUnitario ?? foodItem.Prezzo
                 });
             }
         }

@@ -606,10 +606,14 @@ function renderFoodMenu() {
     html += '<div class="mb-2"><div class="text-xs font-semibold text-brand-on-surface-variant mb-1">' + cat.label + '</div>';
     items.forEach(function(item) {
       var qty = selectedFoodItems[item.id] ? selectedFoodItems[item.id].qty : 0;
+      var sel = selectedFoodItems[item.id];
+      var isFree = sel && sel.isFree;
+      var priceDisplay = isFree ? '<span class="text-emerald-500 text-xs font-bold mr-2">GRATIS</span>' : '<span class="text-brand-gold text-xs font-semibold mr-2">' + formatCurrency(item.prezzo) + '</span>';
+      var btnClass = isFree ? ' bg-emerald-500 cursor-not-allowed opacity-50' : ' bg-brand-gold hover:bg-brand-red';
       html += '<div class="flex items-center justify-between py-1 px-2 rounded-lg bg-brand-surface-container text-sm mb-1">' +
-        '<span class="text-brand-on-surface flex-1"><span class="text-xs">' + item.nome + '</span></span>' +
-        '<span class="text-brand-gold text-xs font-semibold mr-2">' + formatCurrency(item.prezzo) + '</span>' +
-        '<button class="food-add-btn w-6 h-6 rounded-full bg-brand-gold text-brand-on-surface text-xs font-bold flex items-center justify-center hover:bg-brand-red transition-colors" data-food-id="' + item.id + '" data-food-name="' + item.nome + '" data-food-price="' + item.prezzo + '" type="button">+</button>' +
+        '<span class="text-brand-on-surface flex-1"><span class="text-xs">' + item.nome + '</span>' + (isFree ? ' <span class="text-emerald-500 text-[10px] font-bold">✓ Gratis con voucher</span>' : '') + '</span>' +
+        priceDisplay +
+        '<button class="food-add-btn w-6 h-6 rounded-full text-brand-on-surface text-xs font-bold flex items-center justify-center transition-colors' + btnClass + '" data-food-id="' + item.id + '" data-food-name="' + item.nome + '" data-food-price="' + item.prezzo + '" type="button"' + (isFree ? ' disabled' : '') + '>+</button>' +
         (qty > 0 ? '<span class="food-qty text-xs ml-1 text-brand-gold font-bold" data-food-id-qty="' + item.id + '">' + qty + '</span>' : '<span class="food-qty text-xs ml-1 text-brand-gold font-bold hidden" data-food-id-qty="' + item.id + '">0</span>') +
         '</div>';
     });
@@ -755,21 +759,17 @@ function setupActions() {
           voucherMsg.textContent = r.message || 'Voucher valido!';
           voucherMsg.className = 'text-xs mt-1 text-emerald-500';
           voucherMsg.classList.remove('hidden');
-          // If food voucher, remove cheapest food item from selection
+          // If food voucher, make the most expensive item free
           if (r.tipo === 'Food') {
             var foodIds = Object.keys(selectedFoodItems);
             if (foodIds.length > 0) {
-              var cheapest = foodIds.reduce(function(min, id) {
-                return (selectedFoodItems[id].price || 0) < (selectedFoodItems[min].price || 0) ? id : min;
+              var mostExpensive = foodIds.reduce(function(max, id) {
+                return (selectedFoodItems[id].price || 0) > (selectedFoodItems[max].price || 0) ? id : max;
               });
-              if (selectedFoodItems[cheapest].qty > 1) {
-                selectedFoodItems[cheapest].qty--;
-              } else {
-                delete selectedFoodItems[cheapest];
-              }
-              updateFoodQtyDisplay(parseInt(cheapest));
+              selectedFoodItems[mostExpensive].price = 0;
+              selectedFoodItems[mostExpensive].isFree = true;
               renderFoodMenu();
-              showToast('Rimosso l\'articolo più economico dal cibo.', 'success');
+              showToast('Il ' + (selectedFoodItems[mostExpensive].name || 'prodotto') + ' è gratis!', 'success');
             }
           }
           updateSummary();
@@ -859,7 +859,8 @@ function setupActions() {
       var foodItemIds = Object.keys(selectedFoodItems);
       if (foodItemIds.length > 0 && ordine.id) {
         var items = foodItemIds.map(function(fid) {
-          return { foodItemId: parseInt(fid), quantita: selectedFoodItems[fid].qty };
+          var f = selectedFoodItems[fid];
+          return { foodItemId: parseInt(fid), quantita: f.qty, prezzoUnitario: f.isFree ? 0 : undefined };
         });
         try {
           await API.addFoodToOrder(ordine.id, { ordineId: ordine.id, items: items });

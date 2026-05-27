@@ -21,6 +21,7 @@ public class FoodOrderItemDTO
 {
     public int FoodItemId { get; set; }
     public int Quantita { get; set; } = 1;
+    public decimal? PrezzoUnitario { get; set; }
 }
 
 public class FoodOrderItemDetailDTO
