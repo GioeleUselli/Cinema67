@@ -759,17 +759,17 @@ function setupActions() {
           voucherMsg.textContent = r.message || 'Voucher valido!';
           voucherMsg.className = 'text-xs mt-1 text-emerald-500';
           voucherMsg.classList.remove('hidden');
-          // If food voucher, make the most expensive item free
-          if (r.tipo === 'Food') {
-            var foodIds = Object.keys(selectedFoodItems);
-            if (foodIds.length > 0) {
-              var mostExpensive = foodIds.reduce(function(max, id) {
-                return (selectedFoodItems[id].price || 0) > (selectedFoodItems[max].price || 0) ? id : max;
-              });
-              selectedFoodItems[mostExpensive].price = 0;
-              selectedFoodItems[mostExpensive].isFree = true;
-              renderFoodMenu();
-              showToast('Il ' + (selectedFoodItems[mostExpensive].name || 'prodotto') + ' è gratis!', 'success');
+           // If food voucher, make the cheapest item free
+           if (r.tipo === 'Food') {
+             var foodIds = Object.keys(selectedFoodItems);
+             if (foodIds.length > 0) {
+               var cheapest = foodIds.reduce(function(min, id) {
+                 return (selectedFoodItems[id].price || 0) < (selectedFoodItems[min].price || 0) ? id : min;
+               });
+               selectedFoodItems[cheapest].price = 0;
+               selectedFoodItems[cheapest].isFree = true;
+               renderFoodMenu();
+               showToast('Il ' + (selectedFoodItems[cheapest].name || 'prodotto') + ' è gratis!', 'success');
             }
           }
           updateSummary();
