@@ -135,6 +135,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function setupTabs() {
+  // Hide recommendations tab if not logged in
+  const tabConsigliatiBtn = document.getElementById('tab-consigliati-btn');
+  if (tabConsigliatiBtn) {
+    const isLoggedIn = typeof window.Auth !== 'undefined' && window.Auth?.isLoggedIn?.();
+    if (!isLoggedIn) {
+      tabConsigliatiBtn.style.display = 'none';
+    }
+  }
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
@@ -321,18 +330,29 @@ async function loadFilms(options = {}) {
   }
 
   try {
-    const params = {
-      tab: currentTab,
-      cinemaId: selectedCinemaId,
-      page: currentPage,
-      pageSize: currentTab === 'tutti' ? FILMS_PAGE_SIZE : CAROUSEL_PAGE_SIZE
-    };
-    if (currentSearch) params.search = currentSearch;
-    if (currentCategoriaId) params.categoriaId = parseInt(currentCategoriaId, 10);
+    let films = [];
+    let result = null;
 
-    const result = await API.getProgrammazioneFilms(params);
+    // Handle recommended films tab
+    if (currentTab === 'consigliati') {
+      const recommendedResult = await apiFetch('/profilo/raccomandati', { method: 'GET' });
+      films = recommendedResult || [];
+      result = { items: films, hasNextPage: false, totalCount: films.length };
+    } else {
+      const params = {
+        tab: currentTab,
+        cinemaId: selectedCinemaId,
+        page: currentPage,
+        pageSize: currentTab === 'tutti' ? FILMS_PAGE_SIZE : CAROUSEL_PAGE_SIZE
+      };
+      if (currentSearch) params.search = currentSearch;
+      if (currentCategoriaId) params.categoriaId = parseInt(currentCategoriaId, 10);
+
+      result = await API.getProgrammazioneFilms(params);
+      films = normalizeCollection(result?.items);
+    }
+
     currentPagedResult = result;
-    const films = normalizeCollection(result?.items);
 
     if (append) {
       currentFilms = [...currentFilms, ...films];
@@ -367,9 +387,11 @@ function renderFilms(films) {
   if (titleEl) {
     titleEl.textContent = currentTab === 'evidenza'
       ? 'Film in evidenza'
-      : currentTab === 'uscita'
-        ? 'In uscita'
-        : 'Tutti i film';
+      : currentTab === 'consigliati'
+        ? 'Film consigliati per te'
+        : currentTab === 'uscita'
+          ? 'In uscita'
+          : 'Tutti i film';
   }
 
   if (!films.length) {
