@@ -15,8 +15,15 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
 
 WORKDIR /src
 
+# Clear NuGet config to remove Windows-specific paths
+RUN rm -rf ~/.nuget/NuGet/NuGet.Config 2>/dev/null || true && \
+    rm -rf ~/.nuget ~/.dotnet 2>/dev/null || true
+
 # Copy project file
 COPY CineBase.Web/*.csproj ./
+
+# Clear NuGet cache to avoid Windows path issues
+RUN dotnet nuget locals all --clear
 
 # Restore NuGet dependencies
 RUN dotnet restore
@@ -25,21 +32,21 @@ RUN dotnet restore
 COPY CineBase.Web .
 
 # Build and publish Release configuration (static files only)
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -o /app/publish /p:GenerateAssemblyInfo=false
 
 # ============================================================================
 # STAGE 2: RUNTIME
 # ============================================================================
 FROM nginx:alpine
 
-# Install curl for health checks
+# Install curl for health checks (apk is available in alpine)
 RUN apk add --no-cache curl
 
 # Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY CineBase.Web/nginx.conf /etc/nginx/nginx.conf
 
 # Copy published static files from builder
 COPY --from=builder /app/publish/wwwroot /var/www/cinebase
