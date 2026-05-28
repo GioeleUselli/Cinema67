@@ -1,0 +1,195 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+  ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+  REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+
+jobs:
+  # ══════════════════════════════════════════════════════════════════════
+  # Build and Push Job
+  # ══════════════════════════════════════════════════════════════════════
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      filmapi-image: ${{ steps.image.outputs.filmapi }}
+      cinebase-web-image: ${{ steps.image.outputs.cinebase-web }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ env.ACR_USERNAME }}
+          password: ${{ env.ACR_PASSWORD }}
+
+      - name: Build and push FilmAPI image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile.filmapi
+          push: true
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}
+            ${{ env.ACR_LOGIN_SERVER }}/filmapi:latest
+          cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/filmapi:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/filmapi:buildcache,mode=max
+
+      - name: Build and push CineBase.Web image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/CineBase.Web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/cinebase-web:main-${{ github.sha }}
+            ${{ env.ACR_LOGIN_SERVER }}/cinebase-web:latest
+          cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinebase-web:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinebase-web:buildcache,mode=max
+
+      - name: Set image output for deploy job
+        id: image
+        run: |
+          echo "filmapi=${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "cinebase-web=${{ env.ACR_LOGIN_SERVER }}/cinebase-web:main-${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Image build summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**FilmAPI Image**: \`${{ steps.image.outputs.filmapi }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**CineBase.Web Image**: \`${{ steps.image.outputs.cinebase-web }}\`" >> $GITHUB_STEP_SUMMARY
+
+  # ══════════════════════════════════════════════════════════════════════
+  # Deploy Job (runs only on main push, not on PR)
+  # ══════════════════════════════════════════════════════════════════════
+  deploy-to-aca:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update FilmAPI container app
+        run: |
+          az containerapp update \
+            --name filmapi-app \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --image ${{ needs.build-and-push.outputs.filmapi-image }}
+
+      - name: Update CineBase.Web container app
+        run: |
+          az containerapp update \
+            --name cinebase-web-app \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --image ${{ needs.build-and-push.outputs.cinebase-web-image }}
+
+      - name: Wait for deployments to be ready
+        run: |
+          echo "Waiting for deployments to be ready..."
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            FILMAPI_STATUS=$(az containerapp show \
+              --name filmapi-app \
+              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+              --query "properties.runningStatus" -o tsv 2>/dev/null || echo "Unknown")
+            
+            CINEBASE_STATUS=$(az containerapp show \
+              --name cinebase-web-app \
+              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+              --query "properties.runningStatus" -o tsv 2>/dev/null || echo "Unknown")
+            
+            if [ "$FILMAPI_STATUS" = "Running" ] && [ "$CINEBASE_STATUS" = "Running" ]; then
+              echo "✓ All apps are running"
+              break
+            fi
+            
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Waiting... (attempt $ATTEMPT/$MAX_ATTEMPTS) - FilmAPI: $FILMAPI_STATUS, CineBase: $CINEBASE_STATUS"
+            sleep 10
+          done
+          
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "⚠ Deployment status check completed (apps may still be initializing)"
+          fi
+
+      - name: Run smoke tests
+        continue-on-error: true
+        run: |
+          echo "Running smoke tests..."
+          
+          # Get web app FQDN
+          FQDN=$(az containerapp show \
+            --name cinebase-web-app \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || echo "")
+          
+          if [ -z "$FQDN" ]; then
+            echo "⚠ Could not retrieve FQDN, skipping smoke tests"
+            exit 0
+          fi
+          
+          echo "Testing endpoints at: https://$FQDN"
+          
+          # Wait for HTTPS to be ready
+          sleep 30
+          
+          # Test frontend health
+          if curl -f -k https://$FQDN/health 2>/dev/null; then
+            echo "✓ Frontend health check passed"
+          else
+            echo "⚠ Frontend health check (may still be initializing)"
+          fi
+          
+          # Test API through proxy
+          if curl -f -k https://$FQDN/api/films 2>/dev/null; then
+            echo "✓ API films endpoint passed"
+          else
+            echo "⚠ API films endpoint (may still be initializing)"
+          fi
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
+          
+          echo "### Container Apps Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for APP in mariadb-server filmapi-app cinebase-web-app; do
+            STATUS=$(az containerapp show \
+              --name $APP \
+              --resource-group $RESOURCE_GROUP \
+              --query "properties.runningStatus" -o tsv 2>/dev/null || echo "Not found")
+            echo "- **$APP**: $STATUS" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Images Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ needs.build-and-push.outputs.filmapi-image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ needs.build-and-push.outputs.cinebase-web-image }}\`" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,63 @@
+# ============================================================================
+# FilmAPI Dockerfile - Multistage Build
+# ============================================================================
+# Build Stage: SDK alpine - compile and publish
+# Runtime Stage: aspnet alpine - minimal production image
+#
+# Target Image Size: < 300MB
+# Base User: app:app (non-root, UID 1000)
+# ============================================================================
+
+# ============================================================================
+# STAGE 1: BUILDER
+# ============================================================================
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
+
+WORKDIR /src
+
+# Copy project file
+COPY FilmAPI/*.csproj ./
+
+# Restore NuGet dependencies (cached until .csproj changes)
+RUN dotnet restore
+
+# Copy source code
+COPY FilmAPI . 
+COPY scripts scripts
+
+# Build and publish Release configuration
+RUN dotnet publish -c Release -o /app/publish --no-restore
+
+# ============================================================================
+# STAGE 2: RUNTIME
+# ============================================================================
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+
+# Install minimal runtime dependencies
+RUN apk add --no-cache curl mysql-client bash
+
+# Create non-root user (app:app, UID 1000)
+RUN addgroup -g 1000 app 2>/dev/null || true && \
+    adduser -D -u 1000 -G app app 2>/dev/null || true
+
+WORKDIR /app
+
+# Copy published application from builder stage
+COPY --from=builder --chown=app:app /app/publish .
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Switch to non-root user
+USER app
+
+# Expose ports
+EXPOSE 5000 8080
+
+# Health check configuration
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Entrypoint
+ENTRYPOINT ["/bin/bash", "/app/docker-entrypoint.sh"]
