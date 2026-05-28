@@ -76,7 +76,7 @@ else
             "MARIADB_USER=${DB_USER:-root}" \
             "MARIADB_PASSWORD=${DB_PASSWORD:-root}" \
         --volume-mounts "mariadb-data:/var/lib/mysql" \
-        --volumes "mariadb-data:/providers/Microsoft.App/locations/${LOCATION}/managedEnvironmentStorages/mariadb-data" \
+        --volumes "mariadb-data:azureFile:mariadb-data" \
         --registry-server "$ACR_LOGIN_SERVER" \
         --registry-username "$(az acr credential show -n "${ACR_LOGIN_SERVER%%.*}" --query "username" -o tsv)" \
         --registry-password "$(az acr credential show -n "${ACR_LOGIN_SERVER%%.*}" --query "passwords[0].value" -o tsv)" \
@@ -168,7 +168,7 @@ else
         --target-port 5000 \
         --environment-variables "${ENV_VARS[@]}" \
         --volume-mounts "filmapi-dataprotection:/var/lib/dataprotection" \
-        --volumes "filmapi-dataprotection:/providers/Microsoft.App/locations/${LOCATION}/managedEnvironmentStorages/filmapi-dataprotection" \
+        --volumes "filmapi-dataprotection:azureFile:filmapi-dataprotection" \
         --registry-server "$ACR_LOGIN_SERVER" \
         --registry-username "$(az acr credential show -n "${ACR_LOGIN_SERVER%%.*}" --query "username" -o tsv)" \
         --registry-password "$(az acr credential show -n "${ACR_LOGIN_SERVER%%.*}" --query "passwords[0].value" -o tsv)" \

@@ -145,7 +145,30 @@ else
     echo -e "${GREEN}✓ File Share 'filmapi-dataprotection' created (1GB)${NC}"
 fi
 
-# 7. Summary
+# 7. Register file shares with ACA Environment
+echo -e "${YELLOW}Step 7: Registering file shares with ACA Environment...${NC}"
+
+az containerapp env storage set \
+    --resource-group $RESOURCE_GROUP \
+    --name $ACA_ENVIRONMENT \
+    --storage-name mariadb-data \
+    --azure-file-account-name $STORAGE_ACCOUNT \
+    --azure-file-account-key $STORAGE_KEY \
+    --azure-file-share-name mariadb-data \
+    --access-mode ReadWrite
+echo -e "${GREEN}✓ 'mariadb-data' storage registered${NC}"
+
+az containerapp env storage set \
+    --resource-group $RESOURCE_GROUP \
+    --name $ACA_ENVIRONMENT \
+    --storage-name filmapi-dataprotection \
+    --azure-file-account-name $STORAGE_ACCOUNT \
+    --azure-file-account-key $STORAGE_KEY \
+    --azure-file-share-name filmapi-dataprotection \
+    --access-mode ReadWrite
+echo -e "${GREEN}✓ 'filmapi-dataprotection' storage registered${NC}"
+
+# 8. Summary
 echo -e "${GREEN}"
 echo "=========================================="
 echo "✓ Azure Setup Complete!"
