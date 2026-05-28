@@ -66,5 +66,9 @@ EXPOSE 80
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
     CMD curl -f http://localhost/health || exit 1
 
-# Start nginx in foreground mode
-CMD ["nginx", "-g", "daemon off;"]
+# Start nginx with envsubst for FILMAPI_UPSTREAM variable
+# Using explicit envsubst CMD since nginx's built-in template mechanism
+# only processes files in /etc/nginx/conf.d/, not the main nginx.conf
+CMD envsubst '${FILMAPI_UPSTREAM}' < /etc/nginx/nginx.conf > /tmp/nginx.conf && \
+    cp /tmp/nginx.conf /etc/nginx/nginx.conf && \
+    nginx -g "daemon off;"
