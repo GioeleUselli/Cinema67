@@ -9,6 +9,7 @@ using FilmAPI.Data;
 using FilmAPI.Endpoints;
 using FilmAPI.Middleware;
 using FilmAPI.Services;
+using Microsoft.AspNetCore.DataProtection;
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
@@ -30,6 +31,16 @@ else
 }
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Data Protection keys persistence
+var dataProtectionKeysPath = Environment.GetEnvironmentVariable("DATA_PROTECTION_KEYS_PATH")
+    ?? Path.Combine(Directory.GetCurrentDirectory(), "data-protection-keys");
+if (!Directory.Exists(dataProtectionKeysPath))
+{
+    Directory.CreateDirectory(dataProtectionKeysPath);
+}
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
 
 builder.Services.AddSingleton(new FrontendRuntimeConfig(
     Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_API_KEY")
