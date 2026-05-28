@@ -1,5 +1,5 @@
 # ============================================================================
-# CineBase.Web Dockerfile - Multistage Build with Nginx
+# Cinema67.Web Dockerfile - Multistage Build with Nginx
 # ============================================================================
 # Build Stage: SDK - compile and publish static files
 # Runtime Stage: nginx alpine - serve static files + reverse proxy

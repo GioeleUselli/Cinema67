@@ -9,20 +9,20 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}CineBase Azure Container Apps Deploy${NC}"
+echo -e "${GREEN}Cinema67 Azure Container Apps Deploy${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
 # Configuration from environment or defaults
-RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-cinebase-rg}"
+RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-cinema67-rg}"
 LOCATION="${AZURE_LOCATION:-italynorth}"
 ACA_ENVIRONMENT="${AZURE_CONTAINER_APPS_ENVIRONMENT:-cinema67-env}"
-ACR_LOGIN_SERVER="${ACR_LOGIN_SERVER:-cinebaseacr.azurecr.io}"
-STORAGE_ACCOUNT="${STORAGE_ACCOUNT:-cinebasestg}"
+ACR_LOGIN_SERVER="${ACR_LOGIN_SERVER:-cinema67acr.azurecr.io}"
+STORAGE_ACCOUNT="${STORAGE_ACCOUNT:-cinema67stg}"
 
 # Image versions
 FILMAPI_IMAGE="${ACR_LOGIN_SERVER}/filmapi:${FILMAPI_TAG:-main-latest}"
-CINEBASE_WEB_IMAGE="${ACR_LOGIN_SERVER}/cinebase-web:${CINEBASE_TAG:-main-latest}"
+CINEMA67_WEB_IMAGE="${ACR_LOGIN_SERVER}/cinema67-web:${CINEMA67_TAG:-main-latest}"
 MARIADB_IMAGE="mariadb:11.4-alpine"
 
 # Get storage account key
@@ -199,15 +199,15 @@ echo ""
 echo -e "${BLUE}=== Deploying CineBase Frontend ===${NC}"
 
 if az containerapp show \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --environment "$ACA_ENVIRONMENT" &>/dev/null; then
     echo -e "${GREEN}✓ CineBase Web container app already exists, updating...${NC}"
     
     az containerapp update \
-        --name cinebase-web-app \
+        --name cinema67-web-app \
         --resource-group "$RESOURCE_GROUP" \
-        --image "$CINEBASE_WEB_IMAGE"
+        --image "$CINEMA67_WEB_IMAGE"
 else
     echo -e "${YELLOW}Creating CineBase Web container app...${NC}"
     
@@ -220,10 +220,10 @@ else
     )
     
     az containerapp create \
-        --name cinebase-web-app \
+        --name cinema67-web-app \
         --resource-group "$RESOURCE_GROUP" \
         --environment "$ACA_ENVIRONMENT" \
-        --image "$CINEBASE_WEB_IMAGE" \
+        --image "$CINEMA67_WEB_IMAGE" \
         --cpu 1.0 \
         --memory 2.0Gi \
         --ingress external \
@@ -245,10 +245,10 @@ fi
 
 # Get CineBase Web external FQDN
 WEB_FQDN=$(az containerapp show \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --environment "$ACA_ENVIRONMENT" \
-    --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || echo "cinebase-web-app.${LOCATION}.azurecontainerapps.io")
+    --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || echo "cinema67-web-app.${LOCATION}.azurecontainerapps.io")
 
 echo "CineBase Web FQDN: $WEB_FQDN"
 
@@ -261,7 +261,7 @@ echo -e "${GREEN}✓ Deployment Complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "${YELLOW}Container Apps Status:${NC}"
-for APP in mariadb-server filmapi-app cinebase-web-app; do
+for APP in mariadb-server filmapi-app cinema67-web-app; do
     STATUS=$(az containerapp show \
         --name "$APP" \
         --resource-group "$RESOURCE_GROUP" \
@@ -284,5 +284,5 @@ echo "  3. Update OAuth redirect URIs:"
 echo "     - Google: https://cinema67.it/callback"
 echo "     - Microsoft: https://cinema67.it/callback"
 echo "  4. Run smoke tests from GitHub Actions or local environment"
-echo "  5. Monitor logs: az containerapp logs show -n cinebase-web-app"
+echo "  5. Monitor logs: az containerapp logs show -n cinema67-web-app"
 echo ""

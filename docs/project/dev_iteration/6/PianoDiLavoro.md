@@ -26,7 +26,7 @@
 ## Executive Summary
 
 **Obiettivo Iterazione 6**:
-Implementare containerizzazione completa di CineBase con deployment locale (docker-compose) e su Azure Container Apps (ACA) con CI/CD via GitHub Actions, mantenendo data persistence, configurazione centralizzata via environment variables, e HTTPS per cinema67.it.
+Implementare containerizzazione completa di Cinema67 con deployment locale (docker-compose) e su Azure Container Apps (ACA) con CI/CD via GitHub Actions, mantenendo data persistence, configurazione centralizzata via environment variables, e HTTPS per cinema67.it.
 
 **Deliverables Principali**:
 - ✅ Dockerfile multistage (backend + frontend) con alpine runtime, non-root user, healthcheck
@@ -74,9 +74,9 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
 ├─────────────────────────────────────────────────────────────┤
 │                                                               │
 │  cinema67-network (bridge)                                  │
-│  ├── cinebase-web (Port 5001)                              │
+│  ├── cinema67-web (Port 5001)                              │
 │  │   └── Nginx (reverse proxy) → localhost:5000/api       │
-│  │   └── Static files (/var/www/cinebase)                 │
+│  │   └── Static files (/var/www/cinema67)                 │
 │  │   └── Volume: filmapi-dataprotection (for cookies)      │
 │  │                                                          │
 │  ├── filmapi (Port 5000)                                   │
@@ -89,7 +89,7 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
 │      └── MariaDB 11.4                                      │
 │      └── Health check: mariadb-admin ping                 │
 │      └── Volume: mariadb-data (persist /var/lib/mysql)    │
-│      └── Init: DB_NAME=cinebase, root password, app user │
+│      └── Init: DB_NAME=cinema67, root password, app user │
 │                                                              │
 │  Named Volumes (persist between down/up):                  │
 │  ├── mariadb-data (5GB)                                    │
@@ -97,7 +97,7 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
 │  └── filmapi-dataprotection (shared keys for multi-app)    │
 │                                                              │
 │  Environment: .env (sourced by docker-compose.yml)         │
-│  ├── DB_HOST=mariadb, DB_PORT=3306, DB_NAME=cinebase     │
+│  ├── DB_HOST=mariadb, DB_PORT=3306, DB_NAME=cinema67     │
 │  ├── ASPNETCORE_ENVIRONMENT=Development                   │
 │  ├── JWT_SECRET, ADMIN_SEED_EMAIL, ADMIN_SEED_PASSWORD   │
 │  └── SMTP, Stripe, TMDB tokens                            │
@@ -111,10 +111,10 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
 │ Azure Container Apps (Production)                           │
 ├─────────────────────────────────────────────────────────────┤
 │                                                               │
-│  Resource Group: cinebase-rg (italynorth)                  │
-│  ├── ACR: cinebase-acr.azurecr.io                          │
-│  │   ├── cinebase-acr/filmapi:main-sha1234567 (285MB)     │
-│  │   ├── cinebase-acr/cinebase-web:main-sha7890abc (45MB) │
+│  Resource Group: cinema67-rg (italynorth)                  │
+│  ├── ACR: cinema67-acr.azurecr.io                          │
+│  │   ├── cinema67-acr/filmapi:main-sha1234567 (285MB)     │
+│  │   ├── cinema67-acr/cinema67-web:main-sha7890abc (45MB) │
 │  │   └── Source: GitHub Actions CI/CD (on main push)      │
 │  │                                                          │
 │  ├── ACA Environment: cinema67-env (italynorth)            │
@@ -133,7 +133,7 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
 │  │   └── Env Vars: MARIADB_ROOT_PASSWORD, MARIADB_DATABASE│
 │  │                                                          │
 │  ├── Container App #2: filmapi-app                         │
-│  │   ├── Image: cinebase-acr/filmapi:main-shaXXX         │
+│  │   ├── Image: cinema67-acr/filmapi:main-shaXXX         │
 │  │   ├── Replicas: 1-3 (autoscale)                        │
 │  │   ├── Memory: 1Gi, CPU: 0.5-1                          │
 │  │   ├── Ingress: Internal (port 8080)                    │
@@ -143,8 +143,8 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
 │  │   ├── Env Vars: DB_HOST=mariadb-server, JWT_SECRET,... │
 │  │   └── Data Protection: /app/dataprotection (shared)    │
 │  │                                                          │
-│  ├── Container App #3: cinebase-web-app                    │
-│  │   ├── Image: cinebase-acr/cinebase-web:main-shaYYY    │
+│  ├── Container App #3: cinema67-web-app                    │
+│  │   ├── Image: cinema67-acr/cinema67-web:main-shaYYY    │
 │  │   ├── Replicas: 1-3 (autoscale)                        │
 │  │   ├── Memory: 512Mi, CPU: 0.25-0.5                     │
 │  │   ├── Ingress: External (port 80/443)                  │
@@ -234,7 +234,7 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
    - ENTRYPOINT ["/bin/sh", "/app/docker-entrypoint.sh"]
    - HEALTHCHECK: curl http://localhost:5000/health
 
-### 2. Dockerfile Frontend (CineBase.Web)
+### 2. Dockerfile Frontend (Cinema67.Web)
 
 **Percorso**: `frontend/CineBase.Web/Dockerfile`
 
@@ -258,7 +258,7 @@ Implementare containerizzazione completa di CineBase con deployment locale (dock
 2. **Runtime Stage**: FROM nginx:alpine
    - Remove default nginx.conf
    - COPY frontend/CineBase.Web/nginx.conf /etc/nginx/nginx.conf
-   - COPY --from=builder /app/publish/wwwroot /var/www/cinebase
+   - COPY --from=builder /app/publish/wwwroot /var/www/cinema67
    - EXPOSE 80
    - healthcheck: curl http://localhost/health
    - CMD ["nginx", "-g", "daemon off;"]
@@ -326,9 +326,9 @@ upstream filmapi {
    - Health check: curl http://localhost:5000/health
    - Networks: cinema67-network
 
-3. **cinebase-web**:
+3. **cinema67-web**:
    - Build: ./frontend/CineBase.Web/Dockerfile
-   - Container name: cinebase-web
+   - Container name: cinema67-web
    - Ports: 5001:80
    - Environment: (from .env) FILMAPI_UPSTREAM=filmapi:5000, ASPNETCORE_ENVIRONMENT=Development
    - Volumes: filmapi-dataprotection:/app/dataprotection (for session affinity)
@@ -350,9 +350,9 @@ upstream filmapi {
 
 ```env
 # ============================================================================
-# CineBase Environment Configuration
+# Cinema67 Environment Configuration
 # ============================================================================
-# This file documents ALL environment variables used by CineBase.
+# This file documents ALL environment variables used by Cinema67.
 # Copy to .env and fill in values for your environment.
 # DO NOT commit .env to version control (add to .gitignore).
 #
@@ -374,8 +374,8 @@ upstream filmapi {
 # Docker Compose & Local Development
 DB_HOST=localhost           # MariaDB host (docker-compose: "mariadb", ACA: "mariadb-server")
 DB_PORT=3306               # MariaDB port
-DB_NAME=cinebase           # Database name to create/use
-DB_USER=cinebase_user      # Database user (non-root, app user)
+DB_NAME=cinema67           # Database name to create/use
+DB_USER=cinema67_user      # Database user (non-root, app user)
 DB_PASSWORD=YourSecurePass123!  # Database user password (CHANGE IN PRODUCTION)
 
 # MariaDB Root (only used during container initialization)
@@ -462,13 +462,13 @@ FILMAPI_UPSTREAM=filmapi:5000
 # Set these when deploying to Azure Container Apps
 
 # Azure Resource Group & Registry
-AZURE_RESOURCE_GROUP=cinebase-rg
-AZURE_ACR_NAME=cinebaseacr
-AZURE_ACR_LOGIN_SERVER=cinebaseacr.azurecr.io
+AZURE_RESOURCE_GROUP=cinema67-rg
+AZURE_ACR_NAME=cinema67acr
+AZURE_ACR_LOGIN_SERVER=cinema67acr.azurecr.io
 AZURE_CONTAINER_APPS_ENVIRONMENT=cinema67-env
 
 # Azure Storage (for Data Protection keys share)
-AZURE_STORAGE_ACCOUNT=cinebasestg
+AZURE_STORAGE_ACCOUNT=cinema67stg
 AZURE_STORAGE_KEY=your-storage-account-key
 
 # ACA-specific overrides
@@ -520,7 +520,7 @@ DB_HOST=mariadb-server  # ACA internal DNS name
      - ACR login (username: ACR_USERNAME, password: ACR_PASSWORD)
      - Build backend (Docker Buildx, tag: $ACR_LOGIN_SERVER/filmapi:main-${{ github.sha }})
      - Push backend image to ACR
-     - Build frontend (tag: $ACR_LOGIN_SERVER/cinebase-web:main-${{ github.sha }})
+     - Build frontend (tag: $ACR_LOGIN_SERVER/cinema67-web:main-${{ github.sha }})
      - Push frontend image to ACR
      - Output image digests
 
@@ -529,7 +529,7 @@ DB_HOST=mariadb-server  # ACA internal DNS name
    - Needs: build-and-push
    - Steps:
      - Azure login (credentials: AZURE_CREDENTIALS Service Principal JSON)
-     - Update cinebase-web-app (image reference + health check validation)
+     - Update cinema67-web-app (image reference + health check validation)
      - Update filmapi-app (image reference + health check validation)
      - Health check polling loop (max 5 min, retry every 10s)
      - Smoke tests:
@@ -539,11 +539,11 @@ DB_HOST=mariadb-server  # ACA internal DNS name
      - Output deployment summary (app status, replicas, health)
 
 **Secrets Required** (GitHub Settings > Secrets):
-- ACR_LOGIN_SERVER (e.g., cinebaseacr.azurecr.io)
+- ACR_LOGIN_SERVER (e.g., cinema67acr.azurecr.io)
 - ACR_USERNAME
 - ACR_PASSWORD
 - AZURE_CREDENTIALS (Service Principal JSON from `az ad sp create-for-rbac`)
-- AZURE_RESOURCE_GROUP (e.g., cinebase-rg)
+- AZURE_RESOURCE_GROUP (e.g., cinema67-rg)
 - AZURE_CONTAINER_APPS_ENVIRONMENT (e.g., cinema67-env)
 - AZURE_SUBSCRIPTION_ID
 
@@ -561,7 +561,7 @@ DB_HOST=mariadb-server  # ACA internal DNS name
 4. Audit codebase:
    - Controllare FilmAPI/Program.cs per Data Protection setup
    - Controllare FilmApiSeeder per idempotency (email check, film title check)
-   - Controllare CineBase.Web per static files location (/wwwroot)
+   - Controllare Cinema67.Web per static files location (/wwwroot)
    - Controllare .env.example per completezza
 5. Setup .env da .env.example (fill in defaults: DB_PASSWORD, JWT_SECRET, etc.)
 6. Test applicazione locale (dotnet run in backend + frontend)
@@ -629,7 +629,7 @@ dotnet --version
 ---
 
 ### Fase 3: Dockerfile Frontend (2-3 ore)
-**Obiettivo**: Creare multistage Dockerfile per CineBase.Web con Nginx runtime, non-root user.
+**Obiettivo**: Creare multistage Dockerfile per Cinema67.Web con Nginx runtime, non-root user.
 
 **Attività**:
 1. Creare `frontend/CineBase.Web/Dockerfile`:
@@ -641,14 +641,14 @@ dotnet --version
 
 2. Test build:
    ```bash
-   docker build -t cinebase-web:latest ./frontend/CineBase.Web
-   docker images cinebase-web
+   docker build -t cinema67-web:latest ./frontend/CineBase.Web
+   docker images cinema67-web
    # Verify size < 50MB
    ```
 
 3. Test run:
    ```bash
-   docker run --rm -p 5001:80 cinebase-web:latest
+   docker run --rm -p 5001:80 cinema67-web:latest
    curl http://localhost:5001/health
    # Should return 200
    ```
@@ -658,7 +658,7 @@ dotnet --version
 - [ ] Build stage uses SDK alpine
 - [ ] Runtime stage uses nginx:alpine
 - [ ] nginx.conf copied to /etc/nginx/nginx.conf
-- [ ] wwwroot copied to /var/www/cinebase
+- [ ] wwwroot copied to /var/www/cinema67
 - [ ] Health check configured
 - [ ] Image size < 50MB
 - [ ] Local build succeeds
@@ -761,12 +761,12 @@ dotnet --version
 **Attività**:
 1. Creare `docker-compose.yml`:
    - Version: 3.8+
-   - Services: mariadb, filmapi, cinebase-web
+   - Services: mariadb, filmapi, cinema67-web
    - Named volumes: mariadb-data, filmapi-media, filmapi-dataprotection
    - Networks: cinema67-network
    - Environment: sourced from .env (env_file: .env)
    - Health checks per service
-   - Depends on: filmapi → mariadb (healthy), cinebase-web → filmapi (healthy)
+   - Depends on: filmapi → mariadb (healthy), cinema67-web → filmapi (healthy)
 
 2. Test startup:
    ```bash
@@ -793,7 +793,7 @@ dotnet --version
 - [ ] docker-compose.yml created
 - [ ] mariadb service configured with volume, healthcheck
 - [ ] filmapi service configured with volume, depends_on, healthcheck
-- [ ] cinebase-web service configured with depends_on, healthcheck
+- [ ] cinema67-web service configured with depends_on, healthcheck
 - [ ] Named volumes defined (mariadb-data, filmapi-media, filmapi-dataprotection)
 - [ ] cinema67-network bridge defined
 - [ ] env_file: .env configured
@@ -819,11 +819,11 @@ dotnet --version
    set -e
    
    # Variables
-   RESOURCE_GROUP="cinebase-rg"
+   RESOURCE_GROUP="cinema67-rg"
    LOCATION="italynorth"
-   ACR_NAME="cinebaseacr"
+   ACR_NAME="cinema67acr"
    ACA_ENVIRONMENT="cinema67-env"
-   STORAGE_ACCOUNT="cinebasestg"
+   STORAGE_ACCOUNT="cinema67stg"
    
    # 1. Create resource group
    echo "Creating resource group..."
@@ -895,19 +895,19 @@ dotnet --version
 
 4. Verificare risorse create:
    ```bash
-   az resource list --resource-group cinebase-rg
-   az acr list --resource-group cinebase-rg
-   az containerapp env list --resource-group cinebase-rg
-   az storage account list --resource-group cinebase-rg
+   az resource list --resource-group cinema67-rg
+   az acr list --resource-group cinema67-rg
+   az containerapp env list --resource-group cinema67-rg
+   az storage account list --resource-group cinema67-rg
    ```
 
 **Checklist**:
 - [ ] Azure subscription selected
-- [ ] Resource group created (cinebase-rg)
+- [ ] Resource group created (cinema67-rg)
 - [ ] Log Analytics workspace created
-- [ ] ACR created (cinebaseacr)
+- [ ] ACR created (cinema67acr)
 - [ ] ACA environment created (cinema67-env)
-- [ ] Storage account created (cinebasestg)
+- [ ] Storage account created (cinema67stg)
 - [ ] File shares created (mariadb-data 5GB, filmapi-dataprotection 1GB)
 - [ ] All resources accessible via Azure CLI
 
@@ -923,26 +923,26 @@ dotnet --version
      - Docker Buildx setup
      - ACR login
      - Build + push filmapi image
-     - Build + push cinebase-web image
+     - Build + push cinema67-web image
    - Job 2 (deploy-to-aca):
      - Azure login via Service Principal
-     - az containerapp update per mariadb-server, filmapi-app, cinebase-web-app
+     - az containerapp update per mariadb-server, filmapi-app, cinema67-web-app
      - Health check polling (5 min timeout)
      - Smoke tests (curl /health, /api/films, POST login)
      - Deployment summary
 
 2. Creare Service Principal per Azure:
    ```bash
-   az ad sp create-for-rbac --name "github-actions-cinebase" --role Contributor --scopes /subscriptions/<subscription-id>/resourceGroups/cinebase-rg
+   az ad sp create-for-rbac --name "github-actions-cinema67" --role Contributor --scopes /subscriptions/<subscription-id>/resourceGroups/cinema67-rg
    ```
    Output: JSON con appId, password, tenant
 
 3. Configurare GitHub Secrets (Settings > Secrets and variables > Actions):
-   - ACR_LOGIN_SERVER (e.g., cinebaseacr.azurecr.io)
+   - ACR_LOGIN_SERVER (e.g., cinema67acr.azurecr.io)
    - ACR_USERNAME (ACR username)
    - ACR_PASSWORD (ACR password)
    - AZURE_CREDENTIALS (Service Principal JSON)
-   - AZURE_RESOURCE_GROUP (cinebase-rg)
+   - AZURE_RESOURCE_GROUP (cinema67-rg)
    - AZURE_CONTAINER_APPS_ENVIRONMENT (cinema67-env)
    - AZURE_SUBSCRIPTION_ID
 
@@ -965,22 +965,22 @@ dotnet --version
 ---
 
 ### Fase 9: Azure Container Apps Deployment (5-6 ore)
-**Obiettivo**: Deploy 3 container apps (mariadb-server, filmapi-app, cinebase-web-app) con healthchecks, volumes, networking.
+**Obiettivo**: Deploy 3 container apps (mariadb-server, filmapi-app, cinema67-web-app) con healthchecks, volumes, networking.
 
 **Attività**:
 1. **Deploy MariaDB**:
    ```bash
    az containerapp create \
        --name mariadb-server \
-       --resource-group cinebase-rg \
+       --resource-group cinema67-rg \
        --environment cinema67-env \
        --image mariadb:11.4 \
        --cpu 1 --memory 2Gi \
        --ingress internal --target-port 3306 \
        --env-vars \
            MARIADB_ROOT_PASSWORD=<root-password> \
-           MARIADB_DATABASE=cinebase \
-           MARIADB_USER=cinebase_user \
+           MARIADB_DATABASE=cinema67 \
+           MARIADB_USER=cinema67_user \
            MARIADB_PASSWORD=<db-password> \
        --volume-mounts mariadb-data:/var/lib/mysql \
        --transport tcp \
@@ -993,24 +993,24 @@ dotnet --version
    ```bash
    az containerapp create \
        --name filmapi-app \
-       --resource-group cinebase-rg \
+       --resource-group cinema67-rg \
        --environment cinema67-env \
-       --image cinebaseacr.azurecr.io/filmapi:main-<sha> \
+       --image cinema67acr.azurecr.io/filmapi:main-<sha> \
        --cpu 1 --memory 1Gi \
        --min-replicas 1 --max-replicas 3 \
        --ingress internal --target-port 8080 \
        --env-vars \
            DB_HOST=mariadb-server \
            DB_PORT=3306 \
-           DB_NAME=cinebase \
-           DB_USER=cinebase_user \
+           DB_NAME=cinema67 \
+           DB_USER=cinema67_user \
            DB_PASSWORD=<db-password> \
            ASPNETCORE_ENVIRONMENT=Production \
            ASPNETCORE_URLS=http://+:8080 \
            JWT_SECRET=<jwt-secret> \
            ... (other vars) \
        --volume-mounts filmapi-dataprotection:/app/dataprotection \
-       --registry-login-server cinebaseacr.azurecr.io \
+       --registry-login-server cinema67acr.azurecr.io \
        --registry-username <acr-username> \
        --registry-password <acr-password> \
        --health-probe-type http \
@@ -1020,20 +1020,20 @@ dotnet --version
        --health-probe-timeout 3s
    ```
 
-3. **Deploy CineBase Web**:
+3. **Deploy Cinema67 Web**:
    ```bash
    az containerapp create \
-       --name cinebase-web-app \
-       --resource-group cinebase-rg \
+       --name cinema67-web-app \
+       --resource-group cinema67-rg \
        --environment cinema67-env \
-       --image cinebaseacr.azurecr.io/cinebase-web:main-<sha> \
+       --image cinema67acr.azurecr.io/cinema67-web:main-<sha> \
        --cpu 0.5 --memory 512Mi \
        --min-replicas 1 --max-replicas 3 \
        --ingress external --target-port 80 \
        --env-vars \
            FILMAPI_UPSTREAM=filmapi-app.internal.cinema67.azurecontainer.io:8080 \
            ASPNETCORE_ENVIRONMENT=Production \
-       --registry-login-server cinebaseacr.azurecr.io \
+       --registry-login-server cinema67acr.azurecr.io \
        --registry-username <acr-username> \
        --registry-password <acr-password> \
        --session-affinity sticky \
@@ -1045,17 +1045,17 @@ dotnet --version
 
 4. Verificare deployments:
    ```bash
-   az containerapp list --resource-group cinebase-rg -o table
-   az containerapp show --name mariadb-server --resource-group cinebase-rg --query "properties.provisioningState"
-   az containerapp logs show --name filmapi-app --resource-group cinebase-rg
+   az containerapp list --resource-group cinema67-rg -o table
+   az containerapp show --name mariadb-server --resource-group cinema67-rg --query "properties.provisioningState"
+   az containerapp logs show --name filmapi-app --resource-group cinema67-rg
    ```
 
 **Checklist**:
 - [ ] mariadb-server deployed and healthy
 - [ ] filmapi-app deployed and healthy
-- [ ] cinebase-web-app deployed and healthy
+- [ ] cinema67-web-app deployed and healthy
 - [ ] Internal ingress (mariadb, filmapi) working
-- [ ] External ingress (cinebase-web-app) working
+- [ ] External ingress (cinema67-web-app) working
 - [ ] Health probes passing
 - [ ] Logs show no errors
 - [ ] Replicas scaling correctly
@@ -1069,21 +1069,21 @@ dotnet --version
 **Attività**:
 1. Ottenere ACA FQDN:
    ```bash
-   az containerapp show --name cinebase-web-app --resource-group cinebase-rg \
+   az containerapp show --name cinema67-web-app --resource-group cinema67-rg \
        --query "properties.configuration.ingress.fqdn" -o tsv
-   # Output: cinebase-web-app.XXXX.azurecontainer.io
+   # Output: cinema67-web-app.XXXX.azurecontainer.io
    ```
 
 2. Configurare CNAME DNS (manualmente in provider DNS):
    - Record: cinema67.it (o www.cinema67.it)
    - Type: CNAME
-   - Value: cinebase-web-app.XXXX.azurecontainer.io
+   - Value: cinema67-web-app.XXXX.azurecontainer.io
 
 3. Creare Azure Managed Certificate:
    ```bash
    az containerapp hostname bind \
-       --name cinebase-web-app \
-       --resource-group cinebase-rg \
+       --name cinema67-web-app \
+       --resource-group cinema67-rg \
        --hostname cinema67.it \
        --certificate-binding-type azure-managed
    ```
@@ -1097,8 +1097,8 @@ dotnet --version
 5. Aggiornare ingress per HTTPS:
    ```bash
    az containerapp ingress update \
-       --name cinebase-web-app \
-       --resource-group cinebase-rg \
+       --name cinema67-web-app \
+       --resource-group cinema67-rg \
        --mode secure  # HTTPS only
    ```
 
@@ -1161,7 +1161,7 @@ dotnet --version
    curl -f https://cinema67.it/index.html
    
    # Logs check
-   az containerapp logs show --name filmapi-app --resource-group cinebase-rg --tail 50
+   az containerapp logs show --name filmapi-app --resource-group cinema67-rg --tail 50
    ```
 
 3. **Functional Test Suite**:
@@ -1175,7 +1175,7 @@ dotnet --version
 4. **Resilience Tests**:
    ```bash
    # Restart container
-   az containerapp update --name filmapi-app --resource-group cinebase-rg
+   az containerapp update --name filmapi-app --resource-group cinema67-rg
    
    # Verify still healthy after restart
    sleep 30
@@ -1277,7 +1277,7 @@ dotnet --version
 ### Azure Container Apps Deployment
 - [ ] mariadb-server deployed (internal ingress)
 - [ ] filmapi-app deployed (internal ingress)
-- [ ] cinebase-web-app deployed (external ingress)
+- [ ] cinema67-web-app deployed (external ingress)
 - [ ] All health probes passing
 - [ ] Replicas running (min 1, max 3)
 - [ ] Volume mounts configured
@@ -1364,8 +1364,8 @@ curl http://localhost:5000/api/films
 
 **Preliminary Checks**:
 ```bash
-az containerapp list --resource-group cinebase-rg -o table
-az containerapp show --name filmapi-app --resource-group cinebase-rg | grep "provisioningState"
+az containerapp list --resource-group cinema67-rg -o table
+az containerapp show --name filmapi-app --resource-group cinema67-rg | grep "provisioningState"
 ```
 
 **Smoke Tests**:
@@ -1391,7 +1391,7 @@ nslookup cinema67.it
 **Resilience Tests**:
 ```bash
 # Force redeploy
-az containerapp update --name filmapi-app --resource-group cinebase-rg
+az containerapp update --name filmapi-app --resource-group cinema67-rg
 
 # Wait for healthy + retest
 sleep 30
@@ -1617,7 +1617,7 @@ RUN apk add --no-cache curl
 COPY ["frontend/CineBase.Web/nginx.conf", "/etc/nginx/nginx.conf"]
 
 # Copy published app
-COPY --from=builder /app/publish/wwwroot /var/www/cinebase
+COPY --from=builder /app/publish/wwwroot /var/www/cinema67
 
 EXPOSE 80
 
@@ -1708,14 +1708,14 @@ http {
 
         # Static files with caching
         location ~* /dist/.*\.(js|css|png|jpg|gif|ico|woff|woff2)$ {
-            root /var/www/cinebase;
+            root /var/www/cinema67;
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
 
         # SPA routing
         location / {
-            root /var/www/cinebase;
+            root /var/www/cinema67;
             try_files $uri /index.html;
         }
     }
@@ -1835,11 +1835,11 @@ services:
     networks:
       - cinema67-network
 
-  cinebase-web:
+  cinema67-web:
     build:
       context: ./frontend
       dockerfile: CineBase.Web/Dockerfile
-    container_name: cinebase-web
+    container_name: cinema67-web
     restart: unless-stopped
     ports:
       - "5001:80"
@@ -1874,7 +1874,7 @@ networks:
 
 ## Conclusione
 
-Questo documento fornisce una guida completa per implementare Iterazione 6: Containerizzazione e Deployment su Azure per CineBase.
+Questo documento fornisce una guida completa per implementare Iterazione 6: Containerizzazione e Deployment su Azure per Cinema67.
 
 **Tempo Stimato**: 24 ore full-time (3 giorni lavorativi)  
 **Difficulty**: 7/10 (moderatamente complesso; richiede familiarità con Docker, Azure CLI, GitHub Actions)  
@@ -1913,7 +1913,7 @@ Questo documento fornisce una guida completa per implementare Iterazione 6: Cont
 - [x] GitHub Actions workflow (deploy-to-azure.yml) - build-push job, deploy-to-aca job, smoke tests
 
 **Fase 9-11: Deployment & Testing**
-- [x] Fase 9: Azure Container Apps deployment (DEPLOY_ACA.sh) - mariadb-server, filmapi-app, cinebase-web-app
+- [x] Fase 9: Azure Container Apps deployment (DEPLOY_ACA.sh) - mariadb-server, filmapi-app, cinema67-web-app
 - [x] Fase 10: Domain & SSL setup (DOMAIN_SSL_SETUP.md) - DNS CNAME, managed cert, OAuth URIs
 - [x] Fase 11: Testing & validation (TESTING_VALIDATION.md) - smoke, integration, functional, resilience, load tests
 

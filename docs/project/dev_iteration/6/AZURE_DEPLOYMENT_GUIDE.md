@@ -52,9 +52,9 @@ az group list  # Should see existing resource groups
 
 # For CI/CD (GitHub Actions), create Service Principal:
 az ad sp create-for-rbac \
-    --name "github-actions-cinebase" \
+    --name "github-actions-cinema67" \
     --role Contributor \
-    --scopes /subscriptions/<subscription-id>/resourceGroups/cinebase-rg
+    --scopes /subscriptions/<subscription-id>/resourceGroups/cinema67-rg
 
 # Output JSON (save securely):
 {
@@ -83,14 +83,14 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${GREEN}=== CineBase Azure Infrastructure Setup ===${NC}"
+echo -e "${GREEN}=== Cinema67 Azure Infrastructure Setup ===${NC}"
 
 # Configuration
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 LOCATION="italynorth"
-ACR_NAME="cinebaseacr"
+ACR_NAME="cinema67acr"
 ACA_ENVIRONMENT="cinema67-env"
-STORAGE_ACCOUNT="cinebasestg"
+STORAGE_ACCOUNT="cinema67stg"
 LOG_ANALYTICS_WORKSPACE="cinema67-logs"
 
 # Verify logged in
@@ -244,7 +244,7 @@ echo "   - AZURE_CREDENTIALS=<Service Principal JSON>"
 echo ""
 echo "2. Push images to ACR:"
 echo "   docker push $ACR_LOGIN_SERVER/filmapi:main-<sha>"
-echo "   docker push $ACR_LOGIN_SERVER/cinebase-web:main-<sha>"
+echo "   docker push $ACR_LOGIN_SERVER/cinema67-web:main-<sha>"
 echo ""
 echo "3. Deploy container apps (see CI/CD workflow)"
 echo "=========================================="
@@ -277,8 +277,8 @@ chmod +x AZURE_SETUP.sh
 ```bash
 # Push images to ACR
 az acr credential show \
-    --resource-group cinebase-rg \
-    --name cinebaseacr
+    --resource-group cinema67-rg \
+    --name cinema67acr
 
 # Output:
 # {
@@ -292,7 +292,7 @@ az acr credential show \
 #       "value": "..."
 #     }
 #   ],
-#   "username": "cinebaseacr"
+#   "username": "cinema67acr"
 # }
 ```
 
@@ -301,7 +301,7 @@ az acr credential show \
 ```bash
 az containerapp create \
     --name mariadb-server \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --environment cinema67-env \
     --image mariadb:11.4 \
     --cpu 1 --memory 2Gi \
@@ -310,15 +310,15 @@ az containerapp create \
     --transport tcp \
     --env-vars \
         MARIADB_ROOT_PASSWORD='YourRootPassword!' \
-        MARIADB_DATABASE=cinebase \
-        MARIADB_USER=cinebase_user \
+        MARIADB_DATABASE=cinema67 \
+        MARIADB_USER=cinema67_user \
         MARIADB_PASSWORD='YourDbPassword!' \
     --volume-mounts mariadb-data:/var/lib/mysql \
     --storage-mounts mariadb-data \
     --environment-storage \
         name=mariadb-data \
         storage-type=AzureFile \
-        storage-name=cinebasestg \
+        storage-name=cinema67stg \
         access-mode=ReadWrite \
     --health-probe-type tcp \
     --health-probe-port 3306 \
@@ -328,7 +328,7 @@ az containerapp create \
 # Verify
 az containerapp show \
     --name mariadb-server \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --query "properties.provisioningState"
 # Should output: "Succeeded"
 ```
@@ -338,22 +338,22 @@ az containerapp show \
 ```bash
 az containerapp create \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --environment cinema67-env \
-    --image cinebaseacr.azurecr.io/filmapi:main-abc1234 \
+    --image cinema67acr.azurecr.io/filmapi:main-abc1234 \
     --cpu 1 --memory 1Gi \
     --min-replicas 1 \
     --max-replicas 3 \
     --ingress internal \
     --target-port 8080 \
-    --registry-server cinebaseacr.azurecr.io \
-    --registry-username cinebaseacr \
+    --registry-server cinema67acr.azurecr.io \
+    --registry-username cinema67acr \
     --registry-password '<ACR_PASSWORD>' \
     --env-vars \
         DB_HOST=mariadb-server \
         DB_PORT=3306 \
-        DB_NAME=cinebase \
-        DB_USER=cinebase_user \
+        DB_NAME=cinema67 \
+        DB_USER=cinema67_user \
         DB_PASSWORD='YourDbPassword!' \
         ASPNETCORE_ENVIRONMENT=Production \
         ASPNETCORE_URLS='http://+:8080' \
@@ -367,7 +367,7 @@ az containerapp create \
     --environment-storage \
         name=filmapi-dataprotection \
         storage-type=AzureFile \
-        storage-name=cinebasestg \
+        storage-name=cinema67stg \
         access-mode=ReadWrite \
     --health-probe-type http \
     --health-probe-path /health \
@@ -378,26 +378,26 @@ az containerapp create \
 # Verify
 az containerapp logs show \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --tail 50
 # Should show migration logs + seeder output
 ```
 
-### Step 4: Deploy CineBase Web
+### Step 4: Deploy Cinema67 Web
 
 ```bash
 az containerapp create \
-    --name cinebase-web-app \
-    --resource-group cinebase-rg \
+    --name cinema67-web-app \
+    --resource-group cinema67-rg \
     --environment cinema67-env \
-    --image cinebaseacr.azurecr.io/cinebase-web:main-xyz5678 \
+    --image cinema67acr.azurecr.io/cinema67-web:main-xyz5678 \
     --cpu 0.5 --memory 512Mi \
     --min-replicas 1 \
     --max-replicas 3 \
     --ingress external \
     --target-port 80 \
-    --registry-server cinebaseacr.azurecr.io \
-    --registry-username cinebaseacr \
+    --registry-server cinema67acr.azurecr.io \
+    --registry-username cinema67acr \
     --registry-password '<ACR_PASSWORD>' \
     --env-vars \
         FILMAPI_UPSTREAM='filmapi-app.internal.cinema67.azurecontainer.io:8080' \
@@ -411,8 +411,8 @@ az containerapp create \
 
 # Get FQDN
 FQDN=$(az containerapp show \
-    --name cinebase-web-app \
-    --resource-group cinebase-rg \
+    --name cinema67-web-app \
+    --resource-group cinema67-rg \
     --query "properties.configuration.ingress.fqdn" -o tsv)
 echo "FQDN: $FQDN"
 ```
@@ -422,15 +422,15 @@ echo "FQDN: $FQDN"
 ```bash
 # Bind custom domain
 az containerapp hostname bind \
-    --name cinebase-web-app \
-    --resource-group cinebase-rg \
+    --name cinema67-web-app \
+    --resource-group cinema67-rg \
     --hostname cinema67.it \
     --certificate-binding-type azure-managed
 
 # Set ingress to HTTPS-only
 az containerapp ingress update \
-    --name cinebase-web-app \
-    --resource-group cinebase-rg \
+    --name cinema67-web-app \
+    --resource-group cinema67-rg \
     --mode secure
 ```
 
@@ -444,9 +444,9 @@ az containerapp ingress update \
 <registry>/<image>:<tag>
 
 Examples:
-- cinebaseacr.azurecr.io/filmapi:main-a1b2c3d
-- cinebaseacr.azurecr.io/filmapi:v1.0.0
-- cinebaseacr.azurecr.io/cinebase-web:main-x9y8z7w
+- cinema67acr.azurecr.io/filmapi:main-a1b2c3d
+- cinema67acr.azurecr.io/filmapi:v1.0.0
+- cinema67acr.azurecr.io/cinema67-web:main-x9y8z7w
 
 Format: <branch>-<git-sha> (GitHub Actions generates)
 ```
@@ -458,10 +458,10 @@ Format: <branch>-<git-sha> (GitHub Actions generates)
 docker build -t filmapi:latest ./backend/FilmAPI
 
 # Tag for ACR
-docker tag filmapi:latest cinebaseacr.azurecr.io/filmapi:main-$(git rev-parse --short HEAD)
+docker tag filmapi:latest cinema67acr.azurecr.io/filmapi:main-$(git rev-parse --short HEAD)
 
 # Push
-docker push cinebaseacr.azurecr.io/filmapi:main-$(git rev-parse --short HEAD)
+docker push cinema67acr.azurecr.io/filmapi:main-$(git rev-parse --short HEAD)
 ```
 
 ### GitHub Actions Tagging
@@ -508,7 +508,7 @@ az containerapp create \
 # Update existing app
 az containerapp update \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --set-env-vars \
         JWT_SECRET='NewSecret123!' \
         DB_PASSWORD='NewPassword!'
@@ -516,7 +516,7 @@ az containerapp update \
 # Remove env var
 az containerapp update \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --remove-env-vars JWT_SECRET
 ```
 
@@ -529,12 +529,12 @@ az containerapp update \
 ```bash
 # List file shares
 az storage share list \
-    --account-name cinebasestg \
+    --account-name cinema67stg \
     --account-key '<storage-key>'
 
 # Create share (if not exists)
 az storage share create \
-    --account-name cinebasestg \
+    --account-name cinema67stg \
     --account-key '<storage-key>' \
     --name filmapi-media \
     --quota 1024  # 1GB
@@ -548,7 +548,7 @@ az containerapp create \
     --environment-storage \
         name=mariadb-data \
         storage-type=AzureFile \
-        storage-name=cinebasestg \
+        storage-name=cinema67stg \
         storage-key='<storage-key>' \
         access-mode=ReadWrite \
         share-name=mariadb-data \
@@ -561,7 +561,7 @@ az containerapp create \
 # Connect to container
 az containerapp exec \
     --name mariadb-server \
-    --resource-group cinebase-rg
+    --resource-group cinema67-rg
 
 # Inside container
 $ ls -la /var/lib/mysql
@@ -594,18 +594,18 @@ curl http://filmapi-app:8080/health
 
 ```bash
 az containerapp create \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --ingress external \
     --target-port 80
 
 # Public FQDN
-# cinebase-web-app.XXXX.azurecontainer.io
+# cinema67-web-app.XXXX.azurecontainer.io
 # (map cinema67.it CNAME to this)
 ```
 
 ### CORS & Proxying
 
-**nginx.conf** (in cinebase-web):
+**nginx.conf** (in cinema67-web):
 ```nginx
 upstream filmapi {
     server filmapi-app.internal.cinema67.azurecontainer.io:8080;
@@ -680,14 +680,14 @@ az containerapp create \
 # Set fixed replicas
 az containerapp update \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --min-replicas 1 \
     --max-replicas 1
 
 # Or update to 2 replicas
 az containerapp update \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --min-replicas 2 --max-replicas 2
 ```
 
@@ -708,7 +708,7 @@ az containerapp create \
 
 # HTTP request-based
 az containerapp create \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --min-replicas 1 \
     --max-replicas 3 \
     --scale \
@@ -727,19 +727,19 @@ az containerapp create \
 # Live logs (last 50 lines)
 az containerapp logs show \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --tail 50
 
 # Follow logs
 az containerapp logs show \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --follow
 
 # Specific time range
 az containerapp logs show \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --since 30m  # Last 30 minutes
 ```
 
@@ -755,7 +755,7 @@ az monitor log-analytics query \
 # Check container replicas
 az containerapp replica list \
     --name filmapi-app \
-    --resource-group cinebase-rg
+    --resource-group cinema67-rg
 
 # Output:
 # Name            Status      Restarts    CPU    Memory    CreateTime
@@ -768,7 +768,7 @@ az containerapp replica list \
 # Check app status
 az containerapp show \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --query "properties"
 
 # Key fields:

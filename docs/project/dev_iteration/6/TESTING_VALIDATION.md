@@ -1,7 +1,7 @@
 # Fase 11: Testing & Validation Guide
 
 ## Overview
-Complete testing strategy for CineBase containerized deployment across local docker-compose and Azure Container Apps environments.
+Complete testing strategy for Cinema67 containerized deployment across local docker-compose and Azure Container Apps environments.
 
 ## Test Environments
 
@@ -77,7 +77,7 @@ docker-compose exec mariadb mysql -uroot -proot -e "
 # Check admin user exists (created by seeder)
 curl -s -X POST http://localhost:8080/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"email":"admin@cinebase.it","password":"Admin123!"}' | jq .
+    -d '{"email":"admin@cinema67.it","password":"Admin123!"}' | jq .
 
 # Expected: JWT token in response
 ```
@@ -95,9 +95,9 @@ curl -s http://localhost:5001/api/films | jq '.[] | {id, titolo, durata}' | head
 
 ```bash
 # Verify data persists across restarts
-docker-compose stop filmapi mariadb cinebase-web
+docker-compose stop filmapi mariadb cinema67-web
 sleep 5
-docker-compose start mariadb filmapi cinebase-web
+docker-compose start mariadb filmapi cinema67-web
 sleep 10
 
 # Re-run film count query
@@ -116,7 +116,7 @@ curl -s http://localhost:5001/api/films | jq '. | length'
 # 1. Login
 RESPONSE=$(curl -s -X POST http://localhost:8080/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"email":"admin@cinebase.it","password":"Admin123!"}')
+    -d '{"email":"admin@cinema67.it","password":"Admin123!"}')
 
 TOKEN=$(echo $RESPONSE | jq -r '.token')
 echo "Token: $TOKEN"
@@ -170,7 +170,7 @@ curl -I http://localhost:5001/ | grep -E "^(X-|Server|Cache-Control)"
 docker-compose logs filmapi --tail=100
 
 # Frontend logs
-docker-compose logs cinebase-web --tail=50
+docker-compose logs cinema67-web --tail=50
 
 # Database logs
 docker-compose logs mariadb --tail=50
@@ -193,11 +193,11 @@ docker-compose logs mariadb --tail=50
 ### 4.1 Verify Deployments
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 ACA_ENV="cinema67-env"
 
 # Check all apps are running
-for APP in mariadb-server filmapi-app cinebase-web-app; do
+for APP in mariadb-server filmapi-app cinema67-web-app; do
     STATUS=$(az containerapp show \
         --name "$APP" \
         --resource-group "$RESOURCE_GROUP" \
@@ -214,14 +214,14 @@ done
 ```bash
 # Get FQDNs
 WEB_FQDN=$(az containerapp show \
-    --name cinebase-web-app \
-    --resource-group "cinebase-rg" \
+    --name cinema67-web-app \
+    --resource-group "cinema67-rg" \
     --environment "cinema67-env" \
     --query "properties.configuration.ingress.fqdn" -o tsv)
 
 API_FQDN=$(az containerapp show \
     --name filmapi-app \
-    --resource-group "cinebase-rg" \
+    --resource-group "cinema67-rg" \
     --environment "cinema67-env" \
     --query "properties.configuration.ingress.fqdn" -o tsv)
 
@@ -273,7 +273,7 @@ fetch('http://localhost:8080/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-        email: 'admin@cinebase.it',
+        email: 'admin@cinema67.it',
         password: 'Admin123!'
     })
 })
@@ -404,10 +404,10 @@ docker-compose exec filmapi ls -la /var/lib/dataprotection/
 ### 7.1 Auto-Scaling Test
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 
 # Check current replicas
-for APP in filmapi-app cinebase-web-app; do
+for APP in filmapi-app cinema67-web-app; do
     REPLICAS=$(az containerapp show \
         --name "$APP" \
         --resource-group "$RESOURCE_GROUP" \
@@ -433,7 +433,7 @@ wait
 # Get filmapi pod name
 POD=$(az containerapp replica list \
     --name filmapi-app \
-    --resource-group "cinebase-rg" \
+    --resource-group "cinema67-rg" \
     --environment "cinema67-env" \
     --query "[0].name" -o tsv)
 
@@ -441,7 +441,7 @@ POD=$(az containerapp replica list \
 az containerapp replica stop \
     --name filmapi-app \
     --replica-name "$POD" \
-    --resource-group "cinebase-rg" \
+    --resource-group "cinema67-rg" \
     --environment "cinema67-env"
 
 # Verify new pod starts automatically
@@ -456,7 +456,7 @@ curl -I https://cinema67.it/api/films
 ## Test Report Template
 
 ```markdown
-## CineBase Iteration 6 - Test Report
+## Cinema67 Iteration 6 - Test Report
 
 **Date:** [YYYY-MM-DD]
 **Environment:** Local docker-compose / Azure ACA
@@ -507,15 +507,15 @@ curl -I https://cinema67.it/api/films
 ```bash
 # View real-time logs
 az containerapp logs show \
-    --name cinebase-web-app \
-    --resource-group "cinebase-rg" \
+    --name cinema67-web-app \
+    --resource-group "cinema67-rg" \
     --environment "cinema67-env" \
     --follow
 
 # Export logs for analysis
 az containerapp logs show \
     --name filmapi-app \
-    --resource-group "cinebase-rg" \
+    --resource-group "cinema67-rg" \
     --environment "cinema67-env" \
     --tail 1000 > filmapi_logs.txt
 ```

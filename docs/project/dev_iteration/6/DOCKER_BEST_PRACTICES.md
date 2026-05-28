@@ -1,4 +1,4 @@
-# Docker Best Practices per CineBase
+# Docker Best Practices per Cinema67
 
 **Versione**: 1.0  
 **Data**: May 28, 2026
@@ -260,7 +260,7 @@ RUN apk add --no-cache curl
 COPY frontend/CineBase.Web/nginx.conf /etc/nginx/nginx.conf
 
 # Copy static files
-COPY --from=builder /app/publish/wwwroot /var/www/cinebase
+COPY --from=builder /app/publish/wwwroot /var/www/cinema67
 
 EXPOSE 80
 
@@ -286,7 +286,7 @@ CMD ["nginx", "-g", "daemon off;"]
 app.MapGet("/health", async context =>
 {
     var services = context.RequestServices;
-    var dbContext = services.GetRequiredService<CineBaseContext>();
+    var dbContext = services.GetRequiredService<Cinema67Context>();
     
     try
     {
@@ -471,7 +471,7 @@ services:
       - filmapi-dataprotection:/app/dataprotection
   
   # If web app needs same keys (multi-app sessions):
-  cinebase-web:
+  cinema67-web:
     volumes:
       - filmapi-dataprotection:/app/dataprotection
 ```
@@ -519,7 +519,7 @@ services:
       - "5000:5000"  # Internal API (via docker network)
     # ACA: no ports published, internal ingress only
 
-  cinebase-web:
+  cinema67-web:
     ports:
       - "5001:80"  # External access via Nginx
 ```
@@ -527,12 +527,12 @@ services:
 ### Internal vs External Ingress
 
 **Local (docker-compose)**:
-- cinebase-web: port 5001 (external) → public internet
-- filmapi: port 5000 (internal) → cinebase-web only
+- cinema67-web: port 5001 (external) → public internet
+- filmapi: port 5000 (internal) → cinema67-web only
 - mariadb: port 3306 (optional, for debugging)
 
 **Azure (ACA)**:
-- cinebase-web-app: External ingress (public, HTTPS)
+- cinema67-web-app: External ingress (public, HTTPS)
 - filmapi-app: Internal ingress (docker network only)
 - mariadb-server: Internal ingress (docker network only)
 

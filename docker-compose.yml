@@ -1,10 +1,10 @@
 # ============================================================================
-# Docker Compose for CineBase Local Development
+# Docker Compose for Cinema67 Local Development
 # ============================================================================
 # Services:
 #   - mariadb: Database (port 3306, internal)
 #   - filmapi: Backend API (port 5000, internal)
-#   - cinebase-web: Frontend (port 5001, external via nginx)
+#   - cinema67-web: Frontend (port 5001, external via nginx)
 # 
 # Networks: cinema67-network (bridge mode)
 # Volumes: mariadb-data, filmapi-media, filmapi-dataprotection (persistence)
@@ -104,13 +104,13 @@ services:
       - cinema67-network
 
   # ══════════════════════════════════════════════════════════════════════
-  # CineBase Frontend (Nginx)
+  # Cinema67 Frontend (Nginx)
   # ══════════════════════════════════════════════════════════════════════
-  cinebase-web:
+  cinema67-web:
     build:
       context: ./frontend
       dockerfile: CineBase.Web/Dockerfile
-    container_name: cinebase-web
+    container_name: cinema67-web
     restart: unless-stopped
     ports:
       - "5001:80"

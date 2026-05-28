@@ -57,7 +57,7 @@ The workflow triggers on:
 4. Publish FilmAPI (`dotnet publish -c Release -o backend/publish`)
 5. Login to ACR
 6. Build FilmAPI Docker image (uses `backend/publish`)
-7. Build CineBase.Web Docker image
+7. Build Cinema67.Web Docker image
 8. Push both images to ACR with tags:
    - `main-<SHA>` (specific commit)
    - `latest` (most recent)
@@ -65,7 +65,7 @@ The workflow triggers on:
 ### Deploy Job (only on main push)
 1. Azure login
 2. Update `filmapi-app` container with new image
-3. Update `cinebase-web-app` container with new image
+3. Update `cinema67-web-app` container with new image
 4. Wait for deployments ready (max 5 minutes)
 5. Run smoke tests (optional, continues on error)
 6. Report deployment summary
@@ -74,9 +74,9 @@ The workflow triggers on:
 
 Images are tagged with:
 - `<ACR>/filmapi:main-<COMMIT_SHA>`
-- `<ACR>/cinebase-web:main-<COMMIT_SHA>`
+- `<ACR>/cinema67-web:main-<COMMIT_SHA>`
 - `<ACR>/filmapi:latest`
-- `<ACR>/cinebase-web:latest`
+- `<ACR>/cinema67-web:latest`
 
 ## Testing Locally
 

@@ -29,15 +29,15 @@ GitHub Actions Workflow Triggered
         │   ├─ Login to ACR
         │   ├─ Build FilmAPI image
         │   ├─ Push FilmAPI to ACR
-        │   ├─ Build CineBase.Web image
-        │   ├─ Push CineBase.Web to ACR
+        │   ├─ Build Cinema67.Web image
+        │   ├─ Push Cinema67.Web to ACR
         │   └─ Output: Image digests & tags
         ↓
         ├─ Job 2: deploy-to-aca (depends on job 1)
         │   ├─ Azure login (Service Principal)
         │   ├─ Update mariadb-server (if image changed)
         │   ├─ Update filmapi-app image reference
-        │   ├─ Update cinebase-web-app image reference
+        │   ├─ Update cinema67-web-app image reference
         │   ├─ Health check polling loop (5 min timeout)
         │   ├─ Smoke tests (curl endpoints)
         │   └─ Output: Deployment summary
@@ -66,15 +66,15 @@ az login
 
 # Create Service Principal with Contributor role for resource group
 az ad sp create-for-rbac \
-    --name "github-actions-cinebase" \
+    --name "github-actions-cinema67" \
     --role Contributor \
-    --scopes /subscriptions/<subscription-id>/resourceGroups/cinebase-rg \
+    --scopes /subscriptions/<subscription-id>/resourceGroups/cinema67-rg \
     --years 2
 
 # Output:
 {
   "appId": "00000000-0000-0000-0000-000000000000",
-  "displayName": "github-actions-cinebase",
+  "displayName": "github-actions-cinema67",
   "password": "...",
   "tenant": "00000000-0000-0000-0000-000000000000"
 }
@@ -90,7 +90,7 @@ SP_ID=$(az ad sp show --id <appId> --query id -o tsv)
 az role assignment create \
     --assignee $SP_ID \
     --role AcrPush \
-    --scope /subscriptions/<subscription-id>/resourceGroups/cinebase-rg/providers/Microsoft.ContainerRegistry/registries/cinebaseacr
+    --scope /subscriptions/<subscription-id>/resourceGroups/cinema67-rg/providers/Microsoft.ContainerRegistry/registries/cinema67acr
 ```
 
 ### Step 3: Get ACR Credentials
@@ -98,8 +98,8 @@ az role assignment create \
 ```bash
 # List ACR credentials (username & password)
 az acr credential show \
-    --resource-group cinebase-rg \
-    --name cinebaseacr
+    --resource-group cinema67-rg \
+    --name cinema67acr
 
 # Output:
 {
@@ -109,7 +109,7 @@ az acr credential show \
       "value": "..."
     }
   ],
-  "username": "cinebaseacr"
+  "username": "cinema67acr"
 }
 ```
 
@@ -126,11 +126,11 @@ az acr credential show \
 ### Step 2: Add Secrets (7 total)
 
 1. **ACR_LOGIN_SERVER**
-   - Value: `cinebaseacr.azurecr.io`
+   - Value: `cinema67acr.azurecr.io`
    - Used by: Build job (docker push)
 
 2. **ACR_USERNAME**
-   - Value: `cinebaseacr` (from `az acr credential show`)
+   - Value: `cinema67acr` (from `az acr credential show`)
    - Used by: Build job (docker login)
 
 3. **ACR_PASSWORD**
@@ -150,7 +150,7 @@ az acr credential show \
    - Used by: Deploy job (azure login)
 
 5. **AZURE_RESOURCE_GROUP**
-   - Value: `cinebase-rg`
+   - Value: `cinema67-rg`
    - Used by: Deploy job (resource group name)
 
 6. **AZURE_CONTAINER_APPS_ENVIRONMENT**
@@ -200,7 +200,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       filmapi-image: ${{ steps.image.outputs.filmapi }}
-      cinebase-web-image: ${{ steps.image.outputs.cinebase-web }}
+      cinema67-web-image: ${{ steps.image.outputs.cinema67-web }}
 
     steps:
       # Steps defined below...
@@ -226,7 +226,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       filmapi-image: ${{ steps.image.outputs.filmapi }}
-      cinebase-web-image: ${{ steps.image.outputs.cinebase-web }}
+      cinema67-web-image: ${{ steps.image.outputs.cinema67-web }}
 
     steps:
       - name: Checkout code
@@ -254,30 +254,30 @@ jobs:
           cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/filmapi:buildcache
           cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/filmapi:buildcache,mode=max
 
-      - name: Build and push CineBase.Web image
+      - name: Build and push Cinema67.Web image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/CineBase.Web/Dockerfile
           push: true
           tags: |
-            ${{ env.ACR_LOGIN_SERVER }}/cinebase-web:main-${{ github.sha }}
-            ${{ env.ACR_LOGIN_SERVER }}/cinebase-web:latest
-          cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinebase-web:buildcache
-          cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinebase-web:buildcache,mode=max
+            ${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}
+            ${{ env.ACR_LOGIN_SERVER }}/cinema67-web:latest
+          cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:buildcache,mode=max
 
       - name: Set image output for deploy job
         id: image
         run: |
           echo "filmapi=${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}" >> $GITHUB_OUTPUT
-          echo "cinebase-web=${{ env.ACR_LOGIN_SERVER }}/cinebase-web:main-${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "cinema67-web=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Image build summary
         run: |
           echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**FilmAPI Image**: \`${{ steps.image.outputs.filmapi }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**CineBase.Web Image**: \`${{ steps.image.outputs.cinebase-web }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Cinema67.Web Image**: \`${{ steps.image.outputs.cinema67-web }}\`" >> $GITHUB_STEP_SUMMARY
 ```
 
 ### Key Configuration
@@ -317,12 +317,12 @@ jobs:
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --image ${{ needs.build-and-push.outputs.filmapi-image }}
 
-      - name: Update CineBase.Web container app
+      - name: Update Cinema67.Web container app
         run: |
           az containerapp update \
-            --name cinebase-web-app \
+            --name cinema67-web-app \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --image ${{ needs.build-and-push.outputs.cinebase-web-image }}
+            --image ${{ needs.build-and-push.outputs.cinema67-web-image }}
 
       - name: Wait for deployments to be ready
         run: |
@@ -357,7 +357,7 @@ jobs:
           
           # Get web app FQDN
           FQDN=$(az containerapp show \
-            --name cinebase-web-app \
+            --name cinema67-web-app \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --query "properties.configuration.ingress.fqdn" -o tsv)
           
@@ -392,7 +392,7 @@ jobs:
           echo "### Container Apps Status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          for APP in mariadb-server filmapi-app cinebase-web-app; do
+          for APP in mariadb-server filmapi-app cinema67-web-app; do
             STATUS=$(az containerapp show \
               --name $APP \
               --resource-group $RESOURCE_GROUP \
@@ -408,7 +408,7 @@ jobs:
           echo "### Images Deployed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ needs.build-and-push.outputs.filmapi-image }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ needs.build-and-push.outputs.cinebase-web-image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ needs.build-and-push.outputs.cinema67-web-image }}\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify on failure
         if: failure()
@@ -436,7 +436,7 @@ jobs:
 ```bash
 # 1. Build locally (test Dockerfile)
 docker build -t filmapi:test ./backend/FilmAPI
-docker build -t cinebase-web:test ./frontend/CineBase.Web
+docker build -t cinema67-web:test ./frontend/Cinema67.Web
 
 # 2. Test docker-compose
 docker-compose up -d
@@ -525,16 +525,16 @@ az role assignment list --assignee <appId>
 **Solutions**:
 ```bash
 # Verify image exists in ACR
-az acr repository list --name cinebaseacr
-az acr repository show --name cinebaseacr --image filmapi:main-<sha>
+az acr repository list --name cinema67acr
+az acr repository show --name cinema67acr --image filmapi:main-<sha>
 
 # Verify ACR credentials are correct
-az acr credential show --name cinebaseacr
+az acr credential show --name cinema67acr
 
 # Check Service Principal has AcrPush role
 az role assignment list \
     --assignee <appId> \
-    --scope /subscriptions/<subscription-id>/resourceGroups/cinebase-rg/providers/Microsoft.ContainerRegistry/registries/cinebaseacr
+    --scope /subscriptions/<subscription-id>/resourceGroups/cinema67-rg/providers/Microsoft.ContainerRegistry/registries/cinema67acr
 ```
 
 ### Deployment Timeout
@@ -544,13 +544,13 @@ az role assignment list \
 **Solutions**:
 ```bash
 # Check container logs for errors
-az containerapp logs show --name filmapi-app --resource-group cinebase-rg --tail 50
+az containerapp logs show --name filmapi-app --resource-group cinema67-rg --tail 50
 
 # Check if container is even starting
-az containerapp replica list --name filmapi-app --resource-group cinebase-rg
+az containerapp replica list --name filmapi-app --resource-group cinema67-rg
 
 # Verify environment variables are set
-az containerapp show --name filmapi-app --resource-group cinebase-rg \
+az containerapp show --name filmapi-app --resource-group cinema67-rg \
     --query "properties.template.containers[0].env"
 ```
 
@@ -561,7 +561,7 @@ az containerapp show --name filmapi-app --resource-group cinebase-rg \
 **Solutions**:
 ```bash
 # Get FQDN
-FQDN=$(az containerapp show --name cinebase-web-app --resource-group cinebase-rg \
+FQDN=$(az containerapp show --name cinema67-web-app --resource-group cinema67-rg \
     --query "properties.configuration.ingress.fqdn" -o tsv)
 
 # Test manually
@@ -570,7 +570,7 @@ curl -I https://$FQDN/health
 curl -I https://$FQDN/api/films
 
 # Check ingress is external and healthy
-az containerapp show --name cinebase-web-app --resource-group cinebase-rg \
+az containerapp show --name cinema67-web-app --resource-group cinema67-rg \
     --query "properties.configuration.ingress"
 
 # Check DNS propagation (if using custom domain)
@@ -584,7 +584,7 @@ nslookup cinema67.it
 **Solutions**:
 ```bash
 # Check app logs
-az containerapp logs show --name filmapi-app --resource-group cinebase-rg --tail 50
+az containerapp logs show --name filmapi-app --resource-group cinema67-rg --tail 50
 
 # Verify endpoint is implemented
 # In Program.cs:
@@ -597,7 +597,7 @@ app.MapGet("/health", async context =>
 # Test endpoint from container
 az containerapp exec \
     --name filmapi-app \
-    --resource-group cinebase-rg \
+    --resource-group cinema67-rg \
     --command "/bin/bash"
 $ curl http://localhost:8080/health
 ```

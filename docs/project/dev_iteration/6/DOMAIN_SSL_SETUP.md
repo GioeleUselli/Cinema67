@@ -10,17 +10,17 @@ This guide configures cinema67.it domain with Azure managed SSL certificate and 
 
 ## Configuration Steps
 
-### 1. Get CineBase Web App FQDN
+### 1. Get Cinema67 Web App FQDN
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 WEB_FQDN=$(az containerapp show \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --environment "cinema67-env" \
     --query "properties.configuration.ingress.fqdn" -o tsv)
 
-echo "CineBase Web FQDN: $WEB_FQDN"
+echo "Cinema67 Web FQDN: $WEB_FQDN"
 ```
 
 ### 2. Configure DNS CNAME (Manual via Registrar)
@@ -36,7 +36,7 @@ Log in to your domain registrar and create a DNS CNAME record:
 
 **Example:**
 ```
-cinema67.it  CNAME  cinebase-web-app.italynorth.azurecontainerapps.io
+cinema67.it  CNAME  cinema67-web-app.italynorth.azurecontainerapps.io
 ```
 
 **Wait:** Allow 5-15 minutes for DNS propagation.
@@ -53,12 +53,12 @@ dig cinema67.it +short
 Create an Azure managed certificate for cinema67.it:
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 LOCATION="italynorth"
 
 az containerapp hostname bind \
     --resource-group "$RESOURCE_GROUP" \
-    --container-app-name "cinebase-web-app" \
+    --container-app-name "cinema67-web-app" \
     --hostname "cinema67.it" \
     --environment "cinema67-env"
 ```
@@ -73,10 +73,10 @@ az containerapp hostname bind \
 Update ingress to use HTTPS and enable certificate binding:
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 
 az containerapp ingress update \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --type external \
     --allow-insecure false \
@@ -117,7 +117,7 @@ Update Google and Microsoft OAuth applications with new redirect URI:
 Update backend container app with production OAuth credentials:
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 
 az containerapp update \
     --name filmapi-app \
@@ -135,10 +135,10 @@ Update frontend environment variable (FILMAPI_UPSTREAM already internal):
 
 ```bash
 # Already set during deployment, but verify:
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 
 az containerapp show \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --query "properties.template.containers[0].env" -o jsonc | \
     grep -A2 "FILMAPI_UPSTREAM"
@@ -173,11 +173,11 @@ curl -s https://cinema67.it/api/health | jq .
 ### Monitor Certificate Status
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 
 # Get certificate details
 az containerapp hostname list \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --environment "cinema67-env" -o jsonc
 ```
@@ -191,7 +191,7 @@ nslookup cinema67.it
 
 # Verify container app is healthy
 az containerapp show \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --query "properties.runningStatus" -o tsv
 ```
@@ -206,7 +206,7 @@ az containerapp show \
 
 ## Security Checklist
 
-- [ ] DNS CNAME points to CineBase FQDN
+- [ ] DNS CNAME points to Cinema67 FQDN
 - [ ] Azure managed certificate created and validated
 - [ ] HTTPS ingress enabled (allow-insecure false)
 - [ ] OAuth redirect URIs updated (Google + Microsoft)
@@ -222,18 +222,18 @@ az containerapp show \
 If SSL certificate binding fails:
 
 ```bash
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 
 # Remove hostname binding (revert to auto-generated FQDN)
 az containerapp hostname unbind \
     --resource-group "$RESOURCE_GROUP" \
-    --container-app-name "cinebase-web-app" \
+    --container-app-name "cinema67-web-app" \
     --hostname "cinema67.it" \
     --environment "cinema67-env"
 
 # Verify ingress reverts to FQDN
 az containerapp show \
-    --name cinebase-web-app \
+    --name cinema67-web-app \
     --resource-group "$RESOURCE_GROUP" \
     --query "properties.configuration.ingress.fqdn" -o tsv
 ```
@@ -244,4 +244,4 @@ az containerapp show \
 - [AZURE_SETUP.sh](../../AZURE_SETUP.sh) - Infrastructure provisioning
 - [DEPLOY_ACA.sh](../../DEPLOY_ACA.sh) - Container app deployment
 - [docker-compose.yml](../../docker-compose.yml) - Local development
-- [nginx.conf](../../frontend/CineBase.Web/nginx.conf) - Reverse proxy config
+- [nginx.conf](../../frontend/Cinema67.Web/nginx.conf) - Reverse proxy config

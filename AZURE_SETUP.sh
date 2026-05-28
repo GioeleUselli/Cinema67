@@ -7,14 +7,14 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${GREEN}=== CineBase Azure Infrastructure Setup ===${NC}"
+echo -e "${GREEN}=== Cinema67 Azure Infrastructure Setup ===${NC}"
 
 # Configuration
-RESOURCE_GROUP="cinebase-rg"
+RESOURCE_GROUP="cinema67-rg"
 LOCATION="italynorth"
-ACR_NAME="cinebaseacr"
+ACR_NAME="cinema67acr"
 ACA_ENVIRONMENT="cinema67-env"
-STORAGE_ACCOUNT="cinebasestg"
+STORAGE_ACCOUNT="cinema67stg"
 LOG_ANALYTICS_WORKSPACE="cinema67-logs"
 
 # Verify logged in
