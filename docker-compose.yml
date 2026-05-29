@@ -2,15 +2,16 @@
 # Docker Compose for Cinema67 Local Development
 # ============================================================================
 # Services:
-#   - mariadb: Database (port 3306, internal)
-#   - filmapi: Backend API (port 5000, internal)
-#   - cinema67-web: Frontend (port 5001, external via nginx)
-# 
+#   - mariadb: Database (internal, port 3306, no host exposure)
+#   - filmapi: Backend API (port 5000:8080, external)
+#   - cinema67-web: Frontend (port 5001:8080, external)
+#   - mailpit: Email catcher (port 8025:8025 UI)
+#
 # Networks: cinema67-network (bridge mode)
-# Volumes: mariadb-data, filmapi-media, filmapi-dataprotection (persistence)
-# 
+# Volumes: mariadb-data, media-uploads
+#
 # Startup:
-#   docker-compose up -d
+#   docker compose up -d --build
 #   (wait 30s for services to be healthy)
 #   curl http://localhost:5001  (frontend)
 #   curl http://localhost:5000/api/films  (API)
@@ -21,108 +22,104 @@ services:
   # MariaDB Database
   # ══════════════════════════════════════════════════════════════════════
   mariadb:
-    image: mariadb:11.4
+    image: mariadb:10.11
     container_name: mariadb
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "3307:3306"  # Different host port to avoid conflicts with local MariaDB
     environment:
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${DB_NAME}
-      MARIADB_USER: ${DB_USER}
-      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_NAME:-film-api-db}
+      MARIADB_USER: ${DB_USER:-cinebase}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-cinebase}
     volumes:
       - mariadb-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - cinema67-network
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --default-authentication-plugin=mysql_native_password
 
   # ══════════════════════════════════════════════════════════════════════
   # FilmAPI Backend
   # ══════════════════════════════════════════════════════════════════════
   filmapi:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.filmapi
+      context: .
+      dockerfile: backend/Dockerfile.filmapi
     container_name: filmapi
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "5000:8080"
     environment:
-      # Database configuration
+      # Database
       DB_HOST: mariadb
       DB_PORT: 3306
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      # Application configuration
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ASPNETCORE_URLS: http://+:5000
-      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
-      BACKEND_BASE_URL: ${BACKEND_BASE_URL}
+      DB_NAME: ${DB_NAME:-film-api-db}
+      DB_USER: ${DB_USER:-cinebase}
+      DB_PASSWORD: ${DB_PASSWORD:-cinebase}
+      DB_USE_AUTODETECT: "false"
+      DB_SERVER_VERSION: ${DB_SERVER_VERSION:-10.11.0-mariadb}
+      # Application
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      FRONTEND_PUBLIC_BASE_URL: ${FRONTEND_PUBLIC_BASE_URL:-http://localhost:5001}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5001,http://127.0.0.1:5001}
       # Authentication
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN_DAYS: ${JWT_EXPIRES_IN_DAYS}
-      ADMIN_SEED_EMAIL: ${ADMIN_SEED_EMAIL}
-      ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD}
-      OAUTH_GOOGLE_CLIENT_ID: ${OAUTH_GOOGLE_CLIENT_ID}
-      OAUTH_GOOGLE_CLIENT_SECRET: ${OAUTH_GOOGLE_CLIENT_SECRET}
-      OAUTH_MICROSOFT_CLIENT_ID: ${OAUTH_MICROSOFT_CLIENT_ID}
-      OAUTH_MICROSOFT_CLIENT_SECRET: ${OAUTH_MICROSOFT_CLIENT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-SuperSecretKeyForCinema67JWTAuth2026!}
+      JWT_EXPIRES_IN_DAYS: ${JWT_EXPIRES_IN_DAYS:-7}
+      ADMIN_SEED_EMAIL: ${ADMIN_SEED_EMAIL:-admin@cinema67.it}
+      ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD:-Admin123!}
+      # Optional integrations (no default)
+      OAUTH_GOOGLE_CLIENT_ID: ${OAUTH_GOOGLE_CLIENT_ID:-}
+      OAUTH_GOOGLE_CLIENT_SECRET: ${OAUTH_GOOGLE_CLIENT_SECRET:-}
+      OAUTH_MICROSOFT_CLIENT_ID: ${OAUTH_MICROSOFT_CLIENT_ID:-}
+      OAUTH_MICROSOFT_CLIENT_SECRET: ${OAUTH_MICROSOFT_CLIENT_SECRET:-}
       # External services
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USE_TLS: ${SMTP_USE_TLS}
-      SMTP_USERNAME: ${SMTP_USERNAME}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      TMDB_API_KEY: ${TMDB_API_KEY}
-      # Data protection
-      DATA_PROTECTION_KEYS_PATH: ${DATA_PROTECTION_KEYS_PATH}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_REQUIRE_AUTH: ${SMTP_REQUIRE_AUTH:-false}
+      SMTP_SECURE_SOCKET_OPTIONS: ${SMTP_SECURE_SOCKET_OPTIONS:-None}
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
+      TMDB_BEARER_TOKEN: ${TMDB_BEARER_TOKEN:-}
+      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
     volumes:
-      - filmapi-media:/app/media
-      - filmapi-dataprotection:/app/dataprotection
+      - media-uploads:/app/wwwroot/media/covers
     depends_on:
       mariadb:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health/live"]
       interval: 10s
       timeout: 3s
-      retries: 3
+      retries: 5
       start_period: 30s
     networks:
       - cinema67-network
 
   # ══════════════════════════════════════════════════════════════════════
-  # Cinema67 Frontend (Nginx)
+  # Cinema67 Frontend
   # ══════════════════════════════════════════════════════════════════════
   cinema67-web:
     build:
-      context: ./frontend
-      dockerfile: CineBase.Web/Dockerfile
+      context: .
+      dockerfile: frontend/CineBase.Web/Dockerfile
     container_name: cinema67-web
     restart: unless-stopped
     ports:
-      - "5001:80"
+      - "5001:8080"
     environment:
-      # Backend upstream for nginx reverse proxy
-      FILMAPI_UPSTREAM: filmapi:5000
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:5000}
+      MEDIA_BASE_URL: ${MEDIA_BASE_URL:-http://localhost:5000}
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-development}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
     depends_on:
       filmapi:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -130,24 +127,28 @@ services:
     networks:
       - cinema67-network
 
+  # ══════════════════════════════════════════════════════════════════════
+  # Mailpit (Email Catcher)
+  # ══════════════════════════════════════════════════════════════════════
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    environment:
+      MP_SMTP_BIND_ADDR: 0.0.0.0:1025
+    networks:
+      - cinema67-network
+
 # ════════════════════════════════════════════════════════════════════════
 # Named Volumes (Persistent Storage)
 # ════════════════════════════════════════════════════════════════════════
 volumes:
-  # MariaDB data persistence
   mariadb-data:
     driver: local
-    # Persist /var/lib/mysql data between container restarts
-  
-  # FilmAPI media uploads
-  filmapi-media:
+  media-uploads:
     driver: local
-    # Persist /app/media between container restarts
-  
-  # FilmAPI Data Protection keys (shared across instances for session decryption)
-  filmapi-dataprotection:
-    driver: local
-    # Persist /app/dataprotection keys for cookie encryption consistency
 
 # ════════════════════════════════════════════════════════════════════════
 # Networks
@@ -155,5 +156,3 @@ volumes:
 networks:
   cinema67-network:
     driver: bridge
-    # Internal bridge network for service-to-service communication
-    # Services can reach each other by container name (DNS resolution)

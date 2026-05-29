@@ -1,11 +1,12 @@
 # ============================================================================
-# Cinema67.Web Dockerfile - Multistage Build with Nginx
+# Cinema67.Web Dockerfile - Multistage Build
 # ============================================================================
 # Build Stage: SDK - compile and publish static files
-# Runtime Stage: nginx alpine - serve static files + reverse proxy
+# Runtime Stage: aspnet - serve static files with dynamic runtime config
 #
-# Target Image Size: < 50MB
-# User: nginx (non-root, default nginx user in alpine)
+# Port: 8080
+# User: non-root (APP_UID)
+# Healthcheck: GET /healthz
 # ============================================================================
 
 # ============================================================================
@@ -15,60 +16,49 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
 
 WORKDIR /src
 
-# Clear NuGet config to remove Windows-specific paths
-RUN rm -rf ~/.nuget/NuGet/NuGet.Config 2>/dev/null || true && \
-    rm -rf ~/.nuget ~/.dotnet 2>/dev/null || true
-
-# Copy project file
-COPY CineBase.Web/*.csproj ./
-
-# Clear NuGet cache to avoid Windows path issues
-RUN dotnet nuget locals all --clear
+# Copy project file for dependency caching
+COPY frontend/CineBase.Web/CineBase.Web.csproj ./
 
 # Restore NuGet dependencies
 RUN dotnet restore
 
-# Copy source code
-COPY CineBase.Web .
+# Copy all source files
+COPY frontend/CineBase.Web .
 
-# Build and publish Release configuration (static files only)
-RUN dotnet publish -c Release -o /app/publish /p:GenerateAssemblyInfo=false
+# Build and publish Release configuration
+RUN dotnet publish -c Release -o /app/publish -p:UseAppHost=false
 
 # ============================================================================
 # STAGE 2: RUNTIME
 # ============================================================================
-FROM nginx:alpine
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
-# Install curl for health checks (apk is available in alpine)
-RUN apk add --no-cache curl
+# Install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+# Create non-root user (Debian-compatible)
+RUN groupadd --gid 1654 app || true && \
+    useradd --uid 1654 --gid app --create-home app || true
 
-# Copy custom nginx configuration
-COPY CineBase.Web/nginx.conf /etc/nginx/nginx.conf
+WORKDIR /app
 
-# Copy published static files from builder
-COPY --from=builder /app/publish/wwwroot /var/www/cinebase
+# Copy published application from builder stage
+COPY --from=builder --chown=app:app /app/publish .
 
-# Create nginx cache directory
-RUN mkdir -p /var/cache/nginx && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/www/cinebase
+# Set environment
+ENV ASPNETCORE_URLS=http://+:8080
 
-# nginx runs as 'nginx' user by default (non-root)
-# No need to explicitly switch user
+# Switch to non-root user
+USER app
 
-EXPOSE 80
+# Expose port
+EXPOSE 8080
 
-# Health check configuration
-# Verifies nginx is responding to requests
+# Health check
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
+    CMD curl -f http://localhost:8080/healthz || exit 1
 
-# Start nginx with envsubst for FILMAPI_UPSTREAM variable
-# Using explicit envsubst CMD since nginx's built-in template mechanism
-# only processes files in /etc/nginx/conf.d/, not the main nginx.conf
-CMD envsubst '${FILMAPI_UPSTREAM}' < /etc/nginx/nginx.conf > /tmp/nginx.conf && \
-    cp /tmp/nginx.conf /etc/nginx/nginx.conf && \
-    nginx -g "daemon off;"
+# Entrypoint
+ENTRYPOINT ["dotnet", "CineBase.Web.dll"]

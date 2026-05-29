@@ -1,44 +1,64 @@
 # ============================================================================
-# STAGE 1: BUILDER - Skipped, using pre-built binaries from local build
+# FilmAPI Dockerfile - Multistage Build
 # ============================================================================
-# Note: Due to .NET SDK 9.0 container assembly attribute generation issues,
-# we use pre-built Release binaries from Windows build instead of building in container.
-# To rebuild: Run `dotnet publish -c Release -o backend/publish` on host machine.
+# Build Stage: SDK - compile and publish
+# Runtime Stage: aspnet - minimal production image
+#
+# Port: 8080
+# User: non-root (APP_UID)
+# Healthcheck: GET /api/health/live
+# ============================================================================
+
+# ============================================================================
+# STAGE 1: BUILDER
+# ============================================================================
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
+
+WORKDIR /src
+
+# Copy project file for dependency caching
+COPY backend/FilmAPI/FilmAPI.csproj ./
+
+# Restore NuGet dependencies
+RUN dotnet restore
+
+# Copy all source files
+COPY backend/FilmAPI .
+
+# Build and publish Release configuration
+RUN dotnet publish -c Release -o /app/publish -p:UseAppHost=false
 
 # ============================================================================
 # STAGE 2: RUNTIME
 # ============================================================================
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
-# Install minimal runtime dependencies (Debian/apt-get)
+# Install curl for health checks
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    default-mysql-client \
-    bash \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user (app:app, UID 1000)
-RUN groupadd -g 1000 app 2>/dev/null || true && \
-    useradd -m -u 1000 -g app app 2>/dev/null || true
+# Create non-root user (matches APP_UID convention)
+RUN groupadd --gid 1654 app || true && \
+    useradd --uid 1654 --gid app --create-home app || true
 
 WORKDIR /app
 
-# Copy published application from local pre-built directory
-COPY --chown=app:app publish .
+# Copy published application from builder stage
+COPY --from=builder --chown=app:app /app/publish .
 
-# Copy entrypoint script
-COPY docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
+# Set environment
+ENV ASPNETCORE_URLS=http://+:8080
 
 # Switch to non-root user
 USER app
 
-# Expose ports
-EXPOSE 5000 8080
+# Expose port
+EXPOSE 8080
 
-# Health check configuration
+# Health check
 HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
+    CMD curl -f http://localhost:8080/api/health/live || exit 1
 
 # Entrypoint
-ENTRYPOINT ["/bin/bash", "/app/docker-entrypoint.sh"]
+ENTRYPOINT ["dotnet", "FilmAPI.dll"]

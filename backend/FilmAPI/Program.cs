@@ -9,7 +9,6 @@ using FilmAPI.Data;
 using FilmAPI.Endpoints;
 using FilmAPI.Middleware;
 using FilmAPI.Services;
-using Microsoft.AspNetCore.DataProtection;
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
@@ -21,26 +20,12 @@ var envCandidates = new[]
 };
 
 var backendEnvPath = envCandidates.FirstOrDefault(File.Exists);
-if (!string.IsNullOrWhiteSpace(backendEnvPath))
+if (backendEnvPath is not null)
 {
     Env.Load(backendEnvPath);
 }
-else
-{
-    Env.Load();
-}
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Configure Data Protection keys persistence
-var dataProtectionKeysPath = Environment.GetEnvironmentVariable("DATA_PROTECTION_KEYS_PATH")
-    ?? Path.Combine(Directory.GetCurrentDirectory(), "data-protection-keys");
-if (!Directory.Exists(dataProtectionKeysPath))
-{
-    Directory.CreateDirectory(dataProtectionKeysPath);
-}
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
 
 builder.Services.AddSingleton(new FrontendRuntimeConfig(
     Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_API_KEY")
@@ -52,7 +37,7 @@ var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";
 var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "film-api-db";
 var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "root";
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "root";
-var dbUseAutoDetect = (Environment.GetEnvironmentVariable("DB_USE_AUTODETECT") ?? "true")
+var dbUseAutoDetect = (Environment.GetEnvironmentVariable("DB_USE_AUTODETECT") ?? "false")
     .Equals("true", StringComparison.OrdinalIgnoreCase);
 var dbServerVersion = Environment.GetEnvironmentVariable("DB_SERVER_VERSION") ?? "10.11.0-mariadb";
 
@@ -127,9 +112,11 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddCors(options =>
 {
+    var allowedOrigins = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS") ?? "http://localhost:5001,http://127.0.0.1:5001";
+    var origins = allowedOrigins.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
     options.AddPolicy("AllowCinema67Frontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5001", "http://127.0.0.1:5001")
+        policy.WithOrigins(origins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .WithExposedHeaders("Authorization");
@@ -336,15 +323,72 @@ app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
     stripePublishableKey = config.StripePublishableKey
 })).AllowAnonymous();
 
+// Container-aware health endpoints (registered before Run, so always available)
+app.MapGet("/api/health/live", () => Results.Ok(new { status = "alive" })).AllowAnonymous();
+app.MapGet("/api/health/ready", async (FilmDbContext db) =>
+{
+    try
+    {
+        await db.Database.CanConnectAsync();
+        return Results.Ok(new { status = "ready", timestamp = DateTime.UtcNow });
+    }
+    catch
+    {
+        return Results.StatusCode(503);
+    }
+}).AllowAnonymous();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow })).AllowAnonymous();
 
-using (var scope = app.Services.CreateScope())
+// Bootstrap DB in background after app starts listening
+app.Lifetime.ApplicationStarted.Register(async () =>
 {
-    var db = scope.ServiceProvider.GetRequiredService<FilmDbContext>();
-    await db.Database.MigrateAsync();
-    var seeder = new DataSeeder(db);
-    await seeder.SeedAsync();
-}
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FilmDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var maxRetries = 10;
+        var retryDelay = TimeSpan.FromSeconds(3);
+
+        for (var attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                await db.Database.CanConnectAsync();
+                logger.LogInformation("✓ Database connection established (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
+                break;
+            }
+            catch (Exception ex)
+            {
+                if (attempt == maxRetries)
+                {
+                    logger.LogError(ex, "✗ Database connection failed after {MaxRetries} attempts", maxRetries);
+                }
+                else
+                {
+                    logger.LogWarning(ex, "Database not ready (attempt {Attempt}/{MaxRetries}), retrying in {Delay}s...", attempt, maxRetries, retryDelay.TotalSeconds);
+                    await Task.Delay(retryDelay);
+                }
+            }
+        }
+
+        logger.LogInformation("Applying EF Core migrations...");
+        await db.Database.MigrateAsync();
+        logger.LogInformation("✓ Migrations applied");
+
+        logger.LogInformation("Running DataSeeder...");
+        var seeder = new DataSeeder(db);
+        await seeder.SeedAsync();
+        logger.LogInformation("✓ Seed completed");
+    }
+    catch (Exception ex)
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Bootstrap failed, will retry on container restart");
+    }
+});
+
+app.Run();
 
 app.Run();
 
