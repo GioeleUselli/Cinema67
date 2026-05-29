@@ -1,0 +1,30 @@
+# ============================================================================
+# MariaDB Container App - Cinema67
+# Internal ingress, single replica, persistent storage
+# Deploy: az containerapp create --yaml azure/aca/10-mariadb.containerapp.yaml
+# ============================================================================
+type: Microsoft.App/containerApps
+properties:
+  environmentId: /subscriptions/8c2facbb-2cc6-4a52-80f0-16310eeb0b70/resourceGroups/cinema67-rg/providers/Microsoft.App/managedEnvironments/cinema67-env
+  configuration:
+    activeRevisionsMode: single
+    ingress:
+      external: false
+      targetPort: 3306
+      transport: tcp
+  template:
+    containers:
+      - name: mariadb
+        image: mariadb:10.11
+        env:
+          - name: MARIADB_ROOT_PASSWORD
+            value: root
+          - name: MARIADB_DATABASE
+            value: film-api-db
+        resources:
+          cpu: 1.0
+          memory: 2.0Gi
+    scale:
+      minReplicas: 1
+      maxReplicas: 1
+  location: italynorth

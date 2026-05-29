@@ -1,0 +1,59 @@
+# ============================================================================
+# FilmAPI Backend - Cinema67
+# External ingress, probes, env vars, ACR image
+# Deploy: az containerapp create --yaml azure/aca/20-filmapi.containerapp.yaml
+# ============================================================================
+type: Microsoft.App/containerApps
+properties:
+  environmentId: /subscriptions/8c2facbb-2cc6-4a52-80f0-16310eeb0b70/resourceGroups/cinema67-rg/providers/Microsoft.App/managedEnvironments/cinema67-env
+  configuration:
+    activeRevisionsMode: single
+    ingress:
+      external: true
+      targetPort: 8080
+      transport: http
+    registries:
+      - server: cinema67acr.azurecr.io
+        username: cinema67acr
+        passwordSecretRef: acr-password
+    secrets:
+      - name: acr-password
+        value: <ACR_PASSWORD>
+  template:
+    containers:
+      - name: filmapi
+        image: cinema67acr.azurecr.io/filmapi:latest
+        env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Production
+          - name: DB_HOST
+            value: mariadb-server.internal.bravebush-d5bb2495.italynorth.azurecontainerapps.io
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: film-api-db
+          - name: DB_USER
+            value: root
+          - name: DB_PASSWORD
+            value: root
+          - name: DB_USE_AUTODETECT
+            value: "false"
+          - name: DB_SERVER_VERSION
+            value: 10.11.0-mariadb
+          - name: CORS_ALLOWED_ORIGINS
+            value: https://www.cinema67.it,https://cinema67.it,https://cinema67-web-app.bravebush-d5bb2495.italynorth.azurecontainerapps.io
+          - name: FRONTEND_PUBLIC_BASE_URL
+            value: https://www.cinema67.it
+          - name: JWT_SECRET
+            value: SuperSecretKeyForCinema67JWTAuth2026!
+          - name: JWT_ISSUER
+            value: Cinema67API
+          - name: JWT_AUDIENCE
+            value: Cinema67Web
+        resources:
+          cpu: 2.0
+          memory: 4.0Gi
+    scale:
+      minReplicas: 1
+      maxReplicas: 3
+  location: italynorth
