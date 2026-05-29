@@ -1,5 +1,5 @@
-// Configurazione base
-const API_BASE_URL = 'http://localhost:5000';
+// Configurazione base - uses dynamic runtime-config.js in production, localhost fallback for dev
+const API_BASE_URL = (window.__RUNTIME_CONFIG__ && window.__RUNTIME_CONFIG__.apiBaseUrl) || 'http://localhost:5000';
 
 let isRefreshing = false;
 let refreshSubscribers = [];
