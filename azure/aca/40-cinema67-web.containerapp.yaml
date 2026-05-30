@@ -1,24 +1,20 @@
-# ============================================================================
-# Cinema67 Frontend - Cinema67
-# External ingress, probes, env vars, ACR image
-# Deploy: az containerapp create --yaml azure/aca/40-cinema67-web.containerapp.yaml
-# ============================================================================
+# Cinema67 Frontend Container App YAML
+# Deploy: az containerapp create --yaml azure/aca/40-cinema67-web.containerapp.yaml -g cinema67-rg
 type: Microsoft.App/containerApps
+location: italynorth
+identity:
+  type: SystemAssigned
 properties:
   environmentId: /subscriptions/8c2facbb-2cc6-4a52-80f0-16310eeb0b70/resourceGroups/cinema67-rg/providers/Microsoft.App/managedEnvironments/cinema67-env
   configuration:
-    activeRevisionsMode: single
+    activeRevisionsMode: Single
     ingress:
       external: true
       targetPort: 8080
-      transport: http
+      transport: Auto
     registries:
       - server: cinema67acr.azurecr.io
-        username: cinema67acr
-        passwordSecretRef: acr-password
-    secrets:
-      - name: acr-password
-        value: <ACR_PASSWORD>
+        identity: system
   template:
     containers:
       - name: cinema67-web
@@ -33,9 +29,8 @@ properties:
           - name: DEPLOYMENT_MODE
             value: production
         resources:
-          cpu: 1.0
+          cpu: !!float 1.0
           memory: 2.0Gi
     scale:
       minReplicas: 1
       maxReplicas: 3
-  location: italynorth
