@@ -428,6 +428,12 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             } catch (Exception ex8) {
                 logger.LogWarning(ex8, "Manual column addition skipped (may already exist)");
             }
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Films ADD COLUMN TmdbId int NULL");
+                logger.LogInformation("✓ Manually added Films.TmdbId column");
+            } catch (Exception ex9) {
+                logger.LogWarning(ex9, "Manual column addition skipped (may already exist)");
+            }
             // Retry migration
             await db.Database.MigrateAsync();
         }
