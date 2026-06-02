@@ -385,65 +385,64 @@ app.Lifetime.ApplicationStarted.Register(async () =>
 
         logger.LogInformation("Checking database state...");
         
+        // Estrai connection string dal contesto EF Core
+        var cs = db.Database.GetConnectionString();
+        
         bool needsFullMigration = false;
         try {
-            var conn = db.Database.GetDbConnection();
+            using var conn = new MySqlConnector.MySqlConnection(cs);
             await conn.OpenAsync();
-            try {
-                var criticalTables = new[] { "Promotions", "SupportConversations", "Recensioni" };
-                foreach (var table in criticalTables) {
-                    using var cmd = conn.CreateCommand();
-                    cmd.CommandText = $"SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{table}'";
-                    var exists = (long)(await cmd.ExecuteScalarAsync())! > 0;
-                    if (!exists) {
-                        logger.LogWarning($"Critical table '{table}' does not exist!");
-                        needsFullMigration = true;
+            
+            var criticalTables = new[] { "Promotions", "SupportConversations", "Recensioni" };
+            foreach (var table in criticalTables) {
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = $"SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{table}'";
+                var exists = (long)(await cmd.ExecuteScalarAsync())! > 0;
+                if (!exists) {
+                    logger.LogWarning($"Critical table '{table}' does not exist!");
+                    needsFullMigration = true;
+                }
+            }
+            
+            if (needsFullMigration) {
+                logger.LogInformation("Dropping all tables and recreating from EF Core migrations...");
+                
+                using (var fkOff = conn.CreateCommand()) {
+                    fkOff.CommandText = "SET FOREIGN_KEY_CHECKS = 0";
+                    await fkOff.ExecuteNonQueryAsync();
+                }
+                
+                var tables = new List<string>();
+                using (var listCmd = conn.CreateCommand()) {
+                    listCmd.CommandText = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()";
+                    using var reader = await listCmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                        tables.Add(reader.GetString(0));
+                }
+                
+                foreach (var table in tables) {
+                    try {
+                        using var drop = conn.CreateCommand();
+                        drop.CommandText = $"DROP TABLE IF EXISTS `{table}`";
+                        await drop.ExecuteNonQueryAsync();
+                        logger.LogInformation($"Dropped table: {table}");
+                    } catch (Exception dropEx) {
+                        logger.LogWarning(dropEx, $"Could not drop {table}");
                     }
                 }
                 
-                if (needsFullMigration) {
-                    logger.LogInformation("Dropping all tables and recreating from EF Core migrations...");
-                    
-                    // FK checks off on this connection
-                    using (var fkOff = conn.CreateCommand()) {
-                        fkOff.CommandText = "SET FOREIGN_KEY_CHECKS = 0";
-                        await fkOff.ExecuteNonQueryAsync();
-                    }
-                    
-                    using (var listCmd = conn.CreateCommand()) {
-                        listCmd.CommandText = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()";
-                        var tables = new List<string>();
-                        using (var reader = await listCmd.ExecuteReaderAsync()) {
-                            while (await reader.ReadAsync())
-                                tables.Add(reader.GetString(0));
-                        }
-                        
-                        foreach (var table in tables) {
-                            try {
-                                using var drop = conn.CreateCommand();
-                                drop.CommandText = $"DROP TABLE IF EXISTS `{table}`";
-                                await drop.ExecuteNonQueryAsync();
-                                logger.LogInformation($"Dropped table: {table}");
-                            } catch (Exception dropEx) {
-                                logger.LogWarning(dropEx, $"Could not drop {table}");
-                            }
-                        }
-                    }
-                    
-                    using (var fkOn = conn.CreateCommand()) {
-                        fkOn.CommandText = "SET FOREIGN_KEY_CHECKS = 1";
-                        await fkOn.ExecuteNonQueryAsync();
-                    }
-                    
-                    logger.LogInformation("✓ All tables dropped");
+                using (var fkOn = conn.CreateCommand()) {
+                    fkOn.CommandText = "SET FOREIGN_KEY_CHECKS = 1";
+                    await fkOn.ExecuteNonQueryAsync();
                 }
-            } finally {
-                await conn.CloseAsync();
+                
+                logger.LogInformation("✓ All tables dropped");
             }
         } catch (Exception checkEx) {
             logger.LogWarning(checkEx, "Could not check database state, will attempt full migration");
             needsFullMigration = true;
         }
+        // Connection is disposed here, EF Core gets a fresh one for MigrateAsync
         
         if (needsFullMigration) {
             try {
@@ -453,24 +452,20 @@ app.Lifetime.ApplicationStarted.Register(async () =>
                 logger.LogError(efEx, "EF Core MigrateAsync failed, attempting to apply migration script directly...");
                 try {
                     var migrationScript = await File.ReadAllTextAsync("Data/complete-migrations.sql");
-                    var conn = db.Database.GetDbConnection();
+                    using var conn = new MySqlConnector.MySqlConnection(cs);
                     await conn.OpenAsync();
-                    try {
-                        using var cmd = conn.CreateCommand();
-                        var statements = Regex.Split(migrationScript, @"(?=CREATE TABLE|ALTER TABLE|CREATE INDEX|CREATE UNIQUE INDEX|INSERT INTO)");
-                        foreach (var stmt in statements) {
-                            var trimmed = stmt.Trim();
-                            if (!string.IsNullOrWhiteSpace(trimmed)) {
-                                try {
-                                    cmd.CommandText = trimmed;
-                                    await cmd.ExecuteNonQueryAsync();
-                                } catch (Exception stmtEx) {
-                                    logger.LogWarning(stmtEx, $"Statement warning: {trimmed[..Math.Min(100, trimmed.Length)]}...");
-                                }
+                    using var cmd = conn.CreateCommand();
+                    var statements = Regex.Split(migrationScript, @"(?=CREATE TABLE|ALTER TABLE|CREATE INDEX|CREATE UNIQUE INDEX|INSERT INTO)");
+                    foreach (var stmt in statements) {
+                        var trimmed = stmt.Trim();
+                        if (!string.IsNullOrWhiteSpace(trimmed)) {
+                            try {
+                                cmd.CommandText = trimmed;
+                                await cmd.ExecuteNonQueryAsync();
+                            } catch (Exception stmtEx) {
+                                logger.LogWarning(stmtEx, $"Statement warning: {trimmed[..Math.Min(100, trimmed.Length)]}...");
                             }
                         }
-                    } finally {
-                        await conn.CloseAsync();
                     }
                     logger.LogInformation("✓ Migration script applied");
                 } catch (Exception scriptEx) {
