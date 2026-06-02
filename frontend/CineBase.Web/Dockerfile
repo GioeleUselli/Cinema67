@@ -17,13 +17,13 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
 WORKDIR /src
 
 # Copy project file for dependency caching
-COPY frontend/CineBase.Web/CineBase.Web.csproj ./
+COPY CineBase.Web/CineBase.Web.csproj ./
 
 # Restore NuGet dependencies
 RUN dotnet restore
 
 # Copy all source files
-COPY frontend/CineBase.Web .
+COPY CineBase.Web .
 
 # Build and publish Release configuration
 RUN dotnet publish -c Release -o /app/publish -p:UseAppHost=false
