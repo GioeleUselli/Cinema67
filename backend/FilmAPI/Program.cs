@@ -387,9 +387,9 @@ app.Lifetime.ApplicationStarted.Register(async () =>
         
         bool needsFullMigration = false;
         try {
-            await db.Database.OpenConnectionAsync();
+            var conn = db.Database.GetDbConnection();
+            await conn.OpenAsync();
             try {
-                var conn = db.Database.GetDbConnection();
                 var criticalTables = new[] { "Promotions", "SupportConversations", "Recensioni" };
                 foreach (var table in criticalTables) {
                     using var cmd = conn.CreateCommand();
@@ -404,30 +404,41 @@ app.Lifetime.ApplicationStarted.Register(async () =>
                 if (needsFullMigration) {
                     logger.LogInformation("Dropping all tables and recreating from EF Core migrations...");
                     
-                    await db.Database.ExecuteSqlRawAsync("SET FOREIGN_KEY_CHECKS = 0");
-                    
-                    var adminCmd = conn.CreateCommand();
-                    adminCmd.CommandText = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()";
-                    var tables = new List<string>();
-                    using (var reader = await adminCmd.ExecuteReaderAsync()) {
-                        while (await reader.ReadAsync())
-                            tables.Add(reader.GetString(0));
+                    // FK checks off on this connection
+                    using (var fkOff = conn.CreateCommand()) {
+                        fkOff.CommandText = "SET FOREIGN_KEY_CHECKS = 0";
+                        await fkOff.ExecuteNonQueryAsync();
                     }
                     
-                    foreach (var table in tables) {
-                        try {
-                            await db.Database.ExecuteSqlRawAsync($"DROP TABLE IF EXISTS `{table}`");
-                            logger.LogInformation($"Dropped table: {table}");
-                        } catch (Exception dropEx) {
-                            logger.LogWarning(dropEx, $"Could not drop {table}");
+                    using (var listCmd = conn.CreateCommand()) {
+                        listCmd.CommandText = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()";
+                        var tables = new List<string>();
+                        using (var reader = await listCmd.ExecuteReaderAsync()) {
+                            while (await reader.ReadAsync())
+                                tables.Add(reader.GetString(0));
+                        }
+                        
+                        foreach (var table in tables) {
+                            try {
+                                using var drop = conn.CreateCommand();
+                                drop.CommandText = $"DROP TABLE IF EXISTS `{table}`";
+                                await drop.ExecuteNonQueryAsync();
+                                logger.LogInformation($"Dropped table: {table}");
+                            } catch (Exception dropEx) {
+                                logger.LogWarning(dropEx, $"Could not drop {table}");
+                            }
                         }
                     }
                     
-                    await db.Database.ExecuteSqlRawAsync("SET FOREIGN_KEY_CHECKS = 1");
+                    using (var fkOn = conn.CreateCommand()) {
+                        fkOn.CommandText = "SET FOREIGN_KEY_CHECKS = 1";
+                        await fkOn.ExecuteNonQueryAsync();
+                    }
+                    
                     logger.LogInformation("✓ All tables dropped");
                 }
             } finally {
-                try { await db.Database.CloseConnectionAsync(); } catch {}
+                await conn.CloseAsync();
             }
         } catch (Exception checkEx) {
             logger.LogWarning(checkEx, "Could not check database state, will attempt full migration");
@@ -442,16 +453,24 @@ app.Lifetime.ApplicationStarted.Register(async () =>
                 logger.LogError(efEx, "EF Core MigrateAsync failed, attempting to apply migration script directly...");
                 try {
                     var migrationScript = await File.ReadAllTextAsync("Data/complete-migrations.sql");
-                    var statements = Regex.Split(migrationScript, @"(?=CREATE TABLE|ALTER TABLE|CREATE INDEX|CREATE UNIQUE INDEX|INSERT INTO)");
-                    foreach (var stmt in statements) {
-                        var trimmed = stmt.Trim();
-                        if (!string.IsNullOrWhiteSpace(trimmed)) {
-                            try {
-                                await db.Database.ExecuteSqlRawAsync(trimmed);
-                            } catch (Exception stmtEx) {
-                                logger.LogWarning(stmtEx, $"Statement warning: {trimmed[..Math.Min(100, trimmed.Length)]}...");
+                    var conn = db.Database.GetDbConnection();
+                    await conn.OpenAsync();
+                    try {
+                        using var cmd = conn.CreateCommand();
+                        var statements = Regex.Split(migrationScript, @"(?=CREATE TABLE|ALTER TABLE|CREATE INDEX|CREATE UNIQUE INDEX|INSERT INTO)");
+                        foreach (var stmt in statements) {
+                            var trimmed = stmt.Trim();
+                            if (!string.IsNullOrWhiteSpace(trimmed)) {
+                                try {
+                                    cmd.CommandText = trimmed;
+                                    await cmd.ExecuteNonQueryAsync();
+                                } catch (Exception stmtEx) {
+                                    logger.LogWarning(stmtEx, $"Statement warning: {trimmed[..Math.Min(100, trimmed.Length)]}...");
+                                }
                             }
                         }
+                    } finally {
+                        await conn.CloseAsync();
                     }
                     logger.LogInformation("✓ Migration script applied");
                 } catch (Exception scriptEx) {
