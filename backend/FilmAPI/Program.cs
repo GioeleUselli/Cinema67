@@ -434,6 +434,27 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             } catch (Exception ex9) {
                 logger.LogWarning(ex9, "Manual column addition skipped (may already exist)");
             }
+            
+            // Aggiungi altre colonne comuni che potrebbero mancare dalle migrazioni recenti
+            var columnsToAdd = new[] {
+                ("Ordini", "VoucherCode", "VARCHAR(50) NULL"),
+                ("Ordini", "DiscountCode", "VARCHAR(50) NULL"),
+                ("Shows", "MaxCapacity", "int NULL"),
+                ("PremiRiscatti", "MerchOrderId", "int NULL"),
+                ("MerchItems", "MerchOrderId", "int NOT NULL"),
+                ("MerchItems", "Quantity", "int NOT NULL DEFAULT 1"),
+                ("Membership", "MerchOrderId", "int NULL"),
+            };
+            
+            foreach (var (table, column, type) in columnsToAdd) {
+                try {
+                    await db.Database.ExecuteSqlRawAsync($"ALTER TABLE {table} ADD COLUMN {column} {type}");
+                    logger.LogInformation($"✓ Manually added {table}.{column} column");
+                } catch (Exception ex) {
+                    logger.LogWarning(ex, $"Manual column addition skipped for {table}.{column} (may already exist)");
+                }
+            }
+            
             // Retry migration
             await db.Database.MigrateAsync();
         }
