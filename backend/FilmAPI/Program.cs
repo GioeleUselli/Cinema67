@@ -1,4 +1,6 @@
  using System.Security.Claims;
+using System.Data;
+using System.Text.RegularExpressions;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
@@ -42,7 +44,7 @@ var dbUseAutoDetect = (Environment.GetEnvironmentVariable("DB_USE_AUTODETECT") ?
     .Equals("true", StringComparison.OrdinalIgnoreCase);
 var dbServerVersion = Environment.GetEnvironmentVariable("DB_SERVER_VERSION") ?? "10.11.0-mariadb";
 
-var connectionString = $"Server={dbHost};Port={dbPort};Database={dbName};User Id={dbUser};Password={dbPassword};";
+var connectionString = $"Server={dbHost};Port={dbPort};Database={dbName};User Id={dbUser};Password={dbPassword};AllowUserVariables=True;";
 var serverVersion = dbUseAutoDetect
     ? ServerVersion.AutoDetect(connectionString)
     : ServerVersion.Parse(dbServerVersion);
@@ -381,89 +383,124 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             }
         }
 
-        logger.LogInformation("Applying EF Core migrations...");
+        logger.LogInformation("Checking database state...");
+        
+        bool needsFullMigration = false;
         try {
-            await db.Database.MigrateAsync();
-        } catch (Exception mex) {
-            logger.LogWarning(mex, "Migration error, attempting manual fix...");
+            await db.Database.OpenConnectionAsync();
             try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN AnonymizedAtUtc datetime(6) NULL");
-                logger.LogInformation("✓ Manually added AnonymizedAtUtc column");
-            } catch (Exception ex2) {
-                logger.LogWarning(ex2, "Manual column addition skipped (may already exist)");
+                var conn = db.Database.GetDbConnection();
+                var criticalTables = new[] { "Promotions", "SupportConversations", "Recensioni" };
+                foreach (var table in criticalTables) {
+                    using var cmd = conn.CreateCommand();
+                    cmd.CommandText = $"SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{table}'";
+                    var exists = (long)(await cmd.ExecuteScalarAsync())! > 0;
+                    if (!exists) {
+                        logger.LogWarning($"Critical table '{table}' does not exist!");
+                        needsFullMigration = true;
+                    }
+                }
+                
+                if (needsFullMigration) {
+                    logger.LogInformation("Dropping all tables and recreating from EF Core migrations...");
+                    
+                    await db.Database.ExecuteSqlRawAsync("SET FOREIGN_KEY_CHECKS = 0");
+                    
+                    var adminCmd = conn.CreateCommand();
+                    adminCmd.CommandText = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()";
+                    var tables = new List<string>();
+                    using (var reader = await adminCmd.ExecuteReaderAsync()) {
+                        while (await reader.ReadAsync())
+                            tables.Add(reader.GetString(0));
+                    }
+                    
+                    foreach (var table in tables) {
+                        try {
+                            await db.Database.ExecuteSqlRawAsync($"DROP TABLE IF EXISTS `{table}`");
+                            logger.LogInformation($"Dropped table: {table}");
+                        } catch (Exception dropEx) {
+                            logger.LogWarning(dropEx, $"Could not drop {table}");
+                        }
+                    }
+                    
+                    await db.Database.ExecuteSqlRawAsync("SET FOREIGN_KEY_CHECKS = 1");
+                    logger.LogInformation("✓ All tables dropped");
+                }
+            } finally {
+                try { await db.Database.CloseConnectionAsync(); } catch {}
             }
+        } catch (Exception checkEx) {
+            logger.LogWarning(checkEx, "Could not check database state, will attempt full migration");
+            needsFullMigration = true;
+        }
+        
+        if (needsFullMigration) {
             try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN AuthVersion int NOT NULL DEFAULT 0");
-                logger.LogInformation("✓ Manually added AuthVersion column");
-            } catch (Exception ex3) {
-                logger.LogWarning(ex3, "Manual column addition skipped (may already exist)");
-            }
-            try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN IsDisabled tinyint(1) NOT NULL DEFAULT 0");
-                logger.LogInformation("✓ Manually added IsDisabled column");
-            } catch (Exception ex4) {
-                logger.LogWarning(ex4, "Manual column addition skipped (may already exist)");
-            }
-            try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN LastLoginAtUtc datetime(6) NULL");
-                logger.LogInformation("✓ Manually added LastLoginAtUtc column");
-            } catch (Exception ex5) {
-                logger.LogWarning(ex5, "Manual column addition skipped (may already exist)");
-            }
-            try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN LastLoginProvider varchar(30) NULL");
-                logger.LogInformation("✓ Manually added LastLoginProvider column");
-            } catch (Exception ex6) {
-                logger.LogWarning(ex6, "Manual column addition skipped (may already exist)");
-            }
-            try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN LocalCredentialsEnabled tinyint(1) NOT NULL DEFAULT 1");
-                logger.LogInformation("✓ Manually added LocalCredentialsEnabled column");
-            } catch (Exception ex7) {
-                logger.LogWarning(ex7, "Manual column addition skipped (may already exist)");
-            }
-            try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE MovimentiCredito ADD COLUMN MerchOrderId int NULL");
-                logger.LogInformation("✓ Manually added MovimentiCredito.MerchOrderId column");
-            } catch (Exception ex8) {
-                logger.LogWarning(ex8, "Manual column addition skipped (may already exist)");
-            }
-            try {
-                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Films ADD COLUMN TmdbId int NULL");
-                logger.LogInformation("✓ Manually added Films.TmdbId column");
-            } catch (Exception ex9) {
-                logger.LogWarning(ex9, "Manual column addition skipped (may already exist)");
-            }
-            
-            // Aggiungi altre colonne comuni che potrebbero mancare dalle migrazioni recenti
-            var columnsToAdd = new[] {
-                ("Ordini", "VoucherCode", "VARCHAR(50) NULL"),
-                ("Ordini", "DiscountCode", "VARCHAR(50) NULL"),
-                ("Shows", "MaxCapacity", "int NULL"),
-                ("Shows", "State", "int NOT NULL DEFAULT 0"),
-                ("PremiRiscatti", "MerchOrderId", "int NULL"),
-                ("PremiRiscatti", "CodiceVoucher", "VARCHAR(50) NULL"),
-                ("PremiRiscatti", "GiftCardId", "int NULL"),
-                ("PremiRiscatti", "Taglia", "VARCHAR(20) NULL"),
-                ("MerchItems", "MerchOrderId", "int NOT NULL"),
-                ("MerchItems", "Quantity", "int NOT NULL DEFAULT 1"),
-                ("Membership", "MerchOrderId", "int NULL"),
-                ("Premi", "MerchItemId", "int NULL"),
-                ("Premi", "PercentualeSconto", "int NULL"),
-                ("MerchDiscountCodes", "ValoreScontoFisso", "decimal(10,2) NOT NULL DEFAULT 0.0"),
-            };
-            
-            foreach (var (table, column, type) in columnsToAdd) {
+                await db.Database.MigrateAsync();
+                logger.LogInformation("✓ EF Core Migrations applied from scratch");
+            } catch (Exception efEx) {
+                logger.LogError(efEx, "EF Core MigrateAsync failed, attempting to apply migration script directly...");
                 try {
-                    await db.Database.ExecuteSqlRawAsync($"ALTER TABLE {table} ADD COLUMN {column} {type}");
-                    logger.LogInformation($"✓ Manually added {table}.{column} column");
-                } catch (Exception ex) {
-                    logger.LogWarning(ex, $"Manual column addition skipped for {table}.{column} (may already exist)");
+                    var migrationScript = await File.ReadAllTextAsync("Data/complete-migrations.sql");
+                    var statements = Regex.Split(migrationScript, @"(?=CREATE TABLE|ALTER TABLE|CREATE INDEX|CREATE UNIQUE INDEX|INSERT INTO)");
+                    foreach (var stmt in statements) {
+                        var trimmed = stmt.Trim();
+                        if (!string.IsNullOrWhiteSpace(trimmed)) {
+                            try {
+                                await db.Database.ExecuteSqlRawAsync(trimmed);
+                            } catch (Exception stmtEx) {
+                                logger.LogWarning(stmtEx, $"Statement warning: {trimmed[..Math.Min(100, trimmed.Length)]}...");
+                            }
+                        }
+                    }
+                    logger.LogInformation("✓ Migration script applied");
+                } catch (Exception scriptEx) {
+                    logger.LogError(scriptEx, "Migration script also failed");
                 }
             }
-            
-            // Retry migration
-            await db.Database.MigrateAsync();
+        } else {
+            logger.LogInformation("Database state OK. Applying EF Core migrations...");
+            try {
+                await db.Database.MigrateAsync();
+            } catch (Exception mex) {
+                logger.LogWarning(mex, "EF Core migration error, attempting manual column fixes...");
+                
+                var columnsToAdd = new[] {
+                    ("Users", "AnonymizedAtUtc", "datetime(6) NULL"),
+                    ("Users", "AuthVersion", "int NOT NULL DEFAULT 0"),
+                    ("Users", "IsDisabled", "tinyint(1) NOT NULL DEFAULT 0"),
+                    ("Users", "LastLoginAtUtc", "datetime(6) NULL"),
+                    ("Users", "LastLoginProvider", "varchar(30) NULL"),
+                    ("Users", "LocalCredentialsEnabled", "tinyint(1) NOT NULL DEFAULT 1"),
+                    ("MovimentiCredito", "MerchOrderId", "int NULL"),
+                    ("Films", "TmdbId", "int NULL"),
+                    ("Ordini", "VoucherCode", "VARCHAR(50) NULL"),
+                    ("Ordini", "DiscountCode", "VARCHAR(50) NULL"),
+                    ("Shows", "MaxCapacity", "int NULL"),
+                    ("Shows", "State", "int NOT NULL DEFAULT 0"),
+                    ("PremiRiscatti", "MerchOrderId", "int NULL"),
+                    ("PremiRiscatti", "CodiceVoucher", "VARCHAR(50) NULL"),
+                    ("PremiRiscatti", "GiftCardId", "int NULL"),
+                    ("PremiRiscatti", "Taglia", "VARCHAR(20) NULL"),
+                    ("MerchItems", "MerchOrderId", "int NOT NULL"),
+                    ("MerchItems", "Quantity", "int NOT NULL DEFAULT 1"),
+                    ("Membership", "MerchOrderId", "int NULL"),
+                    ("Premi", "MerchItemId", "int NULL"),
+                    ("Premi", "PercentualeSconto", "int NULL"),
+                    ("MerchDiscountCodes", "ValoreScontoFisso", "decimal(10,2) NOT NULL DEFAULT 0.0"),
+                };
+                
+                foreach (var (table, column, type) in columnsToAdd) {
+                    try {
+                        await db.Database.ExecuteSqlRawAsync($"ALTER TABLE `{table}` ADD COLUMN `{column}` {type}");
+                        logger.LogInformation($"✓ Manually added {table}.{column} column");
+                    } catch (Exception ex) {
+                        logger.LogWarning(ex, $"Manual column addition skipped for {table}.{column}");
+                    }
+                }
+                
+                await db.Database.MigrateAsync();
+            }
         }
         logger.LogInformation("✓ Migrations applied");
 
