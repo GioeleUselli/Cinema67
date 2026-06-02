@@ -398,6 +398,12 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             } catch (Exception ex3) {
                 logger.LogWarning(ex3, "Manual column addition skipped (may already exist)");
             }
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN IsDisabled tinyint(1) NOT NULL DEFAULT 0");
+                logger.LogInformation("✓ Manually added IsDisabled column");
+            } catch (Exception ex4) {
+                logger.LogWarning(ex4, "Manual column addition skipped (may already exist)");
+            }
             // Retry migration
             await db.Database.MigrateAsync();
         }
