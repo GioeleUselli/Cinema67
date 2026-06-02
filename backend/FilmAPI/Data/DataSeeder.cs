@@ -40,7 +40,7 @@ public class DataSeeder
         if (_context.Users.Any())
             return;
 
-        var adminEmail = Environment.GetEnvironmentVariable("ADMIN_SEED_EMAIL") ?? "admin@cinebase.it";
+        var adminEmail = Environment.GetEnvironmentVariable("ADMIN_SEED_EMAIL") ?? "admin@cinema67.it";
         var adminPassword = Environment.GetEnvironmentVariable("ADMIN_SEED_PASSWORD") ?? "Admin123!";
 
         var admin = new User
