@@ -392,6 +392,12 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             } catch (Exception ex2) {
                 logger.LogWarning(ex2, "Manual column addition skipped (may already exist)");
             }
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN AuthVersion int NOT NULL DEFAULT 0");
+                logger.LogInformation("✓ Manually added AuthVersion column");
+            } catch (Exception ex3) {
+                logger.LogWarning(ex3, "Manual column addition skipped (may already exist)");
+            }
             // Retry migration
             await db.Database.MigrateAsync();
         }
