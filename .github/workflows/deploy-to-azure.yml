@@ -18,9 +18,6 @@ jobs:
   # ══════════════════════════════════════════════════════════════════════
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      filmapi-image: ${{ steps.image.outputs.filmapi-image }}
-      cinema67-web-image: ${{ steps.image.outputs.cinema67-web-image }}
 
     steps:
       - name: Checkout code
@@ -75,18 +72,12 @@ jobs:
           cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:buildcache
           cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:buildcache,mode=max
 
-       - name: Set image output for deploy job
-         id: image
-         run: |
-           echo "filmapi-image=${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}" >> $GITHUB_OUTPUT
-           echo "cinema67-web-image=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}" >> $GITHUB_OUTPUT
-
-       - name: Image build summary
-         run: |
-           echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-           echo "" >> $GITHUB_STEP_SUMMARY
-           echo "**FilmAPI Image**: \`${{ steps.image.outputs.filmapi-image }}\`" >> $GITHUB_STEP_SUMMARY
-           echo "**Cinema67.Web Image**: \`${{ steps.image.outputs.cinema67-web-image }}\`" >> $GITHUB_STEP_SUMMARY
+      - name: Image build summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**FilmAPI Image**: \`${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Cinema67.Web Image**: \`${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
 
   # ══════════════════════════════════════════════════════════════════════
   # Deploy Job (runs only on main push, not on PR)
@@ -110,14 +101,14 @@ jobs:
           az containerapp update \
             --name filmapi-app \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --image ${{ needs.build-and-push.outputs.filmapi-image }}
+            --image ${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}
 
       - name: Update Cinema67.Web container app
         run: |
           az containerapp update \
             --name cinema67-web-app \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --image ${{ needs.build-and-push.outputs.cinema67-web-image }}
+            --image ${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}
 
       - name: Wait for deployments to be ready
         run: |
@@ -206,5 +197,5 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Images Deployed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ needs.build-and-push.outputs.filmapi-image }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ needs.build-and-push.outputs.cinema67-web-image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
