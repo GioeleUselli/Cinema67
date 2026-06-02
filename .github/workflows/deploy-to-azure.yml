@@ -99,14 +99,14 @@ jobs:
       - name: Update FilmAPI container app
         run: |
           az containerapp update \
-            --name filmapi-app \
+            --name filmapi \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --image ${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}
 
       - name: Update Cinema67.Web container app
         run: |
           az containerapp update \
-            --name cinema67-web-app \
+            --name cinema67web \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --image ${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}
 
@@ -118,12 +118,12 @@ jobs:
           
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             FILMAPI_STATUS=$(az containerapp show \
-              --name filmapi-app \
+              --name filmapi \
               --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
               --query "properties.runningStatus" -o tsv 2>/dev/null || echo "Unknown")
             
             CINEMA67_STATUS=$(az containerapp show \
-              --name cinema67-web-app \
+              --name cinema67web \
               --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
               --query "properties.runningStatus" -o tsv 2>/dev/null || echo "Unknown")
             
@@ -148,7 +148,7 @@ jobs:
           
           # Get web app FQDN
           FQDN=$(az containerapp show \
-            --name cinema67-web-app \
+            --name cinema67web \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || echo "")
           
@@ -186,7 +186,7 @@ jobs:
           echo "### Container Apps Status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          for APP in mariadb-server filmapi-app cinema67-web-app; do
+          for APP in mariadb-server filmapi cinema67web; do
             STATUS=$(az containerapp show \
               --name $APP \
               --resource-group $RESOURCE_GROUP \
