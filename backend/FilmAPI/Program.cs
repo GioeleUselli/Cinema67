@@ -440,10 +440,17 @@ app.Lifetime.ApplicationStarted.Register(async () =>
                 ("Ordini", "VoucherCode", "VARCHAR(50) NULL"),
                 ("Ordini", "DiscountCode", "VARCHAR(50) NULL"),
                 ("Shows", "MaxCapacity", "int NULL"),
+                ("Shows", "State", "int NOT NULL DEFAULT 0"),
                 ("PremiRiscatti", "MerchOrderId", "int NULL"),
+                ("PremiRiscatti", "CodiceVoucher", "VARCHAR(50) NULL"),
+                ("PremiRiscatti", "GiftCardId", "int NULL"),
+                ("PremiRiscatti", "Taglia", "VARCHAR(20) NULL"),
                 ("MerchItems", "MerchOrderId", "int NOT NULL"),
                 ("MerchItems", "Quantity", "int NOT NULL DEFAULT 1"),
                 ("Membership", "MerchOrderId", "int NULL"),
+                ("Premi", "MerchItemId", "int NULL"),
+                ("Premi", "PercentualeSconto", "int NULL"),
+                ("MerchDiscountCodes", "ValoreScontoFisso", "decimal(10,2) NOT NULL DEFAULT 0.0"),
             };
             
             foreach (var (table, column, type) in columnsToAdd) {
