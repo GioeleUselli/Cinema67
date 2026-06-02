@@ -47,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorAlert = document.getElementById('error-alert');
   const errorMessage = document.getElementById('error-message');
   const expiredAlert = document.getElementById('expired-alert');
-  const togglePasswordBtn = document.getElementById('toggle-password');
 
   if (expired === 'true' && expiredAlert) {
     expiredAlert.classList.remove('hidden');
@@ -60,17 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = '/index.html';
     }
     return;
-  }
-
-  if (togglePasswordBtn && passwordInput) {
-    togglePasswordBtn.addEventListener('click', () => {
-      const type = passwordInput.type === 'password' ? 'text' : 'password';
-      passwordInput.type = type;
-      const icon = togglePasswordBtn.querySelector('i');
-      if (icon) {
-        icon.className = type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-      }
-    });
   }
 
   function showError(message) {

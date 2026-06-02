@@ -69,9 +69,7 @@
             <div class="relative">
               <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-on-surface-variant/50 text-sm z-10 pointer-events-none"></i>
               <input type="password" id="password" name="password" class="ghost-input w-full pl-10 pr-12 py-3 rounded-xl" placeholder="••••••••" required autocomplete="current-password" style="-webkit-appearance:none">
-               <button type="button" id="toggle-password" onclick="var pw=document.getElementById('password');var t=this;if(pw.type==='password'){pw.type='text';t.innerHTML='<i class=\\'fa-solid fa-eye-slash\\'></i>'}else{pw.type='password';t.innerHTML='<i class=\\'fa-solid fa-eye\\'></i>'}" aria-label="Mostra o nascondi password" class="absolute right-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant hover:text-brand-gold transition-colors z-20" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer">
-                 <i class="fa-solid fa-eye"></i>
-               </button>
+               <button type="button" id="toggle-password" aria-label="Mostra o nascondi password" class="absolute right-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant hover:text-brand-gold transition-colors z-20" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">👁</button>
             </div>
           </div>
 
@@ -128,20 +126,24 @@
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>
   <script src="/js/pages/login.js?v=3"></script>
-  <script>
-  // Password visibility toggle
-  document.getElementById('toggle-password').addEventListener('click', function() {
-    var pw = document.getElementById('password');
-    var icon = this.querySelector('i');
-    if (pw.type === 'password') {
-      pw.type = 'text';
-      icon.className = 'fa-solid fa-eye-slash';
-    } else {
-      pw.type = 'password';
-      icon.className = 'fa-solid fa-eye';
-    }
-  });
-  </script>
+   <script>
+   // Password visibility toggle
+   (function() {
+     var btn = document.getElementById('toggle-password');
+     if (!btn) return;
+     var pw = document.getElementById('password');
+     btn.addEventListener('click', function(e) {
+       e.preventDefault();
+       if (pw.type === 'password') {
+         pw.type = 'text';
+         btn.textContent = '🙈';
+       } else {
+         pw.type = 'password';
+         btn.textContent = '👁';
+       }
+     });
+   })();
+   </script>
 </body>
 
 </html>
