@@ -422,6 +422,12 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             } catch (Exception ex7) {
                 logger.LogWarning(ex7, "Manual column addition skipped (may already exist)");
             }
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE MovimentiCredito ADD COLUMN MerchOrderId int NULL");
+                logger.LogInformation("✓ Manually added MovimentiCredito.MerchOrderId column");
+            } catch (Exception ex8) {
+                logger.LogWarning(ex8, "Manual column addition skipped (may already exist)");
+            }
             // Retry migration
             await db.Database.MigrateAsync();
         }
