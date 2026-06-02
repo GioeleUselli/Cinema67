@@ -19,8 +19,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      filmapi-image: ${{ steps.image.outputs.filmapi }}
-      cinema67-web-image: ${{ steps.image.outputs.cinema67-web }}
+      filmapi-image: ${{ steps.image.outputs.filmapi-image }}
+      cinema67-web-image: ${{ steps.image.outputs.cinema67-web-image }}
 
     steps:
       - name: Checkout code
