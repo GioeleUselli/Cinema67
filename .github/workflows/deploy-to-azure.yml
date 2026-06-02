@@ -75,18 +75,18 @@ jobs:
           cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:buildcache
           cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:buildcache,mode=max
 
-      - name: Set image output for deploy job
-        id: image
-        run: |
-          echo "filmapi=${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}" >> $GITHUB_OUTPUT
-          echo "cinema67-web=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}" >> $GITHUB_OUTPUT
+       - name: Set image output for deploy job
+         id: image
+         run: |
+           echo "filmapi-image=${{ env.ACR_LOGIN_SERVER }}/filmapi:main-${{ github.sha }}" >> $GITHUB_OUTPUT
+           echo "cinema67-web-image=${{ env.ACR_LOGIN_SERVER }}/cinema67-web:main-${{ github.sha }}" >> $GITHUB_OUTPUT
 
-      - name: Image build summary
-        run: |
-          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**FilmAPI Image**: \`${{ steps.image.outputs.filmapi }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Cinema67.Web Image**: \`${{ steps.image.outputs.cinema67-web }}\`" >> $GITHUB_STEP_SUMMARY
+       - name: Image build summary
+         run: |
+           echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+           echo "" >> $GITHUB_STEP_SUMMARY
+           echo "**FilmAPI Image**: \`${{ steps.image.outputs.filmapi-image }}\`" >> $GITHUB_STEP_SUMMARY
+           echo "**Cinema67.Web Image**: \`${{ steps.image.outputs.cinema67-web-image }}\`" >> $GITHUB_STEP_SUMMARY
 
   # ══════════════════════════════════════════════════════════════════════
   # Deploy Job (runs only on main push, not on PR)
@@ -207,4 +207,4 @@ jobs:
           echo "### Images Deployed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ needs.build-and-push.outputs.filmapi-image }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ needs.build-and-push.outputs.cinebase-web-image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ needs.build-and-push.outputs.cinema67-web-image }}\`" >> $GITHUB_STEP_SUMMARY
