@@ -404,6 +404,24 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             } catch (Exception ex4) {
                 logger.LogWarning(ex4, "Manual column addition skipped (may already exist)");
             }
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN LastLoginAtUtc datetime(6) NULL");
+                logger.LogInformation("✓ Manually added LastLoginAtUtc column");
+            } catch (Exception ex5) {
+                logger.LogWarning(ex5, "Manual column addition skipped (may already exist)");
+            }
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN LastLoginProvider varchar(30) NULL");
+                logger.LogInformation("✓ Manually added LastLoginProvider column");
+            } catch (Exception ex6) {
+                logger.LogWarning(ex6, "Manual column addition skipped (may already exist)");
+            }
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN LocalCredentialsEnabled tinyint(1) NOT NULL DEFAULT 1");
+                logger.LogInformation("✓ Manually added LocalCredentialsEnabled column");
+            } catch (Exception ex7) {
+                logger.LogWarning(ex7, "Manual column addition skipped (may already exist)");
+            }
             // Retry migration
             await db.Database.MigrateAsync();
         }
