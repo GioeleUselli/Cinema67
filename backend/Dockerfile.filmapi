@@ -1,36 +1,9 @@
 # ============================================================================
-# FilmAPI Dockerfile - Multistage Build
+# FilmAPI Dockerfile - Runtime only (pre-built)
 # ============================================================================
-# Build Stage: SDK - compile and publish
-# Runtime Stage: aspnet - minimal production image
-#
-# Port: 8080
-# User: non-root (APP_UID)
-# Healthcheck: GET /api/health/live
+# Backend is compiled on host: dotnet publish -c Release -o backend/publish
 # ============================================================================
 
-# ============================================================================
-# STAGE 1: BUILDER
-# ============================================================================
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
-
-WORKDIR /src
-
-# Copy project file for dependency caching
-COPY backend/FilmAPI/FilmAPI.csproj ./
-
-# Restore NuGet dependencies
-RUN dotnet restore
-
-# Copy all source files
-COPY backend/FilmAPI .
-
-# Build and publish Release configuration
-RUN dotnet publish -c Release -o /app/publish -p:UseAppHost=false
-
-# ============================================================================
-# STAGE 2: RUNTIME
-# ============================================================================
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
 # Install curl for health checks
@@ -44,8 +17,8 @@ RUN groupadd --gid 1654 app || true && \
 
 WORKDIR /app
 
-# Copy published application from builder stage
-COPY --from=builder --chown=app:app /app/publish .
+# Copy pre-built publish output
+COPY backend/publish .
 
 # Set environment
 ENV ASPNETCORE_URLS=http://+:8080

@@ -1,0 +1,1 @@
+{"message":"Google OAuth non configurato."}

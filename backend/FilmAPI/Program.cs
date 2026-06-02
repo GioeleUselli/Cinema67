@@ -9,6 +9,7 @@ using FilmAPI.Data;
 using FilmAPI.Endpoints;
 using FilmAPI.Middleware;
 using FilmAPI.Services;
+using Microsoft.AspNetCore.Authentication;
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
@@ -304,6 +305,12 @@ app.MapSupportEndpoints();
 app.MapPromotionEndpoints();
 app.MapGiftCardEndpoints();
 app.MapSocialAuthEndpoints();
+
+// OAuth redirect endpoints
+app.MapGet("/auth/login/google", () => "Google OAuth endpoint is alive").AllowAnonymous();
+app.MapGet("/auth/login/microsoft", () => "Microsoft OAuth endpoint is alive").AllowAnonymous();
+
+// Remove Google OAuth middleware config
 app.MapMembershipEndpoints();
 app.MapNewsletterEndpoints();
 app.MapPartyBookingEndpoints();
@@ -342,6 +349,8 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = Dat
 // Bootstrap DB in background after app starts listening
 app.Lifetime.ApplicationStarted.Register(async () =>
 {
+    var _logger = app.Services.GetRequiredService<ILogger<Program>>();
+    _logger.LogInformation("=== DB Bootstrap starting ===");
     try
     {
         using var scope = app.Services.CreateScope();
@@ -373,25 +382,36 @@ app.Lifetime.ApplicationStarted.Register(async () =>
         }
 
         logger.LogInformation("Applying EF Core migrations...");
-        await db.Database.MigrateAsync();
+        try {
+            await db.Database.MigrateAsync();
+        } catch (Exception mex) {
+            logger.LogWarning(mex, "Migration error, attempting manual fix...");
+            try {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE Users ADD COLUMN AnonymizedAtUtc datetime(6) NULL");
+                logger.LogInformation("✓ Manually added AnonymizedAtUtc column");
+            } catch (Exception ex2) {
+                logger.LogWarning(ex2, "Manual column addition skipped (may already exist)");
+            }
+            // Retry migration
+            await db.Database.MigrateAsync();
+        }
         logger.LogInformation("✓ Migrations applied");
 
         logger.LogInformation("Running DataSeeder...");
         var seeder = new DataSeeder(db);
         await seeder.SeedAsync();
         logger.LogInformation("✓ Seed completed");
+        _logger.LogInformation("=== DB Bootstrap completed ===");
     }
     catch (Exception ex)
     {
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Bootstrap failed, will retry on container restart");
+        logger.LogError(ex, "Bootstrap failed: {Message}", ex.Message);
     }
 });
 
 app.Run();
-
-app.Run();
-
+// Bootstrap handled by app.Lifetime.ApplicationStarted callback above
 public partial class Program;
 
 public sealed record FrontendRuntimeConfig(string StripePublishableKey);

@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Set dynamic OAuth URLs from runtime config
+  var apiBase = (window.__RUNTIME_CONFIG__ && window.__RUNTIME_CONFIG__.apiBaseUrl) || 'http://localhost:5000';
+  var googleLink = document.querySelector('.oauth-google-link');
+  var microsoftLink = document.querySelector('.oauth-microsoft-link');
+  if (googleLink) googleLink.href = apiBase + '/auth/login/google';
+  if (microsoftLink) microsoftLink.href = apiBase + '/auth/login/microsoft';
+
   if (!window.Auth) return;
 
   var params = new URLSearchParams(window.location.search);

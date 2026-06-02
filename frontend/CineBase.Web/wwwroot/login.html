@@ -67,9 +67,9 @@
           <div>
             <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-brand-on-surface-variant mb-2">Password</label>
             <div class="relative">
-              <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-on-surface-variant/50 text-sm"></i>
-              <input type="password" id="password" name="password" class="ghost-input w-full pl-10 pr-12 py-3 rounded-xl" placeholder="••••••••" required autocomplete="current-password">
-              <button type="button" id="toggle-password" aria-label="Mostra o nascondi password" class="absolute right-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant hover:text-brand-gold transition-colors">
+              <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-on-surface-variant/50 text-sm z-10 pointer-events-none"></i>
+              <input type="password" id="password" name="password" class="ghost-input w-full pl-10 pr-12 py-3 rounded-xl" placeholder="••••••••" required autocomplete="current-password" style="-webkit-appearance:none">
+              <button type="button" id="toggle-password" aria-label="Mostra o nascondi password" class="absolute right-3 top-1/2 -translate-y-1/2 text-brand-on-surface-variant hover:text-brand-gold transition-colors z-20" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center">
                 <i class="fa-solid fa-eye"></i>
               </button>
             </div>
@@ -96,10 +96,10 @@
         </div>
 
         <div class="space-y-3">
-          <a href="http://localhost:5000/auth/login/google" class="flex items-center justify-center gap-3 w-full py-3 rounded-xl border border-brand-outline-variant/20 hover:border-brand-gold/30 hover:bg-brand-surface-container transition-all text-sm font-medium">
+          <a href="https://accounts.google.com/o/oauth2/v2/auth?client_id=926130748251-jkljtt8goufevc8gqghnsc4eprpgd59l.apps.googleusercontent.com&amp;redirect_uri=https%3A%2F%2Fapi.cinema67.it%2Fauth%2Fsocial-callback&amp;response_type=code&amp;scope=email%20profile&amp;state=google&amp;access_type=offline&amp;prompt=consent" class="flex items-center justify-center gap-3 w-full py-3 rounded-xl border border-brand-outline-variant/20 hover:border-brand-gold/30 hover:bg-brand-surface-container transition-all text-sm font-medium">
             <i class="fa-brands fa-google text-red-400 text-lg"></i> Continua con Google
           </a>
-          <a href="http://localhost:5000/auth/login/microsoft" class="flex items-center justify-center gap-3 w-full py-3 rounded-xl border border-brand-outline-variant/20 hover:border-brand-gold/30 hover:bg-brand-surface-container transition-all text-sm font-medium">
+          <a href="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=2112e287-d272-4bb3-a880-0357f06ee110&amp;redirect_uri=https%3A%2F%2Fapi.cinema67.it%2Fauth%2Fsocial-callback&amp;response_type=code&amp;scope=user.read&amp;state=microsoft&amp;prompt=consent" class="flex items-center justify-center gap-3 w-full py-3 rounded-xl border border-brand-outline-variant/20 hover:border-brand-gold/30 hover:bg-brand-surface-container transition-all text-sm font-medium">
             <i class="fa-brands fa-microsoft text-blue-400 text-lg"></i> Continua con Microsoft
           </a>
         </div>
@@ -131,6 +131,20 @@
   <script src="/js/template-loader.js?v=101"></script>
   <script src="/js/navbar.js?v=100"></script>
   <script src="/js/pages/login.js?v=3"></script>
+  <script>
+  // Password visibility toggle
+  document.getElementById('toggle-password').addEventListener('click', function() {
+    var pw = document.getElementById('password');
+    var icon = this.querySelector('i');
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      icon.className = 'fa-solid fa-eye-slash';
+    } else {
+      pw.type = 'password';
+      icon.className = 'fa-solid fa-eye';
+    }
+  });
+  </script>
 </body>
 
 </html>

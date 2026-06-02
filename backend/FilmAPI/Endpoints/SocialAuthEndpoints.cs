@@ -27,6 +27,8 @@ public static class SocialAuthEndpoints
 
         app.MapGet("/auth/social-callback", async (HttpContext ctx) =>
         {
+            try
+            {
             var code = ctx.Request.Query["code"].FirstOrDefault();
             var oauthError = ctx.Request.Query["error"].FirstOrDefault();
             var state = ctx.Request.Query["state"].FirstOrDefault();
@@ -83,6 +85,13 @@ public static class SocialAuthEndpoints
             _exchangeCodes[exchangeCode] = (accessToken, refreshToken, user.Email, user.Nome, user.Id);
 
             ctx.Response.Redirect($"{frontendBase}/social-login-complete.html?code={Uri.EscapeDataString(exchangeCode)}");
+            }
+            catch (Exception ex)
+            {
+                var logger = app.Services.GetRequiredService<ILogger<FilmDbContext>>();
+                logger.LogError(ex, "OAuth callback failed: {Message}", ex.Message);
+                ctx.Response.Redirect($"{frontendBase}/login.html?error=oauth_exception&detail={Uri.EscapeDataString(ex.GetType().Name + ": " + ex.Message)}");
+            }
         }).AllowAnonymous();
     }
 
