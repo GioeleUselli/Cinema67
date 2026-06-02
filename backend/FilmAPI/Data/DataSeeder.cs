@@ -17,13 +17,22 @@ public class DataSeeder
 
      public async Task SeedAsync()
      {
-         await SeedAdminAsync();
-         await SeedCinemaStaffAsync();
-         await SeedCategorieAsync();
-         await SeedFoodItemsAsync();
-         await SeedDiscountCodesAsync();
-         await SeedDevDataAsync();
-         await SeedStaffCinemaAssignmentsAsync();
+         await TrySeed(SeedAdminAsync, nameof(SeedAdminAsync));
+         await TrySeed(SeedCinemaStaffAsync, nameof(SeedCinemaStaffAsync));
+         await TrySeed(SeedCategorieAsync, nameof(SeedCategorieAsync));
+         await TrySeed(SeedFoodItemsAsync, nameof(SeedFoodItemsAsync));
+         await TrySeed(SeedDiscountCodesAsync, nameof(SeedDiscountCodesAsync));
+         await TrySeed(SeedDevDataAsync, nameof(SeedDevDataAsync));
+         await TrySeed(SeedStaffCinemaAssignmentsAsync, nameof(SeedStaffCinemaAssignmentsAsync));
+     }
+
+     private async Task TrySeed(Func<Task> seedAction, string name)
+     {
+         try {
+             await seedAction();
+         } catch (Exception ex) {
+             Console.WriteLine($"WARNING: Seed '{name}' failed: {ex.Message}");
+         }
      }
 
     private async Task SeedAdminAsync()
