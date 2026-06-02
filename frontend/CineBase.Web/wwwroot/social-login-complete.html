@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/runtime-config.js"></script>
 </head>
 <body class="bg-brand-surface text-brand-on-surface font-sans min-h-screen flex items-center justify-center cine-velvet">
   <div class="text-center cine-curtain-in">
@@ -22,7 +23,11 @@
       var p = new URLSearchParams(window.location.search);
       var code = p.get('code');
       if (!code) { showError('Codice mancante.'); return; }
-      fetch('http://localhost:5000/auth/external/exchange?code=' + encodeURIComponent(code), { method: 'POST' })
+      
+      // Use runtime config API base URL
+      var apiBase = (window.__RUNTIME_CONFIG__ && window.__RUNTIME_CONFIG__.apiBaseUrl) || 'http://localhost:5000';
+      
+      fetch(apiBase + '/auth/external/exchange?code=' + encodeURIComponent(code), { method: 'POST' })
         .then(function(r){ if(!r.ok) throw new Error('errore server'); return r.json(); })
         .then(function(d){
           if (d.accessToken && d.refreshToken) {
