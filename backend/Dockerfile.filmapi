@@ -18,7 +18,7 @@ RUN groupadd --gid 1654 app || true && \
 WORKDIR /app
 
 # Copy pre-built publish output
-COPY backend/publish .
+COPY publish .
 
 # Set environment
 ENV ASPNETCORE_URLS=http://+:8080
