@@ -50,7 +50,7 @@ public class SupportService : ISupportService
             await _db.SaveChangesAsync();
 
             await AddBotMessageAsync(conversation, userId,
-                "Ciao! Sono l'assistente CineAura. Posso aiutarti su pagamenti, biglietti, account e prenotazioni. Raccontami il problema in breve.");
+                "Ciao! Sono l'assistente Cinema67. Posso aiutarti su pagamenti, biglietti, account e prenotazioni. Raccontami il problema in breve.");
         }
 
         await _db.Entry(conversation).Collection(c => c.Messages).LoadAsync();
