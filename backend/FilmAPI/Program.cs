@@ -224,6 +224,8 @@ var googleClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRE
 
 var app = builder.Build();
 
+app.UseCors("AllowCinema67Frontend");
+
 app.Use(async (context, next) =>
 {
     try
@@ -259,7 +261,6 @@ app.Use(async (context, next) =>
     }
 });
 
-app.UseCors("AllowCinema67Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles(new StaticFileOptions
