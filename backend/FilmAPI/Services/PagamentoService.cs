@@ -867,13 +867,14 @@ public class PagamentoService : IPagamentoService
         if (ordine is null || ordine.UserId != userId) throw new KeyNotFoundException("Ordine non trovato.");
         if (ordine.Stato != OrdineState.Pending) throw new InvalidOperationException("Ordine non pagabile.");
 
+        var fbUrl2 = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var paypal = await _paypalGateway.CreateOrderAsync(new PayPalCreateOrderRequest
         {
             Amount = ordine.TotaleLordo,
             Currency = "EUR",
             OrderCode = ordine.CodiceOrdine ?? "",
-            ReturnUrl = $"http://localhost:5001/esito-acquisto.html?orderId={orderId}&paypal=true",
-            CancelUrl = $"http://localhost:5001/acquista.html"
+            ReturnUrl = $"{fbUrl2}/esito-acquisto.html?orderId={orderId}&paypal=true",
+            CancelUrl = $"{fbUrl2}/acquista.html"
         });
 
         ordine.ImportoCarta = ordine.TotaleLordo;
