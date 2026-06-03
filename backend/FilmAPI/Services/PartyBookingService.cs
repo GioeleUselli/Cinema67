@@ -291,22 +291,19 @@ public class PartyBookingService : IPartyBookingService
         var email = b.User?.Email;
         if (string.IsNullOrEmpty(email)) return;
         var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={Uri.EscapeDataString(b.QrCodeData!)}";
-        var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Festa Confermata!</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 12px;'>Ciao {b.User!.Nome}, la tua festa <strong>{b.NomeFesta}</strong> è stata confermata!</p>
-    <p style='font-size:14px;margin:0 0 16px;'><strong>{b.Cinema?.Nome}</strong> — {b.DataEvento:dd/MM/yyyy} ore {b.OraInizio:HH:mm} - {b.OraFine:HH:mm} · {b.NumeroOspiti} ospiti · {b.Tipo} {b.Pacchetto} · Totale: €{b.Totale:F2}</p>
-    <div style='background:white;border-radius:8px;padding:16px;text-align:center;margin:16px 0;'>
-      <img src='{qrUrl}' alt='QR Code' style='width:180px;height:180px;'>
-    </div>
-    <p style='font-size:12px;color:#a89888;text-align:center;'>Codice: {b.QrCodeData}</p>
-    <p style='font-size:13px;color:#a89888;'>Mostra questo QR code all'ingresso del cinema. Il personale lo scannerizzerà.</p>
-  </div>
-</div>";
+        var content = $@"
+<p style=""color:#f0e8e0;font-size:22px;font-weight:700;margin:0"">Festa Confermata!</p>
+<p style=""color:#a89888;font-size:13px;margin:4px 0 16px"">Ciao {b.User!.Nome}, la tua festa <strong>{b.NomeFesta}</strong> &egrave; confermata</p>
+{EmailTemplateHelper.Card("Cinema", b.Cinema?.Nome ?? "")}
+{EmailTemplateHelper.Card("Data", $"{b.DataEvento:dd/MM/yyyy} ore {b.OraInizio:HH:mm} - {b.OraFine:HH:mm}")}
+{EmailTemplateHelper.Card("Ospiti e pacchetto", $"{b.NumeroOspiti} ospiti &middot; {b.Tipo} {b.Pacchetto}", "#d4af37")}
+{EmailTemplateHelper.Card("Totale", $"€{b.Totale:F2}", "#d4af37")}
+<div style=""background:white;border-radius:12px;padding:16px;text-align:center;margin:16px 0"">
+  <img src='{qrUrl}' alt='QR Code' style='width:180px;height:180px;'>
+</div>
+{EmailTemplateHelper.CodeBox(b.QrCodeData!, "QR CODE")}
+<p style=""color:#a89888;font-size:13px"">Mostra questo QR code all'ingresso del cinema.</p>";
+        var html = EmailTemplateHelper.Wrap("Festa confermata", content);
         try { await _emailService.SendHtmlEmailAsync(email, "Festa confermata — " + b.NomeFesta, html); } catch { }
     }
 
@@ -314,18 +311,14 @@ public class PartyBookingService : IPartyBookingService
     {
         var email = b.User?.Email;
         if (string.IsNullOrEmpty(email)) return;
-        var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Festa Cancellata</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 12px;'>Ciao {b.User!.Nome}, la tua festa <strong>{b.NomeFesta}</strong> è stata cancellata.</p>
-    <p style='font-size:14px;margin:0 0 16px;'><strong>{b.Cinema?.Nome}</strong> — {b.DataEvento:dd/MM/yyyy} ore {b.OraInizio:HH:mm} · {b.NumeroOspiti} ospiti</p>
-    <p style='font-size:13px;color:#a89888;'>Contattaci per riprogrammare o per un rimborso.</p>
-  </div>
-</div>";
+        var content = $@"
+<p style=""color:#f0e8e0;font-size:22px;font-weight:700;margin:0"">Festa Cancellata</p>
+<p style=""color:#a89888;font-size:13px;margin:4px 0 16px"">Ciao {b.User!.Nome}, la festa <strong>{b.NomeFesta}</strong> &egrave; stata cancellata</p>
+{EmailTemplateHelper.Card("Cinema", b.Cinema?.Nome ?? "")}
+{EmailTemplateHelper.Card("Data", $"{b.DataEvento:dd/MM/yyyy} ore {b.OraInizio:HH:mm}")}
+{EmailTemplateHelper.Card("Ospiti", b.NumeroOspiti.ToString())}
+<p style=""color:#a89888;font-size:13px;margin:16px 0"">Contattaci per riprogrammare o per un rimborso.</p>";
+        var html = EmailTemplateHelper.Wrap("Festa cancellata", content);
         try { await _emailService.SendHtmlEmailAsync(email, "Festa cancellata — " + b.NomeFesta, html); } catch { }
     }
 
@@ -335,22 +328,14 @@ public class PartyBookingService : IPartyBookingService
         if (string.IsNullOrEmpty(email)) return;
         var frontendFb = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var feedbackUrl = $"{frontendFb}/feste.html?feedback={b.Id}";
-        var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Grazie per aver festeggiato con noi!</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 12px;'>Ciao {b.User!.Nome}, speriamo che la festa <strong>{b.NomeFesta}</strong> sia stata un successo!</p>
-    <p style='font-size:14px;margin:0 0 16px;'><strong>{b.Cinema?.Nome}</strong> — {b.DataEvento:dd/MM/yyyy} · {b.NumeroOspiti} ospiti · {b.Tipo} {b.Pacchetto}</p>
-    <p style='font-size:14px;margin:0 0 16px;color:#a89888;'>Ci farebbe piacere sapere com'è andata. Lascia un feedback:</p>
-    <div style='text-align:center;margin:16px 0;'>
-      <a href='{feedbackUrl}' style='display:inline-block;background:linear-gradient(135deg,#b8860b,#92600a);color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;'>Lascia un Feedback</a>
-    </div>
-    <p style='font-size:12px;color:#a89888;'>Il tuo parere ci aiuta a migliorare.</p>
-  </div>
-</div>";
+        var content = $@"
+<p style=""color:#f0e8e0;font-size:22px;font-weight:700;margin:0"">Grazie per aver festeggiato con noi!</p>
+<p style=""color:#a89888;font-size:13px;margin:4px 0 16px"">Ciao {b.User!.Nome}, speriamo che la festa <strong>{b.NomeFesta}</strong> sia stata un successo!</p>
+{EmailTemplateHelper.Card("Cinema", b.Cinema?.Nome ?? "")}
+{EmailTemplateHelper.Card("Dettagli", $"{b.DataEvento:dd/MM/yyyy} &middot; {b.NumeroOspiti} ospiti &middot; {b.Tipo} {b.Pacchetto}")}
+<p style=""color:#a89888;font-size:13px;margin:16px 0"">Ci farebbe piacere sapere com'&egrave; andata:</p>
+{EmailTemplateHelper.Button("Lascia un Feedback", feedbackUrl)}";
+        var html = EmailTemplateHelper.Wrap("Feedback festa", content);
         try { await _emailService.SendHtmlEmailAsync(email, "Com'è andata la festa? — " + b.NomeFesta, html); } catch { }
     }
 

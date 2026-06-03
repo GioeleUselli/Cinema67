@@ -291,27 +291,18 @@ public class GiftCardService : IGiftCardService
         var scadenza = gc.DataScadenza.ToString("dd/MM/yyyy");
         var messaggioHtml = string.IsNullOrWhiteSpace(gc.Messaggio) ? "" : $"<p style='color:#a89888;font-style:italic;margin:16px 0;padding:12px;border-left:3px solid #d4af37;'>\"{System.Net.WebUtility.HtmlEncode(gc.Messaggio)}\"</p>";
 
-        var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:24px;letter-spacing:2px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:8px 0 0;font-size:14px;'>Gift Card</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 8px;'>Ciao,</p>
-    <p style='font-size:14px;margin:0 0 16px;'>{nomeMittente} ti ha regalato una Gift Card Cinema67 del valore di <strong style='color:#d4af37;'>€{gc.ValoreIniziale:F2}</strong>.</p>
-    {messaggioHtml}
-    <div style='background:#1c1713;border-radius:8px;padding:16px;text-align:center;margin:16px 0;border:1px dashed #d4af37;'>
-      <p style='font-size:12px;color:#a89888;margin:0 0 6px;'>IL TUO CODICE</p>
-      <p style='font-size:26px;font-weight:bold;color:#d4af37;margin:0;letter-spacing:3px;font-family:monospace;'>{gc.Codice}</p>
-    </div>
-    <p style='font-size:13px;color:#a89888;margin:0 0 4px;'>Valido fino al {scadenza}</p>
-    <p style='font-size:13px;color:#a89888;margin:0;'>Riscattalo su Cinema67 per aggiungere €{gc.ValoreIniziale:F2} al tuo credito.</p>
-  </div>
-  <div style='background:#1c1713;padding:16px 24px;text-align:center;border-top:1px solid #38302a;'>
-    <a href='{Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001"}/riscatta-giftcard.html' style='color:#d4af37;text-decoration:none;font-size:13px;'>Riscatta ora →</a>
-  </div>
-</div>";
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+        var content = $@"
+<p style=""color:#f0e8e0;font-size:22px;font-weight:700;margin:0"">Gift Card</p>
+<p style=""color:#a89888;font-size:13px;margin:4px 0 16px"">{nomeMittente} ti ha regalato <strong style=""color:#d4af37"">€{gc.ValoreIniziale:F2}</strong> in Gift Card Cinema67</p>
+{messaggioHtml}
+{EmailTemplateHelper.CodeBox(gc.Codice)}
+{EmailTemplateHelper.Card("Valido fino al", scadenza)}
+{EmailTemplateHelper.Card("Valore", $"€{gc.ValoreIniziale:F2}", "#d4af37")}
+<p style=""color:#a89888;font-size:13px;margin:16px 0 0"">Riscatta su Cinema67 per aggiungere il credito al tuo account.</p>
+{EmailTemplateHelper.Button("Riscatta ora", $"{frontendUrl}/riscatta-giftcard.html")}";
+
+        var html = EmailTemplateHelper.Wrap("Hai ricevuto una Gift Card", content);
 
         try
         {

@@ -656,22 +656,22 @@ public class MembershipService : IMembershipService
 
         var dettagli = "";
         if (riscatto.CodiceVoucher != null)
-            dettagli += $"<p><b>Codice voucher:</b> {riscatto.CodiceVoucher}</p>";
+            dettagli += EmailTemplateHelper.Card("Codice voucher", riscatto.CodiceVoucher);
         if (riscatto.Taglia != null)
-            dettagli += $"<p><b>Taglia:</b> {riscatto.Taglia}</p>";
+            dettagli += EmailTemplateHelper.Card("Taglia", riscatto.Taglia);
         if (premio.MerchItem?.Nome != null)
-            dettagli += $"<p><b>Articolo:</b> {premio.MerchItem.Nome}</p>";
+            dettagli += EmailTemplateHelper.Card("Articolo", premio.MerchItem.Nome);
 
-        var body = $@"<div style='max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#1a1614;color:#e0d8cc;padding:24px;border-radius:12px'>
-<h2 style='color:#d4af37'>Cinema67 — Riscatto Premio</h2>
-<p>Hai riscattato <b style='color:#d4af37'>{premio.Nome}</b></p>
-<p>Tipo: {tipoLabel}</p>
+        var scadenza = riscatto.DataScadenza.HasValue ? EmailTemplateHelper.Card("Scade il", riscatto.DataScadenza.Value.ToString("dd/MM/yyyy")) : "";
+
+        var body = EmailTemplateHelper.Wrap("Riscatto Premio",
+            $@"<p style=""font-size:14px;margin:0 0 12px;"">Hai riscattato <strong style=""color:#d4af37;"">{premio.Nome}</strong></p>
+{EmailTemplateHelper.Card("Tipo", tipoLabel)}
 {dettagli}
-<p><b>Punti spesi:</b> {premio.CostoPunti}</p>
-<p><b>Punti residui:</b> {puntiResidui}</p>
-<p><b>Codice riscatto:</b> {riscatto.Codice}</p>
-{(riscatto.DataScadenza.HasValue ? $"<p><b>Scade il:</b> {riscatto.DataScadenza.Value:dd/MM/yyyy}</p>" : "")}
-<p style='margin-top:24px;color:#8a8078;font-size:12px'>Cinema67 — L'Arte del Cinema</p></div>";
+{EmailTemplateHelper.Card("Punti spesi", premio.CostoPunti.ToString())}
+{EmailTemplateHelper.Card("Punti residui", puntiResidui.ToString())}
+{EmailTemplateHelper.Card("Codice riscatto", riscatto.Codice)}
+{scadenza}");
 
         await _emailService.SendHtmlEmailAsync(user.Email, $"Cinema67 — Premio riscattato: {premio.Nome}", body);
     }
@@ -830,22 +830,11 @@ public class MembershipService : IMembershipService
             if (string.IsNullOrEmpty(email)) continue;
 
             var codice = $"BUONCOM-{Guid.NewGuid().ToString()[..8].ToUpper()}";
-            var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:32px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:26px;'>🎂 CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:8px 0 0;font-size:14px;'>Buon Compleanno!</p>
-  </div>
-  <div style='padding:28px 24px;text-align:center;'>
-    <p style='font-size:16px;margin:0 0 16px;'>Ciao {card.User!.Nome},<br>Cinema67 ti augura un felice compleanno!</p>
-    <p style='font-size:14px;margin:0 0 16px;color:#a89888;'>Per festeggiare, ti regaliamo il <strong style='color:#d4af37;'>20% di sconto</strong> sul tuo prossimo acquisto.</p>
-    <div style='background:#1c1713;border-radius:8px;padding:16px;margin:16px 0;border:1px dashed #d4af37;'>
-      <p style='font-size:12px;color:#a89888;margin:0 0 6px;'>CODICE SCONTO</p>
-      <p style='font-size:22px;font-weight:bold;color:#d4af37;margin:0;letter-spacing:3px;font-family:monospace;'>{codice}</p>
-    </div>
-    <p style='font-size:13px;color:#a89888;'>Valido per 7 giorni. Usalo al checkout.</p>
-  </div>
-</div>";
+            var html = EmailTemplateHelper.Wrap("Buon Compleanno!",
+                $@"<p style=""font-size:16px;margin:0 0 16px;text-align:center;"">Ciao {card.User!.Nome},<br>Cinema67 ti augura un felice compleanno!</p>
+<p style=""font-size:14px;margin:0 0 16px;color:#a89888;text-align:center;"">Per festeggiare, ti regaliamo il <strong style=""color:#d4af37;"">20% di sconto</strong> sul tuo prossimo acquisto.</p>
+{EmailTemplateHelper.CodeBox(codice)}
+<p style=""font-size:13px;color:#a89888;text-align:center;"">Valido per 7 giorni. Usalo al checkout.</p>");
             try
             {
                 await _emailService.SendHtmlEmailAsync(email, "🎂 Buon Compleanno da Cinema67!", html);
@@ -968,7 +957,11 @@ public class MembershipService : IMembershipService
             var email = card.User?.Email;
             if (string.IsNullOrEmpty(email)) continue;
             var codice = $"{nomeFesta.ToUpper().Replace(" ", "")}-{Guid.NewGuid().ToString()[..6].ToUpper()}";
-            var html = $"<h1 style='color:#d4af37'>Cinema67</h1><p>Ciao {card.User!.Nome}, auguri di {nomeFesta}! Sconto del {percentualeSconto}%: <strong>{codice}</strong></p>";
+            var html = EmailTemplateHelper.Wrap($"Auguri di {nomeFesta}!",
+                $@"<p style=""font-size:14px;margin:0 0 12px;"">Ciao {card.User!.Nome}, auguri di {nomeFesta}!</p>
+<p style=""font-size:14px;margin:0 0 16px;"">Sconto del <strong style=""color:#d4af37;"">{percentualeSconto}%</strong>:</p>
+{EmailTemplateHelper.CodeBox(codice)}
+<p style=""font-size:13px;color:#a89888;"">Valido per un utilizzo singolo. Usalo al checkout.</p>");
             try { await _emailService.SendHtmlEmailAsync(email, $"Auguri di {nomeFesta}!", html); } catch { }
         }
     }

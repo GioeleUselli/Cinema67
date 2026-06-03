@@ -276,19 +276,11 @@ public class ShowCancellationService : IShowCancellationService
             var email = ordine.User?.Email;
             if (string.IsNullOrEmpty(email)) continue;
 
-            var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Show Annullato</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 12px;'>Ciao {ordine.User!.Nome},</p>
-    <p style='font-size:14px;margin:0 0 12px;'>Lo show <strong>{cancellation.Show?.Film?.Titolo}</strong> previsto per il {cancellation.Show?.StartAtUtc:dd/MM/yyyy HH:mm} è stato annullato.</p>
-    <p style='font-size:14px;margin:0 0 12px;'>L'importo di <strong style='color:#d4af37;'>€{ordine.TotaleLordo:F2}</strong> ti verrà rimborsato automaticamente sullo stesso metodo di pagamento.</p>
-    <p style='font-size:13px;color:#a89888;'>Ordine: {ordine.CodiceOrdine} · {ordine.NumeroBiglietti} biglietti</p>
-  </div>
-</div>";
+            var html = EmailTemplateHelper.Wrap("Show Annullato",
+                $@"<p style=""font-size:14px;margin:0 0 12px;"">Ciao {ordine.User!.Nome},</p>
+<p style=""font-size:14px;margin:0 0 12px;"">Lo show <strong>{cancellation.Show?.Film?.Titolo}</strong> previsto per il {cancellation.Show?.StartAtUtc:dd/MM/yyyy HH:mm} è stato annullato.</p>
+<p style=""font-size:14px;margin:0 0 12px;"">L'importo di <strong style=""color:#d4af37;"">€{ordine.TotaleLordo:F2}</strong> ti verrà rimborsato automaticamente sullo stesso metodo di pagamento.</p>
+{EmailTemplateHelper.Card("Ordine", $"{ordine.CodiceOrdine} · {ordine.NumeroBiglietti} biglietti")}");
             try { await _emailService.SendHtmlEmailAsync(email, "Show annullato — " + cancellation.Show?.Film?.Titolo, html); } catch { }
         }
 
@@ -303,19 +295,11 @@ public class ShowCancellationService : IShowCancellationService
         if (ordine?.User?.Email == null) return;
 
         var totale = refund.ImportoCarta + refund.ImportoCredito;
-        var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Rimborso Completato</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 12px;'>Ciao {ordine.User!.Nome},</p>
-    <p style='font-size:14px;margin:0 0 12px;'>Il rimborso di <strong style='color:#d4af37;'>€{totale:F2}</strong> è stato completato con successo.</p>
-    <p style='font-size:14px;margin:0 0 8px;'>Ordine: {ordine.CodiceOrdine} · {ordine.NumeroBiglietti} biglietti</p>
-    <p style='font-size:13px;color:#a89888;'>Il rimborso è stato accreditato sullo stesso metodo di pagamento usato per l'acquisto.</p>
-  </div>
-</div>";
+        var html = EmailTemplateHelper.Wrap("Rimborso Completato",
+            $@"<p style=""font-size:14px;margin:0 0 12px;"">Ciao {ordine.User!.Nome},</p>
+<p style=""font-size:14px;margin:0 0 12px;"">Il rimborso di <strong style=""color:#d4af37;"">€{totale:F2}</strong> è stato completato con successo.</p>
+{EmailTemplateHelper.Card("Ordine", $"{ordine.CodiceOrdine} · {ordine.NumeroBiglietti} biglietti")}
+<p style=""font-size:13px;color:#a89888;"">Il rimborso è stato accreditato sullo stesso metodo di pagamento usato per l'acquisto.</p>");
         try { await _emailService.SendHtmlEmailAsync(ordine.User.Email, "Rimborso completato — " + ordine.CodiceOrdine, html); } catch { }
     }
 
@@ -369,20 +353,13 @@ public class ShowCancellationService : IShowCancellationService
 
         // Send email
         var totale = ordine.ImportoCarta + ordine.ImportoCredito;
-        var html = $@"
-<div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:24px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Rimborso Completato</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 12px;'>Ciao {ordine.User?.Nome},</p>
-    <p style='font-size:14px;margin:0 0 12px;'>Abbiamo processato un rimborso di <strong style='color:#d4af37;'>€{totale:F2}</strong> per il tuo ordine {ordine.CodiceOrdine}.</p>
-    <p style='font-size:14px;margin:0 0 8px;'>{(reason != null ? "Motivo: " + reason : "")}</p>
-    <p style='font-size:13px;color:#a89888;'>Ordine: {ordine.CodiceOrdine} · {ordine.NumeroBiglietti} biglietti</p>
-    <p style='font-size:13px;color:#a89888;'>Il rimborso è stato accreditato sullo stesso metodo di pagamento.</p>
-  </div>
-</div>";
+        var motivoHtml = reason != null ? $"<p style=\"font-size:14px;margin:0 0 8px;\">Motivo: {reason}</p>" : "";
+        var html = EmailTemplateHelper.Wrap("Rimborso Completato",
+            $@"<p style=""font-size:14px;margin:0 0 12px;"">Ciao {ordine.User?.Nome},</p>
+<p style=""font-size:14px;margin:0 0 12px;"">Abbiamo processato un rimborso di <strong style=""color:#d4af37;"">€{totale:F2}</strong> per il tuo ordine {ordine.CodiceOrdine}.</p>
+{motivoHtml}
+{EmailTemplateHelper.Card("Ordine", $"{ordine.CodiceOrdine} · {ordine.NumeroBiglietti} biglietti")}
+<p style=""font-size:13px;color:#a89888;"">Il rimborso è stato accreditato sullo stesso metodo di pagamento.</p>");
         if (!string.IsNullOrEmpty(ordine.User?.Email))
             try { await _emailService.SendHtmlEmailAsync(ordine.User.Email, "Rimborso completato — " + ordine.CodiceOrdine, html); } catch { }
     }

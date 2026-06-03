@@ -54,21 +54,11 @@ public class NewsletterService : INewsletterService
         // Send email with discount code
         try
         {
-            var html = $@"
-<div style='max-width:480px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:22px;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:6px 0 0;font-size:14px;'>Newsletter</p>
-  </div>
-  <div style='padding:24px;'>
-    <p style='font-size:14px;margin:0 0 12px;'>Grazie per esserti iscritto alla newsletter di Cinema67!</p>
-    <p style='font-size:14px;margin:0 0 16px;'>Ecco il tuo <strong style='color:#d4af37;'>codice sconto del 15%</strong> sul primo acquisto:</p>
-    <div style='background:#1c1713;border-radius:8px;padding:16px;text-align:center;margin:16px 0;border:1px dashed #d4af37;'>
-      <p style='font-size:24px;font-weight:bold;color:#d4af37;margin:0;letter-spacing:3px;font-family:monospace;'>{codice}</p>
-    </div>
-    <p style='font-size:13px;color:#a89888;margin:0;'>Usalo al checkout per ottenere il 15% di sconto. Valido una volta sola.</p>
-  </div>
-</div>";
+            var html = EmailTemplateHelper.Wrap("Newsletter",
+                $@"<p style=""font-size:14px;margin:0 0 12px;"">Grazie per esserti iscritto alla newsletter di Cinema67!</p>
+<p style=""font-size:14px;margin:0 0 16px;"">Ecco il tuo <strong style=""color:#d4af37;"">codice sconto del 15%</strong> sul primo acquisto:</p>
+{EmailTemplateHelper.CodeBox(codice)}
+<p style=""font-size:13px;color:#a89888;margin:0;"">Usalo al checkout per ottenere il 15% di sconto. Valido una volta sola.</p>");
             await _emailService.SendHtmlEmailAsync(email, "Cinema67 - Il tuo codice sconto del 15%", html);
         }
         catch { /* email sending is best-effort */ }
@@ -190,21 +180,7 @@ public class NewsletterService : INewsletterService
     private static string WrapInTemplate(string contenuto, string email, string codiceSconto)
     {
         var safeContent = System.Net.WebUtility.HtmlEncode(contenuto).Replace("\n", "<br>");
-        return $@"
-<div style='max-width:560px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
-  <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:32px 24px;text-align:center;'>
-    <h1 style='color:#d4af37;margin:0;font-size:26px;letter-spacing:3px;font-family:Georgia,serif;'>CINEMA67</h1>
-    <p style='color:#f0e8e0;margin:8px 0 0;font-size:13px;text-transform:uppercase;letter-spacing:4px;'>Newsletter</p>
-  </div>
-  <div style='padding:28px 24px;font-size:14px;line-height:1.6;'>
-    {safeContent}
-  </div>
-  <div style='background:#1c1713;padding:20px 24px;text-align:center;border-top:1px solid #38302a;'>
-    <p style='font-size:12px;color:#a89888;margin:0 0 8px;'>Ricevi questa email perché iscritto alla newsletter di Cinema67.</p>
-    <a href='http://localhost:5001' style='color:#d4af37;text-decoration:none;font-size:12px;'>cinema67.com</a>
-    <p style='font-size:11px;color:#78716c;margin:8px 0 0;'>© 2026 Cinema67. Tutti i diritti riservati.</p>
-  </div>
-</div>";
+        return EmailTemplateHelper.Wrap("Newsletter", $@"<div style=""font-size:14px;line-height:1.6;"">{safeContent}</div>");
     }
 
     private static string GeneraCodiceSconto()

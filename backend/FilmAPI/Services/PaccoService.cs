@@ -237,13 +237,11 @@ public class PaccoService : IPaccoService
                 _ => stato
             };
 
-            var body = $@"<div style='max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#1a1614;color:#e0d8cc;padding:24px;border-radius:12px'>
-<h2 style='color:#d4af37'>Cinema67 — Aggiornamento Spedizione</h2>
-<p>Il tuo ordine <b>{order.CodiceOrdine}</b> è stato aggiornato:</p>
-<p style='font-size:18px;color:#d4af37'><b>{statusLabel}</b></p>
-<p>Tracking: <b>{trackingNumber}</b></p>
-<p style='margin-top:16px'><a href='http://localhost:5001/tracking-merch.html?orderId={order.Id}' style='color:#d4af37;text-decoration:underline;font-size:14px'>Traccia la tua spedizione</a></p>
-<p style='margin-top:24px;color:#8a8078;font-size:12px'>Cinema67 — L'Arte del Cinema</p></div>";
+            var body = EmailTemplateHelper.Wrap("Aggiornamento Spedizione",
+                $@"<p style=""font-size:14px;margin:0 0 16px;"">Il tuo ordine <strong>{order.CodiceOrdine}</strong> è stato aggiornato:</p>
+{EmailTemplateHelper.Card("Stato", statusLabel, "#d4af37")}
+{EmailTemplateHelper.Card("Tracking", trackingNumber)}
+{EmailTemplateHelper.Button("Traccia la tua spedizione", $"http://localhost:5001/tracking-merch.html?orderId={order.Id}")}");
 
             await _emailService.SendHtmlEmailAsync(userEmail, $"Cinema67 — {statusLabel} — {order.CodiceOrdine}", body);
         }

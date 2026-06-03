@@ -293,16 +293,14 @@ public class MerchPagamentoService : IMerchPagamentoService
                 ? $"<p style='margin-top:16px'><b>Spedizione a:</b><br>{order.Indirizzo}<br>{order.CAP} {order.Citta} ({order.Provincia})<br>Tel: {order.Telefono}</p>"
                 : $"<p style='margin-top:16px'><b>Ritiro al cinema:</b> {order.CinemaRitiro?.Nome ?? "Da definire"}</p>";
 
-            var body = $@"<div style='max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#1a1614;color:#e0d8cc;padding:24px;border-radius:12px'>
-<h2 style='color:#d4af37'>Cinema67 Shop — Riepilogo Ordine</h2>
-<p>Grazie per il tuo acquisto! Ecco il riepilogo del tuo ordine <b>{order.CodiceOrdine}</b>:</p>
-<table style='width:100%;border-collapse:collapse;margin:16px 0'>{itemsHtml}
-<tr><td style='padding:8px;font-weight:bold'>Totale</td><td style='padding:8px;text-align:right;font-weight:bold;color:#d4af37'>€{order.Totale.ToString("F2")}</td></tr>
+            var body = EmailTemplateHelper.Wrap("Shop — Riepilogo Ordine",
+                $@"<p style=""font-size:14px;margin:0 0 16px;"">Grazie per il tuo acquisto! Ecco il riepilogo del tuo ordine <strong>{order.CodiceOrdine}</strong>:</p>
+<table style=""width:100%;border-collapse:collapse;margin:16px 0"">{itemsHtml}
+<tr><td style=""padding:8px;font-weight:bold;color:#f0e8e0"">Totale</td><td style=""padding:8px;text-align:right;font-weight:bold;color:#d4af37"">€{order.Totale.ToString("F2")}</td></tr>
 </table>
 {consegnaHtml}
-<p style='color:#8a8078;font-size:12px'>Metodo: {(order.ImportoCarta > 0 ? "Carta" : "")}{(order.ImportoCredito > 0 ? (order.ImportoCarta > 0 ? " + Credito" : "Credito") : "")}</p>
-<p style='color:#8a8078;font-size:12px'>Data: {order.PaidAtUtc?.ToString("dd/MM/yyyy HH:mm") ?? ""}</p>
-<p style='margin-top:24px;color:#8a8078;font-size:12px'>Cinema67 — L'Arte del Cinema</p></div>";
+{EmailTemplateHelper.Card("Metodo", $"{(order.ImportoCarta > 0 ? "Carta" : "")}{(order.ImportoCredito > 0 ? (order.ImportoCarta > 0 ? " + Credito" : "Credito") : "")}")}
+{EmailTemplateHelper.Card("Data", order.PaidAtUtc?.ToString("dd/MM/yyyy HH:mm") ?? "")}");
 
             await _emailService.SendHtmlEmailAsync(userEmail, $"Cinema67 Shop - Conferma Ordine {order.CodiceOrdine}", body);
         }

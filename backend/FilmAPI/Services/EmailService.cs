@@ -194,50 +194,45 @@ public class EmailService : IEmailService
 """;
         }
 
-        return $"""
-<html>
-<body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#0f172a">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;padding:40px 0">
-<tr><td align="center">
-<table width="540" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:16px;overflow:hidden;border:1px solid #334155">
-<tr><td style="padding:32px 40px 20px;text-align:center">
-<div style="font-size:28px;font-weight:900;color:#f59e0b;font-family:Georgia,serif;letter-spacing:2px">CINEMA67</div>
-</td></tr>
-<tr><td style="padding:0 40px"><div style="height:1px;background:#334155"></div></td></tr>
-<tr><td style="padding:24px 40px">
-<h2 style="color:#f1f5f9;margin:0 0 4px">Conferma acquisto</h2>
-<p style="color:#94a3b8;font-size:13px;margin:0 0 20px">Ordine <strong style="color:#f59e0b">{orderCode}</strong> completato con successo</p>
+        var ticketsList = string.Join("", orderDocument.Tickets.Select(ticket =>
+            EmailTemplateHelper.Card($"{ticket.Settore} fila {ticket.Fila} posto {ticket.Numero}", ticket.CodiceBiglietto, "#f0e8e0")));
 
-<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #334155;border-radius:10px;overflow:hidden">
-<tr><td style="padding:14px 18px;background:rgba(0,0,0,0.2);border-bottom:1px solid #334155;font-size:12px;font-weight:700;color:#f59e0b">DETTAGLI SPETTACOLO</td></tr>
-<tr><td style="padding:16px 18px">
-<p style="margin:0 0 6px"><span style="color:#64748b;font-size:12px">Film</span><br><span style="color:#f1f5f9;font-size:15px;font-weight:700">{title}</span></p>
-<p style="margin:0 0 6px"><span style="color:#64748b;font-size:12px">Cinema</span><br><span style="color:#f1f5f9">{cinema}</span></p>
-<p style="margin:0 0 6px"><span style="color:#64748b;font-size:12px">Sala</span><br><span style="color:#f1f5f9">{sala}</span></p>
-<p style="margin:0"><span style="color:#64748b;font-size:12px">Data e ora</span><br><span style="color:#f1f5f9">{FormatShowDateTime(orderDocument.StartAtUtc)}</span></p>
-</td></tr>
-</table>
+        var foodSection = "";
+        if (orderDocument.Cibo.Count > 0)
+        {
+            var foodItems = string.Join("", orderDocument.Cibo.Select(f =>
+                $"<tr><td style=\"padding:4px 0;color:#f0e8e0\">{WebUtility.HtmlEncode(f.Nome)} x{f.Quantita}</td><td style=\"text-align:right;color:#a89888\">{FormatAmount(f.SubTotale)} €</td></tr>"));
+            var foodTotal = orderDocument.Cibo.Sum(f => f.SubTotale);
+            foodSection = $@"
+<div class=""info-card"" style=""margin-top:16px"">
+<p class=""info-card-label"">CIBO E BEVANDE — {orderDocument.CodiceCibo}</p>
+<table width=""100%"" cellpadding=""0"" cellspacing=""0"">{foodItems}</table>
+<p style=""color:#d4af37;font-weight:700;margin:8px 0 0"">Totale cibo: {FormatAmount(foodTotal)} €</p>
+<p style=""color:#a89888;font-size:11px;margin:4px 0 0"">Mostra questo codice in cassa</p>
+</div>";
+        }
 
-<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;border:1px solid #334155;border-radius:10px;overflow:hidden">
-<tr><td style="padding:14px 18px;background:rgba(0,0,0,0.2);border-bottom:1px solid #334155;font-size:12px;font-weight:700;color:#f59e0b">{orderDocument.NumeroBiglietti} BIGLIETTI</td></tr>
-<tr><td style="padding:16px 18px"><ul style="margin:0;padding:0;list-style:none">
-{ticketsHtml}
-</ul></td></tr>
-</table>
-{foodHtml}
-<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px">
-<tr><td align="right"><span style="color:#f59e0b;font-size:20px;font-weight:900">{FormatAmount(orderDocument.TotaleLordo)} EUR</span></td></tr>
-</table>
-</td></tr>
-<tr><td style="padding:0 40px 24px">
-<p style="color:#64748b;font-size:12px;margin:16px 0 0">In allegato trovi il PDF multipagina dei biglietti. Salvalo o stampalo prima dello spettacolo.</p>
-<p style="color:#475569;font-size:11px">Il profilo utente resta il punto di recupero ufficiale dell'ordine.</p>
-</td></tr>
-<tr><td style="padding:16px 40px;background:rgba(0,0,0,0.2);text-align:center">
-<p style="color:#475569;font-size:11px;margin:0">© 2026 Cinema67 — biglietti.cinema67@gmail.com</p>
-</td></tr>
-</table></td></tr></table></body></html>
-""";
+        var content = $@"
+<p style=""color:#f0e8e0;font-size:22px;font-weight:700;margin:0"">Conferma acquisto</p>
+<p style=""color:#a89888;font-size:13px;margin:4px 0 20px"">Ordine <strong style=""color:#d4af37"">{orderCode}</strong> completato</p>
+
+{EmailTemplateHelper.Card("Film", title, "#d4af37")}
+{EmailTemplateHelper.Card("Cinema", cinema)}
+{EmailTemplateHelper.Card("Sala", sala)}
+{EmailTemplateHelper.Card("Data e ora", FormatShowDateTime(orderDocument.StartAtUtc))}
+
+<div class=""info-card"">
+<p class=""info-card-label"">{orderDocument.NumeroBiglietti} BIGLIETTI</p>
+{ticketsList}
+</div>
+{foodSection}
+
+<div style=""text-align:right;margin:16px 0""><span style=""color:#d4af37;font-size:22px;font-weight:900"">{FormatAmount(orderDocument.TotaleLordo)} €</span></div>
+
+<p style=""color:#a89888;font-size:12px;margin:16px 0 4px"">In allegato trovi il PDF dei biglietti.</p>
+<p style=""color:#a89888;font-size:11px;margin:0"">Disponibile anche nel tuo profilo su Cinema67.</p>";
+
+        return EmailTemplateHelper.Wrap("Conferma acquisto", content);
     }
 
     private static string? ReadSetting(string name)
