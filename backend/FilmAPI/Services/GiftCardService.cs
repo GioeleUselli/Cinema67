@@ -32,10 +32,11 @@ public class GiftCardService : IGiftCardService
     private readonly IStripePaymentGateway _stripeGateway;
     private readonly IPayPalGateway _paypalGateway;
     private readonly IMembershipService _membershipService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public GiftCardService(FilmDbContext db, IEmailService emailService, IStripePaymentGateway stripeGateway, IPayPalGateway paypalGateway, IMembershipService membershipService)
+    public GiftCardService(FilmDbContext db, IEmailService emailService, IStripePaymentGateway stripeGateway, IPayPalGateway paypalGateway, IMembershipService membershipService, IServiceScopeFactory scopeFactory)
     {
-        _db = db; _emailService = emailService; _stripeGateway = stripeGateway; _paypalGateway = paypalGateway; _membershipService = membershipService;
+        _db = db; _emailService = emailService; _stripeGateway = stripeGateway; _paypalGateway = paypalGateway; _membershipService = membershipService; _scopeFactory = scopeFactory;
     }
 
     private async Task AccumulaPuntiAsync(int userId, decimal totale)
@@ -114,10 +115,11 @@ public class GiftCardService : IGiftCardService
             var gc = await CreateGiftCardAsync(userId, dto.Importo, dto.DestinatarioEmail, dto.Messaggio, dto.DataInvioProgrammato);
             cards.Add(MapDTO(gc));
 
-            // Se non è programmata per dopo, invia subito
+            // Se non è programmata per dopo, invia subito (fire-and-forget, non blocca)
             if (dto.DataInvioProgrammato == null || dto.DataInvioProgrammato <= DateTime.UtcNow.AddMinutes(1))
             {
-                await InviaGiftCardEmailAsync(gc.Id);
+                var gcId = gc.Id;
+                _ = Task.Run(async () => await InviaEmailBackgroundAsync(gcId));
             }
         }
 
@@ -156,7 +158,9 @@ public class GiftCardService : IGiftCardService
             var gc = await CreateGiftCardAsync(userId, dto.Importo, dto.DestinatarioEmail, dto.Messaggio, dto.DataInvioProgrammato);
             cards.Add(MapDTO(gc));
             if (dto.DataInvioProgrammato == null || dto.DataInvioProgrammato <= DateTime.UtcNow.AddMinutes(1))
-                await InviaGiftCardEmailAsync(gc.Id);
+            {
+                var gid = gc.Id; _ = InviaEmailBackgroundAsync(gid);
+            }
         }
 
         await _db.SaveChangesAsync();
@@ -334,7 +338,7 @@ public class GiftCardService : IGiftCardService
 
         foreach (var gc in daInviare)
         {
-            await InviaGiftCardEmailAsync(gc.Id);
+            _ = InviaEmailBackgroundAsync(gc.Id);
         }
     }
 
@@ -465,7 +469,9 @@ public class GiftCardService : IGiftCardService
                 var gc = await CreateGiftCardAsync(userId, item.Importo, email, msg, invio);
                 cards.Add(MapDTO(gc));
                 if (invio == null || invio <= DateTime.UtcNow.AddMinutes(1))
-                    await InviaGiftCardEmailAsync(gc.Id);
+                {
+                    _ = InviaEmailBackgroundAsync(gc.Id);
+                }
             }
         }
 
@@ -551,7 +557,9 @@ public class GiftCardService : IGiftCardService
             var gc = await CreateGiftCardAsync(userId, importo, pending.DestinatarioEmail, pending.Messaggio, pending.DataInvioProgrammato);
             cards.Add(MapDTO(gc));
             if (pending.DataInvioProgrammato == null || pending.DataInvioProgrammato <= DateTime.UtcNow.AddMinutes(1))
-                await InviaGiftCardEmailAsync(gc.Id);
+            {
+                _ = InviaEmailBackgroundAsync(gc.Id);
+            }
         }
 
         await _db.SaveChangesAsync();
@@ -605,10 +613,24 @@ public class GiftCardService : IGiftCardService
                 var gc = await CreateGiftCardAsync(userId, item.Importo, item.DestinatarioEmail ?? pending.DestinatarioEmail, item.Messaggio ?? pending.Messaggio, item.DataInvioProgrammato ?? pending.DataInvioProgrammato);
                 cards.Add(MapDTO(gc));
                 if ((item.DataInvioProgrammato ?? pending.DataInvioProgrammato) == null || (item.DataInvioProgrammato ?? pending.DataInvioProgrammato) <= DateTime.UtcNow.AddMinutes(1))
-                    await InviaGiftCardEmailAsync(gc.Id);
+                {
+                    _ = InviaEmailBackgroundAsync(gc.Id);
+                }
             }
         }
         await _db.SaveChangesAsync();
         return new GiftCardAcquistoResultDTO { GiftCards = cards, TotaleSpeso = items.Sum(i => i.Importo * i.Quantita), NuovoSaldoCredito = user?.CreditoResiduo ?? 0 };
     }
+
+    private async Task InviaEmailBackgroundAsync(int giftCardId)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<IGiftCardService>();
+            await ((GiftCardService)service).InviaGiftCardEmailAsync(giftCardId);
+        }
+        catch { /* fire-and-forget */ }
+    }
 }
+
