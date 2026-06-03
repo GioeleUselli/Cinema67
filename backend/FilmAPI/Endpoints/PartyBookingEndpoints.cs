@@ -2,6 +2,7 @@ using FilmAPI.Data;
 using FilmAPI.DTO;
 using FilmAPI.Model;
 using FilmAPI.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace FilmAPI.Endpoints;

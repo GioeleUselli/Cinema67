@@ -83,8 +83,11 @@ public class PartyBookingService : IPartyBookingService
         decimal sconto = 0;
         if (!string.IsNullOrWhiteSpace(dto.CodiceSconto))
         {
+            var code = dto.CodiceSconto.Trim().ToUpper();
+            
+            // Check MerchDiscountCodes
             var disc = await _db.MerchDiscountCodes
-                .FirstOrDefaultAsync(d => d.Codice == dto.CodiceSconto.Trim().ToUpper() && d.Attivo
+                .FirstOrDefaultAsync(d => d.Codice == code && d.Attivo
                     && (!d.ScadeIl.HasValue || d.ScadeIl.Value > DateTime.UtcNow)
                     && d.Utilizzi < d.MaxUtilizzi);
             if (disc != null)
@@ -97,9 +100,36 @@ public class PartyBookingService : IPartyBookingService
                 else if (disc.ValoreScontoFisso > 0)
                     sconto = Math.Min(disc.ValoreScontoFisso, totale);
                 disc.Utilizzi++;
-                var ris = await _db.PremiRiscatti.FirstOrDefaultAsync(x => x.Codice == dto.CodiceSconto.Trim().ToUpper() && x.Stato == Model.StatoRiscatto.Attivo);
-                if (ris != null) { ris.Stato = Model.StatoRiscatto.Usato; ris.DataUtilizzo = DateTime.UtcNow; }
             }
+            // Check Promotions
+            else
+            {
+                var promo = await _db.Promotions
+                    .FirstOrDefaultAsync(p => p.DiscountCode == code && p.Active
+                        && (p.StartDate == null || p.StartDate <= DateTime.UtcNow)
+                        && (p.EndDate == null || p.EndDate >= DateTime.UtcNow));
+                if (promo != null && promo.DiscountPercent.HasValue)
+                {
+                    if (promo.MaxUsage.HasValue && promo.UsageCount >= promo.MaxUsage.Value)
+                        throw new ArgumentException("Codice sconto esaurito.");
+                    sconto = Math.Round(totale * promo.DiscountPercent.Value / 100m, 2);
+                    promo.UsageCount++;
+                }
+                // Check NewsletterSubscribers
+                else
+                {
+                    var sub = await _db.NewsletterSubscribers
+                        .FirstOrDefaultAsync(s => s.CodiceSconto == code && !s.ScontoUsato);
+                    if (sub != null)
+                    {
+                        sconto = Math.Round(totale * 15m / 100m, 2);
+                        sub.ScontoUsato = true;
+                    }
+                }
+            }
+            
+            if (sconto <= 0 && disc == null)
+                throw new ArgumentException("Codice sconto non valido o già usato.");
         }
         totale -= sconto;
 
