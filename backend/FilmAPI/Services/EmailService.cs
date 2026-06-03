@@ -53,6 +53,7 @@ public class EmailService : IEmailService
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
+            client.Timeout = 10000; // 10 secondi timeout
             await client.ConnectAsync(_smtpHost!, _smtpPort, SecureSocketOptions.StartTls, cancellationToken);
             await client.AuthenticateAsync(_smtpUser!, _smtpPassword!, cancellationToken);
             await client.SendAsync(message, cancellationToken);
@@ -109,6 +110,7 @@ public class EmailService : IEmailService
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
+            client.Timeout = 10000;
             await client.ConnectAsync(smtpHost, _smtpPort, SecureSocketOptions.StartTls, cancellationToken);
             await client.AuthenticateAsync(smtpUser, smtpPassword, cancellationToken);
             await client.SendAsync(message, cancellationToken);

@@ -2,6 +2,7 @@ using FilmAPI.Data;
 using FilmAPI.DTO;
 using FilmAPI.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace FilmAPI.Services;
 
@@ -260,7 +261,37 @@ public class MembershipService : IMembershipService
         }
 
         await _db.SaveChangesAsync();
+
+        // Auto-subscribe to newsletter on membership activation
+        try
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user != null && !string.IsNullOrWhiteSpace(user.Email))
+            {
+                var alreadySubscribed = await _db.NewsletterSubscribers.AnyAsync(s => s.Email == user.Email);
+                if (!alreadySubscribed)
+                {
+                    _db.NewsletterSubscribers.Add(new NewsletterSubscriber
+                    {
+                        Email = user.Email,
+                        IscrittoIl = DateTime.UtcNow,
+                        CodiceSconto = GeneraCodiceScontoNewsletter(),
+                        ScontoUsato = false
+                    });
+                    await _db.SaveChangesAsync();
+                }
+            }
+        }
+        catch { /* non-blocking */ }
+
         return await GetOrCreateCardAsync(userId);
+    }
+
+    private string GeneraCodiceScontoNewsletter()
+    {
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var random = new Random();
+        return "NL" + new string(Enumerable.Range(0, 6).Select(_ => chars[random.Next(chars.Length)]).ToArray());
     }
 
     public async Task<MembershipCardDTO> GetOrCreateCardAsync(int userId)
