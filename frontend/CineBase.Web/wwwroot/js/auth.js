@@ -7,21 +7,21 @@ const Auth = {
   },
 
   getAccessToken() {
-    return localStorage.getItem(this.STORAGE_KEYS.ACCESS_TOKEN);
+    return sessionStorage.getItem(this.STORAGE_KEYS.ACCESS_TOKEN);
   },
 
   getRefreshToken() {
-    return localStorage.getItem(this.STORAGE_KEYS.REFRESH_TOKEN);
+    return sessionStorage.getItem(this.STORAGE_KEYS.REFRESH_TOKEN);
   },
 
   getOrCreateDeviceId() {
-    let deviceId = localStorage.getItem(this.STORAGE_KEYS.DEVICE_ID);
+    let deviceId = sessionStorage.getItem(this.STORAGE_KEYS.DEVICE_ID);
     if (deviceId) return deviceId;
 
     const hasLegacyRefreshToken = !!this.getRefreshToken();
     if (hasLegacyRefreshToken) {
       deviceId = 'web-default';
-      localStorage.setItem(this.STORAGE_KEYS.DEVICE_ID, deviceId);
+      sessionStorage.setItem(this.STORAGE_KEYS.DEVICE_ID, deviceId);
       return deviceId;
     }
 
@@ -31,27 +31,27 @@ const Auth = {
       deviceId = `dev-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
     }
 
-    localStorage.setItem(this.STORAGE_KEYS.DEVICE_ID, deviceId);
+    sessionStorage.setItem(this.STORAGE_KEYS.DEVICE_ID, deviceId);
     return deviceId;
   },
 
   saveTokens(accessToken, refreshToken) {
-    localStorage.setItem(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-    localStorage.setItem(this.STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+    sessionStorage.setItem(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+    sessionStorage.setItem(this.STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
   },
 
   saveUser(user) {
-    localStorage.setItem(this.STORAGE_KEYS.USER, JSON.stringify(user));
+    sessionStorage.setItem(this.STORAGE_KEYS.USER, JSON.stringify(user));
   },
 
   clearAuth() {
-    localStorage.removeItem(this.STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(this.STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(this.STORAGE_KEYS.USER);
+    sessionStorage.removeItem(this.STORAGE_KEYS.ACCESS_TOKEN);
+    sessionStorage.removeItem(this.STORAGE_KEYS.REFRESH_TOKEN);
+    sessionStorage.removeItem(this.STORAGE_KEYS.USER);
   },
 
   getUser() {
-    const userStr = localStorage.getItem(this.STORAGE_KEYS.USER);
+    const userStr = sessionStorage.getItem(this.STORAGE_KEYS.USER);
     if (!userStr) return null;
     try {
       return JSON.parse(userStr);

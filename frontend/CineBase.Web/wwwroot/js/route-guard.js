@@ -85,7 +85,7 @@ var RouteGuard = (function () {
 
   function getAccessToken() {
     try {
-      return localStorage.getItem(ACCESS_TOKEN_KEY);
+      return sessionStorage.getItem(ACCESS_TOKEN_KEY);
     } catch (e) {
       return null;
     }
@@ -93,7 +93,7 @@ var RouteGuard = (function () {
 
   function getRefreshToken() {
     try {
-      return localStorage.getItem(REFRESH_TOKEN_KEY);
+      return sessionStorage.getItem(REFRESH_TOKEN_KEY);
     } catch (e) {
       return null;
     }
@@ -120,7 +120,7 @@ var RouteGuard = (function () {
       return true;
     } catch (e) {
       // Mark this as a failed refresh attempt to prevent retries
-      localStorage.setItem('_refresh_failed', 'true');
+      sessionStorage.setItem('_refresh_failed', 'true');
       return false;
     }
   }
@@ -153,14 +153,14 @@ var RouteGuard = (function () {
     
     if (lastRedirect === pathname && lastRedirectCount > 2) {
       // We're in a redirect loop - clear auth and go to login
-      localStorage.removeItem('_refresh_failed');
-      localStorage.removeItem('_check_attempted');
+      sessionStorage.removeItem('_refresh_failed');
+      sessionStorage.removeItem('_check_attempted');
       window.location.replace('/login.html?error=' + encodeURIComponent('Errore di sessione, rieffettua l\'accesso'));
       return false;
     }
 
     var isLoggedIn = isTokenValid();
-    if (!isLoggedIn && !localStorage.getItem('_refresh_failed')) {
+    if (!isLoggedIn && !sessionStorage.getItem('_refresh_failed')) {
       var refreshed = await tryProactiveRefresh();
       if (refreshed) {
         isLoggedIn = isTokenValid();
