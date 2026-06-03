@@ -132,11 +132,12 @@ public class PartyBookingService : IPartyBookingService
         // PayPal
         if (dto.MetodoPagamento == "paypal")
         {
+            var frontendB = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
             var pp = await _paypal.CreateOrderAsync(new PayPalCreateOrderRequest
             {
                 Amount = totale, Currency = "EUR", OrderCode = $"FESTA-{booking.Id}",
-                ReturnUrl = $"http://localhost:5001/feste.html?paypal_booking={booking.Id}",
-                CancelUrl = "http://localhost:5001/feste.html"
+                ReturnUrl = $"{frontendB}/feste.html?paypal_booking={booking.Id}",
+                CancelUrl = $"{frontendB}/feste.html"
             });
             booking.StripePaymentIntentId = pp.Id;
             await _db.SaveChangesAsync();
@@ -144,12 +145,13 @@ public class PartyBookingService : IPartyBookingService
         }
 
         // Stripe checkout
+        var frontendS = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var session = await _stripe.CreateCheckoutSessionAsync(new StripeCreateCheckoutSessionRequest
         {
             Amount = dto.MetodoPagamento == "misto" ? totale - Math.Min(totale, (await _db.Users.FindAsync(userId))!.CreditoResiduo) : totale,
             Currency = "eur",
-            SuccessUrl = $"http://localhost:5001/feste.html?stripe_booking={booking.Id}",
-            CancelUrl = "http://localhost:5001/feste.html",
+            SuccessUrl = $"{frontendS}/feste.html?stripe_booking={booking.Id}",
+            CancelUrl = $"{frontendS}/feste.html",
             OrderId = booking.Id,
             OrderCode = $"FESTA-{booking.Id}",
             UserId = userId,
@@ -301,7 +303,8 @@ public class PartyBookingService : IPartyBookingService
     {
         var email = b.User?.Email;
         if (string.IsNullOrEmpty(email)) return;
-        var feedbackUrl = $"http://localhost:5001/feste.html?feedback={b.Id}";
+        var frontendFb = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+        var feedbackUrl = $"{frontendFb}/feste.html?feedback={b.Id}";
         var html = $@"
 <div style='max-width:520px;margin:0 auto;font-family:Arial,sans-serif;background:#14100c;color:#f0e8e0;border-radius:12px;overflow:hidden;border:1px solid #38302a;'>
   <div style='background:linear-gradient(135deg,#b91c1c,#7f1d1d);padding:28px 24px;text-align:center;'>

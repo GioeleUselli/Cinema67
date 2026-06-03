@@ -305,7 +305,7 @@ public class GiftCardService : IGiftCardService
     <p style='font-size:13px;color:#a89888;margin:0;'>Riscattalo su Cinema67 per aggiungere €{gc.ValoreIniziale:F2} al tuo credito.</p>
   </div>
   <div style='background:#1c1713;padding:16px 24px;text-align:center;border-top:1px solid #38302a;'>
-    <a href='http://localhost:5001/riscatta-giftcard.html' style='color:#d4af37;text-decoration:none;font-size:13px;'>Riscatta ora →</a>
+    <a href='{Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001"}/riscatta-giftcard.html' style='color:#d4af37;text-decoration:none;font-size:13px;'>Riscatta ora →</a>
   </div>
 </div>";
 
@@ -378,23 +378,25 @@ public class GiftCardService : IGiftCardService
 
         if (dto.MetodoPagamento == "paypal")
         {
+            var frontendBase = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
             var pp = await _paypalGateway.CreateOrderAsync(new PayPalCreateOrderRequest
             {
                 Amount = totale, Currency = "EUR", OrderCode = pending.Codice,
-                ReturnUrl = $"http://localhost:5001/giftcard.html?paypal_cart={pending.Id}",
-                CancelUrl = "http://localhost:5001/giftcard.html"
+                ReturnUrl = $"{frontendBase}/giftcard.html?paypal_cart={pending.Id}",
+                CancelUrl = $"{frontendBase}/giftcard.html"
             });
             pending.Note = $"CART|PAYPAL:{pp.Id}|METODO:paypal|CREDITO:0|ITEMS:{itemsJson}";
             await _db.SaveChangesAsync();
             return new { checkoutUrl = pp.ApprovalUrl, paypalOrderId = pp.Id };
         }
 
+        var frontendBase2 = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var stripeRequest = new StripeCreateCheckoutSessionRequest
         {
             Amount = importoCarta,
             Currency = "eur",
-            SuccessUrl = $"http://localhost:5001/giftcard.html?stripe_session={{CHECKOUT_SESSION_ID}}",
-            CancelUrl = "http://localhost:5001/giftcard.html",
+            SuccessUrl = $"{frontendBase2}/giftcard.html?stripe_session={{CHECKOUT_SESSION_ID}}",
+            CancelUrl = $"{frontendBase2}/giftcard.html",
             OrderId = pending.Id,
             OrderCode = pending.Codice,
             UserId = userId,

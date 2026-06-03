@@ -112,8 +112,9 @@ public class MerchPagamentoService : IMerchPagamentoService
             UserId = userId,
             Amount = split.ImportoCarta > 0 ? split.ImportoCarta : total,
             Currency = "eur",
-            SuccessUrl = $"http://localhost:5001/esito-acquisto-merch.html?orderId={merchOrderId}&success=true",
-            CancelUrl = $"http://localhost:5001/shop.html"
+            var fbUrl = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+            SuccessUrl = $"{fbUrl}/esito-acquisto-merch.html?orderId={merchOrderId}&success=true",
+            CancelUrl = $"{fbUrl}/shop.html"
         };
 
         var session = await _stripe.CreateMerchCheckoutSessionAsync(sessionRequest, idempotencyKey);
@@ -319,8 +320,9 @@ public class MerchPagamentoService : IMerchPagamentoService
             Amount = order.Totale,
             Currency = "EUR",
             OrderCode = order.CodiceOrdine ?? "",
-            ReturnUrl = $"http://localhost:5001/esito-acquisto-merch.html?orderId={merchOrderId}&paypal=true",
-            CancelUrl = $"http://localhost:5001/shop.html"
+            var fbPaypal = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+            ReturnUrl = $"{fbPaypal}/esito-acquisto-merch.html?orderId={merchOrderId}&paypal=true",
+            CancelUrl = $"{fbPaypal}/shop.html"
         });
 
         order.ImportoCarta = order.Totale;

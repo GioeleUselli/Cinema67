@@ -138,12 +138,13 @@ public class MembershipService : IMembershipService
             return await AttivaAbbonamentoAsync(userId, "credito");
         }
 
+        var frontendBaseUrl2 = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var stripeRequest = new StripeCreateCheckoutSessionRequest
         {
             Amount = importoCarta,
             Currency = "eur",
-            SuccessUrl = $"http://localhost:5001/membership.html?stripe_membership={pending.Id}",
-            CancelUrl = "http://localhost:5001/membership.html",
+            SuccessUrl = $"{frontendBaseUrl2}/membership.html?stripe_membership={pending.Id}",
+            CancelUrl = $"{frontendBaseUrl2}/membership.html",
             OrderId = pending.Id,
             OrderCode = pending.Codice,
             UserId = userId,
@@ -162,12 +163,13 @@ public class MembershipService : IMembershipService
         var card = await _db.MembershipCards.FirstOrDefaultAsync(c => c.UserId == userId);
         if (card != null && card.IsAttiva) throw new InvalidOperationException("Abbonamento gia attivo.");
 
+        var frontendBaseUrl3 = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var paypal = await _paypalGateway.CreateOrderAsync(new PayPalCreateOrderRequest
         {
             Amount = 9.99m, Currency = "EUR",
             OrderCode = $"MEM-{userId}",
-            ReturnUrl = $"http://localhost:5001/membership.html?paypal_membership=1",
-            CancelUrl = "http://localhost:5001/membership.html"
+            ReturnUrl = $"{frontendBaseUrl3}/membership.html?paypal_membership=1",
+            CancelUrl = $"{frontendBaseUrl3}/membership.html"
         });
 
         var pending = new GiftCard

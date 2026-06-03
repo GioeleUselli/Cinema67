@@ -140,7 +140,8 @@ public class AccountDeletionService : IAccountDeletionService
 
         await _db.SaveChangesAsync();
 
-        var confirmationUrl = $"http://localhost:5001/conferma-export.html?token={token}";
+        var baseUrl = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+        var confirmationUrl = $"{baseUrl}/conferma-export.html?token={token}";
         var htmlBody = $@"<!DOCTYPE html><html><head><meta charset='utf-8'></head>
 <body style='margin:0;padding:0;background:#14100c;font-family:Arial,sans-serif'>
 <table width='100%' cellpadding='0' cellspacing='0' style='background:#14100c'>
@@ -244,7 +245,8 @@ public class AccountDeletionService : IAccountDeletionService
 
         await _db.SaveChangesAsync();
 
-        var confirmationUrl = $"http://localhost:5001/conferma-cancellazione.html?token={token}";
+        var baseUrl2 = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
+        var confirmationUrl = $"{baseUrl2}/conferma-cancellazione.html?token={token}";
         var htmlBody = $@"<!DOCTYPE html><html><head><meta charset='utf-8'></head>
 <body style='margin:0;padding:0;background:#14100c;font-family:Arial,sans-serif'>
 <table width='100%' cellpadding='0' cellspacing='0' style='background:#14100c'>
