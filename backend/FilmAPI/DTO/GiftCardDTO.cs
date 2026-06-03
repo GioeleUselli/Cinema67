@@ -7,7 +7,8 @@ public class GiftCardAcquistoRequestDTO
     public string? DestinatarioEmail { get; set; }
     public string? Messaggio { get; set; }
     public DateTime? DataInvioProgrammato { get; set; }
-    public string MetodoPagamento { get; set; } = "credito"; // "credito" | "carta" | "misto"
+    public string MetodoPagamento { get; set; } = "credito";
+    public string? CodiceSconto { get; set; }
 }
 
 public class GiftCardCartItemDTO

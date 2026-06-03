@@ -29,12 +29,21 @@ public static class GiftCardEndpoints
         authGroup.MapPost("/acquista", async (
             GiftCardAcquistoRequestDTO dto,
             ClaimsPrincipal user,
-            IGiftCardService service) =>
+            IGiftCardService service,
+            FilmDbContext db) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             if (userId == 0) return Results.Unauthorized();
             try
             {
+                // Apply discount code
+                decimal sconto = 0;
+                if (!string.IsNullOrWhiteSpace(dto.CodiceSconto))
+                {
+                    sconto = await ApplicaScontoAsync(db, dto.CodiceSconto, dto.Importo * dto.Quantita);
+                    if (sconto < 0) return Results.BadRequest(new { message = "Codice sconto non valido o già usato." });
+                }
+
                 if (dto.MetodoPagamento == "carta" || dto.MetodoPagamento == "misto")
                 {
                     var stripeResult = await service.CreateStripeCheckoutAsync(userId, dto);
@@ -198,5 +207,61 @@ public static class GiftCardEndpoints
             await service.InviaEmailProgrammateAsync();
             return Results.Ok(new { message = "Email programmate verificate e inviate." });
         });
+    }
+
+    /// <summary>
+    /// Validates and applies a discount code from MerchDiscountCodes, Promotions, or NewsletterSubscribers.
+    /// Returns the discount amount, or -1 if invalid.
+    /// </summary>
+    private static async Task<decimal> ApplicaScontoAsync(FilmDbContext db, string codice, decimal totale)
+    {
+        var code = codice.Trim().ToUpper();
+        
+        // Check MerchDiscountCodes
+        var disc = await db.MerchDiscountCodes
+            .FirstOrDefaultAsync(d => d.Codice == code && d.Attivo
+                && (!d.ScadeIl.HasValue || d.ScadeIl.Value > DateTime.UtcNow)
+                && d.Utilizzi < d.MaxUtilizzi);
+        if (disc != null)
+        {
+            decimal sconto = 0;
+            if (disc.PercentualeSconto > 0)
+            {
+                sconto = Math.Round(totale * disc.PercentualeSconto / 100m, 2);
+                if (disc.ValoreScontoFisso > 0) sconto = Math.Min(sconto, disc.ValoreScontoFisso);
+            }
+            else if (disc.ValoreScontoFisso > 0)
+                sconto = Math.Min(disc.ValoreScontoFisso, totale);
+            disc.Utilizzi++;
+            await db.SaveChangesAsync();
+            return sconto;
+        }
+
+        // Check Promotions
+        var promo = await db.Promotions
+            .FirstOrDefaultAsync(p => p.DiscountCode == code && p.Active
+                && (p.StartDate == null || p.StartDate <= DateTime.UtcNow)
+                && (p.EndDate == null || p.EndDate >= DateTime.UtcNow));
+        if (promo != null && promo.DiscountPercent.HasValue)
+        {
+            if (promo.MaxUsage.HasValue && promo.UsageCount >= promo.MaxUsage.Value)
+                return -1;
+            promo.UsageCount++;
+            await db.SaveChangesAsync();
+            return Math.Round(totale * promo.DiscountPercent.Value / 100m, 2);
+        }
+
+        // Check NewsletterSubscribers
+        var sub = await db.NewsletterSubscribers
+            .FirstOrDefaultAsync(s => s.CodiceSconto == code && !s.ScontoUsato);
+        if (sub != null)
+        {
+            sub.ScontoUsato = true;
+            await db.SaveChangesAsync();
+            return Math.Round(totale * 15m / 100m, 2);
+        }
+
+        return -1; // invalid
+    
     }
 }
