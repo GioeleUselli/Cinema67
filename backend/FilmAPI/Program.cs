@@ -51,7 +51,7 @@ var serverVersion = dbUseAutoDetect
 
 builder.Services.AddDbContext<FilmDbContext>(
     dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, serverVersion, options => options.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null))
+        .UseMySql(connectionString, serverVersion)
         .LogTo(Console.WriteLine, LogLevel.Information)
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()

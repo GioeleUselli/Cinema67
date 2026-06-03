@@ -95,6 +95,29 @@ public static class MerchEndpoints
         });
 
         // Admin
+        app.MapPost("/media/merch", async (HttpRequest request) =>
+        {
+            try
+            {
+                var form = await request.ReadFormAsync();
+                var file = form.Files.GetFile("file");
+                if (file is null || file.Length == 0)
+                    return Results.BadRequest(new { message = "Nessun file caricato" });
+
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName).ToLowerInvariant()}";
+                var relativePath = Path.Combine("media", "merch", fileName);
+                var webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var fullPath = Path.Combine(webRoot, relativePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                await using var stream = new FileStream(fullPath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                var resultPath = $"/{relativePath.Replace('\\', '/')}";
+                return Results.Ok(new { path = resultPath });
+            }
+            catch (Exception ex) { return Results.BadRequest(new { message = ex.Message }); }
+        }).DisableAntiforgery().RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
+
         var adminGroup = app.MapGroup("/admin/merch").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminGroup.MapGet("/orders", async (IMerchService service) =>
