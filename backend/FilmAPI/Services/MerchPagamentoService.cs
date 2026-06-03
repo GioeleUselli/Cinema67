@@ -105,6 +105,7 @@ public class MerchPagamentoService : IMerchPagamentoService
         if (split.ImportoCredito > 0)
             await _credito.ReserveMerchOrderCreditAsync(userId, merchOrderId, split.ImportoCredito, "Riserva credito checkout merch");
 
+        var fbUrl = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var sessionRequest = new StripeCreateMerchCheckoutSessionRequest
         {
             MerchOrderId = merchOrderId,
@@ -112,7 +113,6 @@ public class MerchPagamentoService : IMerchPagamentoService
             UserId = userId,
             Amount = split.ImportoCarta > 0 ? split.ImportoCarta : total,
             Currency = "eur",
-            var fbUrl = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
             SuccessUrl = $"{fbUrl}/esito-acquisto-merch.html?orderId={merchOrderId}&success=true",
             CancelUrl = $"{fbUrl}/shop.html"
         };
@@ -315,12 +315,12 @@ public class MerchPagamentoService : IMerchPagamentoService
         if (order is null || order.UserId != userId) throw new KeyNotFoundException("Ordine non trovato.");
         if (order.Stato != "Pending") throw new InvalidOperationException("Ordine non pagabile.");
 
+        var fbPaypal = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
         var paypal = await _paypal.CreateOrderAsync(new PayPalCreateOrderRequest
         {
             Amount = order.Totale,
             Currency = "EUR",
             OrderCode = order.CodiceOrdine ?? "",
-            var fbPaypal = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
             ReturnUrl = $"{fbPaypal}/esito-acquisto-merch.html?orderId={merchOrderId}&paypal=true",
             CancelUrl = $"{fbPaypal}/shop.html"
         });
