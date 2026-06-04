@@ -1,50 +1,112 @@
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { SectionTitle, ScreenMockup } from "../components/Layout";
+import { AbsoluteFill, Img, interpolate, useCurrentFrame, useVideoConfig, spring } from "remotion";
+import { programmazioneScreenshot } from "./screenshots";
+
+const GOLD = "#b8860b";
+const RED = "#b91c1c";
 
 export const AdminScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const listOpacity = interpolate(frame, [15, 35], [0, 1], { extrapolateRight: "clamp" });
+  const { fps } = useVideoConfig();
+
+  const screenshotOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
+  const headingY = interpolate(frame, [0, 12], [-40, 0], { extrapolateRight: "clamp" });
+  const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+
+  const badgesOpacity = interpolate(frame, [40, 58], [0, 1], { extrapolateRight: "clamp" });
+  const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
+
+  const badgeList = [
+    { icon: "🎬", text: "Import TMDB" },
+    { icon: "📅", text: "Gestione proiezioni" },
+    { icon: "🎟️", text: "Validazione QR" },
+    { icon: "📊", text: "Dashboard admin" },
+  ];
 
   return (
-    <AbsoluteFill style={{ background: "#14100c", padding: "60px 80px", fontFamily: "'Space Grotesk', Arial, sans-serif" }}>
-      <SectionTitle title="Admin Panel" subtitle="Gestione Completa" />
-      <div style={{ display: "flex", gap: 40 }}>
-        <ScreenMockup title="Dashboard Admin">
-          <div style={{ opacity: listOpacity }}>
-            <AdminItem icon="🎬" label="Film" desc="Import da TMDB" />
-            <AdminItem icon="🎭" label="Registi" desc="Gestione registi" />
-            <AdminItem icon="🏛️" label="Cinema" desc="Sale e multisala" />
-            <AdminItem icon="📅" label="Proiezioni" desc="Programmazione" />
-            <AdminItem icon="🎟️" label="Biglietti" desc="Validazione QR" />
+    <AbsoluteFill
+      style={{
+        background: "#0f0c09",
+        fontFamily: "'Space Grotesk', Arial, sans-serif",
+        overflow: "hidden",
+      }}
+    >
+      {/* Screenshot background */}
+      <div style={{ opacity: screenshotOpacity, position: "absolute", inset: 0 }}>
+        <Img
+          src={programmazioneScreenshot}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+          }}
+        />
+      </div>
+
+      {/* Dark overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(15,12,9,0.6) 0%, rgba(15,12,9,0.72) 40%, rgba(15,12,9,0.85) 100%)",
+        }}
+      />
+
+      {/* Heading */}
+      <div
+        style={{
+          position: "absolute",
+          top: 40,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          opacity: headingOpacity,
+          transform: `translateY(${headingY}px)`,
+        }}
+      >
+        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: GOLD, marginBottom: 6 }}>
+          Admin
+        </div>
+        <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
+          Pannello di Gestione
+        </h2>
+      </div>
+
+      {/* Feature badges at bottom */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 40,
+          left: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "center",
+          gap: 20,
+          opacity: badgesOpacity,
+          transform: `translateY(${badgesY}px)`,
+        }}
+      >
+        {badgeList.map((b) => (
+          <div
+            key={b.text}
+            style={{
+              padding: "14px 28px",
+              borderRadius: 16,
+              background: "rgba(0,0,0,0.75)",
+              backdropFilter: "blur(8px)",
+              border: `1px solid ${GOLD}33`,
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#f0e8e0",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <span style={{ fontSize: 20 }}>{b.icon}</span>
+            {b.text}
           </div>
-        </ScreenMockup>
-        <ScreenMockup title="TMDB Import">
-          <div style={{ opacity: listOpacity }}>
-            <div style={{ background: "#1a1614", borderRadius: 8, padding: 12, marginBottom: 10, border: "1px solid #38302a" }}>
-              <div style={{ color: "#d4af37", fontSize: 13, fontWeight: 700 }}>Inception</div>
-              <div style={{ color: "#a89888", fontSize: 11 }}>2010 · 8.8 ⭐ · 148 min</div>
-            </div>
-            <div style={{ background: "#1a1614", borderRadius: 8, padding: 12, marginBottom: 10, border: "1px solid #38302a" }}>
-              <div style={{ color: "#d4af37", fontSize: 13, fontWeight: 700 }}>Interstellar</div>
-              <div style={{ color: "#a89888", fontSize: 11 }}>2014 · 8.7 ⭐ · 169 min</div>
-            </div>
-            <div style={{ background: "#1a1614", borderRadius: 8, padding: 12, border: "1px solid #38302a" }}>
-              <div style={{ color: "#d4af37", fontSize: 13, fontWeight: 700 }}>The Dark Knight</div>
-              <div style={{ color: "#a89888", fontSize: 11 }}>2008 · 9.0 ⭐ · 152 min</div>
-            </div>
-          </div>
-        </ScreenMockup>
+        ))}
       </div>
     </AbsoluteFill>
   );
 };
-
-const AdminItem: React.FC<{ icon: string; label: string; desc: string }> = ({ icon, label, desc }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid #2a2520" }}>
-    <span style={{ fontSize: 20 }}>{icon}</span>
-    <div>
-      <div style={{ color: "#f0e8e0", fontSize: 14, fontWeight: 600 }}>{label}</div>
-      <div style={{ color: "#a89888", fontSize: 11 }}>{desc}</div>
-    </div>
-  </div>
-);

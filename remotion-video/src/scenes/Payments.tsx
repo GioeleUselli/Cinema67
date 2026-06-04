@@ -1,162 +1,169 @@
-import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, spring } from "remotion";
+import { AbsoluteFill, Img, interpolate, useCurrentFrame, useVideoConfig, spring } from "remotion";
+import { programmazioneScreenshot } from "./screenshots";
 
 const GOLD = "#b8860b";
 const RED = "#b91c1c";
-const BG = "#fdfaf6";
-const CARD = "#ffffff";
-const TEXT = "#1c1108";
-const MUTED = "#6b5a4e";
-const BORDER = "#d9cdbd";
 
 export const PaymentsScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const headingOpacity = interpolate(frame, [0, 10], [0, 1], { extrapolateRight: "clamp" });
-  const stripeScale = spring({ frame: frame - 10, fps, config: { mass: 0.4, damping: 7 } });
-  const paypalScale = spring({ frame: frame - 18, fps, config: { mass: 0.4, damping: 7 } });
-  const badgesOpacity = interpolate(frame, [40, 55], [0, 1], { extrapolateRight: "clamp" });
+  const screenshotOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
+  const headingY = interpolate(frame, [0, 12], [-40, 0], { extrapolateRight: "clamp" });
+  const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+
+  const highlight1 = spring({ frame: frame - 15, fps, config: { mass: 0.4, damping: 7 } });
+  const highlight2 = spring({ frame: frame - 22, fps, config: { mass: 0.4, damping: 7 } });
+  const highlight3 = spring({ frame: frame - 29, fps, config: { mass: 0.4, damping: 7 } });
+  const highlight4 = spring({ frame: frame - 36, fps, config: { mass: 0.4, damping: 7 } });
+
+  const badgesOpacity = interpolate(frame, [50, 68], [0, 1], { extrapolateRight: "clamp" });
+  const badgesY = interpolate(frame, [50, 68], [30, 0], { extrapolateRight: "clamp" });
 
   const badgeList = [
+    { icon: "💳", text: "Stripe Live" },
+    { icon: "🅿️", text: "PayPal Sandbox" },
     { icon: "💰", text: "Credito prepagato" },
-    { icon: "🔄", text: "Rimborsi automatici" },
-    { icon: "📊", text: "Storico movimenti" },
+    { icon: "🔙", text: "Rimborsi automatici" },
   ];
 
   return (
     <AbsoluteFill
       style={{
-        background: BG,
+        background: "#0f0c09",
         fontFamily: "'Space Grotesk', Arial, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "50px 80px",
+        overflow: "hidden",
       }}
     >
+      {/* Screenshot background */}
+      <div style={{ opacity: screenshotOpacity, position: "absolute", inset: 0 }}>
+        <Img
+          src={programmazioneScreenshot}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+          }}
+        />
+      </div>
+
+      {/* Dark overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(15,12,9,0.65) 0%, rgba(15,12,9,0.75) 40%, rgba(15,12,9,0.85) 100%)",
+        }}
+      />
+
       {/* Heading */}
-      <div style={{ opacity: headingOpacity, textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 3, color: GOLD, marginBottom: 4 }}>
+      <div
+        style={{
+          position: "absolute",
+          top: 40,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          opacity: headingOpacity,
+          transform: `translateY(${headingY}px)`,
+        }}
+      >
+        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: GOLD, marginBottom: 6 }}>
           Pagamenti
         </div>
-        <h2 style={{ fontSize: 28, fontWeight: 700, color: TEXT, fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
+        <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
           Stripe Live & PayPal Sandbox
         </h2>
       </div>
 
-      {/* Cards side by side */}
-      <div style={{ display: "flex", gap: 60, justifyContent: "center", alignItems: "center" }}>
-        {/* Stripe Card */}
+      {/* Gold highlight rectangles around key UI areas */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
         <div
           style={{
-            transform: `scale(${stripeScale})`,
-            width: 280,
-            padding: "28px 24px",
-            borderRadius: 18,
-            background: "linear-gradient(135deg, #635BFF 0%, #4238D7 60%, #362DB5 100%)",
-            color: "#fff",
-            boxShadow: "0 12px 40px rgba(99,91,255,0.25)",
-            position: "relative",
-            overflow: "hidden",
+            position: "absolute",
+            top: "18%",
+            left: "12%",
+            width: "16%",
+            height: "6%",
+            borderRadius: 8,
+            border: `2px solid ${GOLD}`,
+            opacity: highlight1,
+            boxShadow: `0 0 20px ${GOLD}44, inset 0 0 20px ${GOLD}22`,
           }}
-        >
-          {/* Background pattern */}
-          <div style={{ position: "absolute", top: -20, right: -20, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
-          <div style={{ position: "absolute", bottom: -40, left: -30, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
-
-          <div style={{ position: "relative", zIndex: 1 }}>
-            {/* Chip */}
-            <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 44, height: 34, borderRadius: 6, background: "linear-gradient(135deg, #ffd700, #e6be00)", position: "relative" }}>
-                <div style={{ position: "absolute", top: 4, left: 8, width: 22, height: 14, borderRadius: 2, background: "rgba(0,0,0,0.1)" }} />
-              </div>
-              <div style={{ display: "flex", gap: 5 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.6)" }} />
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.6)" }} />
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.6)" }} />
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.6)" }} />
-              </div>
-            </div>
-
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 2, opacity: 0.7, marginBottom: 4 }}>
-              Chiave Live
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Courier New', monospace", letterSpacing: 1, marginBottom: 16 }}>
-              pk_live_••••
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-              <div>
-                <div style={{ fontSize: 9, opacity: 0.5, textTransform: "uppercase", letterSpacing: 1 }}>Environment</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#22c55e" }}>LIVE</div>
-              </div>
-              <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: 2 }}>Stripe</div>
-            </div>
-          </div>
-        </div>
-
-        {/* PayPal Card */}
+        />
         <div
           style={{
-            transform: `scale(${paypalScale})`,
-            width: 280,
-            padding: "28px 24px",
-            borderRadius: 18,
-            background: "linear-gradient(135deg, #003087 0%, #0052A3 50%, #009cde 100%)",
-            color: "#fff",
-            boxShadow: "0 12px 40px rgba(0,48,135,0.25)",
-            position: "relative",
-            overflow: "hidden",
+            position: "absolute",
+            top: "32%",
+            left: "35%",
+            width: "30%",
+            height: "8%",
+            borderRadius: 8,
+            border: `2px solid ${GOLD}`,
+            opacity: highlight2,
+            boxShadow: `0 0 20px ${GOLD}44, inset 0 0 20px ${GOLD}22`,
           }}
-        >
-          <div style={{ position: "absolute", top: -20, right: -20, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
-          <div style={{ position: "absolute", bottom: -40, left: -30, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
-
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#009cde" }}>Pay</div>
-              <div style={{ fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "#003087" }}>Pal</div>
-            </div>
-
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 2, opacity: 0.7, marginBottom: 4 }}>
-              Sandbox API
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Courier New', monospace", letterSpacing: 1, marginBottom: 16 }}>
-              client_id: A••••
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-              <div>
-                <div style={{ fontSize: 9, opacity: 0.5, textTransform: "uppercase", letterSpacing: 1 }}>Environment</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#f59e0b" }}>SANDBOX</div>
-              </div>
-              <div style={{ fontSize: 30 }}>💳</div>
-            </div>
-          </div>
-        </div>
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "60%",
+            width: "25%",
+            height: "10%",
+            borderRadius: 8,
+            border: `2px solid ${RED}`,
+            opacity: highlight3,
+            boxShadow: `0 0 20px ${RED}44, inset 0 0 20px ${RED}22`,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "68%",
+            left: "15%",
+            width: "20%",
+            height: "7%",
+            borderRadius: 8,
+            border: `2px solid ${GOLD}`,
+            opacity: highlight4,
+            boxShadow: `0 0 20px ${GOLD}44, inset 0 0 20px ${GOLD}22`,
+          }}
+        />
       </div>
 
-      {/* Feature badges */}
-      <div style={{ display: "flex", gap: 30, marginTop: 40, opacity: badgesOpacity }}>
+      {/* Feature badges at bottom */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 40,
+          left: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "center",
+          gap: 20,
+          opacity: badgesOpacity,
+          transform: `translateY(${badgesY}px)`,
+        }}
+      >
         {badgeList.map((b) => (
           <div
             key={b.text}
             style={{
-              padding: "10px 22px",
-              borderRadius: 20,
-              background: CARD,
-              border: `1px solid ${BORDER}`,
-              fontSize: 12,
+              padding: "14px 28px",
+              borderRadius: 16,
+              background: "rgba(0,0,0,0.75)",
+              backdropFilter: "blur(8px)",
+              border: `1px solid ${GOLD}33`,
+              fontSize: 15,
               fontWeight: 600,
-              color: TEXT,
+              color: "#f0e8e0",
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              boxShadow: "0 1px 6px rgba(28,17,8,0.03)",
+              gap: 10,
             }}
           >
-            <span style={{ fontSize: 16 }}>{b.icon}</span>
+            <span style={{ fontSize: 20 }}>{b.icon}</span>
             {b.text}
           </div>
         ))}
