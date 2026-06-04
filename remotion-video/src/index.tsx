@@ -7,7 +7,7 @@ const RemotionRoot: React.FC = () => {
       <Composition
         id="Cinema67Presentation"
         component={Cinema67Presentation}
-        durationInFrames={9 * 240}
+        durationInFrames={17 * 180}
         fps={30}
         width={1920}
         height={1080}
