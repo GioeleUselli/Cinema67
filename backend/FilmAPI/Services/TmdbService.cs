@@ -10,6 +10,10 @@ public interface ITmdbService
     Task<List<TmdbFilmDTO>> SearchFilmsAsync(string query);
     Task<TmdbFilmDetailDTO?> GetFilmDetailAsync(int tmdbId);
     Task<List<TmdbReviewDTO>> GetMovieReviewsAsync(int tmdbId);
+    Task<List<TmdbFilmDTO>> GetPopularFilmsAsync(int page = 1);
+    Task<List<TmdbFilmDTO>> GetTopRatedFilmsAsync(int page = 1);
+    Task<List<TmdbFilmDTO>> GetTrendingFilmsAsync();
+    Task<List<TmdbFilmDTO>> GetNowPlayingFilmsAsync();
 }
 
 public class TmdbService : ITmdbService
@@ -133,6 +137,82 @@ public class TmdbService : ITmdbService
         if (!string.IsNullOrWhiteSpace(_apiKey))
             url += $"&api_key={_apiKey}";
         return url;
+    }
+
+    public async Task<List<TmdbFilmDTO>> GetPopularFilmsAsync(int page = 1)
+    {
+        try
+        {
+            var url = $"{TmdbBaseUrl}/movie/popular?language=it-IT&page={page}";
+            if (!string.IsNullOrWhiteSpace(_apiKey)) url += $"&api_key={_apiKey}";
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) return new List<TmdbFilmDTO>();
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<TmdbSearchResponse>(json);
+            return result?.Results?.Select(r => new TmdbFilmDTO
+            {
+                Id = r.Id, Title = r.Title, PosterPath = r.PosterPath,
+                ReleaseDate = r.ReleaseDate, Overview = r.Overview
+            }).ToList() ?? new List<TmdbFilmDTO>();
+        }
+        catch { return new List<TmdbFilmDTO>(); }
+    }
+
+    public async Task<List<TmdbFilmDTO>> GetTopRatedFilmsAsync(int page = 1)
+    {
+        try
+        {
+            var url = $"{TmdbBaseUrl}/movie/top_rated?language=it-IT&page={page}";
+            if (!string.IsNullOrWhiteSpace(_apiKey)) url += $"&api_key={_apiKey}";
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) return new List<TmdbFilmDTO>();
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<TmdbSearchResponse>(json);
+            return result?.Results?.Select(r => new TmdbFilmDTO
+            {
+                Id = r.Id, Title = r.Title, PosterPath = r.PosterPath,
+                ReleaseDate = r.ReleaseDate, Overview = r.Overview
+            }).ToList() ?? new List<TmdbFilmDTO>();
+        }
+        catch { return new List<TmdbFilmDTO>(); }
+    }
+
+    public async Task<List<TmdbFilmDTO>> GetTrendingFilmsAsync()
+    {
+        try
+        {
+            var url = $"{TmdbBaseUrl}/trending/movie/week?language=it-IT";
+            if (!string.IsNullOrWhiteSpace(_apiKey)) url += $"&api_key={_apiKey}";
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) return new List<TmdbFilmDTO>();
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<TmdbSearchResponse>(json);
+            return result?.Results?.Select(r => new TmdbFilmDTO
+            {
+                Id = r.Id, Title = r.Title, PosterPath = r.PosterPath,
+                ReleaseDate = r.ReleaseDate, Overview = r.Overview
+            }).ToList() ?? new List<TmdbFilmDTO>();
+        }
+        catch { return new List<TmdbFilmDTO>(); }
+    }
+
+    public async Task<List<TmdbFilmDTO>> GetNowPlayingFilmsAsync()
+    {
+        try
+        {
+            var url = $"{TmdbBaseUrl}/movie/now_playing?language=it-IT";
+            if (!string.IsNullOrWhiteSpace(_apiKey)) url += $"&api_key={_apiKey}";
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) return new List<TmdbFilmDTO>();
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<TmdbSearchResponse>(json);
+            return result?.Results?.Select(r => new TmdbFilmDTO
+            {
+                Id = r.Id, Title = r.Title, PosterPath = r.PosterPath,
+                ReleaseDate = r.ReleaseDate, Overview = r.Overview
+            }).ToList() ?? new List<TmdbFilmDTO>();
+        }
+        catch { return new List<TmdbFilmDTO>(); }
     }
 }
 

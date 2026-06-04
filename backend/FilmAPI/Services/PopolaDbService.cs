@@ -47,11 +47,32 @@ public class PopolaDbService
                 await CreaSaleAsync(result, c.Id, c.Nome.StartsWith("Multisala") ? 6 : c.Nome.StartsWith("Cinema") ? 3 : 2);
             }
 
-            // 3. Import popular films from TMDB
-            var tmdbIds = new[] { 27205, 157336, 550, 680, 155, 13, 238, 424, 497, 603, 120, 122 };
-            foreach (var tmdbId in tmdbIds)
+            // 3. Import LOTS of films from TMDB (popular, top-rated, trending, now-playing)
+            var allTmdbFilms = new List<TmdbFilmDTO>();
+            
+            // Get 5 pages of popular (100 films)
+            for (int p = 1; p <= 5; p++)
+                allTmdbFilms.AddRange(await _tmdb.GetPopularFilmsAsync(p));
+            
+            // Get 3 pages of top-rated (60 films)
+            for (int p = 1; p <= 3; p++)
+                allTmdbFilms.AddRange(await _tmdb.GetTopRatedFilmsAsync(p));
+            
+            // Get trending and now-playing
+            allTmdbFilms.AddRange(await _tmdb.GetTrendingFilmsAsync());
+            allTmdbFilms.AddRange(await _tmdb.GetNowPlayingFilmsAsync());
+            
+            // Deduplicate by ID
+            var uniqueFilms = allTmdbFilms
+                .GroupBy(f => f.Id)
+                .Select(g => g.First())
+                .ToList();
+            
+            _logger.LogInformation("Got {Count} unique films from TMDB to import", uniqueFilms.Count);
+            
+            foreach (var tmdbFilm in uniqueFilms)
             {
-                await ImportaFilmAsync(result, tmdbId);
+                await ImportaFilmAsync(result, tmdbFilm.Id);
             }
 
             // 4. Create shows for next 7 days
