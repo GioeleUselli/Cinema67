@@ -21,12 +21,26 @@ async function loadCancellations() {
 async function loadRefunds() {
   var tbody = document.getElementById('refunds-table');
   try {
-    var data = await API.getAllRefunds();
-    if (!data || !data.length) { tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center">Nessun rimborso</td></tr>'; return; }
-    tbody.innerHTML = data.map(function(r) {
+    var [showRefunds, partyRefunds] = await Promise.all([
+      API.getAllRefunds(),
+      API.getPartyRefunds()
+    ]);
+
+    var rows = [];
+
+    // Show refunds
+    (showRefunds || []).forEach(function(r) {
       var sc = r.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' : r.status === 'Failed' ? 'bg-brand-error/10 text-brand-error' : 'bg-amber-500/10 text-amber-500';
-      return '<tr class="row-hover"><td class="px-4 py-3 text-sm text-brand-on-surface">#' + r.ordineId + '</td><td class="px-4 py-3 text-sm">Show #' + r.showCancellationId + '</td><td class="px-4 py-3 text-sm font-bold">€' + ((r.importoCarta||0)+(r.importoCredito||0)).toFixed(2) + '</td><td class="px-4 py-3 text-sm">€' + (r.importoCarta||0).toFixed(2) + '</td><td class="px-4 py-3 text-sm">€' + (r.importoCredito||0).toFixed(2) + '</td><td class="px-4 py-3 text-xs font-mono text-brand-on-surface-variant">' + (r.stripeRefundId || '—') + '</td><td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full font-semibold ' + sc + '">' + r.status + '</span></td><td class="px-4 py-3 text-xs text-brand-error">' + (r.errorMessage || '') + '</td></tr>';
-    }).join('');
+      rows.push('<tr class="row-hover"><td class="px-4 py-3 text-sm text-brand-on-surface">#' + r.ordineId + '</td><td class="px-4 py-3 text-sm">Show #' + r.showCancellationId + '</td><td class="px-4 py-3 text-sm font-bold">€' + ((r.importoCarta||0)+(r.importoCredito||0)).toFixed(2) + '</td><td class="px-4 py-3 text-sm">€' + (r.importoCarta||0).toFixed(2) + '</td><td class="px-4 py-3 text-sm">€' + (r.importoCredito||0).toFixed(2) + '</td><td class="px-4 py-3 text-xs font-mono text-brand-on-surface-variant">' + (r.stripeRefundId || '—') + '</td><td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full font-semibold ' + sc + '">' + r.status + '</span></td><td class="px-4 py-3 text-xs text-brand-error">' + (r.errorMessage || '') + '</td></tr>');
+    });
+
+    // Party refunds
+    (partyRefunds || []).forEach(function(r) {
+      rows.push('<tr class="row-hover"><td class="px-4 py-3 text-sm text-brand-on-surface">Festa #' + r.id + '</td><td class="px-4 py-3 text-sm">' + escapeHtml(r.nomeFesta || 'Festa') + ' @ ' + escapeHtml(r.cinemaNome || '') + '</td><td class="px-4 py-3 text-sm font-bold">€' + (r.totale || 0).toFixed(2) + '</td><td class="px-4 py-3 text-sm">€' + (r.refundAmount || 0).toFixed(2) + '</td><td class="px-4 py-3 text-sm">' + escapeHtml(r.userEmail || '') + '</td><td class="px-4 py-3 text-xs font-mono text-brand-on-surface-variant">' + (r.stripeRefundId || 'Credito') + '</td><td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-500">Completato</span></td><td class="px-4 py-3 text-xs">' + new Date(r.refundedAtUtc).toLocaleString('it-IT') + '</td></tr>');
+    });
+
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center">Nessun rimborso</td></tr>'; return; }
+    tbody.innerHTML = rows.join('');
   } catch(e) { tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-brand-error">Errore</td></tr>'; }
 }
 

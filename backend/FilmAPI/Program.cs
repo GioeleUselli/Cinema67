@@ -486,6 +486,10 @@ app.Lifetime.ApplicationStarted.Register(async () =>
         try {
             var columnsToAdd = new[] {
                 ("Users", "GiftCardCartJson", "TEXT NULL"),
+                ("PartyBookings", "RefundAmount", "decimal(10,2) NULL"),
+                ("PartyBookings", "RefundedAtUtc", "datetime(6) NULL"),
+                ("PartyBookings", "StripeRefundId", "VARCHAR(100) NULL"),
+                ("PartyBookings", "RefundCompleted", "tinyint(1) NOT NULL DEFAULT 0"),
             };
             foreach (var (table, column, type) in columnsToAdd) {
                 try {

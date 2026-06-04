@@ -109,6 +109,27 @@ public static class PartyBookingEndpoints
             await service.AutoCompleteAsync();
             return Results.Ok(new { message = "Feste completate automaticamente." });
         });
+
+        adminGroup.MapGet("/refunds", async (FilmDbContext db) =>
+        {
+            var refunds = await db.PartyBookings
+                .Where(b => b.RefundCompleted && b.Stato == PartyStatus.Cancelled)
+                .OrderByDescending(b => b.RefundedAtUtc)
+                .Select(b => new
+                {
+                    id = b.Id,
+                    nomeFesta = b.NomeFesta ?? "",
+                    userId = b.UserId,
+                    userEmail = b.User!.Email,
+                    totale = b.Totale,
+                    refundAmount = b.RefundAmount ?? 0,
+                    refundedAtUtc = b.RefundedAtUtc,
+                    stripeRefundId = b.StripeRefundId ?? "",
+                    cinemaNome = b.Cinema!.Nome
+                })
+                .ToListAsync();
+            return Results.Ok(refunds);
+        });
     }
 }
 

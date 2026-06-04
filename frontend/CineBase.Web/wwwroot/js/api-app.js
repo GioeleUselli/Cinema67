@@ -665,6 +665,8 @@ deleteFilm: (id) => apiFetch(`/films/${id}`, { method: 'DELETE' }),
   scanPartyQr: function (data) { return apiFetch('/admin/party/scan', { method: 'POST', body: JSON.stringify(data) }); },
   autoCompleteParties: function () { return apiFetch('/admin/party/auto-complete', { method: 'POST' }); },
 
+  getPartyRefunds: function () { return apiFetch('/admin/party/refunds'); },
+
   // ── Show Cancellation ──
   previewCancelShow: function (showId) { return apiFetch('/admin/shows/' + showId + '/cancel/preview'); },
   cancelShow: function (showId, data) { return apiFetch('/admin/shows/' + showId + '/cancel', { method: 'POST', body: JSON.stringify(data) }); },

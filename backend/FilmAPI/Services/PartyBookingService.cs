@@ -240,6 +240,7 @@ public class PartyBookingService : IPartyBookingService
         }
         if (status == PartyStatus.Cancelled)
         {
+            await ProcessPartyRefund(b);
             await SendCancellationEmail(b);
         }
         if (status == PartyStatus.Completed)
@@ -249,6 +250,41 @@ public class PartyBookingService : IPartyBookingService
         }
         await _db.SaveChangesAsync();
         return Map(b);
+    }
+
+    private async Task ProcessPartyRefund(PartyBooking b)
+    {
+        if (b.RefundCompleted || b.Totale <= 0) return;
+        try
+        {
+            var user = await _db.Users.FindAsync(b.UserId);
+            if (user != null)
+            {
+                var saldoPre = user.CreditoResiduo;
+                user.CreditoResiduo += b.Totale;
+                _db.MovimentiCredito.Add(new MovimentoCredito
+                {
+                    UserId = b.UserId,
+                    Tipo = MovimentoCreditoTipo.Refund,
+                    Importo = b.Totale,
+                    SaldoPre = saldoPre,
+                    SaldoPost = user.CreditoResiduo,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    Note = $"PARTY_CANCEL_REFUND:{b.Id}"
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(b.StripePaymentIntentId) && b.StripePaymentIntentId.StartsWith("pi_"))
+            {
+                try { var refund = await _stripe.CreateRefundAsync(b.StripePaymentIntentId, (long)(b.Totale * 100)); b.StripeRefundId = refund.Id; }
+                catch { }
+            }
+
+            b.RefundAmount = b.Totale;
+            b.RefundedAtUtc = DateTime.UtcNow;
+            b.RefundCompleted = true;
+        }
+        catch { }
     }
 
     public async Task<PartyBookingDTO> ScanQrAsync(string qrData)

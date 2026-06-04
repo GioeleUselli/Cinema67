@@ -72,6 +72,12 @@ public class PartyBooking
 
     public DateTime? CompletatoIl { get; set; }
 
+    // Refund tracking
+    public decimal? RefundAmount { get; set; }
+    public DateTime? RefundedAtUtc { get; set; }
+    [MaxLength(100)] public string? StripeRefundId { get; set; }
+    public bool RefundCompleted { get; set; }
+
     [Required]
     public DateTime CreatedAtUtc { get; set; }
 }
