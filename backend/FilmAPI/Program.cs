@@ -95,6 +95,7 @@ builder.Services.AddScoped<IPaccoService, PaccoService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<PopolaDbService>();
 builder.Services.AddScoped<ITmdbService>(sp =>
 {
     var token = Environment.GetEnvironmentVariable("TMDB_BEARER_TOKEN");
@@ -327,6 +328,13 @@ app.MapMerchEndpoints();
 app.MapMerchPagamentoEndpoints();
 app.MapPaccoEndpoints();
 app.MapReviewEndpoints();
+
+// Bulk database population from TMDB
+app.MapPost("/admin/popola-db", async (PopolaDbService service) =>
+{
+    var result = await service.PopolaTuttoAsync();
+    return Results.Ok(result);
+}).RequireAuthorization("PowerUserOrAdmin");
 
 app.MapGet("/config/frontend", (FrontendRuntimeConfig config) => Results.Ok(new
 {

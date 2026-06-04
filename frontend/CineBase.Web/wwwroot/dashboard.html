@@ -111,8 +111,13 @@
       <a href="/support-tickets.html" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-gold/30 transition-all">
         <span class="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center"><i class="fa-solid fa-headset text-brand-gold text-lg"></i></span>
         <span class="text-xs font-semibold text-brand-on-surface">Support</span>
-      </a>
-    </section>
+        </a>
+        <button onclick="popolaDatabase()" class="cine-premium-card p-4 flex flex-col items-center gap-2 text-center hover:border-brand-gold/30 transition-all" title="Popola il database con cinema, sale, film e proiezioni da TMDB">
+          <span class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold/20 to-brand-red/20 flex items-center justify-center"><i class="fa-solid fa-wand-magic-sparkles text-brand-gold text-lg"></i></span>
+          <span class="text-xs font-semibold text-brand-on-surface">Popola DB</span>
+          <span id="popola-status" class="text-[10px] text-brand-on-surface-variant hidden">In corso...</span>
+        </button>
+      </section>
 
     <!-- ═══ UPCOMING SHOWS TABLE ═══ -->
     <section class="cine-curtain-in cine-curtain-delay-3 mb-8 cine-premium-card overflow-x-auto">
@@ -180,8 +185,30 @@
   <script src="/js/admin-shell.js?v=100"></script>
   <script src="/js/staff-shell.js?v=1"></script>
   <script src="/js/pages/dashboard.js?v=6"></script>
-   <script>
-</body>
+    <script>
+   async function popolaDatabase() {
+     var status = document.getElementById('popola-status');
+     status.classList.remove('hidden');
+     status.textContent = 'Popolamento in corso...';
+     try {
+       var token = window.Auth?.getAccessToken?.();
+       if (!token) { status.textContent = 'Non autenticato.'; return; }
+       var apiBase = (window.__RUNTIME_CONFIG__ && window.__RUNTIME_CONFIG__.apiBaseUrl) || 'http://localhost:5000';
+       var resp = await fetch(apiBase + '/admin/popola-db', {
+         method: 'POST',
+         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+       });
+       var data = await resp.json();
+       if (data.success) {
+         status.innerHTML = '✅ ' + data.cinemaCreati + ' cinema, ' + data.saleCreate + ' sale, ' + data.filmImportati + ' film, ' + data.spettacoliCreati + ' spettacoli';
+         setTimeout(function() { location.reload(); }, 3000);
+       } else {
+         status.textContent = 'Errore: ' + (data.errori && data.errori[0] || 'Sconosciuto');
+       }
+     } catch(e) { status.textContent = 'Errore: ' + e.message; }
+   }
+   </script>
+ </body>
 
 </html>
 
