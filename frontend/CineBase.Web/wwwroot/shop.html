@@ -169,20 +169,22 @@
       } catch(e) { /* silent */ }
     }
     async function loadCartFromBackend() {
-      if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) return;
-      try {
-        var backendItems = await API.getCart();
-        if (backendItems && backendItems.length > 0) {
+        if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) return false;
+        try {
+          var backendItems = await API.getCart();
+          if (backendItems && backendItems.length > 0) {
           var enriched = [];
           for (var i = 0; i < backendItems.length; i++) {
             var bi = backendItems[i];
             var product = products.find(function(p) { return p.id === bi.merchItemId; });
             enriched.push({ id: bi.merchItemId, name: product ? product.nome : ('Articolo #' + bi.merchItemId), price: product ? product.prezzo : 0, qty: bi.quantita, variantId: bi.variantId });
           }
-          cart = enriched;
-          saveCart(); // persist to localStorage too
-        }
-      } catch(e) { /* silent */ }
+            cart = enriched;
+            saveCart(); // persist to localStorage too
+            return true;
+          }
+          return false;
+        } catch(e) { return false; }
     }
     function updateCartUI() {
       const count = cart.reduce((s, i) => s + i.qty, 0);
@@ -485,10 +487,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      loadCart();
-      updateCartUI();
       await loadProducts();
-      await loadCartFromBackend();
+      // Prima carica dal backend (sorgente primaria, condivisa tra dispositivi)
+      var loadedFromBackend = await loadCartFromBackend();
+      // Se non loggato o backend vuoto, usa localStorage come fallback
+      if (!loadedFromBackend) {
+        loadCart();
+      }
       updateCartUI();
       await loadMyOrders();
 
