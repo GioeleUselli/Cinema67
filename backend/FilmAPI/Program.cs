@@ -478,46 +478,27 @@ app.Lifetime.ApplicationStarted.Register(async () =>
             try {
                 await db.Database.MigrateAsync();
             } catch (Exception mex) {
-                logger.LogWarning(mex, "EF Core migration error, attempting manual column fixes...");
-                
-                var columnsToAdd = new[] {
-                    ("Users", "AnonymizedAtUtc", "datetime(6) NULL"),
-                    ("Users", "AuthVersion", "int NOT NULL DEFAULT 0"),
-                    ("Users", "IsDisabled", "tinyint(1) NOT NULL DEFAULT 0"),
-                    ("Users", "LastLoginAtUtc", "datetime(6) NULL"),
-                    ("Users", "LastLoginProvider", "varchar(30) NULL"),
-                    ("Users", "LocalCredentialsEnabled", "tinyint(1) NOT NULL DEFAULT 1"),
-                    ("Users", "GiftCardCartJson", "TEXT NULL"),
-                    ("MovimentiCredito", "MerchOrderId", "int NULL"),
-                    ("Films", "TmdbId", "int NULL"),
-                    ("Ordini", "VoucherCode", "VARCHAR(50) NULL"),
-                    ("Ordini", "DiscountCode", "VARCHAR(50) NULL"),
-                    ("Shows", "MaxCapacity", "int NULL"),
-                    ("Shows", "State", "int NOT NULL DEFAULT 0"),
-                    ("PremiRiscatti", "MerchOrderId", "int NULL"),
-                    ("PremiRiscatti", "CodiceVoucher", "VARCHAR(50) NULL"),
-                    ("PremiRiscatti", "GiftCardId", "int NULL"),
-                    ("PremiRiscatti", "Taglia", "VARCHAR(20) NULL"),
-                    ("MerchItems", "MerchOrderId", "int NOT NULL"),
-                    ("MerchItems", "Quantity", "int NOT NULL DEFAULT 1"),
-                    ("Membership", "MerchOrderId", "int NULL"),
-                    ("Premi", "MerchItemId", "int NULL"),
-                    ("Premi", "PercentualeSconto", "int NULL"),
-                    ("MerchDiscountCodes", "ValoreScontoFisso", "decimal(10,2) NOT NULL DEFAULT 0.0"),
-                };
-                
-                foreach (var (table, column, type) in columnsToAdd) {
-                    try {
-                        await db.Database.ExecuteSqlRawAsync($"ALTER TABLE `{table}` ADD COLUMN `{column}` {type}");
-                        logger.LogInformation($"✓ Manually added {table}.{column} column");
-                    } catch (Exception ex) {
-                        logger.LogWarning(ex, $"Manual column addition skipped for {table}.{column}");
-                    }
-                }
-                
-                await db.Database.MigrateAsync();
+                logger.LogWarning(mex, "EF Core migration error, continuing...");
             }
         }
+
+        // Always attempt to add any missing columns (idempotent, skips if exists)
+        try {
+            var columnsToAdd = new[] {
+                ("Users", "GiftCardCartJson", "TEXT NULL"),
+            };
+            foreach (var (table, column, type) in columnsToAdd) {
+                try {
+                    await db.Database.ExecuteSqlRawAsync($"ALTER TABLE `{table}` ADD COLUMN `{column}` {type}");
+                    logger.LogInformation($"✓ Added missing column {table}.{column}");
+                } catch (Exception ex) {
+                    logger.LogWarning(ex, $"Column {table}.{column} may already exist");
+                }
+            }
+        } catch (Exception colEx) {
+            logger.LogWarning(colEx, "Column check/repair failed");
+        }
+
         logger.LogInformation("✓ Migrations applied");
 
         logger.LogInformation("Running DataSeeder...");
