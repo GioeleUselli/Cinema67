@@ -1,75 +1,129 @@
-import { AbsoluteFill, Sequence, interpolate, useCurrentFrame } from "remotion";
-import IntroScene from "./scenes/IntroScene";
-import HomepageScene from "./scenes/HomepageScene";
-import AuthScene from "./scenes/AuthScene";
-import CatalogoScene from "./scenes/CatalogoScene";
-import AdminDashboardScene from "./scenes/AdminDashboardScene";
-import AdminFilmsScene from "./scenes/AdminFilmsScene";
-import AdminProiezioniScene from "./scenes/AdminProiezioniScene";
-import ShopScene from "./scenes/ShopScene";
-import GiftCardScene from "./scenes/GiftCardScene";
-import RiscattaScene from "./scenes/RiscattaScene";
-import MembershipScene from "./scenes/MembershipScene";
-import FesteScene from "./scenes/FesteScene";
-import PagamentiScene from "./scenes/PagamentiScene";
-import RimborsiScene from "./scenes/RimborsiScene";
-import MerchAdminScene from "./scenes/MerchAdminScene";
-import EmailScene from "./scenes/EmailScene";
-import TechScene from "./scenes/TechScene";
-import FinaleScene from "./scenes/FinaleScene";
+import {
+  AbsoluteFill,
+  Sequence,
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+} from "remotion";
+import Hero from "./scenes/Hero";
+import Auth from "./scenes/Auth";
+import Films from "./scenes/Films";
+import Programmazione from "./scenes/Programmazione";
+import MappaPosti from "./scenes/MappaPosti";
+import Biglietteria from "./scenes/Biglietteria";
+import Shop from "./scenes/Shop";
+import CarrelloCrossDevice from "./scenes/CarrelloCrossDevice";
+import GiftCard from "./scenes/GiftCard";
+import Pagamenti from "./scenes/Pagamenti";
+import Membership from "./scenes/Membership";
+import Premi from "./scenes/Premi";
+import Eventi from "./scenes/Eventi";
+import Rimborsi from "./scenes/Rimborsi";
+import Email from "./scenes/Email";
+import Marketing from "./scenes/Marketing";
+import DarkMode from "./scenes/DarkMode";
+import Cloud from "./scenes/Cloud";
+import Tech from "./scenes/Tech";
+import Finale from "./scenes/Finale";
 
 const GOLD = "#d4af37";
+const TOTAL_FRAMES = 3000;
 
-const scenes = [
-  { component: IntroScene, duration: 120 },
-  { component: HomepageScene, duration: 130 },
-  { component: AuthScene, duration: 130 },
-  { component: CatalogoScene, duration: 130 },
-  { component: AdminDashboardScene, duration: 130 },
-  { component: AdminFilmsScene, duration: 130 },
-  { component: AdminProiezioniScene, duration: 130 },
-  { component: ShopScene, duration: 130 },
-  { component: GiftCardScene, duration: 120 },
-  { component: RiscattaScene, duration: 100 },
-  { component: MembershipScene, duration: 140 },
-  { component: FesteScene, duration: 130 },
-  { component: PagamentiScene, duration: 130 },
-  { component: RimborsiScene, duration: 130 },
-  { component: MerchAdminScene, duration: 120 },
-  { component: EmailScene, duration: 120 },
-  { component: TechScene, duration: 120 },
-  { component: FinaleScene, duration: 150 },
-];
-
-const totalFrames = scenes.reduce((sum, s) => sum + s.duration, 0);
-
-export const Cinema67Presentation: React.FC = () => {
-  let currentFrame = 0;
+const ProgressBar: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, TOTAL_FRAMES], [0, 100], {
+    extrapolateRight: "clamp",
+  });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#0a0806" }}>
-      {scenes.map((scene, index) => {
-        const startFrame = currentFrame;
-        const duration = scene.duration;
-        currentFrame += duration;
-
-        return (
-          <Sequence key={index} from={startFrame} durationInFrames={duration} name={`Scene${index}`}>
-            <scene.component />
-          </Sequence>
-        );
-      })}
-      <ProgressBar totalFrames={totalFrames} />
-    </AbsoluteFill>
+    <div
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        background: "#1a1410",
+        zIndex: 100,
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${progress}%`,
+          background: `linear-gradient(90deg, ${GOLD}88, ${GOLD})`,
+          boxShadow: `0 0 8px ${GOLD}66`,
+          borderRadius: "0 2px 2px 0",
+        }}
+      />
+    </div>
   );
 };
 
-const ProgressBar: React.FC<{ totalFrames: number }> = ({ totalFrames }) => {
-  const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, totalFrames], [0, 100], { extrapolateRight: "clamp" });
+export const Cinema67Presentation: React.FC = () => {
   return (
-    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "transparent" }}>
-      <div style={{ height: "100%", width: `${progress}%`, background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`, opacity: 0.6 }} />
-    </div>
+    <AbsoluteFill style={{ background: "#0a0806" }}>
+      <Sequence from={0} durationInFrames={120}>
+        <Hero />
+      </Sequence>
+      <Sequence from={120} durationInFrames={150}>
+        <Auth />
+      </Sequence>
+      <Sequence from={270} durationInFrames={150}>
+        <Films />
+      </Sequence>
+      <Sequence from={420} durationInFrames={150}>
+        <Programmazione />
+      </Sequence>
+      <Sequence from={570} durationInFrames={150}>
+        <MappaPosti />
+      </Sequence>
+      <Sequence from={720} durationInFrames={150}>
+        <Biglietteria />
+      </Sequence>
+      <Sequence from={870} durationInFrames={150}>
+        <Shop />
+      </Sequence>
+      <Sequence from={1020} durationInFrames={150}>
+        <CarrelloCrossDevice />
+      </Sequence>
+      <Sequence from={1170} durationInFrames={150}>
+        <GiftCard />
+      </Sequence>
+      <Sequence from={1320} durationInFrames={150}>
+        <Pagamenti />
+      </Sequence>
+      <Sequence from={1470} durationInFrames={150}>
+        <Membership />
+      </Sequence>
+      <Sequence from={1620} durationInFrames={150}>
+        <Premi />
+      </Sequence>
+      <Sequence from={1770} durationInFrames={150}>
+        <Eventi />
+      </Sequence>
+      <Sequence from={1920} durationInFrames={150}>
+        <Rimborsi />
+      </Sequence>
+      <Sequence from={2070} durationInFrames={150}>
+        <Email />
+      </Sequence>
+      <Sequence from={2220} durationInFrames={150}>
+        <Marketing />
+      </Sequence>
+      <Sequence from={2370} durationInFrames={150}>
+        <DarkMode />
+      </Sequence>
+      <Sequence from={2520} durationInFrames={150}>
+        <Cloud />
+      </Sequence>
+      <Sequence from={2670} durationInFrames={150}>
+        <Tech />
+      </Sequence>
+      <Sequence from={2820} durationInFrames={180}>
+        <Finale />
+      </Sequence>
+      <ProgressBar />
+    </AbsoluteFill>
   );
 };
