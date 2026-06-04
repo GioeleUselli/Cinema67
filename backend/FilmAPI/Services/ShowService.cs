@@ -20,6 +20,7 @@ public class ShowService : IShowService
             .Include(s => s.Film)
             .Include(s => s.Cinema)
             .Include(s => s.Sala)
+            .Where(s => s.State != ShowState.Cancelled)
             .OrderBy(s => s.StartAtUtc)
             .Select(s => MapToDTO(s))
             .ToListAsync();
@@ -34,6 +35,7 @@ public class ShowService : IShowService
             .Include(s => s.Film)
             .Include(s => s.Cinema)
             .Include(s => s.Sala)
+            .Where(s => s.State != ShowState.Cancelled)
             .AsNoTracking()
             .AsQueryable();
 

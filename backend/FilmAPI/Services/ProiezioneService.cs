@@ -22,6 +22,7 @@ public class ProiezioneService : IProiezioneService
             .Include(s => s.Film)
             .Include(s => s.Cinema)
             .Include(s => s.Sala)
+            .Where(s => s.State != ShowState.Cancelled)
             .OrderBy(s => s.StartAtUtc)
             .Select(s => new ProiezioneDTO
             {
@@ -42,6 +43,7 @@ public class ProiezioneService : IProiezioneService
         var query = _context.Shows
             .Include(s => s.Cinema)
             .Include(s => s.Film)
+            .Where(s => s.State != ShowState.Cancelled)
             .AsNoTracking()
             .AsQueryable();
 
