@@ -5,11 +5,11 @@ import { AdminScene } from "./scenes/Admin";
 import { ShopScene } from "./scenes/Shop";
 import { PaymentsScene } from "./scenes/Payments";
 import { MembershipScene } from "./scenes/Membership";
-import { PartiesRefundsScene } from "./scenes/PartiesRefunds";
+import { PartiesRefundsScene } from "./scenes/Feste";
 import { EmailScene } from "./scenes/Email";
 import { OutroScene } from "./scenes/Outro";
 
-const SCENE_DURATION = 180; // 6 seconds each
+const SCENE_DURATION = 240; // 8 seconds per scene
 const SCENES = [
   { component: IntroScene, label: "Intro" },
   { component: AuthScene, label: "Auth" },

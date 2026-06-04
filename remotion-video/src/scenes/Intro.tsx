@@ -1,125 +1,126 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, spring } from "remotion";
+
+const GOLD = "#b8860b";
+const RED = "#b91c1c";
+const BG = "#fdfaf6";
+const TEXT = "#1c1108";
+const MUTED = "#6b5a4e";
 
 export const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const logoScale = spring({ frame, fps, config: { mass: 0.5, damping: 8 } });
-  const titleOpacity = interpolate(frame, [20, 40], [0, 1], { extrapolateRight: "clamp" });
-  const subtitleOpacity = interpolate(frame, [40, 60], [0, 1], { extrapolateRight: "clamp" });
-  const bgOpacity = interpolate(frame, [0, 20], [0, 1]);
+  const logoScale = spring({ frame, fps, config: { mass: 0.4, damping: 6 } });
+  const heroOpacity = interpolate(frame, [15, 35], [0, 1], { extrapolateRight: "clamp" });
+  const btn1Opacity = interpolate(frame, [35, 50], [0, 1], { extrapolateRight: "clamp" });
+  const btn2Opacity = interpolate(frame, [45, 60], [0, 1], { extrapolateRight: "clamp" });
+  const scrollOpacity = interpolate(frame, [60, 80], [0, 1], { extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill
       style={{
-        background: "linear-gradient(135deg, #1a1614 0%, #14100c 50%, #0f0c09 100%)",
+        background: `linear-gradient(160deg, #1a1410 0%, #0f0c09 40%, #1a1614 100%)`,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "'DM Serif Display', Georgia, serif",
+        overflow: "hidden",
       }}
     >
-      {/* Spotlight effect */}
+      {/* Spotlight */}
       <div
         style={{
           position: "absolute",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 600,
-          height: 600,
+          width: 800,
+          height: 800,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)",
-          opacity: bgOpacity,
+          background: `radial-gradient(circle, ${GOLD}10 0%, transparent 60%)`,
         }}
       />
+
+      {/* Decorative filmstrip lines */}
+      <div style={{ position: "absolute", top: 80, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${GOLD}44, transparent)` }} />
+      <div style={{ position: "absolute", bottom: 80, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${GOLD}44, transparent)` }} />
 
       {/* Logo */}
       <div
         style={{
           transform: `scale(${logoScale})`,
-          fontSize: 80,
+          fontSize: 72,
           fontWeight: 900,
-          color: "#d4af37",
-          letterSpacing: 8,
-          marginBottom: 20,
+          color: GOLD,
+          letterSpacing: 10,
+          fontFamily: "'DM Serif Display', Georgia, serif",
+          textShadow: "0 0 80px rgba(184,134,11,0.3)",
         }}
       >
         CINEMA67
-      </div>
-
-      {/* Decorative line */}
-      <div
-        style={{
-          width: interpolate(frame, [10, 30], [0, 200], { extrapolateRight: "clamp" }),
-          height: 2,
-          background: "linear-gradient(90deg, transparent, #d4af37, transparent)",
-          marginBottom: 30,
-          opacity: titleOpacity,
-        }}
-      />
-
-      {/* Title */}
-      <div
-        style={{
-          fontSize: 28,
-          color: "#f0e8e0",
-          fontWeight: 300,
-          letterSpacing: 4,
-          opacity: titleOpacity,
-          fontFamily: "'Space Grotesk', Arial, sans-serif",
-        }}
-      >
-        PIATTAFORMA CINEMA
       </div>
 
       {/* Subtitle */}
       <div
         style={{
           marginTop: 16,
-          fontSize: 16,
-          color: "#a89888",
-          fontWeight: 400,
-          opacity: subtitleOpacity,
+          opacity: heroOpacity,
+          fontSize: 14,
+          color: MUTED,
+          letterSpacing: 5,
+          textTransform: "uppercase",
           fontFamily: "'Space Grotesk', Arial, sans-serif",
         }}
       >
-        Gestione completa — dalla vendita biglietti al rimborso
+        Piattaforma Cinema Completa
       </div>
 
-      {/* Particles */}
-      <GoldParticle frame={frame} delay={0} x={100} y={200} />
-      <GoldParticle frame={frame} delay={10} x={500} y={150} />
-      <GoldParticle frame={frame} delay={20} x={300} y={350} />
-      <GoldParticle frame={frame} delay={30} x={600} y={300} />
+      <div
+        style={{
+          marginTop: 24,
+          fontSize: 18,
+          color: "#c4b8a8",
+          opacity: heroOpacity,
+          fontFamily: "'Space Grotesk', Arial, sans-serif",
+          textAlign: "center",
+          maxWidth: 600,
+          lineHeight: 1.6,
+        }}
+      >
+        Dalla vendita biglietti al rimborso automatico.
+        Shop, gift card, membership, feste, newsletter e molto altro.
+      </div>
+
+      {/* CTA Buttons */}
+      <div style={{ display: "flex", gap: 16, marginTop: 40 }}>
+        <div
+          style={{
+            opacity: btn1Opacity,
+            padding: "14px 36px",
+            borderRadius: 12,
+            background: `linear-gradient(135deg, ${GOLD}, #92600a)`,
+            color: "#fff",
+            fontSize: 15,
+            fontWeight: 700,
+            fontFamily: "'Space Grotesk', Arial, sans-serif",
+          }}
+        >
+          Scopri le funzionalità ▼
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 120,
+          opacity: scrollOpacity,
+          fontSize: 20,
+          color: GOLD,
+        }}
+      >
+        ▼
+      </div>
     </AbsoluteFill>
-  );
-};
-
-const GoldParticle: React.FC<{ frame: number; delay: number; x: number; y: number }> = ({
-  frame,
-  delay,
-  x,
-  y,
-}) => {
-  const { fps } = useVideoConfig();
-  const opacity = interpolate(frame - delay, [0, 30], [0, 0.6], { extrapolateRight: "clamp" });
-  const translateY = interpolate(frame - delay, [0, 60], [0, -80], { extrapolateRight: "clamp" });
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: x,
-        top: y + translateY,
-        width: 4,
-        height: 4,
-        borderRadius: "50%",
-        backgroundColor: "#d4af37",
-        opacity,
-        boxShadow: "0 0 8px #d4af37",
-      }}
-    />
   );
 };
