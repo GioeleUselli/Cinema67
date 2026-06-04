@@ -21,28 +21,21 @@
   <script>
     (function(){
       var p = new URLSearchParams(window.location.search);
-      var code = p.get('code');
-      if (!code) { showError('Codice mancante.'); return; }
-      
-      // Use runtime config API base URL
-      var apiBase = (window.__RUNTIME_CONFIG__ && window.__RUNTIME_CONFIG__.apiBaseUrl) || 'http://localhost:5000';
-      
-      fetch(apiBase + '/auth/external/exchange?code=' + encodeURIComponent(code), { method: 'POST' })
-        .then(function(r){ if(!r.ok) throw new Error('errore server'); return r.json(); })
-        .then(function(d){
-          if (d.accessToken && d.refreshToken) {
-            try { sessionStorage.setItem('cb_access_token', d.accessToken); } catch(e){}
-            try { sessionStorage.setItem('cb_refresh_token', d.refreshToken); } catch(e){}
-            try { sessionStorage.setItem('cb_device_id', 'social-default'); } catch(e){}
-            try { sessionStorage.setItem('cb_user', JSON.stringify({ id: d.userId, nome: d.nome || '', email: d.email || '', ruolo: 'User' })); } catch(e){}
-            window.location.href = '/index.html';
-          } else { showError('Risposta non valida.'); }
-        })
-        .catch(function(e){ showError(e.message || 'Errore di connessione.'); });
+      var accessToken = p.get('accessToken');
+      var refreshToken = p.get('refreshToken');
+      var email = p.get('email');
+      var nome = p.get('nome');
+      var userId = p.get('userId');
 
-      function showError(m){
+      if (accessToken && refreshToken) {
+        try { sessionStorage.setItem('cb_access_token', accessToken); } catch(e){}
+        try { sessionStorage.setItem('cb_refresh_token', refreshToken); } catch(e){}
+        try { sessionStorage.setItem('cb_device_id', 'social-default'); } catch(e){}
+        try { sessionStorage.setItem('cb_user', JSON.stringify({ id: parseInt(userId) || 0, nome: nome || '', email: email || '', ruolo: 'User' })); } catch(e){}
+        window.location.href = '/index.html';
+      } else {
         var el = document.getElementById('err');
-        el.textContent = m;
+        el.textContent = 'Token mancanti. Riprova il login.';
         el.classList.remove('hidden');
       }
     })();

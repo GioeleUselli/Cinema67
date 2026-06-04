@@ -9,21 +9,9 @@ namespace FilmAPI.Endpoints;
 
 public static class SocialAuthEndpoints
 {
-    private static readonly Dictionary<string, (string accessToken, string refreshToken, string email, string nome, int userId)> _exchangeCodes = new();
-
     public static void MapSocialAuthEndpoints(this WebApplication app)
     {
         var frontendBase = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL") ?? "http://localhost:5001";
-
-        app.MapPost("/auth/external/exchange", (HttpContext ctx) =>
-        {
-            var code = ctx.Request.Query["code"].FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(code) || !_exchangeCodes.TryGetValue(code, out var entry))
-                return Results.BadRequest(new { message = "Codice non valido o scaduto." });
-
-            _exchangeCodes.Remove(code);
-            return Results.Ok(new { accessToken = entry.accessToken, refreshToken = entry.refreshToken, email = entry.email, nome = entry.nome, userId = entry.userId });
-        }).AllowAnonymous();
 
         app.MapGet("/auth/social-callback", async (HttpContext ctx) =>
         {
@@ -81,10 +69,8 @@ public static class SocialAuthEndpoints
             });
             await db.SaveChangesAsync();
 
-            var exchangeCode = Guid.NewGuid().ToString("N");
-            _exchangeCodes[exchangeCode] = (accessToken, refreshToken, user.Email, user.Nome, user.Id);
-
-            ctx.Response.Redirect($"{frontendBase}/social-login-complete.html?code={Uri.EscapeDataString(exchangeCode)}");
+            // Pass tokens directly in URL - no more in-memory exchange codes
+            ctx.Response.Redirect($"{frontendBase}/social-login-complete.html?accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}&email={Uri.EscapeDataString(user.Email)}&nome={Uri.EscapeDataString(user.Nome)}&userId={user.Id}");
             }
             catch (Exception ex)
             {
