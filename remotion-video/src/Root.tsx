@@ -1,16 +1,20 @@
 import { AbsoluteFill, Sequence, interpolate, useCurrentFrame } from "remotion";
 import IntroScene from "./scenes/IntroScene";
 import HomepageScene from "./scenes/HomepageScene";
+import AuthScene from "./scenes/AuthScene";
 import CatalogoScene from "./scenes/CatalogoScene";
-import PrenotazioneScene from "./scenes/PrenotazioneScene";
-import BigliettiScene from "./scenes/BigliettiScene";
-import GiftCardScene from "./scenes/GiftCardScene";
+import AdminDashboardScene from "./scenes/AdminDashboardScene";
+import AdminFilmsScene from "./scenes/AdminFilmsScene";
+import AdminProiezioniScene from "./scenes/AdminProiezioniScene";
 import ShopScene from "./scenes/ShopScene";
+import GiftCardScene from "./scenes/GiftCardScene";
+import RiscattaScene from "./scenes/RiscattaScene";
 import MembershipScene from "./scenes/MembershipScene";
 import FesteScene from "./scenes/FesteScene";
 import PagamentiScene from "./scenes/PagamentiScene";
+import RimborsiScene from "./scenes/RimborsiScene";
+import MerchAdminScene from "./scenes/MerchAdminScene";
 import EmailScene from "./scenes/EmailScene";
-import DashboardScene from "./scenes/DashboardScene";
 import TechScene from "./scenes/TechScene";
 import FinaleScene from "./scenes/FinaleScene";
 
@@ -18,17 +22,21 @@ const GOLD = "#d4af37";
 
 const scenes = [
   { component: IntroScene, duration: 120 },
-  { component: HomepageScene, duration: 150 },
-  { component: CatalogoScene, duration: 150 },
-  { component: PrenotazioneScene, duration: 150 },
-  { component: BigliettiScene, duration: 120 },
+  { component: HomepageScene, duration: 130 },
+  { component: AuthScene, duration: 130 },
+  { component: CatalogoScene, duration: 130 },
+  { component: AdminDashboardScene, duration: 130 },
+  { component: AdminFilmsScene, duration: 130 },
+  { component: AdminProiezioniScene, duration: 130 },
+  { component: ShopScene, duration: 130 },
   { component: GiftCardScene, duration: 120 },
-  { component: ShopScene, duration: 120 },
-  { component: MembershipScene, duration: 150 },
-  { component: FesteScene, duration: 150 },
-  { component: PagamentiScene, duration: 120 },
+  { component: RiscattaScene, duration: 100 },
+  { component: MembershipScene, duration: 140 },
+  { component: FesteScene, duration: 130 },
+  { component: PagamentiScene, duration: 130 },
+  { component: RimborsiScene, duration: 130 },
+  { component: MerchAdminScene, duration: 120 },
   { component: EmailScene, duration: 120 },
-  { component: DashboardScene, duration: 120 },
   { component: TechScene, duration: 120 },
   { component: FinaleScene, duration: 150 },
 ];

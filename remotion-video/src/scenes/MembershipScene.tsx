@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { SceneContainer, MotionText, FeatureHighlight, FloatingCards, BrowserFrame, AnimatedCursor, Spotlight, GOLD, TEXT } from "../components/CinemaComponents";
 
-const membershipImg = require("../assets/membership.png");
+const membershipImg = require("../assets/user_membership.png");
 
 const MembershipScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -22,17 +22,17 @@ const MembershipScene: React.FC = () => {
   ];
 
   const features = [
-    { icon: "👑", text: "4 tier: Base → Platinum", delay: 50 },
-    { icon: "✨", text: "Accumulo punti automatico", delay: 63 },
-    { icon: "🎁", text: "Catalogo premi esclusivi", delay: 76 },
-    { icon: "🎂", text: "Sconto compleanno automatico", delay: 89 },
+    { icon: "👑", text: "Tier progressivi", delay: 50 },
+    { icon: "✨", text: "Punti automatici", delay: 63 },
+    { icon: "🎁", text: "Catalogo premi", delay: 76 },
+    { icon: "🎂", text: "Sconto compleanno", delay: 89 },
   ];
 
   const cards = [
-    { title: "Base", subtitle: "1× punti", color: "#a89888" },
-    { title: "Silver", subtitle: "500pt · 1.2×", color: "#a8a8a8" },
-    { title: "Gold", subtitle: "2000pt · 1.5×", color: GOLD },
-    { title: "Platinum", subtitle: "5000pt · 2×", color: "#b91c1c" },
+    { title: "Base", subtitle: "1x punti", color: "#a89888" },
+    { title: "Silver", subtitle: "500pt · 1.2x", color: "#a8a8a8" },
+    { title: "Gold", subtitle: "2000pt · 1.5x", color: GOLD },
+    { title: "Platinum", subtitle: "5000pt · 2x", color: "#b91c1c" },
   ];
 
   return (
@@ -43,7 +43,7 @@ const MembershipScene: React.FC = () => {
         <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "0 80px", gap: 80 }}>
           <div style={{ flex: "0 0 420px", zIndex: 20 }}>
             <MotionText text="Programma fedeltà" delay={20} size={40} color={TEXT} glow />
-            <MotionText text="avanzato" delay={30} size={40} color={GOLD} glow />
+            <MotionText text="a 4 livelli" delay={30} size={40} color={GOLD} glow />
             <div style={{ marginTop: 40 }}>
               {features.map((f) => (
                 <FeatureHighlight key={f.text} icon={f.icon} text={f.text} delay={f.delay} />
@@ -62,7 +62,7 @@ const MembershipScene: React.FC = () => {
           }}>
             <BrowserFrame url="cinema67.it/membership" scale={0.82}>
               <div style={{ position: "relative" }}>
-                <img src={membershipImg} style={{ width: "100%", display: "block" }} alt="Membership" />
+                <img src={membershipImg} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Membership" />
                 <Spotlight x={spotlightX} y={spotlightY} radius={280} opacity={0.12} />
                 <AnimatedCursor path={cursorPath} clicks={[75]} />
               </div>

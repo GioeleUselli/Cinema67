@@ -20,6 +20,7 @@ const FinaleScene: React.FC = () => {
     { title: "🎬 137+ endpoint API", color: GOLD },
     { title: "📧 19 template email", color: GOLD },
     { title: "💳 9 flussi pagamento", color: GOLD },
+    { title: "👑 4 livelli membership", color: GOLD },
   ];
 
   return (

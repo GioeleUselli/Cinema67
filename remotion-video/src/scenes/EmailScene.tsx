@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { SceneContainer, MotionText, FeatureHighlight, BrowserFrame, Spotlight, GOLD, TEXT } from "../components/CinemaComponents";
 
-const profiloImg = require("../assets/profilo.png");
+const profiloImg = require("../assets/user_profilo.png");
 
 const emailIcons = [
   { icon: "🎫", label: "Biglietti", delay: 30 },
@@ -42,10 +42,10 @@ const EmailScene: React.FC = () => {
   const browserScale = interpolate(frame, [15, 35], [0.92, 1], { extrapolateRight: "clamp" });
 
   const features = [
-    { icon: "📧", text: "19 template brandizzati", delay: 50 },
+    { icon: "📧", text: "19 template brandizzati Cinema67", delay: 50 },
     { icon: "🌓", text: "Dark/Light mode automatico", delay: 63 },
-    { icon: "🔥", text: "Invio non-bloccante", delay: 76 },
-    { icon: "📬", text: "SMTP professionale", delay: 89 },
+    { icon: "🔥", text: "Invio fire-and-forget (non bloccante)", delay: 76 },
+    { icon: "📬", text: "SMTP authsmtp.securemail.pro:465", delay: 89 },
   ];
 
   return (
@@ -55,8 +55,8 @@ const EmailScene: React.FC = () => {
 
         <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "0 80px", gap: 80 }}>
           <div style={{ flex: "0 0 420px", zIndex: 20 }}>
-            <MotionText text="Comunicazioni" delay={20} size={40} color={TEXT} glow />
-            <MotionText text="automatiche" delay={30} size={40} color={GOLD} glow />
+            <MotionText text="Sistema email" delay={20} size={40} color={TEXT} glow />
+            <MotionText text="automatizzato" delay={30} size={40} color={GOLD} glow />
             <div style={{ marginTop: 40 }}>
               {features.map((f) => (
                 <FeatureHighlight key={f.text} icon={f.icon} text={f.text} delay={f.delay} />
@@ -72,7 +72,7 @@ const EmailScene: React.FC = () => {
           }}>
             <BrowserFrame url="cinema67.it/profilo" scale={0.82}>
               <div style={{ position: "relative" }}>
-                <img src={profiloImg} style={{ width: "100%", display: "block" }} alt="Profilo" />
+                <img src={profiloImg} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Profilo" />
                 <div style={{ position: "absolute", top: 12, left: 12 }}>
                   <EmailIconCard {...emailIcons[0]} />
                 </div>

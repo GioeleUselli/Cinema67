@@ -14,12 +14,12 @@ const IntroScene: React.FC = () => {
   const subtitleBlur = interpolate(frame, [35, 55], [10, 0], { extrapolateRight: "clamp" });
 
   const cards = [
-    { title: "137+ API endpoint", icon: "⚡", color: GOLD },
-    { title: "19 Template email", icon: "📧", color: GOLD },
-    { title: "9 Flussi pagamento", icon: "💳", color: GOLD },
-    { title: "4 Livelli membership", icon: "👑", color: GOLD },
-    { title: "CI/CD Azure", icon: "☁️", color: GOLD },
-    { title: "MariaDB", icon: "🗄️", color: GOLD },
+    { title: "🎬 Gestisci film e spettacoli", icon: "", color: GOLD },
+    { title: "🛒 Shop e merchandise", icon: "", color: GOLD },
+    { title: "👑 Membership e fedeltà", icon: "", color: GOLD },
+    { title: "🎉 Feste ed eventi", icon: "", color: GOLD },
+    { title: "💳 Pagamenti integrati", icon: "", color: GOLD },
+    { title: "📧 19 template email", icon: "", color: GOLD },
   ];
 
   return (
@@ -64,7 +64,7 @@ const IntroScene: React.FC = () => {
           </p>
         </div>
 
-        <div style={{ maxWidth: 800 }}>
+        <div style={{ maxWidth: 900 }}>
           <FloatingCards items={cards} delay={65} />
         </div>
 

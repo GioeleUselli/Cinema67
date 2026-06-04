@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { SceneContainer, MotionText, FeatureHighlight, FloatingCards, BrowserFrame, AnimatedCursor, Spotlight, GOLD, TEXT } from "../components/CinemaComponents";
 
-const festeImg = require("../assets/feste.png");
+const festeImg = require("../assets/user_feste.png");
 
 const FesteScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -21,8 +21,8 @@ const FesteScene: React.FC = () => {
   const features = [
     { icon: "🎉", text: "3 tipi: MovieParty, GameRoom, Both", delay: 50 },
     { icon: "💎", text: "3 pacchetti: Basic, Premium, VIP", delay: 63 },
-    { icon: "🎫", text: "QR code all'ingresso", delay: 76 },
-    { icon: "🔙", text: "Rimborso automatico su cancellazione", delay: 89 },
+    { icon: "🎫", text: "QR code ingresso", delay: 76 },
+    { icon: "🔙", text: "Rimborso automatico", delay: 89 },
   ];
 
   const cards = [
@@ -38,8 +38,8 @@ const FesteScene: React.FC = () => {
 
         <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "0 80px", gap: 80 }}>
           <div style={{ flex: "0 0 420px", zIndex: 20 }}>
-            <MotionText text="Organizzazione eventi" delay={20} size={40} color={TEXT} glow />
-            <MotionText text="digitale" delay={30} size={40} color={GOLD} glow />
+            <MotionText text="Prenotazione feste" delay={20} size={40} color={TEXT} glow />
+            <MotionText text="ed eventi" delay={30} size={40} color={GOLD} glow />
             <div style={{ marginTop: 40 }}>
               {features.map((f) => (
                 <FeatureHighlight key={f.text} icon={f.icon} text={f.text} delay={f.delay} />
@@ -58,7 +58,7 @@ const FesteScene: React.FC = () => {
           }}>
             <BrowserFrame url="cinema67.it/feste" scale={0.82}>
               <div style={{ position: "relative" }}>
-                <img src={festeImg} style={{ width: "100%", display: "block" }} alt="Feste" />
+                <img src={festeImg} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Feste" />
                 <AnimatedCursor path={cursorPath} clicks={[75]} />
               </div>
             </BrowserFrame>

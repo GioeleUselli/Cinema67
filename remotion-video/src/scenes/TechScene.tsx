@@ -11,15 +11,15 @@ const TechScene: React.FC = () => {
   const techPills = [
     { title: "ASP.NET 9", color: "#512BD4" },
     { title: "MariaDB", color: "#C0765A" },
-    { title: "Azure", color: "#0078D4" },
+    { title: "Azure Container Apps", color: "#0078D4" },
     { title: "Docker", color: "#2496ED" },
     { title: "Stripe", color: "#635BFF" },
+    { title: "GitHub Actions", color: "#2088FF" },
     { title: "TMDB API", color: "#01D277" },
     { title: "Tailwind CSS", color: "#06B6D4" },
-    { title: "GitHub Actions", color: "#2088FF" },
     { title: "PayPal", color: "#009cde" },
     { title: "MailKit", color: "#FF6C2C" },
-    { title: "Puppeteer", color: "#40B5A4" },
+    { title: "QuestPDF", color: "#E53E3E" },
     { title: "Remotion", color: "#ffffff" },
   ];
 
@@ -36,7 +36,7 @@ const TechScene: React.FC = () => {
 
         <div style={{ marginBottom: 50, textAlign: "center" }}>
           <MotionText text="Architettura cloud" delay={15} size={42} color={TEXT} glow centered />
-          <MotionText text="moderna" delay={25} size={42} color={GOLD} glow centered />
+          <MotionText text="moderna e scalabile" delay={25} size={42} color={GOLD} glow centered />
         </div>
 
         <div style={{ maxWidth: 750, zIndex: 20 }}>

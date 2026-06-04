@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { SceneContainer, MotionText, FeatureHighlight, FloatingCards, BrowserFrame, Spotlight, GOLD, TEXT } from "../components/CinemaComponents";
 
-const giftcardImg = require("../assets/giftcard.png");
+const giftcardImg = require("../assets/user_giftcard.png");
 
 const GiftCardScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -12,9 +12,9 @@ const GiftCardScene: React.FC = () => {
   const browserScale = interpolate(frame, [15, 35], [0.92, 1], { extrapolateRight: "clamp" });
 
   const features = [
-    { icon: "💶", text: "Importi flessibili €5-500", delay: 50 },
-    { icon: "📧", text: "Invio programmato", delay: 63 },
-    { icon: "✏️", text: "Messaggio personalizzato", delay: 76 },
+    { icon: "💶", text: "€25, €50, €100 o personalizzato", delay: 50 },
+    { icon: "📧", text: "Invio programmato con messaggio", delay: 63 },
+    { icon: "🎁", text: "Carrello gift card dedicato", delay: 76 },
     { icon: "🔄", text: "Riscatto immediato", delay: 89 },
   ];
 
@@ -32,8 +32,8 @@ const GiftCardScene: React.FC = () => {
 
         <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "0 80px", gap: 80 }}>
           <div style={{ flex: "0 0 420px", zIndex: 20 }}>
-            <MotionText text="Gift card digitali" delay={20} size={40} color={TEXT} glow />
-            <MotionText text="personalizzabili" delay={30} size={40} color={GOLD} glow />
+            <MotionText text="Gift card" delay={20} size={42} color={TEXT} glow />
+            <MotionText text="digitali" delay={30} size={42} color={GOLD} glow />
             <div style={{ marginTop: 40 }}>
               {features.map((f) => (
                 <FeatureHighlight key={f.text} icon={f.icon} text={f.text} delay={f.delay} />
@@ -51,7 +51,7 @@ const GiftCardScene: React.FC = () => {
             position: "relative",
           }}>
             <BrowserFrame url="cinema67.it/gift-card" scale={0.82}>
-              <img src={giftcardImg} style={{ width: "100%", display: "block" }} alt="Gift Card" />
+              <img src={giftcardImg} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Gift Card" />
             </BrowserFrame>
           </div>
         </div>
