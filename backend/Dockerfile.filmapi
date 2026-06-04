@@ -20,6 +20,9 @@ WORKDIR /app
 # Copy pre-built publish output
 COPY publish .
 
+# Create media directory with write permissions
+RUN mkdir -p /app/wwwroot/media/merch && chown -R app:app /app/wwwroot
+
 # Set environment
 ENV ASPNETCORE_URLS=http://+:8080
 
