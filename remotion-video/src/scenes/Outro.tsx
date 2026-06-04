@@ -35,7 +35,6 @@ export const OutroScene: React.FC = () => {
     { name: "TMDB API", color: "#01D277" },
     { name: "Tailwind CSS", color: "#06B6D4" },
     { name: "MailKit", color: "#e05d44" },
-    { name: "Puppeteer", color: "#40B5A4" },
     { name: "Remotion", color: "#ff3366" },
   ];
 

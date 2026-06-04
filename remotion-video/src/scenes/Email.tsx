@@ -4,6 +4,13 @@ import { profiloScreenshot } from "./screenshots";
 const GOLD = "#b8860b";
 const RED = "#b91c1c";
 
+const floatingIcons = [
+  { emoji: "🎫", label: "biglietti" },
+  { emoji: "🎁", label: "gift card" },
+  { emoji: "🎉", label: "feste" },
+  { emoji: "👑", label: "membership" },
+];
+
 export const EmailScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -16,10 +23,10 @@ export const EmailScene: React.FC = () => {
   const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
 
   const badgeList = [
-    { icon: "📧", text: "19 template email" },
-    { icon: "🌓", text: "Dark/Light mode" },
-    { icon: "🎨", text: "Design Cinema67" },
-    { icon: "📬", text: "SMTP securemail" },
+    { icon: "📧", text: "19 template brandizzati" },
+    { icon: "🌓", text: "Supporto dark/light mode" },
+    { icon: "🎨", text: "Design Cinema67 unificato" },
+    { icon: "📬", text: "Invio non bloccante" },
   ];
 
   return (
@@ -64,11 +71,57 @@ export const EmailScene: React.FC = () => {
         }}
       >
         <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: GOLD, marginBottom: 6 }}>
-          Sistema Email
+          Email
         </div>
         <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
-          Template Brandizzati & Automation
+          Sistema Email
         </h2>
+      </div>
+
+      {/* Floating email icons */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {floatingIcons.map((item, i) => {
+          const delay = 25 + i * 10;
+          const iconOpacity = interpolate(frame, [delay, delay + 15], [0, 1], { extrapolateRight: "clamp" });
+          const floatY = spring({ frame: frame - delay, fps, config: { mass: 0.5, damping: 9 } });
+          const positions = [
+            { top: "22%", left: "18%" },
+            { top: "18%", left: "72%" },
+            { top: "45%", left: "75%" },
+            { top: "48%", left: "15%" },
+          ];
+          return (
+            <div
+              key={item.label}
+              style={{
+                position: "absolute",
+                ...positions[i],
+                opacity: iconOpacity,
+                transform: `translateY(${(1 - floatY) * -20}px)`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 28,
+                  background: "rgba(0,0,0,0.75)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: 14,
+                  padding: "10px 14px",
+                  border: `1px solid ${GOLD}44`,
+                }}
+              >
+                {item.emoji}
+              </div>
+              <span style={{ fontSize: 9, color: "#a89888", fontWeight: 500 }}>
+                {item.label}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Feature badges at bottom */}

@@ -12,14 +12,16 @@ export const AdminScene: React.FC = () => {
   const headingY = interpolate(frame, [0, 12], [-40, 0], { extrapolateRight: "clamp" });
   const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
 
+  const gridHighlight = spring({ frame: frame - 15, fps, config: { mass: 0.4, damping: 7 } });
+
   const badgesOpacity = interpolate(frame, [40, 58], [0, 1], { extrapolateRight: "clamp" });
   const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
 
   const badgeList = [
-    { icon: "🎬", text: "Import TMDB" },
-    { icon: "📅", text: "Gestione proiezioni" },
-    { icon: "🎟️", text: "Validazione QR" },
-    { icon: "📊", text: "Dashboard admin" },
+    { icon: "🎬", text: "Catalogo film" },
+    { icon: "🔍", text: "Ricerca e filtri" },
+    { icon: "🎟️", text: "Programmazione spettacoli" },
+    { icon: "⭐", text: "Import da TMDB" },
   ];
 
   return (
@@ -67,8 +69,25 @@ export const AdminScene: React.FC = () => {
           Admin
         </div>
         <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
-          Pannello di Gestione
+          Gestione Film
         </h2>
+      </div>
+
+      {/* Gold highlight around the film grid area */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "22%",
+            left: "8%",
+            width: "84%",
+            height: "55%",
+            borderRadius: 12,
+            border: `2px solid ${GOLD}`,
+            opacity: gridHighlight,
+            boxShadow: `0 0 30px ${GOLD}55, inset 0 0 30px ${GOLD}22`,
+          }}
+        />
       </div>
 
       {/* Feature badges at bottom */}

@@ -8,84 +8,121 @@ export const AuthScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const imgOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
-  const highlightScale = spring({ frame: frame - 20, fps, config: { mass: 0.4, damping: 6 } });
-  const callouts = interpolate(frame, [30, 50], [0, 1], { extrapolateRight: "clamp" });
+  const screenshotOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
+  const headingY = interpolate(frame, [0, 12], [-40, 0], { extrapolateRight: "clamp" });
+  const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+
+  const highlightScale = spring({ frame: frame - 15, fps, config: { mass: 0.4, damping: 6 } });
+
+  const badgesOpacity = interpolate(frame, [40, 58], [0, 1], { extrapolateRight: "clamp" });
+  const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
+
+  const badgeList = [
+    { icon: "📧", text: "Login email/password" },
+    { icon: "🔐", text: "Google OAuth" },
+    { icon: "⊞", text: "Microsoft OAuth" },
+    { icon: "🔄", text: "JWT + Refresh token" },
+  ];
 
   return (
-    <AbsoluteFill style={{ background: "#0f0c09" }}>
-      {/* Real login page screenshot */}
-      <div style={{ position: "absolute", inset: 0, opacity: imgOpacity }}>
+    <AbsoluteFill
+      style={{
+        background: "#0f0c09",
+        fontFamily: "'Space Grotesk', Arial, sans-serif",
+        overflow: "hidden",
+      }}
+    >
+      {/* Screenshot background */}
+      <div style={{ opacity: screenshotOpacity, position: "absolute", inset: 0 }}>
         <Img
           src={loginScreenshot}
-          style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fdfaf6" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+          }}
         />
       </div>
 
-      {/* Animated highlight around Google button */}
+      {/* Dark overlay */}
       <div
         style={{
           position: "absolute",
-          bottom: 310,
-          left: "57%",
-          transform: `translate(-50%, 0) scale(${highlightScale})`,
-          width: 340,
-          height: 52,
-          borderRadius: 14,
-          border: `3px solid ${GOLD}`,
-          boxShadow: "0 0 24px rgba(184,134,11,0.4)",
-          opacity: interpolate(frame, [20, 30], [0, 1], { extrapolateRight: "clamp" }),
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(15,12,9,0.6) 0%, rgba(15,12,9,0.72) 40%, rgba(15,12,9,0.85) 100%)",
         }}
       />
 
-      {/* Second highlight on Microsoft button */}
+      {/* Heading */}
       <div
         style={{
           position: "absolute",
-          bottom: 248,
-          left: "57%",
-          transform: `translate(-50%, 0) scale(${spring({ frame: frame - 30, fps, config: { mass: 0.4, damping: 6 } })})`,
-          width: 340,
-          height: 52,
-          borderRadius: 14,
-          border: `3px solid #00A4EF`,
-          boxShadow: "0 0 24px rgba(0,164,239,0.4)",
-          opacity: interpolate(frame, [30, 40], [0, 1], { extrapolateRight: "clamp" }),
+          top: 40,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          opacity: headingOpacity,
+          transform: `translateY(${headingY}px)`,
         }}
-      />
+      >
+        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: GOLD, marginBottom: 6 }}>
+          Auth
+        </div>
+        <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
+          Autenticazione
+        </h2>
+      </div>
+
+      {/* Gold highlight around Google login button area (bottom center-right) */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        <div
+          style={{
+            position: "absolute",
+            bottom: "28%",
+            left: "55%",
+            width: "30%",
+            height: "8%",
+            borderRadius: 12,
+            border: `2px solid ${GOLD}`,
+            opacity: highlightScale,
+            boxShadow: `0 0 24px ${GOLD}55, inset 0 0 24px ${GOLD}22`,
+          }}
+        />
+      </div>
 
       {/* Feature badges at bottom */}
       <div
         style={{
           position: "absolute",
-          bottom: 30,
+          bottom: 40,
           left: 0,
           right: 0,
           display: "flex",
           justifyContent: "center",
           gap: 20,
-          opacity: callouts,
+          opacity: badgesOpacity,
+          transform: `translateY(${badgesY}px)`,
         }}
       >
-        {[
-          { icon: "🔐", text: "OAuth Google/Microsoft" },
-          { icon: "🔄", text: "JWT + Refresh" },
-          { icon: "📱", text: "Sessioni tab isolate" },
-          { icon: "🛡️", text: "Route guard per ruolo" },
-        ].map((c, i) => (
+        {badgeList.map((b) => (
           <div
-            key={c.text}
+            key={b.text}
             style={{
-              background: "rgba(0,0,0,0.8)",
+              padding: "14px 28px",
+              borderRadius: 16,
+              background: "rgba(0,0,0,0.75)",
               backdropFilter: "blur(8px)",
-              borderRadius: 12,
-              padding: "10px 18px",
-              textAlign: "center",
-              border: "1px solid rgba(255,255,255,0.1)",
+              border: `1px solid ${GOLD}33`,
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#f0e8e0",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
             }}
           >
-            <div style={{ fontSize: 22 }}>{c.icon}</div>
-            <div style={{ fontSize: 10, color: "#c4b8a8", marginTop: 4, fontFamily: "'Space Grotesk', Arial, sans-serif" }}>{c.text}</div>
+            <span style={{ fontSize: 20 }}>{b.icon}</span>
+            {b.text}
           </div>
         ))}
       </div>

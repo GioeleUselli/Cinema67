@@ -1,105 +1,129 @@
 import { AbsoluteFill, Img, interpolate, useCurrentFrame, useVideoConfig, spring } from "remotion";
-import { shopScreenshot, giftcardScreenshot } from "./screenshots";
+import { shopScreenshot } from "./screenshots";
 
 const GOLD = "#b8860b";
+const RED = "#b91c1c";
 
 export const ShopScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const imgOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
-  const giftOpacity = interpolate(frame, [30, 50], [0, 1], { extrapolateRight: "clamp" });
-  const callouts = interpolate(frame, [20, 45], [0, 1], { extrapolateRight: "clamp" });
-  const cartScale = spring({ frame: frame - 40, fps, config: { mass: 0.3, damping: 5 } });
+  const screenshotOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
+  const headingY = interpolate(frame, [0, 12], [-40, 0], { extrapolateRight: "clamp" });
+  const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+
+  const cartHighlight = spring({ frame: frame - 15, fps, config: { mass: 0.3, damping: 5 } });
+
+  const badgesOpacity = interpolate(frame, [40, 58], [0, 1], { extrapolateRight: "clamp" });
+  const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
+
+  const badgeList = [
+    { icon: "👕", text: "Prodotti ufficiali" },
+    { icon: "🛒", text: "Carrello sincronizzato" },
+    { icon: "🏷️", text: "Codici sconto" },
+    { icon: "💳", text: "Pagamento carta/credito" },
+  ];
 
   return (
-    <AbsoluteFill style={{ background: "#0f0c09" }}>
-      {/* Real shop page */}
-      <div style={{ position: "absolute", inset: 0, opacity: imgOpacity }}>
-        <Img src={shopScreenshot} style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fdfaf6" }} />
+    <AbsoluteFill
+      style={{
+        background: "#0f0c09",
+        fontFamily: "'Space Grotesk', Arial, sans-serif",
+        overflow: "hidden",
+      }}
+    >
+      {/* Screenshot background */}
+      <div style={{ opacity: screenshotOpacity, position: "absolute", inset: 0 }}>
+        <Img
+          src={shopScreenshot}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+          }}
+        />
       </div>
 
-      {/* Cart icon highlight + pulse */}
+      {/* Dark overlay */}
       <div
         style={{
           position: "absolute",
-          top: 18,
-          right: 60,
-          transform: `scale(${1 + cartScale * 0.4})`,
-          width: 50,
-          height: 50,
-          borderRadius: "50%",
-          border: `3px solid ${GOLD}`,
-          boxShadow: "0 0 20px rgba(184,134,11,0.6)",
-          opacity: interpolate(frame, [40, 55], [0, 1], { extrapolateRight: "clamp" }),
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(15,12,9,0.6) 0%, rgba(15,12,9,0.72) 40%, rgba(15,12,9,0.85) 100%)",
         }}
       />
 
-      {/* Gift card screenshot overlay */}
+      {/* Heading */}
       <div
         style={{
           position: "absolute",
-          right: 20,
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: 340,
-          height: 400,
-          borderRadius: 16,
-          overflow: "hidden",
-          border: `2px solid ${GOLD}`,
-          boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
-          opacity: giftOpacity,
+          top: 40,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          opacity: headingOpacity,
+          transform: `translateY(${headingY}px)`,
         }}
       >
-        <Img src={giftcardScreenshot} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: GOLD, marginBottom: 6 }}>
+          Shop
+        </div>
+        <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
+          Shop Merchandise
+        </h2>
+      </div>
+
+      {/* Gold highlight around cart icon (top right) */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
         <div
           style={{
             position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: "rgba(0,0,0,0.8)",
-            padding: "8px",
-            textAlign: "center",
-            fontSize: 11,
-            color: GOLD,
-            fontFamily: "'Space Grotesk', Arial, sans-serif",
-            fontWeight: 700,
+            top: "3%",
+            right: "4%",
+            width: "8%",
+            height: "8%",
+            borderRadius: "50%",
+            border: `3px solid ${GOLD}`,
+            opacity: cartHighlight,
+            transform: `scale(${1 + cartHighlight * 0.3})`,
+            boxShadow: `0 0 20px ${GOLD}66`,
           }}
-        >
-          🎁 Gift Card
-        </div>
+        />
       </div>
 
-      {/* Feature badges */}
+      {/* Feature badges at bottom */}
       <div
         style={{
           position: "absolute",
-          bottom: 16,
+          bottom: 40,
           left: 0,
           right: 0,
           display: "flex",
           justifyContent: "center",
-          gap: 14,
-          opacity: callouts,
+          gap: 20,
+          opacity: badgesOpacity,
+          transform: `translateY(${badgesY}px)`,
         }}
       >
-        {["🛒 Carrello cross-device", "🏷️ Codici sconto", "💳 Carta/Credito", "🎁 Gift Card"].map((c) => (
+        {badgeList.map((b) => (
           <div
-            key={c}
+            key={b.text}
             style={{
+              padding: "14px 28px",
+              borderRadius: 16,
               background: "rgba(0,0,0,0.75)",
               backdropFilter: "blur(8px)",
-              borderRadius: 10,
-              padding: "8px 16px",
-              fontSize: 11,
-              color: "#c4b8a8",
-              fontFamily: "'Space Grotesk', Arial, sans-serif",
+              border: `1px solid ${GOLD}33`,
+              fontSize: 15,
               fontWeight: 600,
-              border: "1px solid rgba(255,255,255,0.08)",
+              color: "#f0e8e0",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
             }}
           >
-            {c}
+            <span style={{ fontSize: 20 }}>{b.icon}</span>
+            {b.text}
           </div>
         ))}
       </div>

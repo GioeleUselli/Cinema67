@@ -18,8 +18,9 @@ export const MembershipScene: React.FC = () => {
   const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
 
   const badgeList = [
-    { icon: "👑", text: "Tier Gold/Platinum" },
-    { icon: "✨", text: "Punti automatici" },
+    { icon: "👑", text: "Tier: Base → Platinum" },
+    { icon: "✨", text: "Accumulo punti automatico" },
+    { icon: "🎫", text: "Riscatto premi esclusivi" },
     { icon: "🎂", text: "Sconto compleanno" },
   ];
 
@@ -72,7 +73,7 @@ export const MembershipScene: React.FC = () => {
         </h2>
       </div>
 
-      {/* Gold highlight rectangle around membership card area */}
+      {/* Gold highlight around the membership card area */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
         <div
           style={{

@@ -12,14 +12,16 @@ export const PartiesRefundsScene: React.FC = () => {
   const headingY = interpolate(frame, [0, 12], [-40, 0], { extrapolateRight: "clamp" });
   const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
 
+  const cardHighlight = spring({ frame: frame - 15, fps, config: { mass: 0.4, damping: 7 } });
+
   const badgesOpacity = interpolate(frame, [40, 58], [0, 1], { extrapolateRight: "clamp" });
   const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
 
   const badgeList = [
-    { icon: "🎉", text: "Prenotazione feste" },
-    { icon: "💎", text: "3 pacchetti" },
+    { icon: "🎉", text: "Prenotazione personalizzata" },
+    { icon: "📋", text: "3 tipi + 3 pacchetti" },
     { icon: "🎫", text: "QR code ingresso" },
-    { icon: "🔙", text: "Rimborso automatico" },
+    { icon: "💵", text: "Rimborso su cancellazione" },
   ];
 
   return (
@@ -67,8 +69,25 @@ export const PartiesRefundsScene: React.FC = () => {
           Feste
         </div>
         <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
-          Prenotazione & Rimborsi
+          Feste ed Eventi
         </h2>
+      </div>
+
+      {/* Gold highlight around a party booking card */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            left: "32%",
+            width: "36%",
+            height: "42%",
+            borderRadius: 12,
+            border: `2px solid ${GOLD}`,
+            opacity: cardHighlight,
+            boxShadow: `0 0 30px ${GOLD}55, inset 0 0 30px ${GOLD}22`,
+          }}
+        />
       </div>
 
       {/* Feature badges at bottom */}

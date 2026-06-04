@@ -12,16 +12,11 @@ export const PaymentsScene: React.FC = () => {
   const headingY = interpolate(frame, [0, 12], [-40, 0], { extrapolateRight: "clamp" });
   const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
 
-  const highlight1 = spring({ frame: frame - 15, fps, config: { mass: 0.4, damping: 7 } });
-  const highlight2 = spring({ frame: frame - 22, fps, config: { mass: 0.4, damping: 7 } });
-  const highlight3 = spring({ frame: frame - 29, fps, config: { mass: 0.4, damping: 7 } });
-  const highlight4 = spring({ frame: frame - 36, fps, config: { mass: 0.4, damping: 7 } });
-
-  const badgesOpacity = interpolate(frame, [50, 68], [0, 1], { extrapolateRight: "clamp" });
-  const badgesY = interpolate(frame, [50, 68], [30, 0], { extrapolateRight: "clamp" });
+  const badgesOpacity = interpolate(frame, [40, 58], [0, 1], { extrapolateRight: "clamp" });
+  const badgesY = interpolate(frame, [40, 58], [30, 0], { extrapolateRight: "clamp" });
 
   const badgeList = [
-    { icon: "💳", text: "Stripe Live" },
+    { icon: "💳", text: "Stripe Live (carte)" },
     { icon: "🅿️", text: "PayPal Sandbox" },
     { icon: "💰", text: "Credito prepagato" },
     { icon: "🔙", text: "Rimborsi automatici" },
@@ -72,64 +67,8 @@ export const PaymentsScene: React.FC = () => {
           Pagamenti
         </div>
         <h2 style={{ fontSize: 38, fontWeight: 700, color: "#f0e8e0", fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>
-          Stripe Live & PayPal Sandbox
+          Sistema Pagamenti
         </h2>
-      </div>
-
-      {/* Gold highlight rectangles around key UI areas */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        <div
-          style={{
-            position: "absolute",
-            top: "18%",
-            left: "12%",
-            width: "16%",
-            height: "6%",
-            borderRadius: 8,
-            border: `2px solid ${GOLD}`,
-            opacity: highlight1,
-            boxShadow: `0 0 20px ${GOLD}44, inset 0 0 20px ${GOLD}22`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "32%",
-            left: "35%",
-            width: "30%",
-            height: "8%",
-            borderRadius: 8,
-            border: `2px solid ${GOLD}`,
-            opacity: highlight2,
-            boxShadow: `0 0 20px ${GOLD}44, inset 0 0 20px ${GOLD}22`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "60%",
-            width: "25%",
-            height: "10%",
-            borderRadius: 8,
-            border: `2px solid ${RED}`,
-            opacity: highlight3,
-            boxShadow: `0 0 20px ${RED}44, inset 0 0 20px ${RED}22`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "68%",
-            left: "15%",
-            width: "20%",
-            height: "7%",
-            borderRadius: 8,
-            border: `2px solid ${GOLD}`,
-            opacity: highlight4,
-            boxShadow: `0 0 20px ${GOLD}44, inset 0 0 20px ${GOLD}22`,
-          }}
-        />
       </div>
 
       {/* Feature badges at bottom */}
