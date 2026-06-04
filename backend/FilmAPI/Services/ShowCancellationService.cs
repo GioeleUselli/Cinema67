@@ -101,6 +101,7 @@ public class ShowCancellationService : IShowCancellationService
         };
 
         _db.ShowCancellations.Add(cancellation);
+        await _db.SaveChangesAsync(); // Save first to get the generated Id
 
         // Create OrdineRefund records
         foreach (var ordine in ordini)
