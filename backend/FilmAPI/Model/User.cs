@@ -52,6 +52,9 @@ public class User
     [Required]
     public int AuthVersion { get; set; }
 
+    /// <summary>JSON cart for gift card multi-purchase (synced across devices)</summary>
+    public string? GiftCardCartJson { get; set; }
+
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<Prenotazione> Prenotazioni { get; set; } = new List<Prenotazione>();
     public ICollection<Ordine> Ordini { get; set; } = new List<Ordine>();

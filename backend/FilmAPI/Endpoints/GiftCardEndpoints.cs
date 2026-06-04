@@ -12,6 +12,40 @@ public static class GiftCardEndpoints
     {
         var authGroup = app.MapGroup("/giftcard").RequireAuthorization("Authenticated");
 
+        // Gift card cart (synced across devices)
+        authGroup.MapGet("/cart", async (ClaimsPrincipal user, FilmDbContext db) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            var u = await db.Users.FindAsync(userId);
+            if (u == null) return Results.NotFound();
+            if (string.IsNullOrWhiteSpace(u.GiftCardCartJson)) return Results.Ok(Array.Empty<object>());
+            try { return Results.Ok(System.Text.Json.JsonSerializer.Deserialize<object>(u.GiftCardCartJson)); }
+            catch { return Results.Ok(Array.Empty<object>()); }
+        });
+
+        authGroup.MapPut("/cart", async (ClaimsPrincipal user, FilmDbContext db, System.Text.Json.JsonElement body) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            var u = await db.Users.FindAsync(userId);
+            if (u == null) return Results.NotFound();
+            u.GiftCardCartJson = body.GetRawText();
+            await db.SaveChangesAsync();
+            return Results.Ok(new { saved = true });
+        });
+
+        authGroup.MapDelete("/cart", async (ClaimsPrincipal user, FilmDbContext db) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            if (userId == 0) return Results.Unauthorized();
+            var u = await db.Users.FindAsync(userId);
+            if (u == null) return Results.NotFound();
+            u.GiftCardCartJson = null;
+            await db.SaveChangesAsync();
+            return Results.Ok(new { cleared = true });
+        });
+
         authGroup.MapGet("/mie", async (ClaimsPrincipal user, IGiftCardService service) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");

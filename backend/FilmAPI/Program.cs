@@ -487,6 +487,7 @@ app.Lifetime.ApplicationStarted.Register(async () =>
                     ("Users", "LastLoginAtUtc", "datetime(6) NULL"),
                     ("Users", "LastLoginProvider", "varchar(30) NULL"),
                     ("Users", "LocalCredentialsEnabled", "tinyint(1) NOT NULL DEFAULT 1"),
+                    ("Users", "GiftCardCartJson", "TEXT NULL"),
                     ("MovimentiCredito", "MerchOrderId", "int NULL"),
                     ("Films", "TmdbId", "int NULL"),
                     ("Ordini", "VoucherCode", "VARCHAR(50) NULL"),

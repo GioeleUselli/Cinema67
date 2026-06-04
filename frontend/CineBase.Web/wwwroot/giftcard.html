@@ -241,8 +241,27 @@
 
     var CART_KEY = 'cb_giftcard_cart';
     function loadCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
-    function saveCart(c) { try { localStorage.setItem(CART_KEY, JSON.stringify(c)); } catch(e) {} }
+    function saveCartLocal(c) { try { localStorage.setItem(CART_KEY, JSON.stringify(c)); } catch(e) {} }
+    async function syncCartToBackend(c) {
+      if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) return;
+      try { await API.saveGiftCardCart(c); } catch(e) {}
+    }
+    async function loadCartFromBackend() {
+      if (!window.Auth || !window.Auth.isLoggedIn || !window.Auth.isLoggedIn()) return null;
+      try { return await API.getGiftCardCart(); } catch(e) { return null; }
+    }
+    function saveCart(c) { saveCartLocal(c); syncCartToBackend(c); }
     var cart = loadCart();
+
+    // Sync cart from backend on page load (cross-device)
+    (async function() {
+      var backendCart = await loadCartFromBackend();
+      if (backendCart && Array.isArray(backendCart) && backendCart.length > 0) {
+        cart = backendCart;
+        saveCartLocal(cart);
+        renderCart();
+      }
+    })();
     var balance = 0;
     var pendingValue = 0;
     var pendingQty = 1;
