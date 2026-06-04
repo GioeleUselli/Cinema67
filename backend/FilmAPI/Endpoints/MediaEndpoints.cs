@@ -7,7 +7,7 @@ public static class MediaEndpoints
 {
     public static void MapMediaEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/media").RequireAuthorization("PowerUserOrAdmin");
+        var group = app.MapGroup("/media").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         group.MapPost("/covers", async (HttpRequest request, IMediaService service) =>
         {

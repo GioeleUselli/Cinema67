@@ -34,7 +34,8 @@
       resultEl.style.color = 'var(--brand-on-surface-variant)';
       resultEl.textContent = 'Iscrizione in corso...';
       try {
-        var resp = await fetch('http://localhost:5000/newsletter/iscriviti', {
+        var apiBase = (window.__RUNTIME_CONFIG__ && window.__RUNTIME_CONFIG__.apiBaseUrl) || 'http://localhost:5000';
+        var resp = await fetch(apiBase + '/newsletter/iscriviti', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: email })
         });

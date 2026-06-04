@@ -94,44 +94,6 @@ public static class MerchEndpoints
             return Results.Ok(result);
         });
 
-        // Admin
-        app.MapPost("/media/merch", async (HttpRequest request, ILogger<Program> logger) =>
-        {
-            try
-            {
-                if (!request.HasFormContentType)
-                    return Results.BadRequest(new { message = "Richiesta non valida: attendi multipart/form-data." });
-
-                var form = await request.ReadFormAsync();
-                var file = form.Files.GetFile("file");
-                if (file is null || file.Length == 0)
-                    return Results.BadRequest(new { message = "Nessun file selezionato. Scegli un'immagine dal tuo dispositivo." });
-
-                if (file.Length > 10 * 1024 * 1024)
-                    return Results.BadRequest(new { message = "File troppo grande. Massimo 10 MB." });
-
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-                if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp" && ext != ".gif")
-                    return Results.BadRequest(new { message = "Formato non supportato. Usa JPG, PNG, WEBP o GIF." });
-
-                var fileName = $"{Guid.NewGuid()}{ext}";
-                var relativePath = Path.Combine("media", "merch", fileName);
-                var webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                var fullPath = Path.Combine(webRoot, relativePath);
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
-                await using var stream = new FileStream(fullPath, FileMode.Create);
-                await file.CopyToAsync(stream);
-
-                var resultPath = $"/{relativePath.Replace('\\', '/')}";
-                logger.LogInformation("Upload merch OK: {Path}", resultPath);
-                return Results.Ok(new { path = resultPath });
-            }
-            catch (Exception ex) {
-                logger.LogError(ex, "Upload merch failed");
-                return Results.BadRequest(new { message = $"Errore upload: {ex.Message}" });
-            }
-        }).DisableAntiforgery().RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
-
         var adminGroup = app.MapGroup("/admin/merch").RequireAuthorization("CinemaStaffOrPowerUserOrAdmin");
 
         adminGroup.MapGet("/orders", async (IMerchService service) =>
