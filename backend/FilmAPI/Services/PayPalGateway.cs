@@ -43,7 +43,7 @@ public class PayPalGateway : IPayPalGateway
 
     public PayPalGateway()
     {
-        _http = new HttpClient();
+        _http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
         _clientId = Environment.GetEnvironmentVariable("PAYPAL_CLIENT_ID") ?? "";
         _clientSecret = Environment.GetEnvironmentVariable("PAYPAL_CLIENT_SECRET") ?? "";
 
