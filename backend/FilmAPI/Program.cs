@@ -310,9 +310,7 @@ app.MapPromotionEndpoints();
 app.MapGiftCardEndpoints();
 app.MapSocialAuthEndpoints();
 
-// OAuth redirect endpoints
-app.MapGet("/auth/login/google", () => "Google OAuth endpoint is alive").AllowAnonymous();
-app.MapGet("/auth/login/microsoft", () => "Microsoft OAuth endpoint is alive").AllowAnonymous();
+// OAuth redirect endpoints are registered via MapAuthEndpoints() above
 
 // Remove Google OAuth middleware config
 app.MapMembershipEndpoints();
