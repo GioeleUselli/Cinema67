@@ -51,6 +51,18 @@ public class PopolaDbService
             foreach (var (nome, indirizzo, citta, cap, numSale) in cinemaData)
                 await CreaCinemaAsync(result, nome, indirizzo, citta, cap, numSale);
 
+            // 1b. Ensure all existing rooms have floor plans (seats)
+            var tutteSale = await _db.Sale.Include(s => s.Posti).ToListAsync();
+            foreach (var sala in tutteSale)
+            {
+                if (sala.Posti.Count == 0)
+                {
+                    var layout = GeneraLayoutSala(sala.Id);
+                    await _sala.SavePostiAsync(sala.Id, layout);
+                    result.Log.Add($"🪑 Sala '{sala.Nome}' (id={sala.Id}): {layout.Posti.Count} posti generati.");
+                }
+            }
+
             // 2. Import LOTS of films from TMDB (popular, top-rated, trending, now-playing)
             var allTmdbFilms = new List<TmdbFilmDTO>();
             
