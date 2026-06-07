@@ -19,6 +19,8 @@ public class EmailService : IEmailService
     private readonly string? _fromEmail;
     private readonly string? _fromName;
 
+    private readonly SecureSocketOptions _secureOption;
+
     public EmailService(ILogger<EmailService> logger)
     {
         _logger = logger;
@@ -28,6 +30,21 @@ public class EmailService : IEmailService
         _smtpPassword = ReadSetting("SMTP_PASSWORD");
         _fromEmail = ReadSetting("SMTP_FROM_EMAIL");
         _fromName = ReadSetting("SMTP_FROM_NAME") ?? "Cinema67";
+        _secureOption = ParseSecureOption(Environment.GetEnvironmentVariable("SMTP_SECURE_SOCKET_OPTIONS"));
+    }
+
+    private static SecureSocketOptions ParseSecureOption(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return _smtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+        return value.Trim().ToLowerInvariant() switch
+        {
+            "ssl" or "sslonconnect" => SecureSocketOptions.SslOnConnect,
+            "starttls" => SecureSocketOptions.StartTls,
+            "auto" => SecureSocketOptions.Auto,
+            "none" => SecureSocketOptions.None,
+            _ => _smtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls
+        };
     }
 
     public async Task<EmailSendResult> SendHtmlEmailAsync(string toEmail, string subject, string htmlBody, CancellationToken cancellationToken = default)
@@ -54,7 +71,7 @@ public class EmailService : IEmailService
 
             using var client = new SmtpClient();
             client.Timeout = 10000; // 10 secondi timeout
-            await client.ConnectAsync(_smtpHost!, _smtpPort, SecureSocketOptions.SslOnConnect, cancellationToken);
+            await client.ConnectAsync(_smtpHost!, _smtpPort, _secureOption, cancellationToken);
             await client.AuthenticateAsync(_smtpUser!, _smtpPassword!, cancellationToken);
             await client.SendAsync(message, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
