@@ -57,6 +57,7 @@ fi
 # Step 4: Configure firewall (Oracle Cloud)
 # ────────────────────────────────────────────────────────────────────────
 echo -e "${YELLOW}[4/7] Configuring firewall...${NC}"
+apt-get install -y ufw
 ufw --force enable
 ufw allow 22/tcp    # SSH
 ufw allow 80/tcp    # HTTP
