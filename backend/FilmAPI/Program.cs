@@ -95,6 +95,7 @@ builder.Services.AddScoped<IPaccoService, PaccoService>();
 builder.Services.AddScoped<IFoodService, FoodService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IPricingService, PricingService>();
 builder.Services.AddScoped<PopolaDbService>();
 builder.Services.AddScoped<ITmdbService>(sp =>
 {
