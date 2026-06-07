@@ -30,20 +30,20 @@ public class EmailService : IEmailService
         _smtpPassword = ReadSetting("SMTP_PASSWORD");
         _fromEmail = ReadSetting("SMTP_FROM_EMAIL");
         _fromName = ReadSetting("SMTP_FROM_NAME") ?? "Cinema67";
-        _secureOption = ParseSecureOption(Environment.GetEnvironmentVariable("SMTP_SECURE_SOCKET_OPTIONS"));
+        _secureOption = ParseSecureOption(Environment.GetEnvironmentVariable("SMTP_SECURE_SOCKET_OPTIONS"), _smtpPort);
     }
 
-    private static SecureSocketOptions ParseSecureOption(string? value)
+    private static SecureSocketOptions ParseSecureOption(string? value, int port)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return _smtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+            return port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
         return value.Trim().ToLowerInvariant() switch
         {
             "ssl" or "sslonconnect" => SecureSocketOptions.SslOnConnect,
             "starttls" => SecureSocketOptions.StartTls,
             "auto" => SecureSocketOptions.Auto,
             "none" => SecureSocketOptions.None,
-            _ => _smtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls
+            _ => port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls
         };
     }
 
