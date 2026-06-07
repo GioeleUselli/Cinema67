@@ -1,0 +1,50 @@
+# ============================================================================
+# FilmAPI Dockerfile - Multi-stage Build (Oracle Cloud / Self-contained)
+# ============================================================================
+# Stage 1: SDK - compile and publish
+# Stage 2: Runtime - serve API
+# ============================================================================
+
+# ============================================================================
+# STAGE 1: BUILDER
+# ============================================================================
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
+
+WORKDIR /src
+
+COPY backend/FilmAPI/FilmAPI.csproj backend/FilmAPI/
+RUN dotnet restore backend/FilmAPI/FilmAPI.csproj
+
+COPY backend/FilmAPI/ backend/FilmAPI/
+
+WORKDIR /src/backend/FilmAPI
+RUN dotnet publish -c Release -o /app/publish -p:UseAppHost=false
+
+# ============================================================================
+# STAGE 2: RUNTIME
+# ============================================================================
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid 1654 app || true && \
+    useradd --uid 1654 --gid app --create-home app || true
+
+WORKDIR /app
+
+COPY --from=builder --chown=app:app /app/publish .
+
+RUN mkdir -p /app/wwwroot/media/merch && chown -R app:app /app/wwwroot
+
+ENV ASPNETCORE_URLS=http://+:8080
+
+USER app
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health/live || exit 1
+
+ENTRYPOINT ["dotnet", "FilmAPI.dll"]

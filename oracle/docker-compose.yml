@@ -1,0 +1,158 @@
+# ============================================================================
+# Docker Compose for Cinema67 Production (Oracle Cloud Always Free)
+# ============================================================================
+# Services:
+#   mariadb       - Database (internal, port 3306)
+#   filmapi       - Backend API (internal, port 8080)
+#   cinema67-web  - Frontend (internal, port 8080)
+#   caddy         - Reverse proxy + auto SSL (ports 80, 443)
+#
+# Networks: cinema67-net (bridge)
+# Volumes:  mariadb-data, media-uploads, caddy-data, caddy-config
+#
+# Startup:
+#   docker compose up -d --build
+# ============================================================================
+
+services:
+  # ══════════════════════════════════════════════════════════════════════
+  # MariaDB Database
+  # ══════════════════════════════════════════════════════════════════════
+  mariadb:
+    image: mariadb:10.11
+    container_name: mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_NAME:-film-api-db}
+      MARIADB_USER: ${DB_USER:-cinebase}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-cinebase}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cinema67-net
+
+  # ══════════════════════════════════════════════════════════════════════
+  # FilmAPI Backend (multi-stage build)
+  # ══════════════════════════════════════════════════════════════════════
+  filmapi:
+    build:
+      context: ..
+      dockerfile: oracle/Dockerfile.filmapi
+    container_name: filmapi
+    restart: unless-stopped
+    environment:
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-film-api-db}
+      DB_USER: ${DB_USER:-cinebase}
+      DB_PASSWORD: ${DB_PASSWORD:-cinebase}
+      DB_USE_AUTODETECT: "false"
+      DB_SERVER_VERSION: ${DB_SERVER_VERSION:-10.11.0-mariadb}
+      ASPNETCORE_ENVIRONMENT: Production
+      FRONTEND_PUBLIC_BASE_URL: ${FRONTEND_PUBLIC_BASE_URL}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN_DAYS: ${JWT_EXPIRES_IN_DAYS:-7}
+      ADMIN_SEED_EMAIL: ${ADMIN_SEED_EMAIL:-admin@cinema67.it}
+      ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD:-Admin123!}
+      OAUTH_GOOGLE_CLIENT_ID: ${OAUTH_GOOGLE_CLIENT_ID:-}
+      OAUTH_GOOGLE_CLIENT_SECRET: ${OAUTH_GOOGLE_CLIENT_SECRET:-}
+      OAUTH_MICROSOFT_CLIENT_ID: ${OAUTH_MICROSOFT_CLIENT_ID:-}
+      OAUTH_MICROSOFT_CLIENT_SECRET: ${OAUTH_MICROSOFT_CLIENT_SECRET:-}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_REQUIRE_AUTH: ${SMTP_REQUIRE_AUTH:-false}
+      SMTP_SECURE_SOCKET_OPTIONS: ${SMTP_SECURE_SOCKET_OPTIONS:-None}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Cinema67}
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
+      TMDB_BEARER_TOKEN: ${TMDB_BEARER_TOKEN:-}
+      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      DEFAULT_TICKET_PRICE: ${DEFAULT_TICKET_PRICE:-8.50}
+    volumes:
+      - media-uploads:/app/wwwroot/media/covers
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+    networks:
+      - cinema67-net
+
+  # ══════════════════════════════════════════════════════════════════════
+  # Cinema67 Frontend
+  # ══════════════════════════════════════════════════════════════════════
+  cinema67-web:
+    build:
+      context: ../frontend
+      dockerfile: CineBase.Web/Dockerfile
+    container_name: cinema67-web
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: ${API_BASE_URL}
+      MEDIA_BASE_URL: ${MEDIA_BASE_URL}
+      DEPLOYMENT_MODE: production
+      API_PROXY_URL: http://filmapi:8080
+      ASPNETCORE_ENVIRONMENT: Production
+    depends_on:
+      filmapi:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - cinema67-net
+
+  # ══════════════════════════════════════════════════════════════════════
+  # Caddy Reverse Proxy (Auto SSL via Let's Encrypt)
+  # ══════════════════════════════════════════════════════════════════════
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - cinema67-net
+
+# ════════════════════════════════════════════════════════════════════════
+# Named Volumes
+# ════════════════════════════════════════════════════════════════════════
+volumes:
+  mariadb-data:
+    driver: local
+  media-uploads:
+    driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local
+
+# ════════════════════════════════════════════════════════════════════════
+# Networks
+# ════════════════════════════════════════════════════════════════════════
+networks:
+  cinema67-net:
+    driver: bridge

@@ -1,0 +1,17 @@
+# ============================================================================
+# Caddy reverse proxy for Cinema67 on Oracle Cloud
+# ============================================================================
+# Auto-HTTPS: Caddy obtains Let's Encrypt certificates automatically.
+# Set DOMAIN in .env (e.g., DOMAIN=cinema67.it).
+# DNS must point both DOMAIN and api.DOMAIN to this VM's public IP.
+# ============================================================================
+
+{$DOMAIN:localhost}, www.{$DOMAIN:localhost} {
+	encode gzip
+	reverse_proxy cinema67-web:8080
+}
+
+api.{$DOMAIN:localhost} {
+	encode gzip
+	reverse_proxy filmapi:8080
+}
