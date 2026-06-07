@@ -48,8 +48,8 @@ public class PopolaDbService
                 ("Cinema d'Essai",            "Via del Corso 42",        "Roma",         "00187", 3),
                 ("Arena Estiva",              "Lungomare Caracciolo 1",  "Napoli",       "80122", 1),
             };
-            foreach (var (nome, indirizzo, citta, cap, sale) in cinemaData)
-                await CreaCinemaAsync(result, nome, indirizzo, citta, cap, sale);
+            foreach (var (nome, indirizzo, citta, cap, numSale) in cinemaData)
+                await CreaCinemaAsync(result, nome, indirizzo, citta, cap, numSale);
 
             // 2. Import LOTS of films from TMDB (popular, top-rated, trending, now-playing)
             var allTmdbFilms = new List<TmdbFilmDTO>();
