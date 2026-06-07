@@ -19,6 +19,50 @@
 <body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
   <div id="navbar-container"></div>
 
+  <!-- ════════════════════════════════════════════
+       DISCLAIMER POPUP
+       ════════════════════════════════════════════ -->
+  <div id="disclaimer-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-500">
+    <div class="relative mx-4 w-full max-w-lg rounded-2xl border border-brand-gold/30 bg-brand-surface-container p-8 shadow-2xl shadow-brand-gold/10 animate-fade-in-up">
+      <div class="mb-4 flex items-center gap-3">
+        <i class="fa-solid fa-circle-exclamation text-3xl text-brand-gold"></i>
+        <h2 class="text-xl font-bold text-brand-gold uppercase tracking-wider">Avviso</h2>
+      </div>
+      <p class="mb-2 text-brand-on-surface leading-relaxed">
+        <strong class="text-brand-gold">Cinema67</strong> è un'applicazione <strong>fittizia</strong> realizzata a scopo dimostrativo.
+      </p>
+      <p class="mb-4 text-sm text-brand-on-surface-variant leading-relaxed">
+        I film, le sale, gli spettacoli e i prezzi visualizzati non sono reali. <br>I pagamenti con Stripe sono in modalità test.
+      </p>
+      <p class="mb-6 text-sm text-brand-on-surface-variant leading-relaxed">
+        Per maggiori informazioni sull'autore, visita la pagina 
+        <a href="/chi-siamo.html" class="text-brand-gold underline hover:text-brand-gold-light transition-colors">Chi siamo</a>.
+      </p>
+      <button onclick="dismissDisclaimer()" class="w-full rounded-xl bg-brand-gold px-6 py-3 text-sm font-bold uppercase tracking-widest text-brand-surface transition-all hover:bg-brand-gold-light hover:shadow-lg hover:shadow-brand-gold/20">
+        Ho capito, prosegui
+      </button>
+    </div>
+  </div>
+  <script>
+    function dismissDisclaimer() {
+      document.getElementById('disclaimer-overlay').style.opacity = '0';
+      setTimeout(function(){ document.getElementById('disclaimer-overlay').style.display = 'none'; }, 500);
+      sessionStorage.setItem('cb_disclaimer_seen', '1');
+    }
+    (function() {
+      if (sessionStorage.getItem('cb_disclaimer_seen') === '1') {
+        document.getElementById('disclaimer-overlay').style.display = 'none';
+      }
+    })();
+  </script>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+  </style>
+
   <main>
     <!-- ════════════════════════════════════════════
          HERO IMMERSIVO — Full screen cinematic

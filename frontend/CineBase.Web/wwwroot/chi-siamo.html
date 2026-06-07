@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+
+<head>
+  <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi siamo — Cinema67</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/tailwind-config.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/css/styles.css?v=5" rel="stylesheet">
+  <script src="/js/theme.js?v=99"></script>
+</head>
+
+<body class="bg-brand-surface text-brand-on-surface font-sans cine-velvet">
+  <div id="navbar-container"></div>
+
+  <main class="mx-auto w-full max-w-[1280px] px-4 py-16">
+    <!-- LOGO + TITLE -->
+    <div class="flex flex-col items-center text-center mb-12">
+      <picture class="mb-6">
+        <!-- Dark mode logo (visible when html.dark) -->
+        <img src="/assets/logo-dark.png" alt="Cinema67 Logo" class="hidden dark:block w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.4)]">
+        <!-- Light mode logo (visible when html:not(.dark)) -->
+        <img src="/assets/logo-light.png" alt="Cinema67 Logo" class="block dark:hidden w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-[0_0_20px_rgba(0,0,0,0.15)]">
+      </picture>
+      <h1 class="text-4xl md:text-5xl font-bold text-brand-gold uppercase tracking-widest mb-3">Cinema67</h1>
+      <p class="text-lg text-brand-on-surface-variant max-w-xl">Piattaforma dimostrativa di gestione cinema</p>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="flex items-center gap-4 my-10">
+      <div class="flex-1 cine-divider"></div>
+      <i class="fa-solid fa-star text-brand-gold"></i>
+      <div class="flex-1 cine-divider"></div>
+    </div>
+
+    <!-- INFO SECTION -->
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <!-- Left: About the project -->
+      <div class="rounded-2xl border border-brand-outline-variant/20 bg-brand-surface-container p-6 hover:border-brand-gold/20 transition-colors">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gold/10">
+            <i class="fa-solid fa-film text-brand-gold text-lg"></i>
+          </div>
+          <h2 class="text-lg font-bold text-brand-on-surface">Il Progetto</h2>
+        </div>
+        <p class="text-sm text-brand-on-surface-variant leading-relaxed mb-3">
+          <strong class="text-brand-gold">Cinema67</strong> è un'applicazione web full-stack sviluppata come progetto dimostrativo per un sistema completo di gestione cinema.
+        </p>
+        <p class="text-sm text-brand-on-surface-variant leading-relaxed">
+          Include prenotazione biglietti, gestione programmazione, e-commerce (shop &amp; food), membership, gift card, feste private, dashboard amministrativa, e molto altro.
+        </p>
+      </div>
+
+      <!-- Right: Tech stack -->
+      <div class="rounded-2xl border border-brand-outline-variant/20 bg-brand-surface-container p-6 hover:border-brand-gold/20 transition-colors">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gold/10">
+            <i class="fa-solid fa-code text-brand-gold text-lg"></i>
+          </div>
+          <h2 class="text-lg font-bold text-brand-on-surface">Tecnologie</h2>
+        </div>
+        <ul class="space-y-2 text-sm text-brand-on-surface-variant">
+          <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-gold text-xs"></i> Backend: ASP.NET Core 9 Minimal API</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-gold text-xs"></i> Database: MariaDB + Entity Framework Core</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-gold text-xs"></i> Frontend: HTML/CSS/JavaScript + Tailwind CSS</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-gold text-xs"></i> Pagamenti: Stripe</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-gold text-xs"></i> Auth: JWT + OAuth (Google/Microsoft)</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-gold text-xs"></i> Hosting: Oracle Cloud Always Free</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-gold text-xs"></i> Container: Docker + Docker Compose</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="flex items-center gap-4 my-10 max-w-4xl mx-auto">
+      <div class="flex-1 cine-divider"></div>
+      <i class="fa-solid fa-circle text-brand-gold text-[6px]"></i>
+      <div class="flex-1 cine-divider"></div>
+    </div>
+
+    <!-- AVVISO -->
+    <div class="max-w-4xl mx-auto rounded-2xl border border-brand-gold/20 bg-brand-gold/5 p-6 text-center">
+      <i class="fa-solid fa-circle-exclamation text-2xl text-brand-gold mb-3 block"></i>
+      <p class="text-sm text-brand-on-surface-variant leading-relaxed">
+        <strong class="text-brand-gold">Attenzione:</strong> Cinema67 è un progetto fittizio. I film, le sale cinematografiche, gli orari e i prezzi non corrispondono a realtà. Questa applicazione è stata sviluppata esclusivamente a scopo dimostrativo e didattico.
+      </p>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/runtime-config.js"></script>
+  <script src="/js/utils.js?v=99"></script>
+  <script src="/js/api-app.js?v=102"></script>
+  <script src="/js/auth.js?v=100"></script>
+  <script src="/js/route-guard.js?v=103"></script>
+  <script src="/js/template-loader.js?v=101"></script>
+  <script src="/js/navbar.js?v=100"></script>
+</body>
+</html>
