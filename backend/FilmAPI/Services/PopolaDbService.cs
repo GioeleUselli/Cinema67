@@ -169,7 +169,7 @@ public class PopolaDbService
             try
             {
                 var tipo = tipi[i % tipi.Length];
-                await _sala.CreateAsync(new SalaCreateDTO
+                var result = await _sala.CreateAsync(new SalaCreateDTO
                 {
                     CinemaId = cinemaId,
                     NumeroProgressivo = i + 1,
@@ -179,9 +179,52 @@ public class PopolaDbService
                     IsAttiva = true
                 });
                 r.SaleCreate++;
+
+                // Generate default floor plan (seats layout)
+                var layout = GeneraLayoutSala(result.Id);
+                await _sala.SavePostiAsync(result.Id, layout);
+                r.Log.Add($"   ↳ {result.Id}: {layout.Posti.Count} posti generati.");
             }
             catch (Exception ex) { r.Errori.Add($"Sala {i+1} cinema {cinemaId}: {ex.Message}"); }
         }
+    }
+
+    private static SalaLayoutSaveDTO GeneraLayoutSala(int salaId)
+    {
+        var rng = new Random(salaId);
+        var posti = new List<SalaPostoDTO>();
+        // Cinema-style layout: 8-10 rows (A-H), 10-14 seats per row, corridor in middle
+        var numFile = rng.Next(8, 11);  // 8-10 rows
+        var numColonne = rng.Next(10, 15); // 10-14 seats
+        var gapCol = numColonne / 2;
+        var cellW = 36;
+        var cellH = 36;
+        
+        for (int fila = 0; fila < numFile; fila++)
+        {
+            for (int col = 0; col < numColonne; col++)
+            {
+                // Skip corridor seats (leave a gap in the middle)
+                if (col == gapCol - 1 || col == gapCol) continue;
+                
+                var x = col * cellW + 30;
+                var y = fila * cellH + 30;
+                var isWheelchair = (fila == 0 && (col == 0 || col == numColonne - 1));
+                
+                posti.Add(new SalaPostoDTO
+                {
+                    SalaId = salaId,
+                    Settore = "PLATEA",
+                    Fila = fila + 1,
+                    Numero = col + 1,
+                    PosX = x,
+                    PosY = y,
+                    IsWheelchair = isWheelchair,
+                    IsAttivo = true
+                });
+            }
+        }
+        return new SalaLayoutSaveDTO { Posti = posti };
     }
 
     private async Task ImportaFilmAsync(PopolaResult r, int tmdbId)
