@@ -35,27 +35,31 @@ public class PopolaDbService
         {
             _logger.LogInformation("=== POPOLA DB START ===");
 
-            // 1. Create cinemas
-            await CreaCinemaAsync(result, "Multisala Cityplex", "Via Torino 15", "Milano", "20123");
-            await CreaCinemaAsync(result, "Cinema d'Essai", "Via del Corso 42", "Roma", "00187");
-            await CreaCinemaAsync(result, "Arena Estiva", "Lungomare Caracciolo 1", "Napoli", "80122");
-
-            // 2. Create halls for each cinema
-            var cinemas = await _db.Cinemas.ToListAsync();
-            foreach (var c in cinemas)
+            // 1. Create cinemas (Cinema67 branded + others)
+            var cinemaData = new (string nome, string indirizzo, string citta, string cap, int sale)[]
             {
-                await CreaSaleAsync(result, c.Id, c.Nome.StartsWith("Multisala") ? 6 : c.Nome.StartsWith("Cinema") ? 3 : 2);
-            }
+                ("Cinema67 Milano Duomo",     "Via Torino 15",          "Milano",       "20123", 6),
+                ("Cinema67 Roma Trastevere",  "Viale Trastevere 88",    "Roma",         "00153", 5),
+                ("Cinema67 Napoli Centro",    "Via Toledo 120",         "Napoli",       "80132", 4),
+                ("Cinema67 Firenze",          "Piazza della Signoria 3", "Firenze",      "50122", 3),
+                ("Cinema67 Torino",           "Corso Vittorio Emanuele 45", "Torino",    "10121", 3),
+                ("Cinema67 Bologna",          "Via Indipendenza 12",     "Bologna",      "40121", 3),
+                ("Multisala Cityplex",        "Viale Monza 250",         "Milano",       "20127", 8),
+                ("Cinema d'Essai",            "Via del Corso 42",        "Roma",         "00187", 3),
+                ("Arena Estiva",              "Lungomare Caracciolo 1",  "Napoli",       "80122", 1),
+            };
+            foreach (var (nome, indirizzo, citta, cap, sale) in cinemaData)
+                await CreaCinemaAsync(result, nome, indirizzo, citta, cap, sale);
 
-            // 3. Import LOTS of films from TMDB (popular, top-rated, trending, now-playing)
+            // 2. Import LOTS of films from TMDB (popular, top-rated, trending, now-playing)
             var allTmdbFilms = new List<TmdbFilmDTO>();
             
             // Get 5 pages of popular (100 films)
             for (int p = 1; p <= 5; p++)
                 allTmdbFilms.AddRange(await _tmdb.GetPopularFilmsAsync(p));
             
-            // Get 3 pages of top-rated (60 films)
-            for (int p = 1; p <= 3; p++)
+            // Get 5 pages of top-rated (100 films)
+            for (int p = 1; p <= 5; p++)
                 allTmdbFilms.AddRange(await _tmdb.GetTopRatedFilmsAsync(p));
             
             // Get trending and now-playing
@@ -75,36 +79,43 @@ public class PopolaDbService
                 await ImportaFilmAsync(result, tmdbFilm.Id);
             }
 
-            // 4. Create shows for next 7 days
+            // 3. Create shows for next 7 days - multiple time slots per hall
             var films = await _db.Films.Where(f => f.TmdbId != null).ToListAsync();
             var sale = await _db.Sale.Include(s => s.Cinema).ToListAsync();
             var rng = new Random();
             var now = DateTime.UtcNow.Date.AddDays(1); // start tomorrow
+            var orari = new[] { 14.0, 16.5, 19.0, 21.5 }; // 14:00, 16:30, 19:00, 21:30
 
             for (int day = 0; day < 7; day++)
             {
                 var date = now.AddDays(day);
-                var filmsCopy = films.OrderBy(_ => rng.Next()).Take(sale.Count).ToList();
+                var shuffledFilms = films.OrderBy(_ => rng.Next()).ToList();
                 
-                for (int i = 0; i < filmsCopy.Count; i++)
+                foreach (var s in sale)
                 {
-                    var s = sale[i % sale.Count];
-                    try
+                    // Each hall gets 2-4 shows per day with different films
+                    var numShows = rng.Next(2, 5);
+                    var salaFilms = shuffledFilms.Skip(rng.Next(0, Math.Max(1, shuffledFilms.Count - numShows))).Take(numShows).ToList();
+                    
+                    for (int j = 0; j < salaFilms.Count && j < orari.Length; j++)
                     {
-                        var start = date.AddHours(14 + rng.Next(0, 4) * 3 + rng.NextDouble() * 0.5);
-                        await _show.CreateAsync(new ShowCreateDTO
+                        try
                         {
-                            CinemaId = s.CinemaId,
-                            SalaId = s.Id,
-                            FilmId = filmsCopy[i].Id,
-                            StartAtUtc = start,
-                            PrezzoBase = 7.50m + rng.Next(0, 5)
-                        });
-                        result.SpettacoliCreati++;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Show create skipped for film {FilmId} in sala {SalaId}", filmsCopy[i].Id, s.Id);
+                            var start = date.AddHours(orari[j] + rng.NextDouble() * 0.2);
+                            await _show.CreateAsync(new ShowCreateDTO
+                            {
+                                CinemaId = s.CinemaId,
+                                SalaId = s.Id,
+                                FilmId = salaFilms[j].Id,
+                                StartAtUtc = start,
+                                PrezzoBase = 7.50m + rng.Next(0, 5)
+                            });
+                            result.SpettacoliCreati++;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Show create skipped for film {FilmId} in sala {SalaId}", salaFilms[j].Id, s.Id);
+                        }
                     }
                 }
             }
@@ -120,7 +131,7 @@ public class PopolaDbService
         return result;
     }
 
-    private async Task CreaCinemaAsync(PopolaResult r, string nome, string indirizzo, string citta, string cap)
+    private async Task CreaCinemaAsync(PopolaResult r, string nome, string indirizzo, string citta, string cap, int numSale)
     {
         try
         {
@@ -141,6 +152,9 @@ public class PopolaDbService
             await _db.SaveChangesAsync();
             r.CinemaCreati++;
             r.Log.Add($"✅ Cinema '{nome}' creato.");
+            
+            // Create halls for this cinema
+            await CreaSaleAsync(r, cinema.Id, numSale);
         }
         catch (Exception ex) { r.Errori.Add($"Cinema '{nome}': {ex.Message}"); }
     }
